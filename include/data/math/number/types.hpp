@@ -15,17 +15,17 @@ namespace data::math::number {
 
     // bounded numbers that resemble built-in types, only bigger.
     // satisfies range<word> and integral.
-    template <bool u, endian::order, size_t size, std::unsigned_integral word = byte> struct bounded;
+    template <bool u, endian, size_t size, std::unsigned_integral word = byte> struct bounded;
 
     // an implementation of the natural numbers that is
     // encoded as a big or little endian sequence of bytes.
-    template <endian::order, std::unsigned_integral = byte> struct N_bytes;
+    template <endian, std::unsigned_integral = byte> struct N_bytes;
 
     // similar implementation of the integers. We have two's complement
     // and the sign-and-magnetude system used in Bitcoin. N_bytes works
     // as the absolute value of the two's complement types. Bitcoin numbers
     // work as their own number system without a type for the naturals.
-    template <endian::order, neg, std::unsigned_integral = byte> struct Z_bytes;
+    template <endian, negativity, std::unsigned_integral = byte> struct Z_bytes;
 
     struct N;
     struct Z;
@@ -40,21 +40,21 @@ namespace data {
 
 namespace data::math {
 
-    template <endian::order r, std::unsigned_integral word = byte>
+    template <endian r, std::unsigned_integral word = byte>
     using N_bytes = number::N_bytes<r, word>;
 
-    template <endian::order r, std::unsigned_integral word = byte>
-    using Z_bytes = number::Z_bytes<r, neg::twos, word>;
+    template <endian r, std::unsigned_integral word = byte>
+    using Z_bytes = number::Z_bytes<r, negativity::twos, word>;
 
-    template <endian::order r, std::unsigned_integral word = byte>
-    using Z_bytes_BC = number::Z_bytes<r, neg::BC, word>;
+    template <endian r, std::unsigned_integral word = byte>
+    using Z_bytes_BC = number::Z_bytes<r, negativity::BC, word>;
 
     // satisfies unsigned_integral
-    template <endian::order r, size_t x, std::unsigned_integral word = byte>
+    template <endian r, size_t x, std::unsigned_integral word = byte>
     using uint = number::bounded<false, r, x, word>;
 
     // satisfies signed_integral
-    template <endian::order r, size_t x, std::unsigned_integral word = byte>
+    template <endian r, size_t x, std::unsigned_integral word = byte>
     using sint = number::bounded<true, r, x, word>;
 
     template <size_t size, std::unsigned_integral word = byte>
@@ -76,10 +76,10 @@ namespace data::encoding {
     using N_bytes = math::number::N_bytes<r, word>;
 
     template <endian::order r, std::unsigned_integral word = byte>
-    using Z_bytes = math::number::Z_bytes<r, neg::twos, word>;
+    using Z_bytes = math::number::Z_bytes<r, negativity::twos, word>;
 
     template <endian::order r, std::unsigned_integral word = byte>
-    using Z_bytes_BC = math::number::Z_bytes<r, neg::BC, word>;
+    using Z_bytes_BC = math::number::Z_bytes<r, negativity::BC, word>;
 }
 
 // string encodings.
@@ -113,7 +113,7 @@ namespace data::encoding::decimal {
 namespace data::encoding::signed_decimal {
     constexpr bool valid (string_view s);
 
-    template <endian::order r, neg n, std::unsigned_integral word>
+    template <endian::order r, negativity n, std::unsigned_integral word>
     maybe<math::number::Z_bytes<r, n, word>> read (string_view);
 
     struct string;
@@ -128,10 +128,10 @@ namespace data::encoding::signed_decimal {
     template <endian::order r, size_t x, std::unsigned_integral word>
     string write (const math::sint<r, x, word> &);
 
-    template <endian::order r, neg n, std::unsigned_integral word>
+    template <endian::order r, negativity n, std::unsigned_integral word>
     string write (const math::number::Z_bytes<r, n, word> &);
 
-    template <endian::order r, neg n, std::unsigned_integral word>
+    template <endian::order r, negativity n, std::unsigned_integral word>
     std::ostream inline &write (std::ostream &o, const math::number::Z_bytes<r, n, word> &);
 
 }
@@ -141,20 +141,20 @@ namespace data::encoding::hexidecimal {
 
     template <hex_case zz> struct string;
 
-    template <neg, hex_case> struct integer;
+    template <negativity, hex_case> struct integer;
 
-    template <hex_case zz> integer<neg::nones, zz> write (const N &);
-    template <neg n, hex_case zz> integer<n, zz> write (const Z &);
+    template <hex_case zz> integer<negativity::nones, zz> write (const N &);
+    template <negativity n, hex_case zz> integer<n, zz> write (const Z &);
 
     std::ostream &write (std::ostream &, const N &, hex_case = hex_case::lower);
-    std::ostream &write (std::ostream &, const Z &, hex_case = hex_case::lower, neg = neg::twos);
+    std::ostream &write (std::ostream &, const Z &, hex_case = hex_case::lower, negativity = negativity::twos);
 
     template <hex_case zz> struct string;
 
     template <hex_case zz, endian::order r, std::unsigned_integral word>
-    integer<neg::nones, zz> write (const math::number::N_bytes<r, word> &);
+    integer<negativity::nones, zz> write (const math::number::N_bytes<r, word> &);
 
-    template <hex_case zz, endian::order r, neg n, std::unsigned_integral word>
+    template <hex_case zz, endian::order r, negativity n, std::unsigned_integral word>
     integer<n, zz> write (const math::number::Z_bytes<r, n, word> &);
 
 }
@@ -168,10 +168,10 @@ namespace data::encoding::natural {
 
 namespace data::encoding::integer {
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian::order r, negativity c, std::unsigned_integral word>
     maybe<math::number::Z_bytes<r, c, word>> read (string_view s);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian::order r, negativity c, std::unsigned_integral word>
     std::ostream &write (std::ostream &, const math::number::Z_bytes<r, c, word> &);
 
 }
@@ -185,43 +185,43 @@ namespace data::math::number {
     std::istream &operator >> (std::istream &i, Z &z);
     std::istream &operator >> (std::istream &i, N &n);
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     std::ostream &operator << (std::ostream &o, const N_bytes<r, word> &n);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     std::ostream &operator << (std::ostream &o, const Z_bytes<r, c, word> &n);
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     std::istream &operator >> (std::istream &o, N_bytes<r, word> &n);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     std::istream &operator >> (std::istream &o, Z_bytes<r, c, word> &n);
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     writer<word> &operator << (writer<word> &o, const N_bytes<r, word> &n);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     writer<word> &operator << (writer<word> &o, const Z_bytes<r, c, word> &n);
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     reader<word> &operator >> (reader<word> &o, N_bytes<r, word> &n);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     reader<word> &operator >> (reader<word> &o, Z_bytes<r, c, word> &n);
 
-    template <data::endian::order r, size_t x, std::unsigned_integral word>
+    template <data::endian r, size_t x, std::unsigned_integral word>
     std::ostream &operator << (std::ostream &s, const uint<r, x, word> &n);
 
-    template <data::endian::order r, size_t x, std::unsigned_integral word>
+    template <data::endian r, size_t x, std::unsigned_integral word>
     std::ostream &operator << (std::ostream &s, const sint<r, x, word> &n);
 
-    template <bool u, data::endian::order r, size_t x, std::unsigned_integral word>
+    template <bool u, data::endian r, size_t x, std::unsigned_integral word>
     std::istream &operator >> (std::istream &i, const bounded<u, r, x, word> &n);
 
-    template <bool u, data::endian::order r, size_t x, std::unsigned_integral word>
+    template <bool u, data::endian r, size_t x, std::unsigned_integral word>
     writer<word> &operator << (writer<word> &o, const bounded<u, r, x, word> &n);
 
-    template <bool u, data::endian::order r, size_t x, std::unsigned_integral word>
+    template <bool u, data::endian r, size_t x, std::unsigned_integral word>
     reader<word> &operator >> (reader<word> &o, const bounded<u, r, x, word> &n);
 
     // increment and decrement.
@@ -255,79 +255,79 @@ namespace data::math::number {
     };
 
     //pre increment and decrement
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     N_bytes<r, word> &operator ++ (N_bytes<r, word> &);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     Z_bytes<r, c, word> &operator ++ (Z_bytes<r, c, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     N_bytes<r, word> &operator -- (N_bytes<r, word> &);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     Z_bytes<r, c, word> &operator -- (Z_bytes<r, c, word> &);
 
     // post-increment and decrement
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     N_bytes<r, word> operator ++ (N_bytes<r, word> &, int);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     Z_bytes<r, c, word> operator ++ (Z_bytes<r, c, word> &, int);
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     N_bytes<r, word> operator -- (N_bytes<r, word> &, int);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     Z_bytes<r, c, word> operator -- (Z_bytes<r, c, word> &, int);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     struct increment<Z_bytes<r, c, word>> {
         Z_bytes<r, c, word> operator () (const Z_bytes<r, c, word> &);
     };
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     struct decrement<Z_bytes<r, c, word>> {
         Z_bytes<r, c, word> operator () (const Z_bytes<r, c, word> &);
     };
 
-    template <endian::order r, std::unsigned_integral word> struct increment<N_bytes<r, word>> {
+    template <endian r, std::unsigned_integral word> struct increment<N_bytes<r, word>> {
         nonzero<N_bytes<r, word>> operator () (const N_bytes<r, word> &);
     };
 
-    template <endian::order r, std::unsigned_integral word> struct decrement<N_bytes<r, word>> {
+    template <endian r, std::unsigned_integral word> struct decrement<N_bytes<r, word>> {
         N_bytes<r, word> operator () (const nonzero<N_bytes<r, word>> &);
         N_bytes<r, word> operator () (const N_bytes<r, word> &);
     };
 
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word>
+    template <bool u, endian r, size_t size, std::unsigned_integral word>
     constexpr bounded<u, r, size, word> operator ++ (bounded<u, r, size, word> &, int);
 
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word>
+    template <bool u, endian r, size_t size, std::unsigned_integral word>
     constexpr bounded<u, r, size, word> &operator ++ (bounded<u, r, size, word> &);
 
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word>
+    template <bool u, endian r, size_t size, std::unsigned_integral word>
     constexpr bounded<u, r, size, word> operator -- (bounded<u, r, size, word> &, int);
 
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word>
+    template <bool u, endian r, size_t size, std::unsigned_integral word>
     constexpr bounded<u, r, size, word> &operator -- (bounded<u, r, size, word> &);
 
-    template <endian::order r, size_t x, std::unsigned_integral word>
+    template <endian r, size_t x, std::unsigned_integral word>
     struct increment<uint<r, x, word>> {
         constexpr nonzero<uint<r, x, word>> operator () (const uint<r, x, word> &);
     };
 
-    template <endian::order r, size_t x, std::unsigned_integral word>
+    template <endian r, size_t x, std::unsigned_integral word>
     struct decrement<uint<r, x, word>> {
         constexpr uint<r, x, word> operator () (const nonzero<uint<r, x, word>> &);
         constexpr uint<r, x, word> operator () (const uint<r, x, word> &);
     };
 
-    template <endian::order r, size_t x, std::unsigned_integral word>
+    template <endian r, size_t x, std::unsigned_integral word>
     struct increment<sint<r, x, word>> {
         constexpr sint<r, x, word> operator () (const sint<r, x, word> &);
     };
 
-    template <endian::order r, size_t x, std::unsigned_integral word>
+    template <endian r, size_t x, std::unsigned_integral word>
     struct decrement<sint<r, x, word>> {
         constexpr sint<r, x, word> operator () (const sint<r, x, word> &);
     };
@@ -336,36 +336,36 @@ namespace data::math::number {
 // signed versus unsigned.
 namespace data {
 
-    template <endian::order r, size_t x, std::unsigned_integral word>
+    template <endian r, size_t x, std::unsigned_integral word>
     struct make_unsigned<math::uint<r, x, word>> {
         using type = math::uint<r, x, word>;
     };
 
-    template <endian::order r, size_t x, std::unsigned_integral word>
+    template <endian r, size_t x, std::unsigned_integral word>
     struct make_signed<math::uint<r, x, word>> {
         using type = math::sint<r, x, word>;
     };
 
-    template <endian::order r, size_t x, std::unsigned_integral word>
+    template <endian r, size_t x, std::unsigned_integral word>
     struct make_unsigned<math::sint<r, x, word>> {
         using type = math::uint<r, x, word>;
     };
 
-    template <endian::order r, size_t x, std::unsigned_integral word>
+    template <endian r, size_t x, std::unsigned_integral word>
     struct make_signed<math::sint<r, x, word>> {
         using type = math::sint<r, x, word>;
     };
 
-    template <endian::order a, std::unsigned_integral word>
+    template <endian a, std::unsigned_integral word>
     struct make_signed<math::Z_bytes_BC<a, word>> {
         using type = math::Z_bytes_BC<a, word>;
     };
 
-    template <endian::order a, endian::order b, std::unsigned_integral word>
+    template <endian a, endian b, std::unsigned_integral word>
     bool identical (const math::number::N_bytes<a, word> &, const math::number::N_bytes<b, word> &);
 
-    template <endian::order a, neg b, endian::order c, neg d, std::unsigned_integral word>
-    bool identical (const math::number::Z_bytes<a, b, word> &, const math::number::Z_bytes<c, d, word> &);
+    template <endian a, negativity nb, endian c, negativity nd, std::unsigned_integral word>
+    bool identical (const math::number::Z_bytes<a, nb, word> &, const math::number::Z_bytes<c, nd, word> &);
 
 }
 
@@ -383,88 +383,88 @@ namespace data::math::number {
     std::strong_ordering operator <=> (const N &, const N &);
 
     // N_bytes, Z_bytes
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     bool operator == (const N_bytes<r, word> &, const N_bytes<r, word> &);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     bool operator == (const Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
 
-    template <endian::order r, neg cl, neg cr, std::unsigned_integral word>
+    template <endian r, negativity cl, negativity cr, std::unsigned_integral word>
     bool operator == (const Z_bytes<r, cl, word> &, const Z_bytes<r, cr, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     std::weak_ordering operator <=> (const N_bytes<r, word> &, const N_bytes<r, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const Z_bytes<r, neg::twos, word> &, const Z_bytes<r, neg::twos, word> &);
+    template <endian r, std::unsigned_integral word>
+    std::weak_ordering operator <=> (const Z_bytes<r, negativity::twos, word> &, const Z_bytes<r, negativity::twos, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const Z_bytes<r, neg::BC, word> &, const Z_bytes<r, neg::BC, word> &);
+    template <endian r, std::unsigned_integral word>
+    std::weak_ordering operator <=> (const Z_bytes<r, negativity::BC, word> &, const Z_bytes<r, negativity::BC, word> &);
 
-    template <endian::order r, neg cl, neg cr, std::unsigned_integral word>
+    template <endian r, negativity cl, negativity cr, std::unsigned_integral word>
     std::weak_ordering operator <=> (const Z_bytes<r, cl, word> &, const Z_bytes<r, cl, word> &);
 
     // bounded
-    template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
+    template <bool x, endian r, size_t n, bool y, endian o, size_t z, std::unsigned_integral word>
     constexpr bool operator == (const bounded<x, r, n, word> &, const bounded<y, o, z, word> &);
 
-    template <endian::order r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, std::unsigned_integral word>
     constexpr std::strong_ordering operator <=> (const sint<r, size, word> &, const sint<r, size, word> &);
 
-    template <endian::order r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, std::unsigned_integral word>
     constexpr std::strong_ordering operator <=> (const uint<r, size, word> &, const uint<r, size, word> &);
 
-    template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
+    template <bool x, endian r, size_t n, bool y, endian o, size_t z, std::unsigned_integral word>
     constexpr std::strong_ordering operator <=> (const bounded<x, r, n, word> &, const bounded<y, o, z, word> &);
 
     // comparisons of N/Z with N_bytes/Z_bytes and bounded types.
-    template <endian::order r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, std::unsigned_integral word>
     bool operator == (const Z &, const sint<r, size, word> &);
 
-    template <endian::order r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, std::unsigned_integral word>
     std::strong_ordering operator <=> (const Z &, const sint<r, size, word> &);
 
-    template <endian::order r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, std::unsigned_integral word>
     bool operator == (const N &, const uint<r, size, word> &);
 
-    template <endian::order r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, std::unsigned_integral word>
     std::strong_ordering operator <=> (const N &, const uint<r, size, word> &);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     bool operator == (const Z &, const Z_bytes<r, c, word> &);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     std::strong_ordering operator <=> (const Z &, const Z_bytes<r, c, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     bool operator == (const N &, const N_bytes<r, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     std::strong_ordering operator <=> (const N &, const N_bytes<r, word> &);
 
     // Equality of _bytes types with bounded
-    template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
-    bool operator == (const sint<r, size, word> &, const Z_bytes<o, neg::twos, word> &);
+    template <endian r, size_t size, endian o, std::unsigned_integral word>
+    bool operator == (const sint<r, size, word> &, const Z_bytes<o, negativity::twos, word> &);
 
-    template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
-    std::weak_ordering operator <=> (const sint<r, size, word> &, const Z_bytes<o, neg::twos, word> &);
+    template <endian r, size_t size, endian o, std::unsigned_integral word>
+    std::weak_ordering operator <=> (const sint<r, size, word> &, const Z_bytes<o, negativity::twos, word> &);
 
-    template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
+    template <endian r, size_t size, endian o, std::unsigned_integral word>
     bool operator == (const uint<r, size, word> &, const N_bytes<o, word> &);
 
-    template <endian::order r, size_t size, endian::order o, std::unsigned_integral word>
+    template <endian r, size_t size, endian o, std::unsigned_integral word>
     std::weak_ordering operator <=> (const uint<r, size, word> &, const N_bytes<o, word> &);
 
-    template <endian::order r, size_t size, std::unsigned_integral word,
-    endian::order o, neg neg, std::unsigned_integral w>
+    template <endian r, size_t size, std::unsigned_integral word,
+    endian o, negativity neg, std::unsigned_integral w>
     std::weak_ordering operator <=> (const uint<r, size, word> &, const Z_bytes<o, neg, w> &);
 
     // comparisons with endian integral types.
-    template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
-    constexpr bool operator == (const bounded<x, r, n, word> &, const endian::integral<y, o, z> &);
+    template <bool x, endian r, size_t n, bool y, endian o, size_t z, std::unsigned_integral word>
+    constexpr bool operator == (const bounded<x, r, n, word> &, const endian_integral<y, o, z> &);
 
-    template <bool x, endian::order r, size_t n, bool y, endian::order o, size_t z, std::unsigned_integral word>
-    constexpr std::strong_ordering operator <=> (const bounded<x, r, n, word> &, const endian::integral<y, o, z> &);
+    template <bool x, endian r, size_t n, bool y, endian o, size_t z, std::unsigned_integral word>
+    constexpr std::strong_ordering operator <=> (const bounded<x, r, n, word> &, const endian_integral<y, o, z> &);
 
     // comparisons with built-in types.
     template <std::integral I> bool operator == (const N &, I);
@@ -476,22 +476,22 @@ namespace data::math::number {
     template <std::integral I> std::strong_ordering operator <=> (const Z &, I);
 
     // TODO: these ought to use a std::integral type parameter.
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     bool operator == (const N_bytes<r, word> &, uint64);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     bool operator == (const Z_bytes<r, c, word> &, int64);
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     std::weak_ordering operator <=> (const N_bytes<r, word> &, uint64);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     std::weak_ordering operator <=> (const Z_bytes<r, c, word> &, int64);
 
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    template <bool u, endian r, size_t size, std::unsigned_integral word, std::integral I>
     constexpr bool operator == (const bounded<u, r, size, word> &, I);
 
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word, std::integral I>
+    template <bool u, endian r, size_t size, std::unsigned_integral word, std::integral I>
     constexpr std::strong_ordering operator <=> (const bounded<u, r, size, word> &, I x);
 
     /*************************************************************/
@@ -545,224 +545,224 @@ namespace data::math::number {
     N &operator >>= (N &, int);
 
     // bit operations for bounded types.
-    template <bool u, endian::order r, size_t x, std::unsigned_integral word>
+    template <bool u, endian r, size_t x, std::unsigned_integral word>
     constexpr bounded<u, r, x, word> operator ~ (const bounded<u, r, x, word> &);
 
-    template <bool u, endian::order r, size_t x, std::unsigned_integral word>
+    template <bool u, endian r, size_t x, std::unsigned_integral word>
     constexpr bounded<u, r, x, word> operator ^ (const bounded<u, r, x, word> &, const bounded<u, r, x, word> &);
 
-    template <bool u, endian::order r, size_t x, std::unsigned_integral word>
+    template <bool u, endian r, size_t x, std::unsigned_integral word>
     constexpr bounded<u, r, x, word> operator & (const bounded<u, r, x, word> &, const bounded<u, r, x, word> &);
 
-    template <bool u, endian::order r, size_t x, std::unsigned_integral word>
+    template <bool u, endian r, size_t x, std::unsigned_integral word>
     constexpr bounded<u, r, x, word> operator | (const bounded<u, r, x, word> &, const bounded<u, r, x, word> &);
 
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word>
+    template <bool u, endian r, size_t size, std::unsigned_integral word>
     constexpr bounded<u, r, size, word> operator << (const bounded<u, r, size, word> &, int);
 
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word>
+    template <bool u, endian r, size_t size, std::unsigned_integral word>
     constexpr bounded<u, r, size, word> operator >> (const bounded<u, r, size, word> &, int);
 
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word>
+    template <bool u, endian r, size_t size, std::unsigned_integral word>
     constexpr bounded<u, r, size, word> &operator &= (bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
 
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word>
+    template <bool u, endian r, size_t size, std::unsigned_integral word>
     constexpr bounded<u, r, size, word> &operator |= (bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
 
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word>
+    template <bool u, endian r, size_t size, std::unsigned_integral word>
     constexpr bounded<u, r, size, word> &operator ^= (bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
 
-    template <endian::order r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, std::unsigned_integral word>
     constexpr uint<r, size, word> &operator &= (uint<r, size, word> &, const sint<r, size, word> &);
 
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word>
+    template <bool u, endian r, size_t size, std::unsigned_integral word>
     constexpr uint<r, size, word> &operator |= (uint<r, size, word> &, const sint<r, size, word> &);
 
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word>
+    template <bool u, endian r, size_t size, std::unsigned_integral word>
     constexpr uint<r, size, word> &operator ^= (uint<r, size, word> &, const sint<r, size, word> &);
 
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word>
+    template <bool u, endian r, size_t size, std::unsigned_integral word>
     constexpr bounded<u, r, size, word> &operator <<= (bounded<u, r, size, word> &, int);
 
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word>
+    template <bool u, endian r, size_t size, std::unsigned_integral word>
     constexpr bounded<u, r, size, word> &operator >>= (bounded<u, r, size, word> &, int);
 
     // bit negate
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator ~ (const N_bytes<r, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator ~ (const N_bytes<r, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator ~ (const Z_bytes<r, neg::twos, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator ~ (const Z_bytes<r, negativity::twos, word> &);
 
     // bit xor
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     N_bytes<r, word> operator ^ (const N_bytes<r, word> &, const N_bytes<r, word> &);
 
-    template <endian::order r, std::unsigned_integral word, std::unsigned_integral I>
+    template <endian r, std::unsigned_integral word, std::unsigned_integral I>
     N_bytes<r, word> operator ^ (const N_bytes<r, word> &, I x);
 
-    template <std::unsigned_integral I, endian::order r, std::unsigned_integral word>
+    template <std::unsigned_integral I, endian r, std::unsigned_integral word>
     N_bytes<r, word> operator ^ (I x, const N_bytes<r, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     N_bytes<r, word> &operator ^= (N_bytes<r, word> &, const N_bytes<r, word> &);
 
-    template <endian::order r, std::unsigned_integral word, std::unsigned_integral I>
+    template <endian r, std::unsigned_integral word, std::unsigned_integral I>
     N_bytes<r, word> &operator ^= (N_bytes<r, word> &, I x);
 
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator ^
-    (const Z_bytes<r, neg::twos, word> &, const Z_bytes<r, neg::twos, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator ^
+    (const Z_bytes<r, negativity::twos, word> &, const Z_bytes<r, negativity::twos, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> &operator ^=
-    (Z_bytes<r, neg::twos, word> &, const Z_bytes<r, neg::twos, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> &operator ^=
+    (Z_bytes<r, negativity::twos, word> &, const Z_bytes<r, negativity::twos, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator ^ (const Z_bytes<r, neg::twos, word> &, const N_bytes<r, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator ^ (const Z_bytes<r, negativity::twos, word> &, const N_bytes<r, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator ^ (const N_bytes<r, word> &, const Z_bytes<r, neg::twos, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator ^ (const N_bytes<r, word> &, const Z_bytes<r, negativity::twos, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> &operator ^=
-    (Z_bytes<r, neg::twos, word> &, const N_bytes<r, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> &operator ^=
+    (Z_bytes<r, negativity::twos, word> &, const N_bytes<r, word> &);
 
-    template <endian::order r, std::unsigned_integral word, std::integral I>
-    Z_bytes<r, neg::twos, word> operator ^ (const Z_bytes<r, neg::twos, word> &, I x);
+    template <endian r, std::unsigned_integral word, std::integral I>
+    Z_bytes<r, negativity::twos, word> operator ^ (const Z_bytes<r, negativity::twos, word> &, I x);
 
-    template <std::integral I, endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator ^ (I x, const Z_bytes<r, neg::twos, word> &);
+    template <std::integral I, endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator ^ (I x, const Z_bytes<r, negativity::twos, word> &);
 
-    template <endian::order r, std::unsigned_integral word, std::integral I>
-    Z_bytes<r, neg::twos, word> &operator ^= (Z_bytes<r, neg::twos, word> &, I x);
+    template <endian r, std::unsigned_integral word, std::integral I>
+    Z_bytes<r, negativity::twos, word> &operator ^= (Z_bytes<r, negativity::twos, word> &, I x);
 
     // bit and
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     N_bytes<r, word> operator & (const N_bytes<r, word> &, const N_bytes<r, word> &);
 
-    template <endian::order r, std::unsigned_integral word, std::unsigned_integral I>
+    template <endian r, std::unsigned_integral word, std::unsigned_integral I>
     N_bytes<r, word> operator & (const N_bytes<r, word> &, I x);
 
-    template <std::unsigned_integral I, endian::order r, std::unsigned_integral word>
+    template <std::unsigned_integral I, endian r, std::unsigned_integral word>
     N_bytes<r, word> operator & (I x, const N_bytes<r, word> &);
 
-    template <endian::order r, std::unsigned_integral word, std::signed_integral I>
-    Z_bytes<r, neg::twos, word> operator & (const N_bytes<r, word> &, I x);
+    template <endian r, std::unsigned_integral word, std::signed_integral I>
+    Z_bytes<r, negativity::twos, word> operator & (const N_bytes<r, word> &, I x);
 
-    template <std::signed_integral I, endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator & (I x, const N_bytes<r, word> &);
+    template <std::signed_integral I, endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator & (I x, const N_bytes<r, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     N_bytes<r, word> &operator &= (N_bytes<r, word> &, const N_bytes<r, word> &);
 
-    template <endian::order r, std::unsigned_integral word, std::unsigned_integral I>
+    template <endian r, std::unsigned_integral word, std::unsigned_integral I>
     N_bytes<r, word> &operator &= (N_bytes<r, word> &, I x);
 
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator &
-    (const Z_bytes<r, neg::twos, word> &, const Z_bytes<r, neg::twos, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator &
+    (const Z_bytes<r, negativity::twos, word> &, const Z_bytes<r, negativity::twos, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> &operator &=
-    (Z_bytes<r, neg::twos, word> &, const Z_bytes<r, neg::twos, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> &operator &=
+    (Z_bytes<r, negativity::twos, word> &, const Z_bytes<r, negativity::twos, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator & (const Z_bytes<r, neg::twos, word> &, const N_bytes<r, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator & (const Z_bytes<r, negativity::twos, word> &, const N_bytes<r, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator & (const N_bytes<r, word> &, const Z_bytes<r, neg::twos, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator & (const N_bytes<r, word> &, const Z_bytes<r, negativity::twos, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> &operator &=
-    (Z_bytes<r, neg::twos, word> &, const N_bytes<r, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> &operator &=
+    (Z_bytes<r, negativity::twos, word> &, const N_bytes<r, word> &);
 
-    template <endian::order r, std::unsigned_integral word, std::integral I>
-    Z_bytes<r, neg::twos, word> operator & (const Z_bytes<r, neg::twos, word> &, I x);
+    template <endian r, std::unsigned_integral word, std::integral I>
+    Z_bytes<r, negativity::twos, word> operator & (const Z_bytes<r, negativity::twos, word> &, I x);
 
-    template <std::integral I, endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator & (I x, const Z_bytes<r, neg::twos, word> &);
+    template <std::integral I, endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator & (I x, const Z_bytes<r, negativity::twos, word> &);
 
-    template <endian::order r, std::unsigned_integral word, std::integral I>
-    Z_bytes<r, neg::twos, word> &operator &= (Z_bytes<r, neg::twos, word> &, I x);
+    template <endian r, std::unsigned_integral word, std::integral I>
+    Z_bytes<r, negativity::twos, word> &operator &= (Z_bytes<r, negativity::twos, word> &, I x);
 
     // bit or
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     N_bytes<r, word> operator | (const N_bytes<r, word> &, const N_bytes<r, word> &);
 
-    template <endian::order r, std::unsigned_integral word, std::unsigned_integral I>
+    template <endian r, std::unsigned_integral word, std::unsigned_integral I>
     N_bytes<r, word> operator | (const N_bytes<r, word> &, I x);
 
-    template <std::unsigned_integral I, endian::order r, std::unsigned_integral word>
+    template <std::unsigned_integral I, endian r, std::unsigned_integral word>
     N_bytes<r, word> operator | (I x, const N_bytes<r, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     N_bytes<r, word> &operator |= (N_bytes<r, word> &, const N_bytes<r, word> &);
 
-    template <endian::order r, std::unsigned_integral word, std::unsigned_integral I>
+    template <endian r, std::unsigned_integral word, std::unsigned_integral I>
     N_bytes<r, word> &operator |= (N_bytes<r, word> &, I x);
 
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator |
-    (const Z_bytes<r, neg::twos, word> &, const Z_bytes<r, neg::twos, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator |
+    (const Z_bytes<r, negativity::twos, word> &, const Z_bytes<r, negativity::twos, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> &operator |=
-    (Z_bytes<r, neg::twos, word> &, const Z_bytes<r, neg::twos, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> &operator |=
+    (Z_bytes<r, negativity::twos, word> &, const Z_bytes<r, negativity::twos, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator | (const Z_bytes<r, neg::twos, word> &, const N_bytes<r, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator | (const Z_bytes<r, negativity::twos, word> &, const N_bytes<r, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator | (const N_bytes<r, word> &, const Z_bytes<r, neg::twos, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator | (const N_bytes<r, word> &, const Z_bytes<r, negativity::twos, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> &operator |=
-    (Z_bytes<r, neg::twos, word> &, const N_bytes<r, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> &operator |=
+    (Z_bytes<r, negativity::twos, word> &, const N_bytes<r, word> &);
 
-    template <endian::order r, std::unsigned_integral word, std::integral I>
-    Z_bytes<r, neg::twos, word> operator | (const Z_bytes<r, neg::twos, word> &, I x);
+    template <endian r, std::unsigned_integral word, std::integral I>
+    Z_bytes<r, negativity::twos, word> operator | (const Z_bytes<r, negativity::twos, word> &, I x);
 
-    template <std::integral I, endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::twos, word> operator | (I x, const Z_bytes<r, neg::twos, word> &);
+    template <std::integral I, endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator | (I x, const Z_bytes<r, negativity::twos, word> &);
 
-    template <endian::order r, std::unsigned_integral word, std::integral I>
-    Z_bytes<r, neg::twos, word> &operator |= (Z_bytes<r, neg::twos, word> &, I x);
+    template <endian r, std::unsigned_integral word, std::integral I>
+    Z_bytes<r, negativity::twos, word> &operator |= (Z_bytes<r, negativity::twos, word> &, I x);
 
     // bit shift
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     N_bytes<r, word> operator << (const N_bytes<r, word> &, int);
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     N_bytes<r, word> operator >> (const N_bytes<r, word> &, int);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     Z_bytes<r, c, word> operator << (const Z_bytes<r, c, word> &, int);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     Z_bytes<r, c, word> operator >> (const Z_bytes<r, c, word> &, int);
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     N_bytes<r, word> &operator <<= (N_bytes<r, word> &, int64);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     Z_bytes<r, c, word> &operator <<= (Z_bytes<r, c, word> &, int64);
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     N_bytes<r, word> &operator >>= (N_bytes<r, word> &, int64);
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     Z_bytes<r, c, word> &operator >>= (Z_bytes<r, c, word> &, int64);
 
     // logical (only for Bitcoin style numbers)
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::BC, word> operator ! (const Z_bytes<r, neg::BC, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::BC, word> operator ! (const Z_bytes<r, negativity::BC, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::BC, word> operator && (const Z_bytes<r, neg::BC, word> &, const Z_bytes<r, neg::BC, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::BC, word> operator && (const Z_bytes<r, negativity::BC, word> &, const Z_bytes<r, negativity::BC, word> &);
 
-    template <endian::order r, std::unsigned_integral word>
-    Z_bytes<r, neg::BC, word> operator || (const Z_bytes<r, neg::BC, word> &, const Z_bytes<r, neg::BC, word> &);
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::BC, word> operator || (const Z_bytes<r, negativity::BC, word> &, const Z_bytes<r, negativity::BC, word> &);
 
 
     /*************************************************************/
@@ -922,7 +922,7 @@ namespace data::math::def {
         N operator () (const Z &x, const Exp &y, const nonzero<N> &z);
     };
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     struct convert<number::Z_bytes<r, c, word>, Z> {
         number::Z_bytes<r, c, word> operator () (const Z &) const;
     };

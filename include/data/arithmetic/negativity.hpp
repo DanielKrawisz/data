@@ -37,7 +37,7 @@ namespace data::arithmetic {
 }
 
 namespace data {
-    using neg = arithmetic::negativity;
+    using negativity = arithmetic::negativity;
 
     template <typename X> constexpr bool is_negative_zero (const X &x);
     template <typename X> constexpr bool is_positive_zero (const X &x);

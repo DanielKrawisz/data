@@ -538,8 +538,8 @@ namespace data {
         EXPECT_EQ (N {0} * N {2}, N {0});
         EXPECT_EQ (N {2} * N {0}, N {0});
         EXPECT_EQ (N {1} * N {1}, N {1});
-        EXPECT_EQ (N {1} * N {2}, N {0});
-        EXPECT_EQ (N {2} * N {1}, N {0});
+        EXPECT_EQ (N {1} * N {2}, N {2});
+        EXPECT_EQ (N {2} * N {1}, N {2});
     }
 
     TYPED_TEST (Numbers, IncrementIsOne) {
@@ -749,12 +749,12 @@ namespace data {
 
     TYPED_TEST (BigNumbers, ModByZero) {
         using N = typename TestFixture::N;
-        EXPECT_THROW (N {1} % abs (N {0}), math::non_positive_mod);
+        EXPECT_THROW (N {1} % abs (N {0}), math::division_by_zero);
     }
 
     TYPED_TEST (Numbers, ModByZero) {
         using N = typename TestFixture::N;
-        EXPECT_THROW ((mod (N {1}, math::nonzero {abs (N {0})})), math::non_positive_mod);
+        EXPECT_THROW ((mod (N {1}, math::nonzero {abs (N {0})})), math::division_by_zero);
     }
 
     TYPED_TEST (Integers, NoNegativePowers) {
@@ -830,6 +830,9 @@ namespace data {
         EXPECT_EQ ((mod (N {23}, math::nonzero {N {5}})), N {3});
     }
 
-    // TODO power throws for negative values.
+    TYPED_TEST (Integers, Power) {
+        using N = typename TestFixture::Z;
+        EXPECT_THROW ((pow (Z {1}, -Z {3})), math::negative_power);
+    }
 
 }

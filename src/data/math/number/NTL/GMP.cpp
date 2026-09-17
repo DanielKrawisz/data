@@ -106,7 +106,7 @@ namespace data::math::number::NTL {
 
         N abs = data::abs (n);
         maybe<ZZ> zz_root = GMP_root (abs.Value, p);
-        if (zz_root) return is_negative (n) ? set<Z> {-Z (*zz_root)}: set<Z> {Z (*zz_root)};
+        if (zz_root) return data::is_negative (n) ? set<Z> {-Z (*zz_root)}: set<Z> {Z (*zz_root)};
         return {};
 
     }

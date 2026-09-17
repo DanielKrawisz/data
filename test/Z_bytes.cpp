@@ -222,89 +222,89 @@ namespace data {
         EXPECT_EQ (Z_bytes_BC_big {Z::read ("-3393939987200333")}, Z_bytes_big::read ("-3393939987200333"));
         EXPECT_EQ (Z_bytes_BC_little {Z::read ("-3393939987200333")}, Z_bytes_little::read ("-3393939987200333"));
 
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::twos, uint16> {Z::read ("1")}),
-            (math::number::Z_bytes<endian::big, neg::twos, uint16>::read ("1")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::twos, uint16> {Z::read ("1")}),
-            (math::number::Z_bytes<endian::little, neg::twos, uint16>::read ("1")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::twos, uint16> {Z::read ("23")}),
-            (math::number::Z_bytes<endian::big, neg::twos, uint16>::read ("23")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::twos, uint16> {Z::read ("23")}),
-            (math::number::Z_bytes<endian::little, neg::twos, uint16>::read ("23")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::twos, uint16> {Z::read ("5704566599993321")}),
-            (math::number::Z_bytes<endian::big, neg::twos, uint16>::read ("5704566599993321")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::twos, uint16> {Z::read ("5704566599993321")}),
-            (math::number::Z_bytes<endian::little, neg::twos, uint16>::read ("5704566599993321")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::twos, uint16> {Z::read ("-1")}),
-            (math::number::Z_bytes<endian::big, neg::twos, uint16>::read ("-1")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::twos, uint16> {Z::read ("-1")}),
-            (math::number::Z_bytes<endian::little, neg::twos, uint16>::read ("-1")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::twos, uint16> {Z::read ("-3393939987200333")}),
-            (math::number::Z_bytes<endian::big, neg::twos, uint16>::read ("-3393939987200333")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::twos, uint16> {Z::read ("-3393939987200333")}),
-            (math::number::Z_bytes<endian::little, neg::twos, uint16>::read ("-3393939987200333")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::twos, uint16> {Z::read ("1")}),
+            (math::number::Z_bytes<endian::big, negativity::twos, uint16>::read ("1")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::twos, uint16> {Z::read ("1")}),
+            (math::number::Z_bytes<endian::little, negativity::twos, uint16>::read ("1")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::twos, uint16> {Z::read ("23")}),
+            (math::number::Z_bytes<endian::big, negativity::twos, uint16>::read ("23")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::twos, uint16> {Z::read ("23")}),
+            (math::number::Z_bytes<endian::little, negativity::twos, uint16>::read ("23")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::twos, uint16> {Z::read ("5704566599993321")}),
+            (math::number::Z_bytes<endian::big, negativity::twos, uint16>::read ("5704566599993321")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::twos, uint16> {Z::read ("5704566599993321")}),
+            (math::number::Z_bytes<endian::little, negativity::twos, uint16>::read ("5704566599993321")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::twos, uint16> {Z::read ("-1")}),
+            (math::number::Z_bytes<endian::big, negativity::twos, uint16>::read ("-1")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::twos, uint16> {Z::read ("-1")}),
+            (math::number::Z_bytes<endian::little, negativity::twos, uint16>::read ("-1")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::twos, uint16> {Z::read ("-3393939987200333")}),
+            (math::number::Z_bytes<endian::big, negativity::twos, uint16>::read ("-3393939987200333")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::twos, uint16> {Z::read ("-3393939987200333")}),
+            (math::number::Z_bytes<endian::little, negativity::twos, uint16>::read ("-3393939987200333")));
 
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::BC, uint16> {Z::read ("1")}),
-            (math::number::Z_bytes<endian::big, neg::BC, uint16>::read ("1")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::BC, uint16> {Z::read ("1")}),
-            (math::number::Z_bytes<endian::little, neg::BC, uint16>::read ("1")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::BC, uint16> {Z::read ("23")}),
-            (math::number::Z_bytes<endian::big, neg::BC, uint16>::read ("23")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::BC, uint16> {Z::read ("23")}),
-            (math::number::Z_bytes<endian::little, neg::BC, uint16>::read ("23")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::BC, uint16> {Z::read ("5704566599993321")}),
-            (math::number::Z_bytes<endian::big, neg::BC, uint16>::read ("5704566599993321")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::BC, uint16> {Z::read ("5704566599993321")}),
-            (math::number::Z_bytes<endian::little, neg::BC, uint16>::read ("5704566599993321")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::BC, uint16> {Z::read ("-1")}),
-            (math::number::Z_bytes<endian::big, neg::BC, uint16>::read ("-1")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::BC, uint16> {Z::read ("-1")}),
-            (math::number::Z_bytes<endian::little, neg::BC, uint16>::read ("-1")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::BC, uint16> {Z::read ("-3393939987200333")}),
-            (math::number::Z_bytes<endian::big, neg::BC, uint16>::read ("-3393939987200333")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::BC, uint16> {Z::read ("-3393939987200333")}),
-            (math::number::Z_bytes<endian::little, neg::BC, uint16>::read ("-3393939987200333")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::BC, uint16> {Z::read ("1")}),
+            (math::number::Z_bytes<endian::big, negativity::BC, uint16>::read ("1")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::BC, uint16> {Z::read ("1")}),
+            (math::number::Z_bytes<endian::little, negativity::BC, uint16>::read ("1")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::BC, uint16> {Z::read ("23")}),
+            (math::number::Z_bytes<endian::big, negativity::BC, uint16>::read ("23")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::BC, uint16> {Z::read ("23")}),
+            (math::number::Z_bytes<endian::little, negativity::BC, uint16>::read ("23")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::BC, uint16> {Z::read ("5704566599993321")}),
+            (math::number::Z_bytes<endian::big, negativity::BC, uint16>::read ("5704566599993321")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::BC, uint16> {Z::read ("5704566599993321")}),
+            (math::number::Z_bytes<endian::little, negativity::BC, uint16>::read ("5704566599993321")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::BC, uint16> {Z::read ("-1")}),
+            (math::number::Z_bytes<endian::big, negativity::BC, uint16>::read ("-1")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::BC, uint16> {Z::read ("-1")}),
+            (math::number::Z_bytes<endian::little, negativity::BC, uint16>::read ("-1")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::BC, uint16> {Z::read ("-3393939987200333")}),
+            (math::number::Z_bytes<endian::big, negativity::BC, uint16>::read ("-3393939987200333")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::BC, uint16> {Z::read ("-3393939987200333")}),
+            (math::number::Z_bytes<endian::little, negativity::BC, uint16>::read ("-3393939987200333")));
 
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::twos, uint16> {Z::read ("1")}),
-            (math::number::Z_bytes<endian::big, neg::twos, uint16>::read ("1")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::twos, uint16> {Z::read ("1")}),
-            (math::number::Z_bytes<endian::little, neg::twos, uint16> {1}));
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::twos, uint16> {Z::read ("23")}),
-            (math::number::Z_bytes<endian::big, neg::twos, uint16>::read ("23")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::twos, uint16> {Z::read ("23")}),
-            (math::number::Z_bytes<endian::little, neg::twos, uint16>::read ("23")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::twos, uint16> {Z::read ("5704566599993321")}),
-            (math::number::Z_bytes<endian::big, neg::twos, uint16>::read ("5704566599993321")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::twos, uint16> {Z::read ("5704566599993321")}),
-            (math::number::Z_bytes<endian::little, neg::twos, uint16>::read ("5704566599993321")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::twos, uint16> {Z::read ("-1")}),
-            (math::number::Z_bytes<endian::big, neg::twos, uint16>::read ("-1")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::twos, uint16> {Z::read ("-1")}),
-            (math::number::Z_bytes<endian::little, neg::twos, uint16>::read ("-1")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::twos, uint16> {Z::read ("-3393939987200333")}),
-            (math::number::Z_bytes<endian::big, neg::twos, uint16>::read ("-3393939987200333")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::twos, uint16> {Z::read ("-3393939987200333")}),
-            (math::number::Z_bytes<endian::little, neg::twos, uint16>::read ("-3393939987200333")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::twos, uint16> {Z::read ("1")}),
+            (math::number::Z_bytes<endian::big, negativity::twos, uint16>::read ("1")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::twos, uint16> {Z::read ("1")}),
+            (math::number::Z_bytes<endian::little, negativity::twos, uint16> {1}));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::twos, uint16> {Z::read ("23")}),
+            (math::number::Z_bytes<endian::big, negativity::twos, uint16>::read ("23")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::twos, uint16> {Z::read ("23")}),
+            (math::number::Z_bytes<endian::little, negativity::twos, uint16>::read ("23")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::twos, uint16> {Z::read ("5704566599993321")}),
+            (math::number::Z_bytes<endian::big, negativity::twos, uint16>::read ("5704566599993321")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::twos, uint16> {Z::read ("5704566599993321")}),
+            (math::number::Z_bytes<endian::little, negativity::twos, uint16>::read ("5704566599993321")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::twos, uint16> {Z::read ("-1")}),
+            (math::number::Z_bytes<endian::big, negativity::twos, uint16>::read ("-1")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::twos, uint16> {Z::read ("-1")}),
+            (math::number::Z_bytes<endian::little, negativity::twos, uint16>::read ("-1")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::twos, uint16> {Z::read ("-3393939987200333")}),
+            (math::number::Z_bytes<endian::big, negativity::twos, uint16>::read ("-3393939987200333")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::twos, uint16> {Z::read ("-3393939987200333")}),
+            (math::number::Z_bytes<endian::little, negativity::twos, uint16>::read ("-3393939987200333")));
 
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::BC, uint16> {Z::read ("1")}),
-            (math::number::Z_bytes<endian::big, neg::BC, uint16> {1}));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::BC, uint16> {Z::read ("1")}),
-            (math::number::Z_bytes<endian::little, neg::BC, uint16>::read ("1")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::BC, uint16> {Z::read ("23")}),
-            (math::number::Z_bytes<endian::big, neg::BC, uint16>::read ("23")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::BC, uint16> {Z::read ("23")}),
-            (math::number::Z_bytes<endian::little, neg::BC, uint16>::read ("23")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::BC, uint16> {Z::read ("5704566599993321")}),
-            (math::number::Z_bytes<endian::big, neg::BC, uint16>::read ("5704566599993321")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::BC, uint16> {Z::read ("5704566599993321")}),
-            (math::number::Z_bytes<endian::little, neg::BC, uint16>::read ("5704566599993321")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::BC, uint16> {Z::read ("-1")}),
-            (math::number::Z_bytes<endian::big, neg::BC, uint16>::read ("-1")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::BC, uint16> {Z::read ("-1")}),
-            (math::number::Z_bytes<endian::little, neg::BC, uint16>::read ("-1")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::big, neg::BC, uint16> {Z::read ("-3393939987200333")}),
-            (math::number::Z_bytes<endian::big, neg::BC, uint16>::read ("-3393939987200333")));
-        EXPECT_EQ ((math::number::Z_bytes<endian::little, neg::BC, uint16> {Z::read ("-3393939987200333")}),
-            (math::number::Z_bytes<endian::little, neg::BC, uint16>::read ("-3393939987200333")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::BC, uint16> {Z::read ("1")}),
+            (math::number::Z_bytes<endian::big, negativity::BC, uint16> {1}));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::BC, uint16> {Z::read ("1")}),
+            (math::number::Z_bytes<endian::little, negativity::BC, uint16>::read ("1")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::BC, uint16> {Z::read ("23")}),
+            (math::number::Z_bytes<endian::big, negativity::BC, uint16>::read ("23")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::BC, uint16> {Z::read ("23")}),
+            (math::number::Z_bytes<endian::little, negativity::BC, uint16>::read ("23")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::BC, uint16> {Z::read ("5704566599993321")}),
+            (math::number::Z_bytes<endian::big, negativity::BC, uint16>::read ("5704566599993321")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::BC, uint16> {Z::read ("5704566599993321")}),
+            (math::number::Z_bytes<endian::little, negativity::BC, uint16>::read ("5704566599993321")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::BC, uint16> {Z::read ("-1")}),
+            (math::number::Z_bytes<endian::big, negativity::BC, uint16>::read ("-1")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::BC, uint16> {Z::read ("-1")}),
+            (math::number::Z_bytes<endian::little, negativity::BC, uint16>::read ("-1")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::big, negativity::BC, uint16> {Z::read ("-3393939987200333")}),
+            (math::number::Z_bytes<endian::big, negativity::BC, uint16>::read ("-3393939987200333")));
+        EXPECT_EQ ((math::number::Z_bytes<endian::little, negativity::BC, uint16> {Z::read ("-3393939987200333")}),
+            (math::number::Z_bytes<endian::little, negativity::BC, uint16>::read ("-3393939987200333")));
         
     }
 
@@ -386,7 +386,7 @@ namespace data {
         
     }
     
-    template<endian::order r>
+    template<endian r>
     N N_Bytes_to_N_stupid (const math::number::N_bytes<r, byte> &n) {
         N x {0};
         for (const byte &b : n.words ().reverse ()) {
@@ -396,16 +396,16 @@ namespace data {
         return x;
     }
     
-    template<endian::order r, neg zz>
+    template<endian r, negativity zz>
     Z Z_Bytes_to_Z_stupid (const math::number::Z_bytes<r, zz, byte> &z) {
         if (is_negative (z)) return -N_Bytes_to_N_stupid (data::abs (z));
         return N_Bytes_to_N_stupid (abs (z));
     }
     
-    template<endian::order r, neg zz>
+    template<endian r, negativity zz>
     math::number::Z_bytes<r, zz, byte> Z_to_Z_Bytes_stupid (const Z &n) {
         return math::number::Z_bytes<r, zz, byte>::read
-            (encoding::hexidecimal::write<neg::twos, hex_case::lower> (n));
+            (encoding::hexidecimal::write<negativity::twos, hex_case::lower> (n));
     }
     
     template <typename in> void Z_Bytes_to_Z (in x) {
@@ -415,8 +415,8 @@ namespace data {
         Z_bytes_big big {x};
         Z_bytes_little little {x};
         
-        Z_bytes_big stupid_big = Z_to_Z_Bytes_stupid<endian::big, neg::twos> (z);
-        Z_bytes_little stupid_little = Z_to_Z_Bytes_stupid<endian::little, neg::twos> (z);
+        Z_bytes_big stupid_big = Z_to_Z_Bytes_stupid<endian::big, negativity::twos> (z);
+        Z_bytes_little stupid_little = Z_to_Z_Bytes_stupid<endian::little, negativity::twos> (z);
         
         EXPECT_EQ (stupid_big, big);
         EXPECT_EQ (stupid_little, little);

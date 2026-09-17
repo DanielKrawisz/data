@@ -19,7 +19,7 @@ namespace data::arithmetic {
     // Words is for iterating over digits that have an endian order.
     // Using Words, you will always iterate from least to most
     // significant digits. Reverse iteration will go from most to least.
-    template <endian::order o, typename digit> struct Words;
+    template <endian o, typename digit> struct Words;
     
     template <typename digit> struct Words<endian::little, digit> {
         slice<digit> Data;
@@ -96,12 +96,12 @@ namespace data::arithmetic {
     };
 
     // must check that the input has at least size 1 to use.
-    template <endian::order r, typename digit> constexpr void inline flip_sign_bit (Words<r, digit> x) {
+    template <endian r, typename digit> constexpr void inline flip_sign_bit (Words<r, digit> x) {
         if (x[-1] & get_sign_bit<digit>::value) x[-1] &= ~get_sign_bit<digit>::value;
         else x[-1] |= get_sign_bit<digit>::value;
     }
 
-    template <endian::order r, typename digit> constexpr void negate_ones (Words<r, digit> x) {
+    template <endian r, typename digit> constexpr void negate_ones (Words<r, digit> x) {
         bit_negate<digit> (x.end (), x.begin (), x.begin ());
         auto o = x.begin ();
         auto i = x.begin ();
@@ -109,17 +109,17 @@ namespace data::arithmetic {
         add_with_carry<digit> (x.end (), o, i, 1);
     }
 
-    template <endian::order r, typename digit> constexpr void inline negate_twos (Words<r, digit> x) {
+    template <endian r, typename digit> constexpr void inline negate_twos (Words<r, digit> x) {
         if (x.size () == 0) return;
         flip_sign_bit (x);
     }
 
-    template <endian::order r, typename digit>
+    template <endian r, typename digit>
     constexpr void set_max_unsigned (Words<r, digit> a) {
         for (digit &x : a) x = max_unsigned<digit>;
     }
 
-    template <endian::order r, typename digit>
+    template <endian r, typename digit>
     constexpr void set_max_signed_twos (Words<r, digit> a) {
         auto i = a.rbegin ();
         if (i == a.rend ()) return;
@@ -131,7 +131,7 @@ namespace data::arithmetic {
         }
     }
 
-    template <endian::order r, typename digit>
+    template <endian r, typename digit>
     constexpr void set_min_signed_twos (Words<r, digit> a) {
         auto i = a.rbegin ();
         if (i == a.rend ()) return;
@@ -143,7 +143,7 @@ namespace data::arithmetic {
         }
     }
 
-    template <endian::order r, typename digit>
+    template <endian r, typename digit>
     constexpr digit plus (Words<r, digit> &o, const Words<r, digit> &a, const Words<r, digit> &b) {
         if (a.size () < b.size ()) return plus (o, b, a);
         if (o.size () < a.size ()) throw exception {"need a bigger space to add numbers"};
@@ -166,7 +166,7 @@ namespace data::arithmetic {
     }
 
     // we should already be able to expect that a > b, so the result will not go from positive to negative.
-    template <endian::order r, typename digit>
+    template <endian r, typename digit>
     constexpr digit minus (Words<r, digit> &o, const Words<r, digit> &a, const Words<r, digit> &b) {
 
         auto oit = o.begin ();
@@ -184,7 +184,7 @@ namespace data::arithmetic {
 
     }
 
-    template <endian::order r, typename digit>
+    template <endian r, typename digit>
     constexpr void times (Words<r, digit> &o, const Words<r, digit> &a, const Words<r, digit> &b) {
 
         // if the size of b is zero, then the answer is zero.

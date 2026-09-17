@@ -94,7 +94,7 @@ namespace data {
         
     }
         
-    template<endian::order r> using N_bytes = math::number::N_bytes<r, byte>;
+    template<endian r> using N_bytes = math::number::N_bytes<r, byte>;
     
     TEST (N, N) {
         

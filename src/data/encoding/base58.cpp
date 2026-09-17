@@ -160,6 +160,7 @@ namespace data::encoding::base58 {
 namespace data::math::def {
 
     division<base58_uint> divmod<base58_uint>::operator () (const base58_uint &v, const nonzero<base58_uint> &z) {
+        if (z.Value == 0) throw division_by_zero {};
         // we have some extra lines here that shouldn't be necessary because the windows compiler gets confused here
         // for some reason.
         N vn = N (v);

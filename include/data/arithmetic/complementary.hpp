@@ -14,160 +14,160 @@
 namespace data::arithmetic {
 
     // provide a zero of a given size.
-    template <endian::order r, std::integral word> bytestring<word> zero (size_t new_size);
+    template <endian r, std::integral word> bytestring<word> zero (size_t new_size);
 
-    template <endian::order r, negativity c, std::integral word> bool is_zero (slice<const word>);
+    template <endian r, negativity c, std::integral word> bool is_zero (slice<const word>);
 
-    template <endian::order r, negativity c, std::integral word> bool sign_bit (slice<const word>);
+    template <endian r, negativity c, std::integral word> bool sign_bit (slice<const word>);
 
-    template <endian::order r, negativity c, std::integral word> size_t minimal_size (slice<const word>);
+    template <endian r, negativity c, std::integral word> size_t minimal_size (slice<const word>);
 
-    template <endian::order r, negativity c, std::integral word> bool is_minimal (slice<const word>);
+    template <endian r, negativity c, std::integral word> bool is_minimal (slice<const word>);
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> &extend (bytestring<word> &, size_t new_size);
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> extend (slice<const word>, size_t new_size);
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> &trim (bytestring<word> &);
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> trim (slice<const word>);
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> &bit_and (bytestring<word> &, slice<const word>);
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> &bit_or (bytestring<word> &, slice<const word>);
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> &bit_xor (bytestring<word> &, slice<const word>);
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> bit_and (slice<const word>, slice<const word>);
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> bit_or (slice<const word>, slice<const word>);
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> bit_xor (slice<const word>, slice<const word>);
 
 }
 
 namespace data::arithmetic::nones {
 
-    template <endian::order r, std::integral word> std::strong_ordering compare (slice<const word>, slice<const word>);
+    template <endian r, std::integral word> std::strong_ordering compare (slice<const word>, slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &increment (bytestring<word> &);
-    template <endian::order r, std::integral word> bytestring<word> increment (slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &increment (bytestring<word> &);
+    template <endian r, std::integral word> bytestring<word> increment (slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &decrement (bytestring<word> &);
-    template <endian::order r, std::integral word> bytestring<word> decrement (slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &decrement (bytestring<word> &);
+    template <endian r, std::integral word> bytestring<word> decrement (slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &times_2 (bytestring<word> &);
-    template <endian::order r, std::integral word> bytestring<word> times_2 (slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &times_2 (bytestring<word> &);
+    template <endian r, std::integral word> bytestring<word> times_2 (slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &div_by_2 (bytestring<word> &);
-    template <endian::order r, std::integral word> bytestring<word> div_by_2 (slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &div_by_2 (bytestring<word> &);
+    template <endian r, std::integral word> bytestring<word> div_by_2 (slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &plus (bytestring<word> &, slice<const word>);
-    template <endian::order r, std::integral word> bytestring<word> plus (slice<const word>, slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &plus (bytestring<word> &, slice<const word>);
+    template <endian r, std::integral word> bytestring<word> plus (slice<const word>, slice<const word>);
 
     // assume first input is greater than second.
-    template <endian::order r, std::integral word> bytestring<word> &minus (bytestring<word> &, slice<const word>);
-    template <endian::order r, std::integral word> bytestring<word> minus (slice<const word>, slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &minus (bytestring<word> &, slice<const word>);
+    template <endian r, std::integral word> bytestring<word> minus (slice<const word>, slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &times (bytestring<word> &, slice<const word>);
-    template <endian::order r, std::integral word> bytestring<word> times (slice<const word>, slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &times (bytestring<word> &, slice<const word>);
+    template <endian r, std::integral word> bytestring<word> times (slice<const word>, slice<const word>);
 
 }
 
 namespace data::arithmetic::twos {
 
-    template <endian::order r, std::integral word> std::strong_ordering compare (slice<const word>, slice<const word>);
+    template <endian r, std::integral word> std::strong_ordering compare (slice<const word>, slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &negate (bytestring<word> &);
-    template <endian::order r, std::integral word> bytestring<word> negate (slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &negate (bytestring<word> &);
+    template <endian r, std::integral word> bytestring<word> negate (slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &increment (bytestring<word> &);
-    template <endian::order r, std::integral word> bytestring<word> increment (slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &increment (bytestring<word> &);
+    template <endian r, std::integral word> bytestring<word> increment (slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &decrement (bytestring<word> &);
-    template <endian::order r, std::integral word> bytestring<word> decrement (slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &decrement (bytestring<word> &);
+    template <endian r, std::integral word> bytestring<word> decrement (slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &times_2 (bytestring<word> &);
-    template <endian::order r, std::integral word> bytestring<word> times_2 (slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &times_2 (bytestring<word> &);
+    template <endian r, std::integral word> bytestring<word> times_2 (slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &div_by_2 (bytestring<word> &);
-    template <endian::order r, std::integral word> bytestring<word> div_by_2 (slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &div_by_2 (bytestring<word> &);
+    template <endian r, std::integral word> bytestring<word> div_by_2 (slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &negate (bytestring<word> &);
-    template <endian::order r, std::integral word> bytestring<word> negate (slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &negate (bytestring<word> &);
+    template <endian r, std::integral word> bytestring<word> negate (slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &abs (bytestring<word> &);
-    template <endian::order r, std::integral word> bytestring<word> abs (slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &abs (bytestring<word> &);
+    template <endian r, std::integral word> bytestring<word> abs (slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &plus (bytestring<word> &, slice<const word>);
-    template <endian::order r, std::integral word> bytestring<word> plus (slice<const word>, slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &plus (bytestring<word> &, slice<const word>);
+    template <endian r, std::integral word> bytestring<word> plus (slice<const word>, slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &times (bytestring<word> &, slice<const word>);
-    template <endian::order r, std::integral word> bytestring<word> times (slice<const word>, slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &times (bytestring<word> &, slice<const word>);
+    template <endian r, std::integral word> bytestring<word> times (slice<const word>, slice<const word>);
 
 }
 
 namespace data::arithmetic::BC {
 
-    template <endian::order r, std::integral word> std::weak_ordering compare (slice<const word>, slice<const word>);
+    template <endian r, std::integral word> std::weak_ordering compare (slice<const word>, slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &negate (bytestring<word> &);
-    template <endian::order r, std::integral word> bytestring<word> negate (slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &negate (bytestring<word> &);
+    template <endian r, std::integral word> bytestring<word> negate (slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> zero (size_t size, bool negative = false);
+    template <endian r, std::integral word> bytestring<word> zero (size_t size, bool negative = false);
 
-    template <endian::order r, std::integral word> bytestring<word> &increment (bytestring<word> &);
-    template <endian::order r, std::integral word> bytestring<word> increment (slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &increment (bytestring<word> &);
+    template <endian r, std::integral word> bytestring<word> increment (slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &decrement (bytestring<word> &);
-    template <endian::order r, std::integral word> bytestring<word> decrement (slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &decrement (bytestring<word> &);
+    template <endian r, std::integral word> bytestring<word> decrement (slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &times_2 (bytestring<word> &);
-    template <endian::order r, std::integral word> bytestring<word> times_2 (slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &times_2 (bytestring<word> &);
+    template <endian r, std::integral word> bytestring<word> times_2 (slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &div_by_2 (bytestring<word> &);
-    template <endian::order r, std::integral word> bytestring<word> div_by_2 (slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &div_by_2 (bytestring<word> &);
+    template <endian r, std::integral word> bytestring<word> div_by_2 (slice<const word>);
 
     // operate directly on the sign bit, so change negative zero to zero and vice versa.
-    template <endian::order r, std::integral word> bytestring<word> &negate (bytestring<word> &);
-    template <endian::order r, std::integral word> bytestring<word> negate (slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &negate (bytestring<word> &);
+    template <endian r, std::integral word> bytestring<word> negate (slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &abs (bytestring<word> &);
-    template <endian::order r, std::integral word> bytestring<word> abs (slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &abs (bytestring<word> &);
+    template <endian r, std::integral word> bytestring<word> abs (slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &plus (bytestring<word> &, slice<const word>);
-    template <endian::order r, std::integral word> bytestring<word> plus (slice<const word>, slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &plus (bytestring<word> &, slice<const word>);
+    template <endian r, std::integral word> bytestring<word> plus (slice<const word>, slice<const word>);
 
-    template <endian::order r, std::integral word> bytestring<word> &times (bytestring<word> &, slice<const word>);
-    template <endian::order r, std::integral word> bytestring<word> times (slice<const word>, slice<const word>);
+    template <endian r, std::integral word> bytestring<word> &times (bytestring<word> &, slice<const word>);
+    template <endian r, std::integral word> bytestring<word> times (slice<const word>, slice<const word>);
 
 }
 
 namespace data::arithmetic {
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> inline extend (slice<const word> x, size_t new_size) {
         bytestring<word> y {x};
         return extend<r, c> (y, new_size);
     }
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> inline trim (slice<const word> x) {
         bytestring<word> y {x};
         return trim<r, c> (y);
     }
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> inline &bit_and (bytestring<word> &a, slice<const word> b) {
         if (a.size () == b.size ()) {
             for (int i = 0; i < a.size (); i++) a[i] &= b[i];
@@ -178,7 +178,7 @@ namespace data::arithmetic {
         else return a &= extend (b, a.size ());
     }
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> inline &bit_or (bytestring<word> &a, slice<const word> b) {
         if (a.size () == b.size ()) {
             for (int i = 0; i < a.size (); i++) a[i] |= b[i];
@@ -189,7 +189,7 @@ namespace data::arithmetic {
         else return a |= extend (b, a.size ());
     }
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> inline &bit_xor (bytestring<word> &a, slice<const word> b) {
         if (a.size () == b.size ()) {
             for (int i = 0; i < a.size (); i++) a[i] ^= b[i];
@@ -204,39 +204,39 @@ namespace data::arithmetic {
 
 namespace data::arithmetic::nones {
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> inline increment (slice<const word> x) {
         bytestring<word> y {x};
         return increment<r> (y);
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> inline decrement (slice<const word> x) {
         bytestring<word> y {x};
         return decrement<r> (y);
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> inline times_2 (slice<const word> x) {
         bytestring<word> y {x};
         return times_2<r> (y);
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> inline div_by_2 (slice<const word> x) {
         bytestring<word> y {x};
         return div_by_2<r> (y);
     }
 
-    template <endian::order r, std::integral word> bytestring<word> inline &plus (bytestring<word> &x, slice<const word>y) {
+    template <endian r, std::integral word> bytestring<word> inline &plus (bytestring<word> &x, slice<const word>y) {
         return x = plus<r> (slice<const word> (x), y);
     }
 
-    template <endian::order r, std::integral word> bytestring<word> inline &minus (bytestring<word> &x, slice<const word>y) {
+    template <endian r, std::integral word> bytestring<word> inline &minus (bytestring<word> &x, slice<const word>y) {
         return x = minus<r> (slice<const word> (x), y);
     }
 
-    template <endian::order r, std::integral word> bytestring<word> inline &times (bytestring<word> &x, slice<const word>y) {
+    template <endian r, std::integral word> bytestring<word> inline &times (bytestring<word> &x, slice<const word>y) {
         return x = times<r> (slice<const word> (x), y);
     }
 
@@ -244,47 +244,47 @@ namespace data::arithmetic::nones {
 
 namespace data::arithmetic::twos {
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> inline negate (slice<const word> x) {
         bytestring<word> y {x};
         return negate<r> (y);
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> inline increment (slice<const word> x) {
         bytestring<word> y {x};
         return increment<r> (y);
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> inline decrement (slice<const word> x) {
         bytestring<word> y {x};
         return decrement<r> (y);
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> inline times_2 (slice<const word> x) {
         bytestring<word> y {x};
         return times_2<r> (y);
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> inline div_by_2 (slice<const word> x) {
         bytestring<word> y {x};
         return div_by_2<r> (y);
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> inline abs (slice<const word> x) {
         bytestring<word> y {x};
         return abs<r> (y);
     }
 
-    template <endian::order r, std::integral word> bytestring<word> inline &plus (bytestring<word> &x, slice<const word>y) {
+    template <endian r, std::integral word> bytestring<word> inline &plus (bytestring<word> &x, slice<const word>y) {
         return x = plus<r> (slice<const word> (x), y);
     }
 
-    template <endian::order r, std::integral word> bytestring<word> inline &times (bytestring<word> &x, slice<const word>y) {
+    template <endian r, std::integral word> bytestring<word> inline &times (bytestring<word> &x, slice<const word>y) {
         return x = times<r> (slice<const word> (x), y);
     }
 
@@ -292,47 +292,47 @@ namespace data::arithmetic::twos {
 
 namespace data::arithmetic::BC {
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> inline negate (slice<const word> x) {
         bytestring<word> y {x};
         return negate<r> (y);
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> inline increment (slice<const word> x) {
         bytestring<word> y {x};
         return increment<r> (y);
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> inline decrement (slice<const word> x) {
         bytestring<word> y {x};
         return decrement<r> (y);
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> inline times_2 (slice<const word> x) {
         bytestring<word> y {x};
         return times_2<r> (y);
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> inline div_by_2 (slice<const word> x) {
         bytestring<word> y {x};
         return div_by_2<r> (y);
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> inline abs (slice<const word> x) {
         bytestring<word> y {x};
         return abs<r> (y);
     }
 
-    template <endian::order r, std::integral word> bytestring<word> inline &plus (bytestring<word> &x, slice<const word>y) {
+    template <endian r, std::integral word> bytestring<word> inline &plus (bytestring<word> &x, slice<const word>y) {
         return x = plus<r> (slice<const word> (x), y);
     }
 
-    template <endian::order r, std::integral word> bytestring<word> inline &times (bytestring<word> &x, slice<const word>y) {
+    template <endian r, std::integral word> bytestring<word> inline &times (bytestring<word> &x, slice<const word>y) {
         return x = times<r> (slice<const word> (x), y);
     }
 
@@ -340,29 +340,29 @@ namespace data::arithmetic::BC {
 
 namespace data::arithmetic {
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     auto inline words (bytestring<word> &z) {
         return Words<r, word> {slice<word> (z)};
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     auto inline words (slice<const word> z) {
         return Words<r, word> {slice<word> {const_cast<word *> (z.data ()), z.size ()}};
     }
 
-    template <endian::order r, negativity c, std::integral word> size_t inline minimal_size (slice<const word> x) {
+    template <endian r, negativity c, std::integral word> size_t inline minimal_size (slice<const word> x) {
         return minimal_size<c> (words<r> (x));
     }
 
-    template <endian::order r, negativity c, std::integral word> bool inline is_minimal (slice<const word> x) {
+    template <endian r, negativity c, std::integral word> bool inline is_minimal (slice<const word> x) {
         return minimal_size<r, c> (x) == x.size ();
     }
 
-    template <endian::order r, std::integral word> bytestring<word> inline zero (size_t size) {
+    template <endian r, std::integral word> bytestring<word> inline zero (size_t size) {
         return bytestring<word> (size, 0);
     }
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bool inline is_zero (slice<const word> x) {
         if constexpr (c == negativity::BC) {
             return arithmetic::BC::is_zero (words<r> (x));
@@ -371,12 +371,12 @@ namespace data::arithmetic {
         }
     }
 
-    template <endian::order r, negativity c, std::integral word> bool inline sign_bit (slice<const word> x) {
+    template <endian r, negativity c, std::integral word> bool inline sign_bit (slice<const word> x) {
         if constexpr (c == negativity::nones) return false;
         else return arithmetic::sign_bit (words<r> (x));
     }
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> &trim (bytestring<word> &x) {
         auto w = words<r> (x);
         size_t min_size = minimal_size<c> (w);
@@ -390,7 +390,7 @@ namespace data::arithmetic {
         return x = n;
     }
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> &extend (bytestring<word> &x, size_t new_size) {
         auto w = words<r> (x);
 
@@ -430,7 +430,7 @@ namespace data::arithmetic {
         return x = z;
     }
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> bit_and (slice<const word> a, slice<const word> b) {
         if (a.size () < b.size ()) return bit_and<r, c> (b, a);
         auto bt = extend<r, c> (b, a.size ());
@@ -439,7 +439,7 @@ namespace data::arithmetic {
         return x;
     }
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> bit_or (slice<const word> a, slice<const word> b) {
         if (a.size () < b.size ()) return bit_or<r, c> (b, a);
         auto bt = extend<r, c> (b, a.size ());
@@ -448,7 +448,7 @@ namespace data::arithmetic {
         return x;
     }
 
-    template <endian::order r, negativity c, std::integral word>
+    template <endian r, negativity c, std::integral word>
     bytestring<word> bit_xor (slice<const word> a, slice<const word> b) {
         if (a.size () < b.size ()) return bit_xor<r, c> (b, a);
         auto bt = extend<r, c> (b, a.size ());
@@ -461,11 +461,11 @@ namespace data::arithmetic {
 namespace data::arithmetic::nones {
 
     // must be the same size.
-    template <endian::order r, std::integral word> std::strong_ordering inline compare (slice<const word> a, slice<const word> b) {
+    template <endian r, std::integral word> std::strong_ordering inline compare (slice<const word> a, slice<const word> b) {
         return arithmetic::compare<negativity::nones> (words<r> (a), words<r> (b));
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> &increment (bytestring<word> &x) {
         auto w = words<r> (x);
 
@@ -481,7 +481,7 @@ namespace data::arithmetic::nones {
         return x;
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> &decrement (bytestring<word> &x) {
         auto w = words<r> (x);
         auto xx = w.begin ();
@@ -491,7 +491,7 @@ namespace data::arithmetic::nones {
         return x;
     }
 
-    template <endian::order r, std::integral word> bytestring<word> plus (slice<const word> a, slice<const word> b) {
+    template <endian r, std::integral word> bytestring<word> plus (slice<const word> a, slice<const word> b) {
         bytestring<word> n (std::max (a.size (), b.size ()), 0);
         auto wn = words<r> (n);
         word remainder = arithmetic::plus<r, word> (wn, words<r> (a), words<r> (b));
@@ -504,7 +504,7 @@ namespace data::arithmetic::nones {
     }
 
     // assume a > b;
-    template <endian::order r, std::integral word> bytestring<word> minus (slice<const word> a, slice<const word> b) {
+    template <endian r, std::integral word> bytestring<word> minus (slice<const word> a, slice<const word> b) {
         bytestring<word> n (a.size (), 0);
         auto wn = words<r> (n);
         arithmetic::minus<r, word> (wn, words<r> (a), words<r> (b));
@@ -513,11 +513,11 @@ namespace data::arithmetic::nones {
 }
 
 namespace data::arithmetic::twos {
-    template <endian::order r, std::integral word> bytestring<word> inline &negate (bytestring<word> &x) {
+    template <endian r, std::integral word> bytestring<word> inline &negate (bytestring<word> &x) {
         return increment<r, word> (x.bit_negate ());
     }
 
-    template <endian::order r, std::integral word> std::strong_ordering compare (slice<const word> a, slice<const word> b) {
+    template <endian r, std::integral word> std::strong_ordering compare (slice<const word> a, slice<const word> b) {
 
         auto wa = words<r> (a);
         auto wb = words<r> (b);
@@ -540,7 +540,7 @@ namespace data::arithmetic::twos {
     // TODO we extend the number once with every increment, which will get very
     // inefficient if you don't trim regularly. It should be possible to
     // extend only when we need to, but we don't right now.
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> &increment (bytestring<word> &x) {
 
         auto w = words<r> (x);
@@ -557,7 +557,7 @@ namespace data::arithmetic::twos {
         return x;
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> &decrement (bytestring<word> &x) {
 
         auto w = words<r> (x);
@@ -578,14 +578,14 @@ namespace data::arithmetic::twos {
 
 namespace data::arithmetic::BC {
 
-    template <endian::order r, std::integral word> bytestring<word> zero (size_t size, bool negative) {
+    template <endian r, std::integral word> bytestring<word> zero (size_t size, bool negative) {
         if (negative && size == 0) throw exception {"cannot make negative zero of size zero."};
         bytestring<word> z (size, 0);
         if (negative) words<r> (z)[-1] = get_sign_bit<word>::value;
         return z;
     }
 
-    template <endian::order r, std::integral word> std::weak_ordering compare (slice<const word> a, slice<const word> b) {
+    template <endian r, std::integral word> std::weak_ordering compare (slice<const word> a, slice<const word> b) {
 
         auto wa = words<r> (a);
         auto wb = words<r> (b);
@@ -613,7 +613,7 @@ namespace data::arithmetic::BC {
         return na == math::negative ? std::weak_ordering::less : std::weak_ordering::greater;
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> &increment (bytestring<word> &x) {
         auto w = words<r> (x);
 
@@ -646,7 +646,7 @@ namespace data::arithmetic::BC {
         return x;
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> &decrement (bytestring<word> &x) {
         auto w = words<r> (x);
         if (BC::is_zero (w)) return negate<r> (increment<r> (x = zero<r, word> (0)));
@@ -660,7 +660,7 @@ namespace data::arithmetic::BC {
         return x;
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> &negate (bytestring<word> &x) {
         auto w = words<r> (x);
         if (size (w) == 0) return x = zero<r, word> (1, true);
@@ -668,14 +668,14 @@ namespace data::arithmetic::BC {
         return x;
     }
 
-    template <endian::order r, std::integral word>
+    template <endian r, std::integral word>
     bytestring<word> &abs (bytestring<word> &x) {
         auto w = words<r> (x);
         if (sign_bit (w)) return negate<r> (x);
         return x;
     }
 
-    template <endian::order r, std::integral word> bytestring<word> plus (slice<const word> a, slice<const word> b) {
+    template <endian r, std::integral word> bytestring<word> plus (slice<const word> a, slice<const word> b) {
 
         auto wa = words<r> (a);
         auto wb = words<r> (b);
@@ -706,7 +706,7 @@ namespace data::arithmetic::BC {
         }
     }
 
-    template <endian::order r, std::integral word> bytestring<word> times (slice<const word> a, slice<const word> b) {
+    template <endian r, std::integral word> bytestring<word> times (slice<const word> a, slice<const word> b) {
 
         auto as = abs<r, word> (a);
         auto bs = abs<r, word> (b);

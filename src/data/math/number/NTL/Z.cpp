@@ -35,7 +35,7 @@ namespace data::math::def {
 namespace data::math::number {
 
     std::strong_ordering operator <=> (const Z &a, const Z &b) {
-        switch (NTL::compare(a.Value, b.Value)) {
+        switch (NTL::compare (a.Value, b.Value)) {
             case -1: return std::strong_ordering::less;
             case  1: return std::strong_ordering::greater;
             default: return std::strong_ordering::equal;
@@ -43,7 +43,7 @@ namespace data::math::number {
     }
 
     std::strong_ordering operator <=> (const N &a, const N &b) {
-        switch (NTL::compare(a.Value, b.Value)) {
+        switch (NTL::compare (a.Value, b.Value)) {
             case -1: return std::strong_ordering::less;
             case  1: return std::strong_ordering::greater;
             default: return std::strong_ordering::equal;
@@ -100,12 +100,12 @@ namespace data::math::number {
 
     Z inline Z_read_hex (string_view x) {
         return Z (NTL::import_bin<byte> (byte_slice (*encoding::hex::read (x.substr (2))),
-            endian::order::little, endian::order::native, arithmetic::negativity::twos));
+            endian::little, endian::native, arithmetic::negativity::twos));
     }
 
     N inline N_read_hex (string_view x) {
         return N (NTL::import_bin<byte> (byte_slice (*encoding::hex::read (x.substr (2))),
-            endian::order::little, endian::order::native, arithmetic::negativity::nones));
+            endian::little, endian::native, arithmetic::negativity::nones));
     }
 
     N inline N_read_dec (string_view x) {
@@ -172,14 +172,14 @@ namespace data::encoding::signed_decimal {
 
 namespace data::encoding::hexidecimal {
 
-    std::ostream &write (std::ostream &o, const math::number::Z &zz, hex::letter_case x, neg n) {
+    std::ostream &write (std::ostream &o, const math::number::Z &zz, hex::letter_case x, negativity n) {
         switch (n) {
-            case neg::twos:{
-                auto z = math::number::Z_bytes<endian::little, neg::twos, byte> (zz);
+            case negativity::twos: {
+                auto z = math::number::Z_bytes<endian::little, negativity::twos, byte> (zz);
                 return write<endian::little, byte> (o, static_cast<const oriented<endian::little, byte> &> (z), x);
             }
-            case neg::BC: {
-                auto z = math::number::Z_bytes<endian::little, neg::BC, byte> (zz);
+            case negativity::BC: {
+                auto z = math::number::Z_bytes<endian::little, negativity::BC, byte> (zz);
                 return write<endian::little, byte> (o, static_cast<const oriented<endian::little, byte> &> (z), x);
             }
             default: {

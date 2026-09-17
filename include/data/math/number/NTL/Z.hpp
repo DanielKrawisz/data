@@ -31,25 +31,25 @@ namespace data::math::number {
 
         template <std::integral I> Z (I u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
-        template <bool is_signed, data::endian::order r, std::size_t size>
-        Z (endian::integral<is_signed, r, size> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
+        template <bool is_signed, data::endian r, std::size_t size>
+        Z (endian_integral<is_signed, r, size> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
         static Z read (string_view x);
 
         Z (const dec_int &u): Value {NTL::conv<NTL::ZZ> (u)} {}
         Z (const dec_uint &u): Value {NTL::conv<NTL::ZZ> (u)} {}
-        template <neg n, hex_case zz> Z (const hex::integer<n, zz> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
+        template <negativity n, hex_case zz> Z (const hex::integer<n, zz> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
-        template <endian::order r, neg c, std::unsigned_integral word>
+        template <endian r, negativity c, std::unsigned_integral word>
         explicit Z (const Z_bytes<r, c, word> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
-        template <endian::order r, std::unsigned_integral word>
+        template <endian r, std::unsigned_integral word>
         explicit Z (const N_bytes<r, word> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
-        template <endian::order r, size_t size, std::unsigned_integral word>
+        template <endian r, size_t size, std::unsigned_integral word>
         explicit Z (const bounded<true, r, size, word> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
-        template <endian::order r, size_t size, std::unsigned_integral word>
+        template <endian r, size_t size, std::unsigned_integral word>
         explicit Z (const bounded<false, r, size, word> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
         template <std::integral I>
@@ -66,18 +66,18 @@ namespace data::math::number {
         }
 
         // TODO get rid of these operators and make them constructors.
-        template <endian::order r, neg c, std::unsigned_integral word>
+        template <endian r, negativity c, std::unsigned_integral word>
         explicit operator Z_bytes<r, c, word> () const;
 
-        template <endian::order r, size_t size, std::unsigned_integral word>
+        template <endian r, size_t size, std::unsigned_integral word>
         explicit operator bounded<true, r, size, word> () const;
 
         template <hex_case zz> explicit operator hex::int2<zz> () const {
-            return encoding::hexidecimal::write<zz> (Z_bytes<endian::little, arithmetic::negativity::twos, byte> (*this));
+            return encoding::hexidecimal::write<zz> (Z_bytes<endian::little, negativity::twos, byte> (*this));
         }
 
         template <hex_case zz> explicit operator hex::intBC<zz> () const {
-            return encoding::hexidecimal::write<zz> (Z_bytes<endian::little, arithmetic::negativity::BC, byte> (*this));
+            return encoding::hexidecimal::write<zz> (Z_bytes<endian::little, negativity::BC, byte> (*this));
         }
 
         explicit Z (const NTL::ZZ &z): Value {z} {}
@@ -95,8 +95,8 @@ namespace data::math::number {
             if (u < 0) throw exception {} << "cannot instantiate N with negative number " << u;
         }
 
-        template <bool is_signed, data::endian::order r, std::size_t size>
-        N (endian::integral<is_signed, r, size> &u): Value {NTL::conv<NTL::ZZ> (u)} {
+        template <bool is_signed, data::endian r, std::size_t size>
+        N (endian_integral<is_signed, r, size> &u): Value {NTL::conv<NTL::ZZ> (u)} {
             if (u < 0) throw exception {} << "cannot instantiate N with negative number " << u;
         }
 
@@ -113,10 +113,10 @@ namespace data::math::number {
         template <hex_case zz> N (const hex::uint<zz> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
         N (const base58_uint &u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
-        template <endian::order r, std::unsigned_integral word>
+        template <endian r, std::unsigned_integral word>
         explicit N (const N_bytes<r, word> &n) : Value {NTL::conv<NTL::ZZ> (n)} {}
 
-        template <endian::order r, size_t size, std::unsigned_integral word>
+        template <endian r, size_t size, std::unsigned_integral word>
         explicit N (const bounded<false, r, size, word> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
         operator Z () const {
@@ -144,19 +144,19 @@ namespace data::math::number {
             return NTL::conv<dec_int> (Value);
         }
 
-        template <neg n, hex_case zz> explicit operator hex::integer<n, zz> () const {
-            if constexpr (n == arithmetic::negativity::nones)
+        template <negativity n, hex_case zz> explicit operator hex::integer<n, zz> () const {
+            if constexpr (n == negativity::nones)
                 return encoding::hexidecimal::write<zz> (N_bytes<endian::little, byte> (*this));
             else return encoding::hexidecimal::write<zz> (Z_bytes<endian::little, n, byte> (*this));
         }
 
-        template <endian::order r, std::unsigned_integral word>
+        template <endian r, std::unsigned_integral word>
         explicit operator N_bytes<r, word> () const;
 
-        template <endian::order r, neg c, std::unsigned_integral word>
+        template <endian r, negativity c, std::unsigned_integral word>
         explicit operator Z_bytes<r, c, word> () const;
 
-        template <bool u, endian::order r, size_t size, std::unsigned_integral word>
+        template <bool u, endian r, size_t size, std::unsigned_integral word>
         explicit operator bounded<u, r, size, word> () const;
 
         explicit N (const NTL::ZZ &z): Value {z} {}
@@ -171,25 +171,25 @@ namespace NTL {
 
     void conv (ZZ &, const long long int &);
 
-    template <bool is_signed, data::endian::order r, std::size_t size>
-    void conv (ZZ &, const data::endian::integral<is_signed, r, size> &);
+    template <bool is_signed, data::endian r, std::size_t size>
+    void conv (ZZ &, const data::endian_integral<is_signed, r, size> &);
 
     void conv (ZZ &x, const data::encoding::decimal::string &);
 
     void conv (ZZ &x, const data::encoding::signed_decimal::string &);
 
-    template <data::arithmetic::negativity neg, data::hex_case cc>
+    template <data::negativity neg, data::hex_case cc>
     void conv (ZZ &x, const data::encoding::hexidecimal::integer<neg, cc> &);
 
     void conv (ZZ &x, const data::encoding::base58::string &);
 
-    template <data::endian::order r, data::arithmetic::negativity neg, std::unsigned_integral word>
+    template <data::endian r, data::negativity neg, std::unsigned_integral word>
     void conv (ZZ &x, const data::math::number::Z_bytes<r, neg, word> &);
 
-    template <data::endian::order r, std::unsigned_integral word>
+    template <data::endian r, std::unsigned_integral word>
     void conv (ZZ &x, const data::math::number::N_bytes<r, word> &);
 
-    template <bool is_signed, data::endian::order r, std::size_t size, std::unsigned_integral word>
+    template <bool is_signed, data::endian r, std::size_t size, std::unsigned_integral word>
     void conv (ZZ &x, const data::math::number::bounded<is_signed, r, size, word> &);
 
     template <std::unsigned_integral I> void conv (I &, const ZZ &);
@@ -202,11 +202,11 @@ namespace NTL {
 
     void conv (data::encoding::base58::string &, const ZZ &);
 
-    template <bool is_signed, data::endian::order r, std::size_t size, std::unsigned_integral word>
+    template <bool is_signed, data::endian r, std::size_t size, std::unsigned_integral word>
     void conv (data::math::number::bounded<is_signed, r, size, word> &, const ZZ &);
 
-    template <bool is_signed, data::endian::order r, std::size_t size>
-    void conv (data::endian::integral<is_signed, r, size> &, const ZZ &);
+    template <bool is_signed, data::endian r, std::size_t size>
+    void conv (data::endian_integral<is_signed, r, size> &, const ZZ &);
 
 }
 // TODO we need to fill these in. Right now we are using defaults.
@@ -241,10 +241,10 @@ namespace data::math::number::NTL {
     ZZ import_bin (
         data::slice<const U> data,
         // the ordering of the overall array.
-        endian::order order = endian::order::little,
+        endian order = endian::little,
         // the ordering of each value in the array.
-        endian::order e = endian::order::native,
-        arithmetic::negativity neg = arithmetic::negativity::nones
+        endian e = endian::native,
+        negativity neg = negativity::nones
     );
 
     template <std::unsigned_integral U>
@@ -252,10 +252,10 @@ namespace data::math::number::NTL {
         data::slice<U> output,
         const ZZ &,
         // the ordering of the overall array.
-        endian::order word_order = endian::order::little,
+        endian word_order = endian::little,
         // the ordering of each value in the array.
-        endian::order byte_order = endian::order::native,
-        arithmetic::negativity neg = arithmetic::negativity::twos
+        endian byte_order = endian::native,
+        negativity neg = negativity::twos
     );
 
     size_t inline bit_width (const ZZ &x) {
@@ -481,17 +481,17 @@ namespace data::math::number {
     }
 
     N inline operator % (const Z &a, const Z &b) {
-        if (b < 1) throw non_positive_mod {};
+        if (b == 0) throw division_by_zero {};
         return def::divmod<Z, Z> {} (a, nonzero {b}).Remainder;
     }
 
     N inline operator % (const Z &a, const N &b) {
-        if (b < 1) throw non_positive_mod {};
+        if (b == 0) throw division_by_zero {};
         return def::divmod<Z, N> {} (a, nonzero {b}).Remainder;
     }
 
     N inline operator % (const N &a, const N &b) {
-        if (b < 1) throw non_positive_mod {};
+        if (b == 0) throw division_by_zero {};
         return def::divmod<N, N> {} (a, nonzero {b}).Remainder;
     }
 
@@ -501,7 +501,7 @@ namespace data::math::number {
     }
 
     N inline &operator %= (N &a, const N &b) {
-        if (b < 0) throw non_positive_mod {};
+        if (b == 0) throw division_by_zero {};
         a.Value = def::divmod<N, N> {} (a, nonzero {b}).Remainder.Value;
         return a;
     }
@@ -551,24 +551,24 @@ namespace data::math::number {
         return z;
     }
 
-    template <endian::order r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, std::unsigned_integral word>
     inline Z::operator bounded<true, r, size, word> () const {
         return NTL::conv<bounded<true, r, size, word>> (this->Value);
     }
 
-    template <bool u, endian::order r, size_t size, std::unsigned_integral word>
+    template <bool u, endian r, size_t size, std::unsigned_integral word>
     inline N::operator bounded<u, r, size, word> () const {
         return NTL::conv<bounded<u, r, size, word>> (this->Value);
     }
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     Z::operator Z_bytes<r, c, word> () const {
 
         constexpr size_t bits = sizeof (word) * 8;
 
         size_t size = is_zero (*this) ? 0 : (NTL::bit_width (this->Value) + bits - 1) / bits;
 
-        if constexpr (c == neg::BC) {
+        if constexpr (c == negativity::BC) {
             if (NTL::sign (this->Value) < 0 &&
                 NTL::NumBits (NTL::abs (this->Value)) == size * bits)
                 ++size;
@@ -576,27 +576,27 @@ namespace data::math::number {
 
         Z_bytes<r, c, word> result;
         result.resize (size);
-        NTL::export_bin<word> (slice<word> (result), this->Value, r, endian::order::native, c);
+        NTL::export_bin<word> (slice<word> (result), this->Value, r, endian::native, c);
         return result;
     }
 
-    template <endian::order r, neg c, std::unsigned_integral word>
+    template <endian r, negativity c, std::unsigned_integral word>
     N::operator Z_bytes<r, c, word> () const {
         constexpr size_t bits = sizeof (word) * 8;
         size_t size = (NTL::bit_width (this->Value) + bits - 1) / bits;
         Z_bytes<r, c, word> result;
         result.resize (size);
-        NTL::export_bin<word> (slice<word> (result), this->Value, r, endian::order::native, c);
+        NTL::export_bin<word> (slice<word> (result), this->Value, r, endian::native, c);
         return result;
     }
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     N::operator N_bytes<r, word> () const {
         constexpr size_t bits = sizeof (word) * 8;
         size_t size = (NTL::NumBits (this->Value) + bits - 1) / bits;
         N_bytes<r, word> result;
         result.resize (size);
-        NTL::export_bin<word> (slice<word> (result), this->Value, r, endian::order::native, arithmetic::negativity::nones);
+        NTL::export_bin<word> (slice<word> (result), this->Value, r, endian::native, negativity::nones);
         return result;
     }
 
@@ -950,7 +950,7 @@ namespace data::encoding::hexidecimal {
         return write<endian::big, byte> (o, static_cast<const oriented<endian::big, byte> &> (nb), x);
     }
 
-    template <neg n, hex_case zz>
+    template <negativity n, hex_case zz>
     integer<n, zz> write (const Z &x) {
         std::stringstream ss;
         if constexpr (zz == hex_case::lower)
@@ -962,51 +962,51 @@ namespace data::encoding::hexidecimal {
     }
 
     template <hex_case zz>
-    integer<neg::nones, zz> write (const N &x) {
+    integer<negativity::nones, zz> write (const N &x) {
         std::stringstream ss;
         if constexpr (zz == hex_case::lower)
             write (ss, x, hex::letter_case::lower);
         else
             write (ss, x, hex::letter_case::upper);
 
-        return integer<neg::nones, zz> {ss.str ()};
+        return integer<negativity::nones, zz> {ss.str ()};
     }
 }
 
 namespace NTL {
 
-    template <data::arithmetic::negativity neg, data::hex_case cc>
+    template <data::negativity neg, data::hex_case cc>
     void inline conv (ZZ &x, const data::encoding::hexidecimal::integer<neg, cc> &u) {
         if (!u.valid ()) throw data::exception {} << "Invalid hexidecimal string";
         x = data::math::number::NTL::import_bin<data::byte> (data::byte_slice (*data::encoding::hex::read (data::string_view (u).substr (2))),
-            data::endian::order::little, data::endian::order::native, neg);
+            data::endian::little, data::endian::native, neg);
     }
 
-    template <data::endian::order r, data::arithmetic::negativity neg, std::unsigned_integral word>
+    template <data::endian r, data::negativity neg, std::unsigned_integral word>
     void inline conv (ZZ &x, const data::math::number::Z_bytes<r, neg, word> &u) {
-        x = data::math::number::NTL::import_bin<word> (data::slice<const word> (u), r, data::endian::order::native, neg);
+        x = data::math::number::NTL::import_bin<word> (data::slice<const word> (u), r, data::endian::native, neg);
     }
 
-    template <data::endian::order r, std::unsigned_integral word>
+    template <data::endian r, std::unsigned_integral word>
     void inline conv (ZZ &x, const data::math::number::N_bytes<r, word> &u) {
         x = data::math::number::NTL::import_bin<word> (
             data::slice<const word> (u), r,
-            data::endian::order::native,
-            data::arithmetic::negativity::nones);
+            data::endian::native,
+            data::negativity::nones);
     }
 
-    template <bool is_signed, data::endian::order r, std::size_t size, std::unsigned_integral word>
+    template <bool is_signed, data::endian r, std::size_t size, std::unsigned_integral word>
     void inline conv (ZZ &x, const data::math::number::bounded<is_signed, r, size, word> &u) {
         x = data::math::number::NTL::import_bin<word> (
-            data::slice<const word> (u), r, data::endian::order::native,
-            is_signed ? data::arithmetic::negativity::twos : data::arithmetic::negativity::nones);
+            data::slice<const word> (u), r, data::endian::native,
+            is_signed ? data::negativity::twos : data::negativity::nones);
     }
 
-    template <bool is_signed, data::endian::order r, std::size_t size>
-    void inline conv (ZZ &x, const data::endian::integral<is_signed, r, size> &u) {
+    template <bool is_signed, data::endian r, std::size_t size>
+    void inline conv (ZZ &x, const data::endian_integral<is_signed, r, size> &u) {
         x = data::math::number::NTL::import_bin<data::byte> (
-            data::slice<const data::byte> (u), r, data::endian::order::native,
-            is_signed ? data::arithmetic::negativity::twos : data::arithmetic::negativity::nones);
+            data::slice<const data::byte> (u), r, data::endian::native,
+            is_signed ? data::negativity::twos : data::negativity::nones);
     }
 
     void inline conv (ZZ &x, const data::encoding::decimal::string &u) {
@@ -1016,29 +1016,29 @@ namespace NTL {
     template <std::unsigned_integral I> void inline conv (ZZ &u, const I &x) {
         u = data::math::number::NTL::import_bin (
             data::slice<const I> {(const I *) (&x), 1},
-                data::endian::order::little, data::endian::order::native, data::arithmetic::negativity::twos);
+                data::endian::little, data::endian::native, data::negativity::twos);
     }
 
     void inline conv (ZZ &u, const long long int &x) {
         u = data::math::number::NTL::import_bin (
             data::slice<const unsigned long long int> {(const unsigned long long int *) (&x), 1},
-                data::endian::order::little, data::endian::order::native, data::arithmetic::negativity::twos);
+                data::endian::little, data::endian::native, data::negativity::twos);
     }
 
     void inline conv (data::encoding::base58::string &x, const ZZ &u) {
         x = data::encoding::base58::encode (data::math::number::Z (u));
     }
 
-    template <bool is_signed, data::endian::order r, std::size_t size, std::unsigned_integral word>
+    template <bool is_signed, data::endian r, std::size_t size, std::unsigned_integral word>
     void inline conv (data::math::number::bounded<is_signed, r, size, word> &x, const ZZ &u) {
-        data::math::number::NTL::export_bin<word> (data::slice<word> (x), u, r, data::endian::order::native,
-            is_signed ? data::arithmetic::negativity::twos : data::arithmetic::negativity::nones);
+        data::math::number::NTL::export_bin<word> (data::slice<word> (x), u, r, data::endian::native,
+            is_signed ? data::negativity::twos : data::negativity::nones);
     }
 
-    template <bool is_signed, data::endian::order r, std::size_t size>
-    void inline conv (data::endian::integral<is_signed, r, size> &x, const ZZ &u) {
-        data::math::number::NTL::export_bin<data::byte> (data::slice<data::byte> (x), u, r, data::endian::order::native,
-            is_signed ? data::arithmetic::negativity::twos : data::arithmetic::negativity::nones);
+    template <bool is_signed, data::endian r, std::size_t size>
+    void inline conv (data::endian_integral<is_signed, r, size> &x, const ZZ &u) {
+        data::math::number::NTL::export_bin<data::byte> (data::slice<data::byte> (x), u, r, data::endian::native,
+            is_signed ? data::negativity::twos : data::negativity::nones);
     }
 
     void inline conv (data::encoding::signed_decimal::string &x, const ZZ &u) {
@@ -1052,123 +1052,108 @@ namespace NTL {
 }
 
 namespace data::math::number::NTL {
+    template <std::unsigned_integral U>
+    bool is_negative (
+        slice<const U> input,
+        endian word_order,
+        endian byte_order,
+        negativity neg)
+    {
+        if (neg == negativity::nones || input.empty ())
+            return false;
+
+        const U word = word_order == endian::little
+            ? input.back ()
+            : input.front ();
+
+        constexpr std::size_t bytes = sizeof (U);
+
+        const std::size_t byte_index = byte_order == endian::little
+            ? bytes - 1
+            : 0;
+
+        const U sign_bit = U (1) << (byte_index * 8 + 7);
+
+        return (word & sign_bit) != 0;
+    }
 
     template <std::unsigned_integral U>
     static ZZ import_bin (
         slice<const U> input,
         // the ordering of the overall array.
-        endian::order word_order,
+        endian word_order,
         // the ordering of each value in the array.
-        endian::order byte_order,
-        arithmetic::negativity neg
+        endian byte_order,
+        negativity neg
     ) {
 
         if (input.size () == 0) return ZZ ();
 
-        if (word_order == endian::order::little &&
-            neg == arithmetic::negativity::nones &&
-            sizeof (U) == sizeof (unsigned char) &&
-            (byte_order == endian::order::native || sizeof (unsigned char) == 1))
-            return ZZFromBytes (reinterpret_cast<const unsigned char *> (input.data ()), input.size ());
-
-        if (word_order != endian::order::big && word_order != endian::order::little)
+        if (word_order != endian::big && word_order != endian::little)
             throw std::invalid_argument ("invalid word order");
 
-        if (byte_order != endian::order::big && byte_order != endian::order::little)
+        if (byte_order != endian::big && byte_order != endian::little)
             throw std::invalid_argument ("invalid byte order");
 
-        // deal with negative numbers.
-        if (neg == arithmetic::negativity::twos) {
-            if (word_order == endian::order::big) {
-                if (arithmetic::twos::is_negative (arithmetic::Words<endian::order::big, const U> {input})) {
+        bool input_is_negative = is_negative (input, word_order, byte_order, neg);
 
-                    const auto magnitude =
-                        arithmetic::twos::negate<endian::order::big, U> (input);
-
-                    return -import_bin (
-                        slice<const U> (magnitude),
-                        word_order,
-                        byte_order,
-                        arithmetic::negativity::nones);
-
-                }
-            } else {
-                if (arithmetic::twos::is_negative (arithmetic::Words<endian::order::little, const U> {input})) {
-                    const auto magnitude =
-                        arithmetic::twos::negate<endian::order::little, U> (input);
-
-                    return -import_bin (
-                        slice<const U> (magnitude.data (), magnitude.size ()),
-                        word_order,
-                        byte_order,
-                        arithmetic::negativity::nones);
-                }
-            }
-        } else if (neg == arithmetic::negativity::BC) {
-            if (word_order == endian::order::big) {
-                if (arithmetic::BC::is_negative (arithmetic::Words<endian::big, const U> {input})) {
-                    const auto magnitude =
-                        arithmetic::BC::negate<endian::big, U> (input);
-
-                    return -import_bin (
-                        slice<const U> (magnitude.data (), magnitude.size ()),
-                        word_order,
-                        byte_order,
-                        arithmetic::negativity::nones
-                    );
-                }
-            } else {
-                if (arithmetic::BC::is_negative (arithmetic::Words<endian::little, const U> {input})) {
-                    const auto magnitude =
-                        arithmetic::BC::negate<endian::little, U> (input);
-
-                    return -import_bin (
-                        slice<const U> (magnitude.data (), magnitude.size ()),
-                        word_order,
-                        byte_order,
-                        arithmetic::negativity::nones
-                    );
-                }
-            }
-        }
-
-        // If everything is little endian then we can simply cast
-        // the array to a byte array.
-        if (word_order == endian::order::little &&
-            (byte_order == endian::order::little ||
-            (sizeof (U) == sizeof (unsigned char) && sizeof (unsigned char) == 1))) {
-            return ZZFromBytes (
-                reinterpret_cast<const unsigned char *> (input.data ()),
-                input.size () * sizeof (U));
-        }
+        // under the right circumstances, we can send the input directly to NTL.
+        if (word_order == endian::little &&
+            !input_is_negative &&
+            sizeof (U) == sizeof (unsigned char) &&
+            (byte_order == endian::native || sizeof (unsigned char) == 1))
+            return ZZFromBytes (reinterpret_cast<const unsigned char *> (input.data ()), input.size ());
 
         bytestring<U> bytes (input.size ());
 
-        if (word_order == endian::order::little)
+        if (word_order == endian::little)
             for (size_t i = 0; i < input.size (); ++i)
                 bytes[i] = input[i];
         else for (size_t i = 0; i < input.size (); ++i)
                 bytes[i] = input[input.size () - i - 1];
 
-        if (byte_order != endian::order::little && sizeof (U) > 1)
+        if (!input_is_negative) {
+            // switch to little endian.
+            if (byte_order != endian::little && sizeof (U) > 1)
+                for (U &x : bytes) x = boost::endian::endian_reverse<U> (x);
+
+            // from now on we are using little endian word and byte order.
+            return ZZFromBytes (
+                reinterpret_cast<const unsigned char *> (bytes.data ()),
+                bytes.size () * sizeof (U));
+        }
+
+        // first convert to native endian.
+        if (byte_order != endian::native && sizeof (U) > 1)
             for (U &x : bytes) x = boost::endian::endian_reverse<U> (x);
 
-        return ZZFromBytes (
+        // negate
+        if (neg == negativity::twos) arithmetic::twos::negate<endian::little, U> (bytes);
+        else arithmetic::BC::negate<endian::little, U> (bytes);
+
+        // switch to little endian
+        if (endian::native != endian::little && sizeof (U) > 1)
+            for (U &x : bytes) x = boost::endian::endian_reverse<U> (x);
+
+        auto zzz = ZZFromBytes (
             reinterpret_cast<const unsigned char *> (bytes.data ()),
             bytes.size () * sizeof (U));
+
+        return -zzz;
+
     }
 
     template <std::unsigned_integral U>
-    void negate_twos (data::slice<U> output) {
+    void negate_twos(data::slice<U> output) {
+        // The words are stored little-endian, so the two's-complement
+        // carry propagates from the first word toward the last.
         for (auto &x : output)
             x = ~x;
 
-        for (auto &x : output) {
-            ++x;
-
-            if (x != 0)
-                break;
-        }
+        // Add one to the multiword value.  add_with_carry propagates the
+        // carry to the next word when the current addition overflows.
+        for (auto &x : output)
+            if (!arithmetic::add_with_carry (x, x, U (1))) return;
     }
 
     template <std::unsigned_integral U>
@@ -1181,15 +1166,15 @@ namespace data::math::number::NTL {
         data::slice<U> output,
         const ZZ &x,
         // the ordering of the overall array.
-        endian::order word_order,
+        endian word_order,
         // the ordering of each value in the array.
-        endian::order byte_order,
-        arithmetic::negativity neg
+        endian byte_order,
+        negativity neg
     ) {
 
         auto sign = NTL::sign (x);
 
-        if (neg == arithmetic::negativity::nones && sign < 0)
+        if (neg == negativity::nones && sign < 0)
             throw exception {} << "negative value";
 
         constexpr size_t bits = sizeof (U) * 8;
@@ -1198,13 +1183,13 @@ namespace data::math::number::NTL {
 
         // Determine that the minimal size is enough given the buffer.
         size_t required = sign == 0 ? 0:
-            neg == arithmetic::negativity::nones
+            neg == negativity::nones
                 ? NumBits (x)
                 : bit_width (x);
 
         auto abs = NTL::abs (x);
 
-        if (neg == arithmetic::negativity::BC &&
+        if (neg == negativity::BC &&
             sign < 0 &&
             bit_width (x) == NumBits (abs))
             ++required;
@@ -1213,28 +1198,34 @@ namespace data::math::number::NTL {
             throw exception {} << "integer does not fit";
 
         {
-
             auto *output_bytes = reinterpret_cast<unsigned char *> (output.data ());
             const size_t nbytes = output.size () * sizeof (U);
-            const unsigned char fill = ::NTL::sign (x) < 0 ? 0xff : 0x00;
 
-            std::fill (output_bytes, output_bytes + nbytes, fill);
+            std::fill (output_bytes, output_bytes + nbytes, 0);
 
             BytesFromZZ (output_bytes, abs, nbytes);
         }
 
-        if (byte_order != endian::order::little && sizeof (U) > 1)
-            for (U &x : output) x = boost::endian::endian_reverse<U> (x);
+        // at this point, word order and byte order are both little endian.
 
         // if x is negative, apply the appropriate negativity function.
         if (sign < 0) {
-            if (neg == arithmetic::negativity::twos)
-                negate_twos (output);
-            else if (neg == arithmetic::negativity::BC)
-                negate_bc (output);
-        }
+            // first convert to native endian.
+            if (endian::little != endian::native && sizeof (U) > 1)
+                for (U &x : output) x = boost::endian::endian_reverse<U> (x);
 
-        if (word_order == endian::order::big)
+            if (neg == negativity::twos)
+                negate_twos (output);
+            else if (neg == negativity::BC)
+                negate_bc (output);
+
+            if (endian::native != byte_order && sizeof (U) > 1)
+                for (U &x : output) x = boost::endian::endian_reverse<U> (x);
+        } else if (byte_order != endian::little && sizeof (U) > 1)
+            for (U &x : output) x = boost::endian::endian_reverse<U> (x);
+
+        // reverse to big endian if we have to.
+        if (word_order == endian::big)
             for (int i = 0; i < output.size () / 2; i++)
                 std::swap (output[i], output[output.size () - 1 - i]);
     }

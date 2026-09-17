@@ -117,7 +117,7 @@ namespace data::encoding {
         
     }
 
-    template <neg n, std::signed_integral I> void test_hex_to_built_in (const char *val, I expected) {
+    template <negativity n, std::signed_integral I> void test_hex_to_built_in (const char *val, I expected) {
         try {
             I result = I (hexidecimal::integer<n, hex_case::lower> (val));
             EXPECT_EQ (result, expected) <<
@@ -127,7 +127,7 @@ namespace data::encoding {
         }
     }
 
-    template <neg n, std::unsigned_integral I> void test_hex_to_built_in (const char *val, I expected) {
+    template <negativity n, std::unsigned_integral I> void test_hex_to_built_in (const char *val, I expected) {
         try {
             I result = I (hexidecimal::integer<n, hex_case::lower> (val));
             EXPECT_EQ (result, expected) <<
@@ -138,7 +138,7 @@ namespace data::encoding {
     }
 
     // throw out_of_range instead
-    template <neg n, std::integral I> void test_hex_to_built_in (const char *val) {
+    template <negativity n, std::integral I> void test_hex_to_built_in (const char *val) {
         EXPECT_THROW (I (hexidecimal::integer<n, hex_case::lower> (val)), out_of_range) <<
             "expected string " << val << " " << n << " to throw ";
     }
@@ -146,212 +146,212 @@ namespace data::encoding {
     TEST (StringNumbers, HexToBuiltIn) {
 
         // first let's test zero. That's a good place to start!
-        test_hex_to_built_in<neg::nones, byte> ("0x", 0);
-        test_hex_to_built_in<neg::twos, byte> ("0x", 0);
-        test_hex_to_built_in<neg::BC, byte> ("0x", 0);
+        test_hex_to_built_in<negativity::nones, byte> ("0x", 0);
+        test_hex_to_built_in<negativity::twos, byte> ("0x", 0);
+        test_hex_to_built_in<negativity::BC, byte> ("0x", 0);
 
-        test_hex_to_built_in<neg::nones, int8> ("0x", 0);
-        test_hex_to_built_in<neg::twos, int8> ("0x", 0);
-        test_hex_to_built_in<neg::BC, int8> ("0x", 0);
+        test_hex_to_built_in<negativity::nones, int8> ("0x", 0);
+        test_hex_to_built_in<negativity::twos, int8> ("0x", 0);
+        test_hex_to_built_in<negativity::BC, int8> ("0x", 0);
 
-        test_hex_to_built_in<neg::nones, uint16> ("0x", 0);
-        test_hex_to_built_in<neg::twos, uint16> ("0x", 0);
-        test_hex_to_built_in<neg::BC, uint16> ("0x", 0);
+        test_hex_to_built_in<negativity::nones, uint16> ("0x", 0);
+        test_hex_to_built_in<negativity::twos, uint16> ("0x", 0);
+        test_hex_to_built_in<negativity::BC, uint16> ("0x", 0);
 
-        test_hex_to_built_in<neg::nones, int16> ("0x", 0);
-        test_hex_to_built_in<neg::twos, int16> ("0x", 0);
-        test_hex_to_built_in<neg::BC, int16> ("0x", 0);
+        test_hex_to_built_in<negativity::nones, int16> ("0x", 0);
+        test_hex_to_built_in<negativity::twos, int16> ("0x", 0);
+        test_hex_to_built_in<negativity::BC, int16> ("0x", 0);
 
-        test_hex_to_built_in<neg::nones, uint32> ("0x", 0);
-        test_hex_to_built_in<neg::twos, uint32> ("0x", 0);
-        test_hex_to_built_in<neg::BC, uint32> ("0x", 0);
+        test_hex_to_built_in<negativity::nones, uint32> ("0x", 0);
+        test_hex_to_built_in<negativity::twos, uint32> ("0x", 0);
+        test_hex_to_built_in<negativity::BC, uint32> ("0x", 0);
 
-        test_hex_to_built_in<neg::nones, int32> ("0x", 0);
-        test_hex_to_built_in<neg::twos, int32> ("0x", 0);
-        test_hex_to_built_in<neg::BC, int32> ("0x", 0);
+        test_hex_to_built_in<negativity::nones, int32> ("0x", 0);
+        test_hex_to_built_in<negativity::twos, int32> ("0x", 0);
+        test_hex_to_built_in<negativity::BC, int32> ("0x", 0);
 
-        test_hex_to_built_in<neg::nones, uint64> ("0x", 0);
-        test_hex_to_built_in<neg::twos, uint64> ("0x", 0);
-        test_hex_to_built_in<neg::BC, uint64> ("0x", 0);
+        test_hex_to_built_in<negativity::nones, uint64> ("0x", 0);
+        test_hex_to_built_in<negativity::twos, uint64> ("0x", 0);
+        test_hex_to_built_in<negativity::BC, uint64> ("0x", 0);
 
-        test_hex_to_built_in<neg::nones, int64> ("0x", 0);
-        test_hex_to_built_in<neg::twos, int64> ("0x", 0);
-        test_hex_to_built_in<neg::BC, int64> ("0x", 0);
+        test_hex_to_built_in<negativity::nones, int64> ("0x", 0);
+        test_hex_to_built_in<negativity::twos, int64> ("0x", 0);
+        test_hex_to_built_in<negativity::BC, int64> ("0x", 0);
 
         // minimal representations of 1
-        test_hex_to_built_in<neg::nones, byte> ("0x01", 1);
-        test_hex_to_built_in<neg::twos, byte> ("0x01", 1);
-        test_hex_to_built_in<neg::BC, byte> ("0x01", 1);
+        test_hex_to_built_in<negativity::nones, byte> ("0x01", 1);
+        test_hex_to_built_in<negativity::twos, byte> ("0x01", 1);
+        test_hex_to_built_in<negativity::BC, byte> ("0x01", 1);
 
-        test_hex_to_built_in<neg::nones, int8> ("0x01", 1);
-        test_hex_to_built_in<neg::twos, int8> ("0x01", 1);
-        test_hex_to_built_in<neg::BC, int8> ("0x01", 1);
+        test_hex_to_built_in<negativity::nones, int8> ("0x01", 1);
+        test_hex_to_built_in<negativity::twos, int8> ("0x01", 1);
+        test_hex_to_built_in<negativity::BC, int8> ("0x01", 1);
 
-        test_hex_to_built_in<neg::nones, uint16> ("0x01", 1);
-        test_hex_to_built_in<neg::twos, uint16> ("0x01", 1);
-        test_hex_to_built_in<neg::BC, uint16> ("0x01", 1);
+        test_hex_to_built_in<negativity::nones, uint16> ("0x01", 1);
+        test_hex_to_built_in<negativity::twos, uint16> ("0x01", 1);
+        test_hex_to_built_in<negativity::BC, uint16> ("0x01", 1);
 
-        test_hex_to_built_in<neg::nones, int16> ("0x01", 1);
-        test_hex_to_built_in<neg::twos, int16> ("0x01", 1);
-        test_hex_to_built_in<neg::BC, int16> ("0x01", 1);
+        test_hex_to_built_in<negativity::nones, int16> ("0x01", 1);
+        test_hex_to_built_in<negativity::twos, int16> ("0x01", 1);
+        test_hex_to_built_in<negativity::BC, int16> ("0x01", 1);
 
-        test_hex_to_built_in<neg::nones, uint32> ("0x01", 1);
-        test_hex_to_built_in<neg::twos, uint32> ("0x01", 1);
-        test_hex_to_built_in<neg::BC, uint32> ("0x01", 1);
+        test_hex_to_built_in<negativity::nones, uint32> ("0x01", 1);
+        test_hex_to_built_in<negativity::twos, uint32> ("0x01", 1);
+        test_hex_to_built_in<negativity::BC, uint32> ("0x01", 1);
 
-        test_hex_to_built_in<neg::nones, int32> ("0x01", 1);
-        test_hex_to_built_in<neg::twos, int32> ("0x01", 1);
-        test_hex_to_built_in<neg::BC, int32> ("0x01", 1);
+        test_hex_to_built_in<negativity::nones, int32> ("0x01", 1);
+        test_hex_to_built_in<negativity::twos, int32> ("0x01", 1);
+        test_hex_to_built_in<negativity::BC, int32> ("0x01", 1);
 
-        test_hex_to_built_in<neg::nones, uint64> ("0x01", 1);
-        test_hex_to_built_in<neg::twos, uint64> ("0x01", 1);
-        test_hex_to_built_in<neg::BC, uint64> ("0x01", 1);
+        test_hex_to_built_in<negativity::nones, uint64> ("0x01", 1);
+        test_hex_to_built_in<negativity::twos, uint64> ("0x01", 1);
+        test_hex_to_built_in<negativity::BC, uint64> ("0x01", 1);
 
-        test_hex_to_built_in<neg::nones, int64> ("0x01", 1);
-        test_hex_to_built_in<neg::twos, int64> ("0x01", 1);
-        test_hex_to_built_in<neg::BC, int64> ("0x01", 1);
+        test_hex_to_built_in<negativity::nones, int64> ("0x01", 1);
+        test_hex_to_built_in<negativity::twos, int64> ("0x01", 1);
+        test_hex_to_built_in<negativity::BC, int64> ("0x01", 1);
 
         // representations of 1 that are bigger than the size of the number to be returned (should be ok)
-        test_hex_to_built_in<neg::nones, byte> ("0x0001", 1);
-        test_hex_to_built_in<neg::twos, byte> ("0x0001", 1);
-        test_hex_to_built_in<neg::BC, byte> ("0x0001", 1);
+        test_hex_to_built_in<negativity::nones, byte> ("0x0001", 1);
+        test_hex_to_built_in<negativity::twos, byte> ("0x0001", 1);
+        test_hex_to_built_in<negativity::BC, byte> ("0x0001", 1);
 
-        test_hex_to_built_in<neg::nones, int8> ("0x000001", 1);
-        test_hex_to_built_in<neg::twos, int8> ("0x000001", 1);
-        test_hex_to_built_in<neg::BC, int8> ("0x000001", 1);
+        test_hex_to_built_in<negativity::nones, int8> ("0x000001", 1);
+        test_hex_to_built_in<negativity::twos, int8> ("0x000001", 1);
+        test_hex_to_built_in<negativity::BC, int8> ("0x000001", 1);
 
-        test_hex_to_built_in<neg::nones, uint16> ("0x000001", 1);
-        test_hex_to_built_in<neg::twos, uint16> ("0x000001", 1);
-        test_hex_to_built_in<neg::BC, uint16> ("0x000001", 1);
+        test_hex_to_built_in<negativity::nones, uint16> ("0x000001", 1);
+        test_hex_to_built_in<negativity::twos, uint16> ("0x000001", 1);
+        test_hex_to_built_in<negativity::BC, uint16> ("0x000001", 1);
 
-        test_hex_to_built_in<neg::nones, int16> ("0x00000001", 1);
-        test_hex_to_built_in<neg::twos, int16> ("0x00000001", 1);
-        test_hex_to_built_in<neg::BC, int16> ("0x00000001", 1);
+        test_hex_to_built_in<negativity::nones, int16> ("0x00000001", 1);
+        test_hex_to_built_in<negativity::twos, int16> ("0x00000001", 1);
+        test_hex_to_built_in<negativity::BC, int16> ("0x00000001", 1);
 
-        test_hex_to_built_in<neg::nones, uint32> ("0x0000000001", 1);
-        test_hex_to_built_in<neg::twos, uint32> ("0x0000000001", 1);
-        test_hex_to_built_in<neg::BC, uint32> ("0x0000000001", 1);
+        test_hex_to_built_in<negativity::nones, uint32> ("0x0000000001", 1);
+        test_hex_to_built_in<negativity::twos, uint32> ("0x0000000001", 1);
+        test_hex_to_built_in<negativity::BC, uint32> ("0x0000000001", 1);
 
-        test_hex_to_built_in<neg::nones, int32> ("0x000000000001", 1);
-        test_hex_to_built_in<neg::twos, int32> ("0x000000000001", 1);
-        test_hex_to_built_in<neg::BC, int32> ("0x000000000001", 1);
+        test_hex_to_built_in<negativity::nones, int32> ("0x000000000001", 1);
+        test_hex_to_built_in<negativity::twos, int32> ("0x000000000001", 1);
+        test_hex_to_built_in<negativity::BC, int32> ("0x000000000001", 1);
 
-        test_hex_to_built_in<neg::nones, uint64> ("0x000000000000000001", 1);
-        test_hex_to_built_in<neg::twos, uint64> ("0x000000000000000001", 1);
-        test_hex_to_built_in<neg::BC, uint64> ("0x000000000000000001", 1);
+        test_hex_to_built_in<negativity::nones, uint64> ("0x000000000000000001", 1);
+        test_hex_to_built_in<negativity::twos, uint64> ("0x000000000000000001", 1);
+        test_hex_to_built_in<negativity::BC, uint64> ("0x000000000000000001", 1);
 
-        test_hex_to_built_in<neg::nones, int64> ("0x00000000000000000001", 1);
-        test_hex_to_built_in<neg::twos, int64> ("0x00000000000000000001", 1);
-        test_hex_to_built_in<neg::BC, int64> ("0x00000000000000000001", 1);
+        test_hex_to_built_in<negativity::nones, int64> ("0x00000000000000000001", 1);
+        test_hex_to_built_in<negativity::twos, int64> ("0x00000000000000000001", 1);
+        test_hex_to_built_in<negativity::BC, int64> ("0x00000000000000000001", 1);
 
         // maximum int values
-        test_hex_to_built_in<neg::nones, byte> ("0x7f", 0x7f);
-        test_hex_to_built_in<neg::twos, byte> ("0x7f", 0x7f);
-        test_hex_to_built_in<neg::BC, byte> ("0x7f", 0x7f);
+        test_hex_to_built_in<negativity::nones, byte> ("0x7f", 0x7f);
+        test_hex_to_built_in<negativity::twos, byte> ("0x7f", 0x7f);
+        test_hex_to_built_in<negativity::BC, byte> ("0x7f", 0x7f);
 
-        test_hex_to_built_in<neg::nones, int8> ("0x7f", 0x7f);
-        test_hex_to_built_in<neg::twos, int8> ("0x7f", 0x7f);
-        test_hex_to_built_in<neg::BC, int8> ("0x7f", 0x7f);
+        test_hex_to_built_in<negativity::nones, int8> ("0x7f", 0x7f);
+        test_hex_to_built_in<negativity::twos, int8> ("0x7f", 0x7f);
+        test_hex_to_built_in<negativity::BC, int8> ("0x7f", 0x7f);
 
-        test_hex_to_built_in<neg::nones, uint16> ("0x7fff", 0x7fff);
-        test_hex_to_built_in<neg::twos, uint16> ("0x7fff", 0x7fff);
-        test_hex_to_built_in<neg::BC, uint16> ("0x7fff", 0x7fff);
+        test_hex_to_built_in<negativity::nones, uint16> ("0x7fff", 0x7fff);
+        test_hex_to_built_in<negativity::twos, uint16> ("0x7fff", 0x7fff);
+        test_hex_to_built_in<negativity::BC, uint16> ("0x7fff", 0x7fff);
 
-        test_hex_to_built_in<neg::nones, int16> ("0x7fff", 0x7fff);
-        test_hex_to_built_in<neg::twos, int16> ("0x7fff", 0x7fff);
-        test_hex_to_built_in<neg::BC, int16> ("0x7fff", 0x7fff);
+        test_hex_to_built_in<negativity::nones, int16> ("0x7fff", 0x7fff);
+        test_hex_to_built_in<negativity::twos, int16> ("0x7fff", 0x7fff);
+        test_hex_to_built_in<negativity::BC, int16> ("0x7fff", 0x7fff);
 
-        test_hex_to_built_in<neg::nones, uint32> ("0x7fffffff", 0x7fffffff);
-        test_hex_to_built_in<neg::twos, uint32> ("0x7fffffff", 0x7fffffff);
-        test_hex_to_built_in<neg::BC, uint32> ("0x7fffffff", 0x7fffffff);
+        test_hex_to_built_in<negativity::nones, uint32> ("0x7fffffff", 0x7fffffff);
+        test_hex_to_built_in<negativity::twos, uint32> ("0x7fffffff", 0x7fffffff);
+        test_hex_to_built_in<negativity::BC, uint32> ("0x7fffffff", 0x7fffffff);
 
-        test_hex_to_built_in<neg::nones, int32> ("0x7fffffff", 0x7fffffff);
-        test_hex_to_built_in<neg::twos, int32> ("0x7fffffff", 0x7fffffff);
-        test_hex_to_built_in<neg::BC, int32> ("0x7fffffff", 0x7fffffff);
+        test_hex_to_built_in<negativity::nones, int32> ("0x7fffffff", 0x7fffffff);
+        test_hex_to_built_in<negativity::twos, int32> ("0x7fffffff", 0x7fffffff);
+        test_hex_to_built_in<negativity::BC, int32> ("0x7fffffff", 0x7fffffff);
 
-        test_hex_to_built_in<neg::nones, uint64> ("0x7fffffffffffffff", 0x7fffffffffffffff);
-        test_hex_to_built_in<neg::twos, uint64> ("0x7fffffffffffffff", 0x7fffffffffffffff);
-        test_hex_to_built_in<neg::BC, uint64> ("0x7fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<negativity::nones, uint64> ("0x7fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<negativity::twos, uint64> ("0x7fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<negativity::BC, uint64> ("0x7fffffffffffffff", 0x7fffffffffffffff);
 
-        test_hex_to_built_in<neg::nones, int64> ("0x7fffffffffffffff", 0x7fffffffffffffff);
-        test_hex_to_built_in<neg::twos, int64> ("0x7fffffffffffffff", 0x7fffffffffffffff);
-        test_hex_to_built_in<neg::BC, int64>   ("0x7fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<negativity::nones, int64> ("0x7fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<negativity::twos, int64> ("0x7fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<negativity::BC, int64>   ("0x7fffffffffffffff", 0x7fffffffffffffff);
 
-        test_hex_to_built_in<neg::nones, byte> ("0x007f", 0x7f);
-        test_hex_to_built_in<neg::twos, byte> ("0x007f", 0x7f);
-        test_hex_to_built_in<neg::BC, byte> ("0x007f", 0x7f);
+        test_hex_to_built_in<negativity::nones, byte> ("0x007f", 0x7f);
+        test_hex_to_built_in<negativity::twos, byte> ("0x007f", 0x7f);
+        test_hex_to_built_in<negativity::BC, byte> ("0x007f", 0x7f);
 
-        test_hex_to_built_in<neg::nones, int8> ("0x00007f", 0x7f);
-        test_hex_to_built_in<neg::twos, int8> ("0x00007f", 0x7f);
-        test_hex_to_built_in<neg::BC, int8> ("0x00007f", 0x7f);
+        test_hex_to_built_in<negativity::nones, int8> ("0x00007f", 0x7f);
+        test_hex_to_built_in<negativity::twos, int8> ("0x00007f", 0x7f);
+        test_hex_to_built_in<negativity::BC, int8> ("0x00007f", 0x7f);
 
-        test_hex_to_built_in<neg::nones, uint16> ("0x0000007fff", 0x7fff);
-        test_hex_to_built_in<neg::twos, uint16> ("0x0000007fff", 0x7fff);
-        test_hex_to_built_in<neg::BC, uint16> ("0x0000007fff", 0x7fff);
+        test_hex_to_built_in<negativity::nones, uint16> ("0x0000007fff", 0x7fff);
+        test_hex_to_built_in<negativity::twos, uint16> ("0x0000007fff", 0x7fff);
+        test_hex_to_built_in<negativity::BC, uint16> ("0x0000007fff", 0x7fff);
 
-        test_hex_to_built_in<neg::nones, int16> ("0x000000007fff", 0x7fff);
-        test_hex_to_built_in<neg::twos, int16> ("0x000000007fff", 0x7fff);
-        test_hex_to_built_in<neg::BC, int16> ("0x000000007fff", 0x7fff);
+        test_hex_to_built_in<negativity::nones, int16> ("0x000000007fff", 0x7fff);
+        test_hex_to_built_in<negativity::twos, int16> ("0x000000007fff", 0x7fff);
+        test_hex_to_built_in<negativity::BC, int16> ("0x000000007fff", 0x7fff);
 
-        test_hex_to_built_in<neg::nones, uint32> ("0x00000000007fffffff", 0x7fffffff);
-        test_hex_to_built_in<neg::twos, uint32> ("0x00000000007fffffff", 0x7fffffff);
-        test_hex_to_built_in<neg::BC, uint32> ("0x00000000007fffffff", 0x7fffffff);
+        test_hex_to_built_in<negativity::nones, uint32> ("0x00000000007fffffff", 0x7fffffff);
+        test_hex_to_built_in<negativity::twos, uint32> ("0x00000000007fffffff", 0x7fffffff);
+        test_hex_to_built_in<negativity::BC, uint32> ("0x00000000007fffffff", 0x7fffffff);
 
-        test_hex_to_built_in<neg::nones, int32> ("0x0000000000007fffffff", 0x7fffffff);
-        test_hex_to_built_in<neg::twos, int32> ("0x0000000000007fffffff", 0x7fffffff);
-        test_hex_to_built_in<neg::BC, int32> ("0x0000000000007fffffff", 0x7fffffff);
+        test_hex_to_built_in<negativity::nones, int32> ("0x0000000000007fffffff", 0x7fffffff);
+        test_hex_to_built_in<negativity::twos, int32> ("0x0000000000007fffffff", 0x7fffffff);
+        test_hex_to_built_in<negativity::BC, int32> ("0x0000000000007fffffff", 0x7fffffff);
 
-        test_hex_to_built_in<neg::nones, uint64> ("0x000000000000007fffffffffffffff", 0x7fffffffffffffff);
-        test_hex_to_built_in<neg::twos, uint64> ("0x000000000000007fffffffffffffff", 0x7fffffffffffffff);
-        test_hex_to_built_in<neg::BC, uint64> ("0x000000000000007fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<negativity::nones, uint64> ("0x000000000000007fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<negativity::twos, uint64> ("0x000000000000007fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<negativity::BC, uint64> ("0x000000000000007fffffffffffffff", 0x7fffffffffffffff);
 
-        test_hex_to_built_in<neg::nones, int64> ("0x00000000000000007fffffffffffffff", 0x7fffffffffffffff);
-        test_hex_to_built_in<neg::twos, int64> ("0x00000000000000007fffffffffffffff", 0x7fffffffffffffff);
-        test_hex_to_built_in<neg::BC, int64>   ("0x00000000000000007fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<negativity::nones, int64> ("0x00000000000000007fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<negativity::twos, int64> ("0x00000000000000007fffffffffffffff", 0x7fffffffffffffff);
+        test_hex_to_built_in<negativity::BC, int64>   ("0x00000000000000007fffffffffffffff", 0x7fffffffffffffff);
 
         // BC negative zero.
-        test_hex_to_built_in<neg::BC, byte>   ("0x80", 0);
-        test_hex_to_built_in<neg::BC, int8>   ("0x80", 0);
-        test_hex_to_built_in<neg::BC, uint16> ("0x80", 0);
-        test_hex_to_built_in<neg::BC, int16>  ("0x80", 0);
-        test_hex_to_built_in<neg::BC, uint32> ("0x80", 0);
-        test_hex_to_built_in<neg::BC, int32>  ("0x80", 0);
-        test_hex_to_built_in<neg::BC, uint64> ("0x80", 0);
-        test_hex_to_built_in<neg::BC, int64>  ("0x80", 0);
+        test_hex_to_built_in<negativity::BC, byte>   ("0x80", 0);
+        test_hex_to_built_in<negativity::BC, int8>   ("0x80", 0);
+        test_hex_to_built_in<negativity::BC, uint16> ("0x80", 0);
+        test_hex_to_built_in<negativity::BC, int16>  ("0x80", 0);
+        test_hex_to_built_in<negativity::BC, uint32> ("0x80", 0);
+        test_hex_to_built_in<negativity::BC, int32>  ("0x80", 0);
+        test_hex_to_built_in<negativity::BC, uint64> ("0x80", 0);
+        test_hex_to_built_in<negativity::BC, int64>  ("0x80", 0);
 
-        test_hex_to_built_in<neg::BC, byte>   ("0x8000000000", 0);
-        test_hex_to_built_in<neg::BC, int8>   ("0x8000000000", 0);
-        test_hex_to_built_in<neg::BC, uint16> ("0x8000000000", 0);
-        test_hex_to_built_in<neg::BC, int16>  ("0x8000000000", 0);
-        test_hex_to_built_in<neg::BC, uint32> ("0x8000000000", 0);
-        test_hex_to_built_in<neg::BC, int32>  ("0x8000000000", 0);
-        test_hex_to_built_in<neg::BC, uint64> ("0x8000000000", 0);
-        test_hex_to_built_in<neg::BC, int64>  ("0x8000000000", 0);
+        test_hex_to_built_in<negativity::BC, byte>   ("0x8000000000", 0);
+        test_hex_to_built_in<negativity::BC, int8>   ("0x8000000000", 0);
+        test_hex_to_built_in<negativity::BC, uint16> ("0x8000000000", 0);
+        test_hex_to_built_in<negativity::BC, int16>  ("0x8000000000", 0);
+        test_hex_to_built_in<negativity::BC, uint32> ("0x8000000000", 0);
+        test_hex_to_built_in<negativity::BC, int32>  ("0x8000000000", 0);
+        test_hex_to_built_in<negativity::BC, uint64> ("0x8000000000", 0);
+        test_hex_to_built_in<negativity::BC, int64>  ("0x8000000000", 0);
 
         // BC special case.
-        test_hex_to_built_in<neg::BC, byte>   ("0x8080");
-        test_hex_to_built_in<neg::BC, int8>   ("0x8080", 0x80);
+        test_hex_to_built_in<negativity::BC, byte>   ("0x8080");
+        test_hex_to_built_in<negativity::BC, int8>   ("0x8080", 0x80);
 
-        test_hex_to_built_in<neg::BC, uint16> ("0x808000");
-        test_hex_to_built_in<neg::BC, int16>  ("0x808000", 0x8000);
+        test_hex_to_built_in<negativity::BC, uint16> ("0x808000");
+        test_hex_to_built_in<negativity::BC, int16>  ("0x808000", 0x8000);
 
-        test_hex_to_built_in<neg::BC, uint32> ("0x8080000000");
-        test_hex_to_built_in<neg::BC, int32>  ("0x8080000000", 0x80000000);
+        test_hex_to_built_in<negativity::BC, uint32> ("0x8080000000");
+        test_hex_to_built_in<negativity::BC, int32>  ("0x8080000000", 0x80000000);
 
-        test_hex_to_built_in<neg::BC, uint64> ("0x808000000000000000");
-        test_hex_to_built_in<neg::BC, int64>  ("0x808000000000000000", 0x8000000000000000);
+        test_hex_to_built_in<negativity::BC, uint64> ("0x808000000000000000");
+        test_hex_to_built_in<negativity::BC, int64>  ("0x808000000000000000", 0x8000000000000000);
 
-        test_hex_to_built_in<neg::twos, byte>   ("0x8080");
-        test_hex_to_built_in<neg::twos, int8>   ("0x8080");
+        test_hex_to_built_in<negativity::twos, byte>   ("0x8080");
+        test_hex_to_built_in<negativity::twos, int8>   ("0x8080");
 
-        test_hex_to_built_in<neg::twos, uint16> ("0x808000");
-        test_hex_to_built_in<neg::twos, int16>  ("0x808000");
+        test_hex_to_built_in<negativity::twos, uint16> ("0x808000");
+        test_hex_to_built_in<negativity::twos, int16>  ("0x808000");
 
-        test_hex_to_built_in<neg::twos, uint32> ("0x8080000000");
-        test_hex_to_built_in<neg::twos, int32>  ("0x8080000000");
+        test_hex_to_built_in<negativity::twos, uint32> ("0x8080000000");
+        test_hex_to_built_in<negativity::twos, int32>  ("0x8080000000");
 
-        test_hex_to_built_in<neg::twos, uint64> ("0x808000000000000000");
-        test_hex_to_built_in<neg::twos, int64>  ("0x808000000000000000");
+        test_hex_to_built_in<negativity::twos, uint64> ("0x808000000000000000");
+        test_hex_to_built_in<negativity::twos, int64>  ("0x808000000000000000");
 
     }
     

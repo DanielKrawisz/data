@@ -13,14 +13,14 @@
 #endif
 
 namespace data::math {
-    template <endian::order r, std::unsigned_integral word, uint64 pow>
+    template <endian r, std::unsigned_integral word, uint64 pow>
     struct root<number::N_bytes<r, word>, pow> {
         set<number::N_bytes<r, word>> operator () (const number::N_bytes<r, word> &n) {
             return set<number::N_bytes<r, word>> (root<N, pow> {} (N (n)));
         }
     };
     
-    template <endian::order r, neg zz, std::unsigned_integral word, uint64 pow>
+    template <endian r, negativity zz, std::unsigned_integral word, uint64 pow>
     struct root<number::Z_bytes<r, zz, word>, pow> {
         set<number::Z_bytes<r, zz, word>> operator () (const number::Z_bytes<r, zz, word> &z) {
             return set<number::Z_bytes<r, zz, word>> (root<Z, pow> {} (Z (z)));

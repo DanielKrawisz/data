@@ -15,11 +15,10 @@
 namespace data {
 
     using negativity = arithmetic::negativity;
-    using order = endian::order;
 
-    static const order orders [] {
-        order::big,
-        order::little
+    static const endian orders [] {
+        endian::big,
+        endian::little
     };
 
     // -----------------------------------------------------------------------------
@@ -130,6 +129,37 @@ namespace data {
         }
     }
 
+    template <typename Z>
+    Z from_dec(std::string_view input) {
+        if (input.empty ())
+            throw std::invalid_argument("empty decimal string");
+
+        bool negative = false;
+        std::size_t pos = 0;
+
+        if (input[0] == '-') {
+            negative = true;
+            pos = 1;
+
+            if (pos == input.size())
+                throw std::invalid_argument("invalid decimal string");
+        }
+
+        Z result = 0;
+
+        for (; pos < input.size(); ++pos) {
+            char c = input[pos];
+
+            if (c < '0' || c > '9')
+                throw std::invalid_argument("invalid decimal string");
+
+            result *= 10;
+            result += c - '0';
+        }
+
+        return negative ? Z (-result) : result;
+    }
+
     // -----------------------------------------------------------------------------
     // Exact-width export/import round trips
     //
@@ -137,127 +167,88 @@ namespace data {
     // representation tests above.
     // -----------------------------------------------------------------------------
 
-    template<typename W>
+    template<typename W, endian word_order, negativity neg>
     void round_trip (
-        const Z &value,
-        size_t words,
-        order word_order,
-        order byte_order,
-        negativity neg
+        const dec_int &value,
+        endian byte_order
     ) {
-        std::vector<W> output (words);
 
-        math::number::NTL::export_bin (
-            slice<W> {output},
-            value.Value,
-            word_order,
-            byte_order,
-            neg
-        );
+        Z z (value);
 
-        const NTL::ZZ recovered = math::number::NTL::import_bin (
-            slice<const W> {output},
-            word_order,
-            byte_order,
-            neg
-        );
+        using compare_type = std::conditional_t<
+            neg == negativity::nones,
+            math::number::N_bytes<word_order, W>,
+            math::number::Z_bytes<word_order, neg, W>>;
 
-        EXPECT_EQ (Z (recovered), value) << "expected " << Z (recovered) << " to match " << value;
-    }
+        compare_type compare = from_dec<compare_type> (value);
 
-    void round_trips (const Z &value) {
+        size_t min_size = compare.size ();
 
-        for (const auto word_order : orders) {
-            for (const auto byte_order : orders) {
-                if (value >= Z (0)) {
-                    round_trip<byte> (
-                        value, 32,
-                        word_order, byte_order,
-                        negativity::nones
-                    );
-                }
+        for (size_t words : std::vector<size_t> {min_size, min_size + 1, min_size + 5}) {
 
-                round_trip<byte> (
-                    value, 32,
-                    word_order, byte_order,
-                    negativity::twos
-                );
+            compare_type encoded = compare_type::zero (words);
 
-                round_trip<byte> (
-                    value, 32,
-                    word_order, byte_order,
-                    negativity::BC
-                );
+            math::number::NTL::export_bin (
+                slice<W> {encoded},
+                z.Value,
+                word_order,
+                byte_order,
+                neg
+            );
 
-                if (value >= Z (0)) {
-                    round_trip<uint16>(
-                        value, 16,
-                        word_order, byte_order,
-                        negativity::nones
-                    );
-                }
+            const NTL::ZZ recovered = math::number::NTL::import_bin (
+                slice<const W> {encoded},
+                word_order,
+                byte_order,
+                neg
+            );
 
-                round_trip<uint16> (
-                    value, 16,
-                    word_order, byte_order,
-                    negativity::twos
-                );
+            EXPECT_EQ (Z (recovered), z) << "expected " << Z (recovered) << " to match " << z;
 
-                round_trip<uint16> (
-                    value, 16,
-                    word_order, byte_order,
-                    negativity::BC
-                );
+            // reverse byte endian if we need to.
+            for (W &w : encoded)
+                if (byte_order == endian::little)
+                    w = encoding::endian::native<W, endian::little>::to (w);
+                else
+                    w = encoding::endian::native<W, endian::big>::to (w);
 
-                if (value >= Z(0)) {
-                    round_trip<uint32>(
-                        value, 8,
-                        word_order, byte_order,
-                        negativity::nones
-                    );
-                }
-
-                round_trip<uint32> (
-                    value, 8,
-                    word_order, byte_order,
-                    negativity::twos
-                );
-
-                round_trip<uint32> (
-                    value, 8,
-                    word_order, byte_order,
-                    negativity::BC
-                );
-
-                if (value >= Z(0)) {
-                    round_trip<uint64>(
-                        value, 4,
-                        word_order, byte_order,
-                        negativity::nones
-                    );
-                }
-
-                round_trip<uint64> (
-                    value, 4,
-                    word_order, byte_order,
-                    negativity::twos
-                );
-
-                round_trip<uint64> (
-                    value, 4,
-                    word_order, byte_order,
-                    negativity::BC
-                );
-            }
+            EXPECT_EQ ((bytestring<W> (extend (compare, words))), bytestring<W> (encoded)) << "for value " << value << "; read as " << compare << " encoded to " << encoded;
         }
     }
 
-    // -----------------------------------------------------------------------------
-    // Test data
-    //
-    // The canonical representation of every test number is a big-endian sequence
-    // of bytes.  Nothing here is produced by Z, import_bin, or export_bin.
-    // -----------------------------------------------------------------------------
+    template <endian word_order>
+    void round_trips (const dec_int &value) {
+
+        for (const auto byte_order : orders) {
+            if (!is_negative (value))
+                round_trip<byte, word_order, negativity::nones> (value, byte_order);
+
+            round_trip<byte, word_order, negativity::twos> (value, byte_order);
+
+            round_trip<byte, word_order, negativity::BC> (value, byte_order);
+
+            if (!is_negative (value))
+                round_trip<uint16, word_order, negativity::nones> (value, byte_order);
+
+            round_trip<uint16, word_order, negativity::twos> (value, byte_order);
+
+            round_trip<uint16, word_order, negativity::BC> (value, byte_order);
+
+            if (!is_negative (value))
+                round_trip<uint32, word_order, negativity::nones> (value, byte_order);
+
+            round_trip<uint32, word_order, negativity::twos> (value, byte_order);
+
+            round_trip<uint32, word_order, negativity::BC> (value, byte_order);
+
+            if (!is_negative (value))
+                round_trip<uint64, word_order, negativity::nones> (value, byte_order);
+
+            round_trip<uint64, word_order, negativity::twos> (value, byte_order);
+
+            round_trip<uint64, word_order, negativity::BC> (value, byte_order);
+        }
+    }
 
     struct test_value {
         string_view Decimal;
@@ -265,37 +256,40 @@ namespace data {
     };
 
     TEST (ImportExportBin, RoundTrip) {
-        const Z values [] {
-            Z (0),
-            Z (1),
-            Z (127),
-            Z (128),
-            Z (255),
-            Z (256),
-            Z (257),
-            Z {dec_int {"32767"}},
-            Z {dec_int {"32768"}},
-            Z {dec_int {"65535"}},
-            Z {dec_int {"65536"}},
-            Z (-1),
-            Z (-2),
-            Z (-127),
-            Z (-128),
-            Z {dec_int {"-32767"}},
-            Z {dec_int {"-32768"}},
-            Z {dec_int {"-65535"}},
-            Z {dec_int {"-65536"}},
-            Z (dec_uint {"12345678901234567890"}),
-            Z (dec_int {"-12345678901234567890"}),
-            Z (dec_uint {"340282366920938463463374607431768211455"}),
-            Z (dec_int {"-340282366920938463463374607431768211455"}),
-            Z (dec_int {"19088743"}),
-            Z (dec_int {"81985529216486895"}),
-            Z (dec_int {"889627103061277028662417"}),
-            Z (dec_int {"18446744073709551616"}),
+        const dec_int values [] {
+            dec_int {"0"},
+            dec_int {"1"},
+            dec_int {"-1"},
+            dec_int {"-2"},
+            dec_int {"127"},
+            dec_int {"128"},
+            dec_int {"-127"},
+            dec_int {"-128"},
+            dec_int {"255"},
+            dec_int {"256"},
+            dec_int {"257"},
+            dec_int {"32767"},
+            dec_int {"32768"},
+            dec_int {"65535"},
+            dec_int {"65536"},
+            dec_int {"-32767"},
+            dec_int {"-32768"},
+            dec_int {"-65535"},
+            dec_int {"-65536"},
+            dec_int {"12345678901234567890"},
+            dec_int {"-12345678901234567890"},
+            dec_int {"340282366920938463463374607431768211455"},
+            dec_int {"-340282366920938463463374607431768211455"},
+            dec_int {"19088743"},
+            dec_int {"81985529216486895"},
+            dec_int {"889627103061277028662417"},
+            dec_int {"18446744073709551616"},
         };
 
-        for (const auto &value : values) round_trips (value);
+        for (const auto &value : values) {
+            round_trips<endian::big> (value);
+            round_trips<endian::little> (value);
+        }
     }
 
 } // namespace

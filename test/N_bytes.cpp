@@ -9,7 +9,7 @@
 
 namespace data::math::number {
 
-    template<endian::order r, std::unsigned_integral word>
+    template<endian r, std::unsigned_integral word>
     N N_Bytes_to_N_stupid (const math::number::N_bytes<r, word> &n) {
         N x {0};
 
@@ -21,7 +21,7 @@ namespace data::math::number {
         return x;
     }
 
-    template<endian::order r, std::unsigned_integral word>
+    template<endian r, std::unsigned_integral word>
     math::number::N_bytes<r, word> inline N_to_N_Bytes_stupid (const N &n) {
         auto hex_string = encoding::hexidecimal::write<hex_case::lower> (n);
         size_t bytes_encoded = (hex_string.size () - 2) / 2;
@@ -29,17 +29,17 @@ namespace data::math::number {
         size_t bytes_extended = bytes_encoded % sizeof (word) == 0 ? bytes_encoded :
             ((bytes_encoded / sizeof (word)) + 1) * sizeof (word);
 
-        auto hex_resized = encoding::hexidecimal::extend<neg::nones, hex_case::lower> (hex_string, bytes_extended * 2 + 2);
+        auto hex_resized = encoding::hexidecimal::extend<negativity::nones, hex_case::lower> (hex_string, bytes_extended * 2 + 2);
 
         return math::number::N_bytes<r, word>::read (hex_resized);
     }
 
     template <std::unsigned_integral word> using Nl = math::number::N_bytes<endian::little, word>;
-    template <std::unsigned_integral word> using Zl1 = math::number::Z_bytes<endian::little, neg::twos, word>;
-    template <std::unsigned_integral word> using Zl2 = math::number::Z_bytes<endian::little, neg::BC, word>;
+    template <std::unsigned_integral word> using Zl1 = math::number::Z_bytes<endian::little, negativity::twos, word>;
+    template <std::unsigned_integral word> using Zl2 = math::number::Z_bytes<endian::little, negativity::BC, word>;
     template <std::unsigned_integral word> using Nb = math::number::N_bytes<endian::big, word>;
-    template <std::unsigned_integral word> using Zb1 = math::number::Z_bytes<endian::big, neg::twos, word>;
-    template <std::unsigned_integral word> using Zb2 = math::number::Z_bytes<endian::big, neg::BC, word>;
+    template <std::unsigned_integral word> using Zb1 = math::number::Z_bytes<endian::big, negativity::twos, word>;
+    template <std::unsigned_integral word> using Zb2 = math::number::Z_bytes<endian::big, negativity::BC, word>;
 
     template <typename in, std::unsigned_integral word> void N_Bytes_to_N_by_word (in x) {
 
@@ -282,7 +282,7 @@ namespace data::math::number {
         
     }
 
-    template <endian::order r> 
+    template <endian r>
     struct test_bit_shift {
         test_bit_shift (string num, int shift) {
             EXPECT_EQ ((N_bytes<r, byte> (num) >> shift), (N_bytes<r, byte> (num) << -shift));
@@ -307,7 +307,7 @@ namespace data::math::number {
         
     }
 
-    template <endian::order o, std::unsigned_integral word>
+    template <endian o, std::unsigned_integral word>
     void test_N_Bytes_to_string_decimal () {
         EXPECT_EQ (encoding::decimal::write (N_bytes<o, word> {1}), std::string {"1"});
         EXPECT_EQ (encoding::decimal::write (N_bytes<o, word> {23}), std::string {"23"});

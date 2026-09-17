@@ -21,7 +21,7 @@
 
 namespace data::math::number {
 
-    template <endian::order r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, std::unsigned_integral word>
     constexpr bounded<false, r, size, word>::bounded (string_view x) {
         if consteval {
             if (encoding::decimal::valid (x))
@@ -41,7 +41,7 @@ namespace data::math::number {
         }
     }
 
-    template <endian::order r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, std::unsigned_integral word>
     constexpr bounded<true, r, size, word>::bounded (string_view x) {
         if consteval {
             if (encoding::signed_decimal::valid (x)) {
@@ -64,7 +64,7 @@ namespace data::math::number {
                 encoding::hex::decode (x.end (), x.begin (), this->begin ());
         } else {
             if (encoding::signed_decimal::valid (x)) {
-                auto zb = Z_bytes<r, neg::twos, word>::read (x);
+                auto zb = Z_bytes<r, negativity::twos, word>::read (x);
                 // TODO this operation should be replaced by a conversion function call.
                 *this = bounded {zb};
             }
@@ -76,39 +76,39 @@ namespace data::math::number {
         }
     }
 
-    template <bool u, endian::order r, size_t x, std::unsigned_integral word>
+    template <bool u, endian r, size_t x, std::unsigned_integral word>
     constexpr bounded<u, r, x, word> inline operator / (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
         return def::divmod<bounded<u, r, x, word>> {} (a, nonzero<bounded<u, r, x, word>> {b}).Quotient;
     }
 
-    template <bool u, endian::order r, size_t x, std::unsigned_integral word>
+    template <bool u, endian r, size_t x, std::unsigned_integral word>
     constexpr bounded<u, r, x, word> inline operator % (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
         return data::mod<bounded<u, r, x, word>> (a, nonzero<bounded<u, r, x, word>> {b});
     }
     
-    template <endian::order r, size_t x, std::unsigned_integral word>
+    template <endian r, size_t x, std::unsigned_integral word>
     constexpr uint64 inline operator % (const uint<r, x, word> &a, uint64 b) {
         return uint64 (a % uint<r, x, word> (b));
     }
     
-    template <endian::order r, size_t x, std::unsigned_integral word>
+    template <endian r, size_t x, std::unsigned_integral word>
     constexpr uint64 inline operator % (const sint<r, x, word> &a, uint64 b) {
         return uint64 (a % uint<r, x, word> (b));
     }
     
     // TODO need N_bytes constructor that takes bounded.
-    template <endian::order r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, std::unsigned_integral word>
     inline bounded<false, r, size, word>::operator double () const {
         return double (N (N_bytes<r, word> (*this)));
     }
     
     // TODO need Z_bytes constructor that takes bounded.
-    template <endian::order r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, std::unsigned_integral word>
     inline bounded<true, r, size, word>::operator double () const {
-        return double (Z (Z_bytes<r, neg::twos, word> (*this)));
+        return double (Z (Z_bytes<r, negativity::twos, word> (*this)));
     }
 
-    template <endian::order r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, std::unsigned_integral word>
     std::istream &operator >> (std::istream &i, bounded<true, r, size, word> &z) {
         encoding::integer::string x;
         i >> x;
@@ -116,7 +116,7 @@ namespace data::math::number {
         return i;
     }
 
-    template <endian::order r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, std::unsigned_integral word>
     std::istream &operator >> (std::istream &i, bounded<false, r, size, word> &n) {
         encoding::natural::string x;
         i >> x;
@@ -126,32 +126,32 @@ namespace data::math::number {
 }
 
 namespace data::math::def {
-    template <endian::order r, size_t x, std::unsigned_integral word>
+    template <endian r, size_t x, std::unsigned_integral word>
     constexpr division<uint<r, x, word>, uint<r, x, word>> inline divmod<uint<r, x, word>, uint<r, x, word>>::operator ()
         (const uint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
         return number::natural_divmod (v, z.Value);
     }
 
-    template <endian::order r, size_t x, std::unsigned_integral word>
+    template <endian r, size_t x, std::unsigned_integral word>
     constexpr division<sint<r, x, word>, sint<r, x, word>> inline divmod<sint<r, x, word>, sint<r, x, word>>::operator ()
         (const sint<r, x, word> &v, const nonzero<sint<r, x, word>> &z) {
         return number::integer_divmod<number::TRUNCATE_TOWARD_ZERO> (v, z.Value);
     }
 
-    template <endian::order r, size_t x, std::unsigned_integral word>
+    template <endian r, size_t x, std::unsigned_integral word>
     constexpr division<uint<r, x, word>, uint<r, x, word>> inline divmod<sint<r, x, word>, uint<r, x, word>>::operator ()
         (const sint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
         return number::natural_divmod (uint<r, x, word> (v), z.Value);
     }
 
-    template <bool a, endian::order r, size_t x, std::unsigned_integral word>
+    template <bool a, endian r, size_t x, std::unsigned_integral word>
     constexpr uint<r, x, word> square_mod<bounded<a, r, x, word>, uint<r, x, word>>::operator () (
         const bounded<a, r, x, word> &m,
         const nonzero<uint<r, x, word>> &q) {
         return times_mod<bounded<a, r, x, word>, bounded<a, r, x, word>, uint<r, x, word>> {} (m, m, q);
     }
 
-    template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
+    template <bool a, bool b, endian r, size_t x, std::unsigned_integral word>
     constexpr uint<r, x, word> inline plus_mod<bounded<a, r, x, word>, bounded<b, r, x, word>, uint<r, x, word>>::operator () (
         const bounded<a, r, x, word> &m,
         const bounded<b, r, x, word> &n,
@@ -160,7 +160,7 @@ namespace data::math::def {
             bounded<b, r, x + 1, word> (n)) % uint<r, x + 1, word> (q.Value));
     }
 
-    template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
+    template <bool a, bool b, endian r, size_t x, std::unsigned_integral word>
     constexpr uint<r, x, word> inline times_mod<bounded<a, r, x, word>, bounded<b, r, x, word>, uint<r, x, word>>::operator () (
         const bounded<a, r, x, word> &m,
         const bounded<b, r, x, word> &n,
@@ -171,7 +171,7 @@ namespace data::math::def {
             nonzero {uint<r, x + 1, word> (q.Value)}));
     }
 
-    template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
+    template <bool a, bool b, endian r, size_t x, std::unsigned_integral word>
     constexpr uint<r, x, word> inline pow_mod<bounded<a, r, x, word>, bounded<b, r, x, word>, uint<r, x, word>>::operator () (
         const bounded<a, r, x, word> &m,
         const bounded<b, r, x, word> &n,
@@ -182,7 +182,7 @@ namespace data::math::def {
             nonzero {uint<r, x * 2, word> (q.Value)}));
     }
 
-    template <bool a, endian::order r, size_t x, std::unsigned_integral word>
+    template <bool a, endian r, size_t x, std::unsigned_integral word>
     constexpr maybe<uint<r, x, word>> invert_mod<bounded<a, r, x, word>, uint<r, x, word>>::operator () (
         const bounded<a, r, x, word> &q,
         const nonzero<uint<r, x, word>> &mod) {

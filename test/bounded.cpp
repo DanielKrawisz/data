@@ -14,7 +14,7 @@
 
 namespace data {
     
-    template<bool is_signed, endian::order o, size_t size> 
+    template<bool is_signed, endian o, size_t size>
     using bounded = math::number::bounded<is_signed, o, size, byte>;
     
     using u8l = bounded<false, endian::little, 8>;
@@ -39,8 +39,8 @@ namespace data {
     
     using nl = math::number::N_bytes<endian::little, byte>;
     using nb = math::number::N_bytes<endian::big, byte>;
-    using zl = math::number::Z_bytes<endian::little, neg::twos, byte>;
-    using zb = math::number::Z_bytes<endian::big, neg::twos, byte>;
+    using zl = math::number::Z_bytes<endian::little, negativity::twos, byte>;
+    using zb = math::number::Z_bytes<endian::big, negativity::twos, byte>;
     
     TEST (Bounded, ReadString) {
         
@@ -244,7 +244,7 @@ namespace data {
         
     }
     
-    template<bool is_signed, endian::order o, size_t size> void test_bounded_read_write_string (string x) {
+    template<bool is_signed, endian o, size_t size> void test_bounded_read_write_string (string x) {
         bounded<is_signed, o, size> n;
         
         EXPECT_NO_THROW ( (n = bounded<is_signed, o, size>{x}) );

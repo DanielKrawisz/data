@@ -325,12 +325,10 @@ namespace data::encoding::base58 {
     inline string::string (string_view x) : data::string {base58::valid (x) ? x : string_view {nullptr, 0}} {}
 
     string inline operator / (const string &x, const string &y) {
-        if (y == 0) throw math::division_by_zero {};
         return math::def::divmod<string, string> {} (x, math::nonzero {y}).Quotient;
     }
 
     string inline operator % (const string &x, const string &y) {
-        if (y < 1) throw math::non_positive_mod {};
         return math::def::divmod<string, string> {} (x, math::nonzero {y}).Remainder;
     }
 
