@@ -220,8 +220,6 @@ namespace data {
     static_assert (bit_arithmetic_big_unsigned<hex_uint>);
     static_assert (bit_arithmetic_big_unsigned<base58_uint>);
 
-    static_assert (!proto_bit_number<hex_int_BC>);
-
     template <typename NN> concept basic_arithmetic =
         requires (const NN &a) {
             { sign (a) };
@@ -504,7 +502,6 @@ namespace data {
 
     // next we have typed test suites. We have several sets of numbers
     // that we use. The first contains all number types.
-
     template <typename X> struct Numbers : ::testing::Test {
         using N = X;
     };
@@ -602,10 +599,9 @@ namespace data {
         EXPECT_EQ (decrement (Z {0}), Z {-1});
     }
 
-    // bit operations.
-
+    // test suits for bit operations.
     TYPED_TEST (Numbers, BitAnd) {
-        using N = typename TestFixture::N;
+        using Z = typename TestFixture::N;
         EXPECT_EQ (Z (0) & Z (0), Z (0));
         EXPECT_EQ (Z (1) & Z (1), Z (1));
         EXPECT_EQ (Z (5) & Z (2), Z (0));
@@ -613,10 +609,11 @@ namespace data {
         EXPECT_EQ (Z (0x00f0) & Z (0x000f), Z (0));
         EXPECT_EQ (Z (0x00aa) & Z (0x00cc), Z (0x0088));
         EXPECT_EQ (Z (0x001234) & Z (0x000ff0), Z (0x000230));
+        EXPECT_EQ ((bit_and (Z (0x001234), Z (0x000ff0))), Z (0x000230));
     }
 
     TYPED_TEST (Numbers, BitOr) {
-        using N = typename TestFixture::N;
+        using Z = typename TestFixture::N;
         EXPECT_EQ (Z (0) | Z (0), Z (0));
         EXPECT_EQ (Z (1) | Z (1), Z (1));
         EXPECT_EQ (Z (5) | Z (2), Z (7));
@@ -626,12 +623,14 @@ namespace data {
         EXPECT_EQ (Z (0x00f0) | Z (0x000f), Z (0x00ff));
         EXPECT_EQ (Z (0x00aa) | Z (0x00cc), Z (0x00ee));
         EXPECT_EQ (Z (0x001234) | Z (0x000ff0), Z (0x001ff4));
+        EXPECT_EQ ((bit_or (Z (0x001234), Z (0x000ff0))), Z (0x001ff4));
     }
 
     TYPED_TEST (Numbers, BitXor) {
-        using N = typename TestFixture::N;
+        using Z = typename TestFixture::N;
         EXPECT_EQ (Z (0) ^ Z (0), Z (0));
         EXPECT_EQ (Z (1) ^ Z (1), Z (0));
+        EXPECT_EQ ((bit_xor (Z (1), Z (1))), Z (0));
         EXPECT_EQ (Z (5) ^ Z (2), Z (7));
         EXPECT_EQ (Z (6) ^ Z (3), Z (5));
         EXPECT_EQ (Z (0x00f0) ^ Z (0x000f), Z (0x00ff));
@@ -660,6 +659,7 @@ namespace data {
     }
 
     // TODO right shift
+
     template <typename X> struct IntegersTwos : ::testing::Test {
         using Z = X;
     };
@@ -680,7 +680,7 @@ namespace data {
     TYPED_TEST_SUITE (IntegersTwos, integers_twos);
 
     TYPED_TEST (IntegersTwos, BitAnd) {
-        using N = typename TestFixture::Z;
+        using Z = typename TestFixture::Z;
         EXPECT_EQ (-Z (1) & -Z (1), -Z (1));
         EXPECT_EQ (-Z (1) & Z (0), Z (0));
         EXPECT_EQ (-Z (2) & Z (1), Z (0));
@@ -692,7 +692,7 @@ namespace data {
     }
 
     TYPED_TEST (IntegersTwos, BitOr) {
-        using N = typename TestFixture::Z;
+        using Z = typename TestFixture::Z;
         EXPECT_EQ (-Z (1) | -Z (1), -Z (1));
         EXPECT_EQ (-Z (1) | Z (0), -Z (1));
         EXPECT_EQ (-Z (2) | Z (1), -Z (1));
@@ -704,7 +704,7 @@ namespace data {
     }
 
     TYPED_TEST (IntegersTwos, BitXor) {
-        using N = typename TestFixture::Z;
+        using Z = typename TestFixture::Z;
         EXPECT_EQ (-Z (1) ^ -Z (1), Z (0));
         EXPECT_EQ (-Z (1) ^ Z (0), -Z (1));
         EXPECT_EQ (-Z (2) ^ Z (1), -Z (1));
@@ -728,7 +728,7 @@ namespace data {
     TYPED_TEST_SUITE (IntegersBC, integers_BC);
 
     TYPED_TEST (IntegersBC, BitAnd) {
-        using N = typename TestFixture::Z;
+        using Z = typename TestFixture::Z;
         EXPECT_EQ (-Z (1) & -Z (1), -Z (1));
         EXPECT_EQ (-Z (1) & Z (0), Z (0));
         EXPECT_EQ (-Z (5) & Z (3), Z (1));
@@ -737,7 +737,7 @@ namespace data {
     }
 
     TYPED_TEST (IntegersBC, BitOr) {
-        using N = typename TestFixture::Z;
+        using Z = typename TestFixture::Z;
         EXPECT_EQ (-Z (1) | -Z (1), -Z (1));
         EXPECT_EQ (-Z (1) | Z (0), -Z (1));
         EXPECT_EQ (-Z (5) | Z (2), -Z (7));
@@ -746,12 +746,18 @@ namespace data {
     }
 
     TYPED_TEST (IntegersBC, BitXor) {
-        using N = typename TestFixture::Z;
-        EXPECT_EQ (-Z (1) ^ -Z (1), -Z (0));
+        using Z = typename TestFixture::Z;
+        EXPECT_TRUE (is_positive_zero (-Z (1) ^ -Z (1)));
         EXPECT_EQ (-Z (1) ^ Z (0), -Z (1));
+        EXPECT_EQ (-Z (2) ^ Z (1), -Z (3));
+        EXPECT_EQ ((bit_xor (-Z (2), Z (1))), -Z (3));
+        EXPECT_TRUE (is_negative_zero (-Z (2) ^ Z (2)));
+        EXPECT_TRUE (is_negative_zero (bit_xor (-Z (2), Z (2))));
         EXPECT_EQ (-Z (5) ^ Z (2), -Z (7));
         EXPECT_EQ (Z (6) ^ -Z (3), -Z (5));
         EXPECT_EQ (-Z (4) ^ -Z (1), Z (5));
+        EXPECT_EQ ((bit_xor (-Z (4), -Z (1))), Z (5));
+        EXPECT_EQ (-Z (5) ^ Z (6), -Z (3));
     }
 
     TYPED_TEST (IntegersBC, LeftShiftIsDiv2Pow) {

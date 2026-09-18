@@ -18,16 +18,6 @@
 #include <data/math/number/types.hpp>
 
 namespace data::math::number {
-
-    // negation
-    template <endian r, std::unsigned_integral word>
-    Z_bytes<r, negativity::twos, word> operator - (const N_bytes<r, word> &);
-
-    template <endian r, std::unsigned_integral word>
-    Z_bytes<r, negativity::twos, word> operator - (const Z_bytes<r, negativity::twos, word> &);
-
-    template <endian r, std::unsigned_integral word>
-    Z_bytes<r, negativity::BC, word> operator - (const Z_bytes<r, negativity::BC, word> &);
     
     // arithmetic
     template <endian r, std::unsigned_integral word>
@@ -164,15 +154,6 @@ namespace data::math::number {
 
     template <endian r, negativity c, std::unsigned_integral word>
     Z_bytes<r, c, word> &operator *= (Z_bytes<r, c, word> &, int64);
-
-    // power (for negativity nones and twos, the ^ operator means bit xor).
-    template <endian r, std::unsigned_integral word>
-    Z_bytes<r, negativity::BC, word> operator ^
-        (const Z_bytes<r, negativity::BC, word> &, const Z_bytes<r, negativity::BC, word> &);
-
-    template <endian r, std::unsigned_integral word>
-    Z_bytes<r, negativity::BC, word> &operator ^=
-        (Z_bytes<r, negativity::BC, word> &, const Z_bytes<r, negativity::BC, word> &);
 
     // division
     template <endian r, std::unsigned_integral word>

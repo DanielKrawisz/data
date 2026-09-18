@@ -641,10 +641,6 @@ namespace data::math::number {
     template <endian r, std::unsigned_integral word, std::unsigned_integral I>
     N_bytes<r, word> &operator ^= (N_bytes<r, word> &, I x);
 
-    template <endian r, std::unsigned_integral word>
-    Z_bytes<r, negativity::BC, word> operator ^
-    (const Z_bytes<r, negativity::BC, word> &, const Z_bytes<r, negativity::BC, word> &);
-
     template <endian r, negativity neg, std::unsigned_integral word>
     Z_bytes<r, neg, word> &operator ^= (Z_bytes<r, neg, word> &, const Z_bytes<r, neg, word> &);
 
@@ -774,6 +770,16 @@ namespace data::math::number {
     // negation
     Z operator - (const N &);
     Z operator - (const Z &);
+
+    // negation
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator - (const N_bytes<r, word> &);
+
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator - (const Z_bytes<r, negativity::twos, word> &);
+
+    template <endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::BC, word> operator - (const Z_bytes<r, negativity::BC, word> &);
 
     Z operator + (const Z &, const Z &);
     Z operator - (const Z &, const Z &);

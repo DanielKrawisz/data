@@ -691,7 +691,7 @@ namespace data::math::number {
     }
 
     N inline operator ^ (const N &a, const N &b) {
-        return N (a.Value & b.Value);
+        return N (a.Value ^ b.Value);
     }
 
     template <std::unsigned_integral I> N inline operator ^ (const N &a, I b) {

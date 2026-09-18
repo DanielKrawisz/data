@@ -307,13 +307,17 @@ namespace data::encoding {
         template <std::integral I> string operator * (I, const string &);
         
         decimal::string operator % (const string &, const decimal::string &x);
+
+        string &operator |= (string &, const string &);
+        string &operator &= (string &, const string &);
+        string &operator ^= (string &, const string &);
         
         string &operator += (string &n, const decimal::string &x);
         string &operator -= (string &n, const decimal::string &x);
         string &operator *= (string &n, const decimal::string &x);
         string &operator |= (string &n, const decimal::string &x);
         string &operator &= (string &n, const decimal::string &x);
-        string &operator ^= (string &n, const string &x);
+        string &operator ^= (string &n, const decimal::string &x);
         string &operator /= (string &n, const decimal::string &x);
         string &operator %= (string &n, const decimal::string &x);
         
@@ -498,21 +502,8 @@ namespace data::encoding {
         template <hex::letter_case cx>
         integer<negativity::twos, cx> operator ~ (const integer<negativity::nones, cx> &);
 
-        template <hex::letter_case cx>
-        integer<negativity::nones, cx> operator ^
-        (const integer<negativity::nones, cx> &, const integer<negativity::nones, cx> &);
-
-        template <hex::letter_case cx>
-        integer<negativity::nones, cx> &operator ^=
-        (integer<negativity::nones, cx> &, const integer<negativity::nones, cx> &);
-
-        template <hex::letter_case cx>
-        integer<negativity::twos, cx> operator ^
-            (const integer<negativity::twos, cx> &, const integer<negativity::twos, cx> &);
-
-        template <hex::letter_case cx>
-        integer<negativity::twos, cx> &operator ^=
-            (const integer<negativity::twos, cx> &, const integer<negativity::twos, cx> &);
+        template <negativity neg, hex::letter_case cx>
+        integer<neg, cx> operator ^ (const integer<neg, cx> &, const integer<neg, cx> &);
         
         template <negativity c, hex::letter_case cx>
         integer<c, cx> operator | (const integer<c, cx> &, const integer<c, cx> &);
@@ -525,6 +516,9 @@ namespace data::encoding {
 
         template <negativity c, hex::letter_case cx>
         integer<c, cx> &operator &= (const integer<c, cx> &, const integer<c, cx> &);
+
+        template <negativity neg, hex::letter_case cx>
+        integer<neg, cx> &operator ^= (integer<neg, cx> &, const integer<neg, cx> &);
 
         template <hex::letter_case cx, std::unsigned_integral I>
         integer<negativity::nones, cx> operator | (const integer<negativity::nones, cx> &, I);
@@ -872,6 +866,10 @@ namespace data::math::def {
 
     template <> struct bit_xor<dec_uint> {
         dec_uint operator () (const dec_uint &a, const dec_uint &b);
+    };
+
+    template <> struct bit_xor<dec_int> {
+        dec_int operator () (const dec_int &a, const dec_int &b);
     };
 
     template <hex_case zz> struct bit_xor<hex::uint<zz>> {
@@ -2357,6 +2355,10 @@ namespace data::math::def {
         return a ^ b;
     }
 
+    dec_int inline bit_xor<dec_int>::operator () (const dec_int &a, const dec_int &b) {
+        return a ^ b;
+    }
+
     template <hex_case zz>
     hex::uint<zz> inline bit_xor<hex::uint<zz>>::operator () (const hex::uint<zz> &a, const hex::uint<zz> &b) {
         return a ^ b;
@@ -2969,19 +2971,10 @@ namespace data::encoding::hexidecimal {
             return n;
         }
         
-        template <hex::letter_case zz> 
-        integer<negativity::twos, zz> bit_xor (const integer<negativity::twos, zz> &a, const integer<negativity::twos, zz> &b) {
+        template <negativity neg, hex::letter_case zz>
+        integer<neg, zz> bit_xor (const integer<neg, zz> &a, const integer<neg, zz> &b) {
             if (a.size () < b.size ()) return bit_xor (b, a);
-            integer<negativity::twos, zz> n {};
-            n.resize (a.size ());
-            bit_xor (n, a, math::number::extend (b, a.size ()));
-            return n;
-        }
-
-        template <hex::letter_case zz>
-        integer<negativity::nones, zz> bit_xor (const integer<negativity::nones, zz> &a, const integer<negativity::nones, zz> &b) {
-            if (a.size () < b.size ()) return bit_xor (b, a);
-            integer<negativity::nones, zz> n {};
+            integer<neg, zz> n {};
             n.resize (a.size ());
             bit_xor (n, a, math::number::extend (b, a.size ()));
             return n;
@@ -3280,16 +3273,16 @@ namespace data::encoding::hexidecimal {
         return math::number::trim (bit_and (a, b));
     }
 
-    template <hex::letter_case zz>
-    integer<negativity::nones, zz> inline operator ^ (const integer<negativity::nones, zz> &a, const integer<negativity::nones, zz> &b) {
+    template <negativity neg, hex::letter_case zz>
+    integer<neg, zz> inline operator ^ (const integer<neg, zz> &a, const integer<neg, zz> &b) {
+        if constexpr (neg == negativity::BC) bit_xor (a, b);
         return math::number::trim (bit_xor (a, b));
     }
-    
-    template <hex::letter_case zz> 
-    integer<negativity::twos, zz> inline
-    operator ^ (const integer<negativity::twos, zz> &a, const integer<negativity::twos, zz> &b) {
-        return math::number::trim (bit_xor (a, b));
-    }
+
+    template <negativity neg, hex::letter_case cx>
+    integer<neg, cx> inline &operator ^= (integer<neg, cx> &a, const integer<neg, cx> &b) {
+        return a = (a ^ b);
+    };
     
     template <negativity c, hex::letter_case zz>
     integer<c, zz> inline operator << (const integer<c, zz> &x, int i) {

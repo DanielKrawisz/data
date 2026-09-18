@@ -10,7 +10,12 @@
 namespace data {
     // NOTE: Bitcoin bit logic is not a numeric function
     // (in other words, it operates on byte strings rather
-    // than on numbers). Nevertheless, we test it here.
+    // than on numbers). In particular, bit not cannot be
+    // associated with any numeric operation because
+    // different representations of the same number result
+    // in different numeric values when bit not is applied.
+    // TODO We need to test that the results of bit logical
+    // operations is not trimmed.
     template <typename Z> requires requires (const Z &z) {
         { bit_not (z) } -> ImplicitlyConvertible<Z>;
     } && requires (const Z &a, const Z &b) {
@@ -18,7 +23,13 @@ namespace data {
         { bit_or (a, b) } -> ImplicitlyConvertible<Z>;
         { bit_and (a, b) } -> ImplicitlyConvertible<Z>;
     } struct test_bit_logic {
-        test_bit_logic () {}
+        test_bit_logic () {
+
+            EXPECT_EQ (bytes (bit_not (Z::zero ())), bytes (Z::zero ()));
+            EXPECT_EQ (bytes (bit_not (Z::zero (1))), bytes (Z (-127)));
+            EXPECT_EQ (bytes (bit_not (Z::zero (2))), bytes (Z ((1 << 16) - 1)));
+
+        }
     };
 
     template <typename Z> requires requires (const Z &z) {

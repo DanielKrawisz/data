@@ -169,35 +169,62 @@ namespace data::arithmetic {
 
     template <endian r, negativity c, std::integral word>
     bytestring<word> inline &bit_and (bytestring<word> &a, slice<const word> b) {
-        if (a.size () == b.size ()) {
-            for (int i = 0; i < a.size (); i++) a[i] &= b[i];
+        if (a.size () >= b.size ()) {
+            const size_t offset = r == endian::little ? 0 : a.size () - b.size ();
+            for (int i = 0; i < b.size (); i++) a[i + offset] &= b[i];
             return a;
         }
 
-        if (a.size () > b.size ()) return a = extend (a, b.size ()) &= b;
-        else return a &= extend<r, c> (b, a.size ());
+        return a = bit_and<r, c> (extend<r, c> (a, b.size ()), b);
     }
 
     template <endian r, negativity c, std::integral word>
     bytestring<word> inline &bit_or (bytestring<word> &a, slice<const word> b) {
-        if (a.size () == b.size ()) {
-            for (int i = 0; i < a.size (); i++) a[i] |= b[i];
+        if (a.size () >= b.size ()) {
+            const size_t offset = r == endian::little ? 0 : a.size () - b.size ();
+            for (int i = 0; i < b.size (); i++) a[i + offset] |= b[i];
             return a;
         }
 
-        if (a.size () > b.size ()) return a = extend (a, b.size ()) |= b;
-        else return a |= extend<r, c> (b, a.size ());
+        return a = bit_or<r, c> (extend<r, c> (a, b.size ()), b);
     }
 
     template <endian r, negativity c, std::integral word>
     bytestring<word> inline &bit_xor (bytestring<word> &a, slice<const word> b) {
-        if (a.size () == b.size ()) {
-            for (int i = 0; i < a.size (); i++) a[i] ^= b[i];
+        if (a.size () >= b.size ()) {
+            const size_t offset = r == endian::little ? 0 : a.size () - b.size ();
+            for (int i = 0; i < b.size (); i++) a[i + offset] ^= b[i];
             return a;
         }
 
-        if (a.size () > b.size ()) return a = extend (a, b.size ()) ^ b;
-        else return a ^= extend<r, c> (b, a.size ());
+        return a = bit_xor<r, c> (extend<r, c> (a, b.size ()), b);
+    }
+
+    template <endian r, negativity c, std::integral word>
+    bytestring<word> bit_and (slice<const word> a, slice<const word> b) {
+        if (a.size () < b.size ()) return bit_and<r, c> (b, a);
+        bytestring<word> result (a.size ());
+        std::copy (a.begin (), a.end (), result.begin ());
+        bit_and<r, c> (result, b);
+        return result;
+    }
+
+    template <endian r, negativity c, std::integral word>
+    bytestring<word> bit_or (slice<const word> a, slice<const word> b) {
+        if (a.size () < b.size ()) return bit_or<r, c> (b, a);
+        bytestring<word> result (a.size ());
+        std::copy (a.begin (), a.end (), result.begin ());
+        bit_or<r, c> (result, b);
+        return result;
+    }
+
+    template <endian r, negativity c, std::integral word>
+    bytestring<word> bit_xor (slice<const word> a, slice<const word> b) {
+        if (a.size () < b.size ()) return bit_xor<r, c> (b, a);
+        bytestring<word> result (a.size ());
+        std::copy (a.begin (), a.end (), result.begin ());
+        bit_xor<r, c> (result, b);
+        return result;
     }
 
 }
@@ -430,32 +457,6 @@ namespace data::arithmetic {
         return x = z;
     }
 
-    template <endian r, negativity c, std::integral word>
-    bytestring<word> bit_and (slice<const word> a, slice<const word> b) {
-        if (a.size () < b.size ()) return bit_and<r, c> (b, a);
-        auto bt = extend<r, c> (b, a.size ());
-        auto x = zero<r, word> (a.size ());
-        bit_and<word> (x.begin (), x.end (), a.begin (), bt.begin ());
-        return x;
-    }
-
-    template <endian r, negativity c, std::integral word>
-    bytestring<word> bit_or (slice<const word> a, slice<const word> b) {
-        if (a.size () < b.size ()) return bit_or<r, c> (b, a);
-        auto bt = extend<r, c> (b, a.size ());
-        auto x = zero<r, word> (a.size ());
-        bit_or<word> (x.begin (), x.end (), a.begin (), bt.begin ());
-        return x;
-    }
-
-    template <endian r, negativity c, std::integral word>
-    bytestring<word> bit_xor (slice<const word> a, slice<const word> b) {
-        if (a.size () < b.size ()) return bit_xor<r, c> (b, a);
-        auto bt = extend<r, c> (b, a.size ());
-        auto x = zero<r, word> (a.size ());
-        bit_xor<word> (x.begin (), x.end (), a.begin (), bt.begin ());
-        return x;
-    }
 }
 
 namespace data::arithmetic::nones {

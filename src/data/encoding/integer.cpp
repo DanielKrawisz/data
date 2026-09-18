@@ -281,7 +281,6 @@ namespace data::encoding {
         }
         
         string::operator double () const {
-            // TODO we need a different way of doing this.
             return double (Z (*this));
         }
     
@@ -300,6 +299,10 @@ namespace data::encoding {
         
         string string::read (string_view x) {
             return signed_decimal::write (Z::read (x));
+        }
+
+        string operator ^ (const string &a, const string &b) {
+            return signed_decimal::write (Z (a) ^ Z (b));
         }
     
     }
