@@ -237,34 +237,6 @@ namespace data::encoding::hexidecimal {
             std::copy (o->begin (), o->end (), n.begin ());
             return write<zz> (n << i);
         }
-        
-        // the out string will always be the size of the sum of the two inputs, which won't necessarily be equal size. 
-        template <hex::letter_case zz>
-        void times (string<zz> &out, const string<zz> &a, const string<zz> &b) {
-            auto characters = hex::characters (zz);
-            
-            int a_max = a.size () - 3;
-            int b_max = b.size () - 3;
-            
-            Z remainder = 0;
-            int io_max = out.size () - 2;
-            
-            for (int io = 0; io < io_max; io++) {
-                Z total = remainder;
-                int ia_min = std::max (0, io - b_max);
-                int ib_min = std::max (0, io - a_max);
-                int ia_max = io - ib_min;
-                int ib_max = io - ia_min;
-                for (int ia = ia_min; ia <= ia_max; ia++) {
-                    int ib = ib_max + ia_min - ia; 
-                    Z next (int (digit (a[a.size () - 1 - ia])) * int (digit (b[b.size () - 1 - ib])));
-                    total += next;
-                }
-                
-                out[out.size () - 1 - io] = characters[total % 16];
-                remainder = total >> 4;
-            }
-        }
 
         template <negativity c, hex::letter_case zz> struct divide {
             // if c is twos, nn must be either twos or nones.
@@ -510,7 +482,7 @@ namespace data::math::def {
     hex::integer<c, zz> inline times<hex::integer<c, zz>>::operator ()
     (const hex::integer<c, zz> &a, const hex::integer<c, zz> &b) {
         if constexpr (c == negativity::nones)
-            return encoding::hexidecimal::write<negativity::nones, zz> (Z (a) * Z (b));
+            return encoding::hexidecimal::write<negativity::nones, zz> (N (a) * N (b));
         else return encoding::hexidecimal::write<c, zz> (Z (a) * Z (b));
     }
 
@@ -518,7 +490,7 @@ namespace data::math::def {
     nonzero<hex::integer<c, zz>> inline times<hex::integer<c, zz>>::operator ()
     (const nonzero<hex::integer<c, zz>> &a, const nonzero<hex::integer<c, zz>> &b) {
         if constexpr (c == negativity::nones)
-            return nonzero {encoding::hexidecimal::write<negativity::nones, zz> (Z (a.Value) * Z (b.Value))};
+            return nonzero {encoding::hexidecimal::write<negativity::nones, zz> (N (a.Value) * N (b.Value))};
         else return nonzero {encoding::hexidecimal::write<c, zz> (Z (a.Value) * Z (b.Value))};
     }
 

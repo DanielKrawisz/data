@@ -102,11 +102,11 @@ namespace data {
     }
 
     TYPED_TEST (BitArithmetic, BitOr) {
-        test_bit_xor_unsigned<typename TestFixture::number> ();
+        test_bit_or_unsigned<typename TestFixture::number> ();
     }
 
     TYPED_TEST (BitArithmetic, BitAnd) {
-        test_bit_xor_unsigned<typename TestFixture::number> ();
+        test_bit_and_unsigned<typename TestFixture::number> ();
     }
     
     template <typename X> void test_bit_shift_bounded () {

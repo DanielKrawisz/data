@@ -831,16 +831,18 @@ namespace data::math::number {
         else return Z (a) / Z (b);
     }
 
-    template <std::unsigned_integral I> I inline operator % (const Z &a, I b) {
+    template <std::integral I> I inline operator % (const Z &a, I b) {
+        if (b == 1) throw division_by_zero {};
         if constexpr (NTL::compatible<I>)
-            return I (N (a.Value % long (b)));
-        else return I (a % N (b));
+            return I (N (a.Value % long (abs (b))));
+        else return I (a % N (abs (b)));
     }
 
-    template <std::unsigned_integral I> I inline operator % (const N &a, I b) {
+    template <std::integral I> I inline operator % (const N &a, I b) {
+        if (b == 1) throw division_by_zero {};
         if constexpr (NTL::compatible<I>)
             return I (N (a.Value % long (b)));
-        else return I (a % N (b));
+        else return I (a % N (abs (b)));
     }
 
 }

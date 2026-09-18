@@ -175,7 +175,7 @@ namespace data::arithmetic {
         }
 
         if (a.size () > b.size ()) return a = extend (a, b.size ()) &= b;
-        else return a &= extend (b, a.size ());
+        else return a &= extend<r, c> (b, a.size ());
     }
 
     template <endian r, negativity c, std::integral word>
@@ -186,7 +186,7 @@ namespace data::arithmetic {
         }
 
         if (a.size () > b.size ()) return a = extend (a, b.size ()) |= b;
-        else return a |= extend (b, a.size ());
+        else return a |= extend<r, c> (b, a.size ());
     }
 
     template <endian r, negativity c, std::integral word>
@@ -197,7 +197,7 @@ namespace data::arithmetic {
         }
 
         if (a.size () > b.size ()) return a = extend (a, b.size ()) ^ b;
-        else return a ^= extend (b, a.size ());
+        else return a ^= extend<r, c> (b, a.size ());
     }
 
 }

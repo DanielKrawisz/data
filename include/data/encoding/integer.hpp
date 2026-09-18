@@ -2921,10 +2921,35 @@ namespace data::encoding::hexidecimal {
                 oi++;
             }
         }
-        
-        // the out string will always be the size of the sum of the two inputs, which won't necessarily be equal size. 
+
+        // the out string will always be the size of the sum of the two inputs, which won't necessarily be equal size.
         template <hex::letter_case zz>
-        void times (string<zz> &out, const string<zz> &a, const string<zz> &b);
+        void hex_times (string<zz> &out, const string<zz> &a, const string<zz> &b) {
+
+            auto characters = hex::characters (zz);
+
+            int a_max = a.size () - 3;
+            int b_max = b.size () - 3;
+
+            uint64 remainder = 0;
+            int io_max = out.size () - 2;
+
+            for (int io = 0; io < io_max; io++) {
+                uint64 total = remainder;
+                int ia_min = std::max (0, io - b_max);
+                int ib_min = std::max (0, io - a_max);
+                int ia_max = io - ib_min;
+                int ib_max = io - ia_min;
+                for (int ia = ia_min; ia <= ia_max; ia++) {
+                    int ib = ib_max + ia_min - ia;
+                    uint64 next (int (digit (a[a.size () - 1 - ia])) * int (digit (b[b.size () - 1 - ib])));
+                    total += next;
+                }
+
+                out[out.size () - 1 - io] = characters[total % 16u];
+                remainder = total >> 4;
+            }
+        }
         
         template <negativity c, hex::letter_case zz>
         integer<c, zz> bit_and (const integer<c, zz> &a, const integer<c, zz> &b) {
@@ -3062,7 +3087,7 @@ namespace data::encoding::hexidecimal {
         minus (const integer<negativity::BC, zz> &a, const integer<negativity::BC, zz> &b) {
             return add<negativity::BC, zz> {} (a, -b);
         }
-        
+
         template <negativity c, hex::letter_case zz>
         struct multiply {
             integer<c, zz> operator () (const integer<c, zz> &a, const integer<c, zz> &b) {
@@ -3070,7 +3095,7 @@ namespace data::encoding::hexidecimal {
                 auto br = abs (b);
                 integer<c, zz> n;
                 n.resize (ar.size () + br.size () - 2);
-                times (n, ar, br);
+                hex_times (n, ar, br);
                 return (sign (a) * sign (b) < 0) ? -n : n;
             }
         };
@@ -3082,7 +3107,7 @@ namespace data::encoding::hexidecimal {
                 const integer<negativity::nones, zz> &b) {
                 integer<negativity::nones, zz> n;
                 n.resize (a.size () + b.size () - 2);
-                times (n, a, b);
+                hex_times (n, a, b);
                 return n;
             }
         };

@@ -602,24 +602,41 @@ namespace data {
         EXPECT_EQ (decrement (Z {0}), Z {-1});
     }
 
-    // next we take on bit operations.
+    // bit operations.
 
     TYPED_TEST (Numbers, BitAnd) {
         using N = typename TestFixture::N;
+        EXPECT_EQ (Z (0) & Z (0), Z (0));
+        EXPECT_EQ (Z (1) & Z (1), Z (1));
         EXPECT_EQ (Z (5) & Z (2), Z (0));
         EXPECT_EQ (Z (6) & Z (3), Z (2));
+        EXPECT_EQ (Z (0x00f0) & Z (0x000f), Z (0));
+        EXPECT_EQ (Z (0x00aa) & Z (0x00cc), Z (0x0088));
+        EXPECT_EQ (Z (0x001234) & Z (0x000ff0), Z (0x000230));
     }
 
     TYPED_TEST (Numbers, BitOr) {
         using N = typename TestFixture::N;
+        EXPECT_EQ (Z (0) | Z (0), Z (0));
+        EXPECT_EQ (Z (1) | Z (1), Z (1));
         EXPECT_EQ (Z (5) | Z (2), Z (7));
         EXPECT_EQ (Z (6) | Z (3), Z (7));
+        EXPECT_EQ (Z (4) | Z (1), Z (5));
+
+        EXPECT_EQ (Z (0x00f0) | Z (0x000f), Z (0x00ff));
+        EXPECT_EQ (Z (0x00aa) | Z (0x00cc), Z (0x00ee));
+        EXPECT_EQ (Z (0x001234) | Z (0x000ff0), Z (0x001ff4));
     }
 
     TYPED_TEST (Numbers, BitXor) {
         using N = typename TestFixture::N;
+        EXPECT_EQ (Z (0) ^ Z (0), Z (0));
+        EXPECT_EQ (Z (1) ^ Z (1), Z (0));
         EXPECT_EQ (Z (5) ^ Z (2), Z (7));
         EXPECT_EQ (Z (6) ^ Z (3), Z (5));
+        EXPECT_EQ (Z (0x00f0) ^ Z (0x000f), Z (0x00ff));
+        EXPECT_EQ (Z (0x00aa) ^ Z (0x00cc), Z (0x0066));
+        EXPECT_EQ (Z (0x001234) ^ Z (0x000ff0), Z (0x001dc4));
     }
 
     TYPED_TEST (Numbers, PositiveLeftShiftIsMul2Pow) {
@@ -643,7 +660,6 @@ namespace data {
     }
 
     // TODO right shift
-
     template <typename X> struct IntegersTwos : ::testing::Test {
         using Z = X;
     };
@@ -663,8 +679,43 @@ namespace data {
 
     TYPED_TEST_SUITE (IntegersTwos, integers_twos);
 
-    // TODO bit operations on negative numbers and
-    // and bit negate.
+    TYPED_TEST (IntegersTwos, BitAnd) {
+        using N = typename TestFixture::Z;
+        EXPECT_EQ (-Z (1) & -Z (1), -Z (1));
+        EXPECT_EQ (-Z (1) & Z (0), Z (0));
+        EXPECT_EQ (-Z (2) & Z (1), Z (0));
+        EXPECT_EQ (-Z (2) & Z (2), Z (2));
+        EXPECT_EQ (-Z (5) & Z (3), Z (3));
+        EXPECT_EQ (Z (6) & -Z (3), Z (4));
+        EXPECT_EQ (-Z (6) & -Z (3), -Z (8));
+        EXPECT_EQ (-Z (5) & Z (3), Z (3));
+    }
+
+    TYPED_TEST (IntegersTwos, BitOr) {
+        using N = typename TestFixture::Z;
+        EXPECT_EQ (-Z (1) | -Z (1), -Z (1));
+        EXPECT_EQ (-Z (1) | Z (0), -Z (1));
+        EXPECT_EQ (-Z (2) | Z (1), -Z (1));
+        EXPECT_EQ (-Z (2) | Z (2), -Z (2));
+        EXPECT_EQ (-Z (5) | Z (2), -Z (5));
+        EXPECT_EQ (Z (6) | -Z (3), -Z (1));
+        EXPECT_EQ (-Z (4) | -Z (1), -Z (1));
+        EXPECT_EQ (-Z (5) | Z (3), -Z (5));
+    }
+
+    TYPED_TEST (IntegersTwos, BitXor) {
+        using N = typename TestFixture::Z;
+        EXPECT_EQ (-Z (1) ^ -Z (1), Z (0));
+        EXPECT_EQ (-Z (1) ^ Z (0), -Z (1));
+        EXPECT_EQ (-Z (2) ^ Z (1), -Z (1));
+        EXPECT_EQ (-Z (2) ^ Z (2), -Z (4));
+        EXPECT_EQ (-Z (5) ^ Z (2), -Z (7));
+        EXPECT_EQ (Z (6) ^ -Z (3), -Z (5));
+        EXPECT_EQ (-Z (4) ^ -Z (1), Z (3));
+        EXPECT_EQ (-Z (5) ^ Z (6), -Z (3));
+    }
+
+    // TODO bit negate.
 
     using integers_BC = ::testing::Types<
         Z_bytes_BC_little, Z_bytes_BC_big,
@@ -678,6 +729,8 @@ namespace data {
 
     TYPED_TEST (IntegersBC, BitAnd) {
         using N = typename TestFixture::Z;
+        EXPECT_EQ (-Z (1) & -Z (1), -Z (1));
+        EXPECT_EQ (-Z (1) & Z (0), Z (0));
         EXPECT_EQ (-Z (5) & Z (3), Z (1));
         EXPECT_EQ (Z (6) & -Z (3), Z (2));
         EXPECT_EQ (-Z (6) & -Z (3), -Z (2));
@@ -685,6 +738,8 @@ namespace data {
 
     TYPED_TEST (IntegersBC, BitOr) {
         using N = typename TestFixture::Z;
+        EXPECT_EQ (-Z (1) | -Z (1), -Z (1));
+        EXPECT_EQ (-Z (1) | Z (0), -Z (1));
         EXPECT_EQ (-Z (5) | Z (2), -Z (7));
         EXPECT_EQ (Z (6) | -Z (3), -Z (7));
         EXPECT_EQ (-Z (4) | -Z (1), -Z (5));
@@ -692,6 +747,8 @@ namespace data {
 
     TYPED_TEST (IntegersBC, BitXor) {
         using N = typename TestFixture::Z;
+        EXPECT_EQ (-Z (1) ^ -Z (1), -Z (0));
+        EXPECT_EQ (-Z (1) ^ Z (0), -Z (1));
         EXPECT_EQ (-Z (5) ^ Z (2), -Z (7));
         EXPECT_EQ (Z (6) ^ -Z (3), -Z (5));
         EXPECT_EQ (-Z (4) ^ -Z (1), Z (5));
