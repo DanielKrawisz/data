@@ -3,7 +3,6 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/numbers.hpp>
-#include <data/math/number/bytes.hpp>
 
 #include <gtest/gtest.h>
 
@@ -61,6 +60,115 @@ namespace data {
         EXPECT_NE (N::read ("0x8000"), N (0));
         EXPECT_NE (N::read ("0x80"), N (0));
         
+    }
+
+    template<endian r, std::unsigned_integral word>
+    N N_Bytes_to_N_stupid (const math::number::N_bytes<r, word> &n) {
+        N x {0};
+
+        for (const word &b : n.words ().reverse ()) {
+            x <<= (sizeof (word) * 8);
+            x += b;
+        }
+
+        return x;
+    }
+
+    template<endian r, std::unsigned_integral word>
+    math::number::N_bytes<r, word> inline N_to_N_Bytes_stupid (const N &n) {
+        auto hex_string = encoding::hexidecimal::write<hex_case::lower> (n);
+        size_t bytes_encoded = (hex_string.size () - 2) / 2;
+
+        size_t bytes_extended = bytes_encoded % sizeof (word) == 0 ? bytes_encoded :
+            ((bytes_encoded / sizeof (word)) + 1) * sizeof (word);
+
+        auto hex_resized = encoding::hexidecimal::extend<negativity::nones, hex_case::lower> (hex_string, bytes_extended * 2 + 2);
+
+        return math::number::N_bytes<r, word>::read (hex_resized);
+    }
+
+    template <std::unsigned_integral word> using Nl = math::number::N_bytes<endian::little, word>;
+    template <std::unsigned_integral word> using Zl1 = math::number::Z_bytes<endian::little, negativity::twos, word>;
+    template <std::unsigned_integral word> using Zl2 = math::number::Z_bytes<endian::little, negativity::BC, word>;
+    template <std::unsigned_integral word> using Nb = math::number::N_bytes<endian::big, word>;
+    template <std::unsigned_integral word> using Zb1 = math::number::Z_bytes<endian::big, negativity::twos, word>;
+    template <std::unsigned_integral word> using Zb2 = math::number::Z_bytes<endian::big, negativity::BC, word>;
+
+    template <typename in, std::unsigned_integral word> void N_Bytes_to_N_by_word (in x) {
+
+        N n = N::read (x);
+
+        Nb<word> big {x};
+        Nl<word> little {x};
+
+        Nb<word> stupid_big = N_to_N_Bytes_stupid<endian::big, word> (n);
+        Nl<word> stupid_little = N_to_N_Bytes_stupid<endian::little, word> (n);
+
+        EXPECT_EQ (stupid_big, big) << "expected " << std::hex << stupid_big << " to equal " << big << "; input = " << x;
+        EXPECT_EQ (stupid_little, little) << "expected " << std::hex << stupid_little << " to equal " << little << "; input = " << x;
+
+        N N_big = N (big);
+        N N_little = N (little);
+
+        N N_big_stupid = N_Bytes_to_N_stupid<endian::big, word> (big);
+        N N_little_stupid = N_Bytes_to_N_stupid<endian::little, word> (little);
+
+        EXPECT_EQ (N_big_stupid, N_big) << "expected " << std::hex << N_big_stupid << " to equal " << N_big << "; input = " << x;
+        EXPECT_EQ (N_little_stupid, N_little) << "expected " << std::hex << N_little_stupid << " to equal " << N_little << "; input = " << x;
+
+        EXPECT_EQ (N_big, n);
+        EXPECT_EQ (N_little, n);
+
+    }
+
+    template <typename in> void N_Bytes_to_N (in x) {
+
+        N_Bytes_to_N_by_word<in, byte> (x);
+        N_Bytes_to_N_by_word<in, unsigned short> (x);
+        N_Bytes_to_N_by_word<in, unsigned> (x);
+        N_Bytes_to_N_by_word<in, unsigned long> (x);
+        N_Bytes_to_N_by_word<in, unsigned long long> (x);
+
+    }
+
+    TEST (N, NBytesToN) {
+
+        N_Bytes_to_N<string> ("0");
+        N_Bytes_to_N<string> ("1");
+        N_Bytes_to_N<string> ("3");
+        N_Bytes_to_N<string> ("767");
+        N_Bytes_to_N<string> ("7439");
+        N_Bytes_to_N<string> ("10920960978709");
+
+        N_Bytes_to_N<string> (
+            "0x0fabcdef123456789012323454567600000a00aabbccddeeffffffffffffffff"
+            "0000111122223333444455556666777788889999aaaabbbbccccddddeeeeffff"
+            "0369cf258be147ad05af49e38d27c16b07e5c3a18f6d4b29092b4d6f81a3c5e7"
+            "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd");
+
+        N_Bytes_to_N<string> (
+            "0xf0abcdef123456789012323454567600000a00aabbccddeeffffffffffffffff"
+            "0000111122223333444455556666777788889999aaaabbbbccccddddeeeeffff"
+            "0369cf258be147ad05af49e38d27c16b07e5c3a18f6d4b29092b4d6f81a3c5e7"
+            "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd");
+
+    }
+
+    void test_N_to_N_bytes (string x) {
+        EXPECT_EQ ((math::N_bytes<endian::big, byte> {N::read (x)}), (math::N_bytes<endian::big, byte>::read (x)));
+        EXPECT_EQ ((math::N_bytes<endian::little, byte> {N::read (x)}), (math::N_bytes<endian::little, byte>::read (x)));
+    }
+
+    TEST (N, NToNBytes) {
+
+        test_N_to_N_bytes ("0");
+        test_N_to_N_bytes ("1");
+        test_N_to_N_bytes ("23");
+        test_N_to_N_bytes ("5704566599993321");
+        test_N_to_N_bytes ("98980987676898761029390303474536547398");
+        test_N_to_N_bytes ("98980987676898761029390303474536547399");
+        test_N_to_N_bytes ("98980987676898761029390303474536547400");
+
     }
     
     TEST (N, Multiply) {

@@ -167,9 +167,9 @@ namespace data::math::number {
 
 namespace NTL {
 
-    template <std::unsigned_integral I> void conv (ZZ &, const I &);
+    template <std::signed_integral I> void conv (ZZ &, const I &);
 
-    void conv (ZZ &, const long long int &);
+    template <std::unsigned_integral I> void conv (ZZ &, const I &);
 
     template <bool is_signed, data::endian r, std::size_t size>
     void conv (ZZ &, const data::endian_integral<is_signed, r, size> &);
@@ -192,9 +192,9 @@ namespace NTL {
     template <bool is_signed, data::endian r, std::size_t size, std::unsigned_integral word>
     void conv (ZZ &x, const data::math::number::bounded<is_signed, r, size, word> &);
 
-    template <std::unsigned_integral I> void conv (I &, const ZZ &);
+    template <std::signed_integral I> void conv (I &, const ZZ &);
 
-    void conv (long long int &, const ZZ &);
+    template <std::unsigned_integral I> void conv (I &, const ZZ &);
 
     void conv (data::encoding::decimal::string &, const ZZ &);
 
@@ -265,9 +265,9 @@ namespace data::math::number::NTL {
 
     template <typename T>
     concept compatible =
-        std::integral<T> &&
-        (sizeof(T) < sizeof(long) ||
-        std::same_as<T, long>);
+        std::integral<T> && (sizeof (T) > sizeof (char)) &&
+        (sizeof (T) < sizeof (long) ||
+        Same<T, long>);
 
     template <typename T>
     concept noncompatible =
@@ -952,7 +952,7 @@ namespace data::encoding::hexidecimal {
         return write<endian::big, byte> (o, static_cast<const oriented<endian::big, byte> &> (nb), x);
     }
 
-    template <negativity n, hex_case zz>
+    template <hex_case zz, negativity n>
     integer<n, zz> write (const Z &x) {
         std::stringstream ss;
         if constexpr (zz == hex_case::lower)
@@ -980,8 +980,9 @@ namespace NTL {
     template <data::negativity neg, data::hex_case cc>
     void inline conv (ZZ &x, const data::encoding::hexidecimal::integer<neg, cc> &u) {
         if (!u.valid ()) throw data::exception {} << "Invalid hexidecimal string";
-        x = data::math::number::NTL::import_bin<data::byte> (data::byte_slice (*data::encoding::hex::read (data::string_view (u).substr (2))),
-            data::endian::little, data::endian::native, neg);
+        data::bytes data = *data::encoding::hex::read (data::string_view (u).substr (2));
+        x = data::math::number::NTL::import_bin<data::byte> (data::byte_slice (data),
+            data::endian::big, data::endian::native, neg);
     }
 
     template <data::endian r, data::negativity neg, std::unsigned_integral word>
@@ -1017,14 +1018,34 @@ namespace NTL {
 
     template <std::unsigned_integral I> void inline conv (ZZ &u, const I &x) {
         u = data::math::number::NTL::import_bin (
-            data::slice<const I> {(const I *) (&x), 1},
-                data::endian::little, data::endian::native, data::negativity::twos);
+            data::slice<const I> {&x, 1},
+            data::endian::little, // size is one so does nothing.
+            data::endian::native,
+            data::negativity::nones);
     }
 
-    void inline conv (ZZ &u, const long long int &x) {
+    template <std::unsigned_integral I> void inline conv (I &x, const ZZ &z) {
+        data::math::number::NTL::export_bin (
+            data::slice<I> {&x, 1}, z,
+            data::endian::little, // size is one so does nothing.
+            data::endian::native,
+            data::negativity::nones);
+    }
+
+    template <std::signed_integral I> void inline conv (ZZ &u, const I &x) {
         u = data::math::number::NTL::import_bin (
-            data::slice<const unsigned long long int> {(const unsigned long long int *) (&x), 1},
-                data::endian::little, data::endian::native, data::negativity::twos);
+            data::slice<const std::make_unsigned_t<I>> {(const std::make_unsigned_t<I> *) (&x), 1},
+            data::endian::little, // size is one so does nothing.
+            data::endian::native,
+            data::negativity::twos);
+    }
+
+    template <std::signed_integral I> void inline conv (I &x, const ZZ &z) {
+        data::math::number::NTL::export_bin (
+            data::slice<std::make_unsigned_t<I>> {(std::make_unsigned_t<I> *) (&x), 1}, z,
+            data::endian::little, // size is one so does nothing.
+            data::endian::native,
+            data::negativity::twos);
     }
 
     void inline conv (data::encoding::base58::string &x, const ZZ &u) {

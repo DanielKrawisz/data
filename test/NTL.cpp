@@ -25,7 +25,7 @@ namespace data {
     // Negative export with nones must fail.
     // -----------------------------------------------------------------------------
 
-    TEST (ExportBin, NegativeNonesThrows)
+    TEST (NTL, NegativeNonesThrows)
     {
         const Z negative {-1};
 
@@ -51,7 +51,7 @@ namespace data {
     // Output buffer too small
     // -----------------------------------------------------------------------------
 
-    TEST (ExportBin, BufferTooSmall) {
+    TEST (NTL, BufferTooSmall) {
         const Z value {dec_uint {"12345678901234567890"}};
 
         for (const auto word_order : orders) {
@@ -77,7 +77,7 @@ namespace data {
     // Fixed-width sign extension / zero extension
     // -----------------------------------------------------------------------------
 
-    TEST(ExportBin, NonesZeroExtends) {
+    TEST (NTL, NonesZeroExtends) {
         const Z one {1};
 
         for (size_t size : {1u, 2u, 4u, 8u, 16u}) {
@@ -101,7 +101,7 @@ namespace data {
     }
 
 
-    TEST (ExportBin, TwosComplementSignExtends) {
+    TEST (NTL, TwosComplementSignExtends) {
         const Z minus_one {-1};
 
         for (const auto word_order : orders) {
@@ -130,9 +130,9 @@ namespace data {
     }
 
     template <typename Z>
-    Z from_dec(std::string_view input) {
+    Z from_dec (std::string_view input) {
         if (input.empty ())
-            throw std::invalid_argument("empty decimal string");
+            throw std::invalid_argument ("empty decimal string");
 
         bool negative = false;
         std::size_t pos = 0;
@@ -142,7 +142,7 @@ namespace data {
             pos = 1;
 
             if (pos == input.size())
-                throw std::invalid_argument("invalid decimal string");
+                throw std::invalid_argument ("invalid decimal string");
         }
 
         Z result = 0;
@@ -151,7 +151,7 @@ namespace data {
             char c = input[pos];
 
             if (c < '0' || c > '9')
-                throw std::invalid_argument("invalid decimal string");
+                throw std::invalid_argument ("invalid decimal string");
 
             result *= 10;
             result += c - '0';
@@ -250,17 +250,61 @@ namespace data {
         }
     }
 
-    struct test_value {
-        string_view Decimal;
-        bytes Bytes;
-    };
+    void test_dec_to_hex (const dec_int &dec) {
 
-    TEST (ImportExportBin, RoundTrip) {
+        Z n_from_dec = Z::read (dec);
+
+        // test that reading from dec works correctly with independent function.
+        EXPECT_EQ (n_from_dec, from_dec<Z> (dec));
+
+        // test that when we write to dec, we get the same as the input.
+        EXPECT_EQ (dec, encoding::signed_decimal::write (n_from_dec));
+
+        // now we read in Z_bytes types from dec.
+        Z_bytes_little nlx = *encoding::signed_decimal::read<endian::little, negativity::twos, byte> (dec);
+        Z_bytes_big nbx = *encoding::signed_decimal::read<endian::big, negativity::twos, byte> (dec);
+
+        // we also convert to Z_bytes from the Z value that we read.
+        Z_bytes_little nxl (n_from_dec);
+        Z_bytes_big nxb (n_from_dec);
+
+        // They ought to be equal to one another.
+        EXPECT_EQ (nlx, nxl) << std::dec << "expected " << nlx << " to equal " << nxl;
+        EXPECT_EQ (nbx, nxb) << std::dec << "expected " << nbx << " to equal " << nxb;
+
+        EXPECT_EQ (n_from_dec, Z (nlx));
+        EXPECT_EQ (n_from_dec, Z (nbx));
+
+        string nlxx = encoding::signed_decimal::write (nlx);
+        string nbxx = encoding::signed_decimal::write (nbx);
+        EXPECT_EQ (dec, nlxx) << std::hex << "expected " << dec << " to equal " << nbxx;
+        EXPECT_EQ (dec, nbxx) << std::hex << "expected " << dec << " to equal " << nbxx;
+
+        auto nbxl = math::convert<Z_bytes_little> (nbx);
+        EXPECT_EQ (nlx, nbxl) << "expected " << nlx << " == " << nbxl;
+
+        auto nlxb = math::convert<Z_bytes_big> (nlx);
+        EXPECT_EQ (nbx, nlxb) << "expected " << nbx << " == " << nlxb;
+
+        auto nxh = encoding::hexidecimal::write<hex_case::lower> (n_from_dec);
+
+        EXPECT_EQ (nxh, encoding::hexidecimal::write<hex_case::lower> (nlx));
+        EXPECT_EQ (nxh, encoding::hexidecimal::write<hex_case::lower> (nbx));
+
+        EXPECT_EQ (n_from_dec, Z (nxh));
+        EXPECT_EQ (nlx, Z_bytes_little (nxh));
+        EXPECT_EQ (nbx, Z_bytes_big (nxh));
+
+    }
+
+    TEST (NTL, RoundTrip) {
         const dec_int values [] {
             dec_int {"0"},
             dec_int {"1"},
             dec_int {"-1"},
             dec_int {"-2"},
+            dec_int ("3"),
+            dec_int ("-3"),
             dec_int {"127"},
             dec_int {"128"},
             dec_int {"-127"},
@@ -268,6 +312,12 @@ namespace data {
             dec_int {"255"},
             dec_int {"256"},
             dec_int {"257"},
+            dec_int ("229"),
+            dec_int ("767"),
+            dec_int ("916"),
+            dec_int ("1145"),
+            dec_int ("-1145"),
+            dec_int {"7493"},
             dec_int {"32767"},
             dec_int {"32768"},
             dec_int {"65535"},
@@ -276,20 +326,112 @@ namespace data {
             dec_int {"-32768"},
             dec_int {"-65535"},
             dec_int {"-65536"},
+            dec_int ("749384"),
+            dec_int {"19088743"},
+            dec_int ("483749384"),
+            dec_int ("7206483749384"),
+            dec_int {"81985529216486895"},
+            dec_int {"18446744073709551616"},
             dec_int {"12345678901234567890"},
             dec_int {"-12345678901234567890"},
+            dec_int ("24397842987206483749384"),
+            dec_int {"889627103061277028662417"},
+            dec_int ("98980987676898761029390303474536547398"),
+            dec_int ("98980987676898761029390303474536547399"),
+            dec_int ("98980987676898761029390303474536547400"),
             dec_int {"340282366920938463463374607431768211455"},
             dec_int {"-340282366920938463463374607431768211455"},
-            dec_int {"19088743"},
-            dec_int {"81985529216486895"},
-            dec_int {"889627103061277028662417"},
-            dec_int {"18446744073709551616"},
+            dec_int {"115792089237316195423570985008687907852837564279074904382605163141518161494337"},
+            dec_int {"115792089237316195423570985008687907853269984665640564039457584007908834671663"},
+
+            dec_int (math::convert<dec_int> (hex::int2<hex_case::lower> {
+                "0x0f00000a00aabbccddeeffffffffffffffff"})),
+
+            dec_int (math::convert<dec_int> (hex::int2<hex_case::lower>
+                {"0xf000000a00aabbccddeeffffffffffffffff"})),
+
+            dec_int (math::convert<dec_int> (hex::uint<hex_case::lower> (
+                "0x0fabcdef123456789012323454567600000a00aabbccddeeffffffffffffffff"
+                "0000111122223333444455556666777788889999aaaabbbbccccddddeeeeffff"
+                "0369cf258be147ad05af49e38d27c16b07e5c3a18f6d4b29092b4d6f81a3c5e7"
+                "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd"))),
+
+            dec_int (math::convert<dec_int> (hex::uint<hex_case::lower> ("0xf0abcdef123456789012323454567600000a00aabbccddeeffffffffffffffff"
+                "0000111122223333444455556666777788889999aaaabbbbccccddddeeeeffff"
+                "0369cf258be147ad05af49e38d27c16b07e5c3a18f6d4b29092b4d6f81a3c5e7"
+                "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd")))
         };
 
         for (const auto &value : values) {
             round_trips<endian::big> (value);
             round_trips<endian::little> (value);
+            test_dec_to_hex (value);
         }
+    }
+
+    template <std::integral T>
+    void test_builtin_conversion (dec_int value) {
+        T built_in;
+        const auto [ptr, ec] = std::from_chars(
+            value.data (),
+            value.data () + value.size (),
+            built_in
+        );
+
+        const Z from_builtin (built_in);
+        const Z from_string (value);
+
+        EXPECT_EQ (from_builtin, from_string);
+        EXPECT_EQ (static_cast<T> (from_builtin), built_in);
+    }
+
+    template <std::integral... T>
+    void test_builtin_conversions (dec_int value)
+    {
+        (test_builtin_conversion<T> (value), ...);
+    }
+
+    TEST (NTL, BuiltIn) {
+        test_builtin_conversions<
+            char, signed char, unsigned char,
+            short int, short unsigned int, int, unsigned int,
+            long int, long unsigned int, long long int, long long unsigned int> (dec_int {"0"});
+
+        test_builtin_conversions<
+            char, signed char, unsigned char,
+            short int, short unsigned int, int, unsigned int,
+            long int, long unsigned int, long long int, long long unsigned int> (dec_int {"1"});
+
+        test_builtin_conversions<
+            char, signed char, short int, int, long int, long long int> (dec_int {"-1"});
+
+        test_builtin_conversions<
+            char, signed char, unsigned char,
+            short int, short unsigned int, int, unsigned int,
+            long int, long unsigned int, long long int, long long unsigned int> (dec_int {"23"});
+
+        test_builtin_conversions<
+            char, signed char, unsigned char,
+            short int, short unsigned int, int, unsigned int,
+            long int, long unsigned int, long long int, long long unsigned int> (dec_int {"127"});
+
+        test_builtin_conversions<
+            char, signed char, short int, int, long int, long long int> (dec_int {"-45"});
+
+        test_builtin_conversions<
+            char, signed char, short int, int, long int, long long int> (dec_int {"-128"});
+
+        test_builtin_conversions<
+            byte, int8, uint16, int16,
+            uint32, int32, uint64, int64> (dec_int {"127"});
+
+        test_builtin_conversions<byte, uint16, uint32, uint64> (dec_int {"255"});
+
+        test_builtin_conversions<int8, int16, int32, int64> (dec_int {"-128"});
+
+        test_builtin_conversions<int16, int32, int64> (dec_int {"-32768"});
+
+        test_builtin_conversions<int32, int64> (dec_int {"-2147483648"});
     }
 
 } // namespace

@@ -60,20 +60,20 @@ add_executable (
     ASCII.cpp
     stream.cpp
     endian.cpp
-    bounded.cpp                  # TODO: should be typed test, has commented sections
 
     # numbers
+    carry.cpp
+    bounded.cpp                  # TODO: should be typed test, has commented sections
+    N_bytes.cpp
+    Z_bytes.cpp
     NTL.cpp
     numbers.cpp                  # TODO: We have some typed test suites, but we need more.
+    N.cpp
+    Z.cpp
     bit_ops.cpp                  # TODO: Contains commented test cases
     decimal.cpp                  # TODO: need to include bounded numbers.
     hexidecimal.cpp
     base58.cpp
-    N.cpp
-    Z.cpp
-    carry.cpp
-    N_bytes.cpp
-    Z_bytes.cpp
     string_numbers.cpp
     infinite.cpp                 # TODO: should be a typed test.
     division.cpp

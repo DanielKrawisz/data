@@ -9,123 +9,6 @@
 
 namespace data::math::number {
 
-    template<endian r, std::unsigned_integral word>
-    N N_Bytes_to_N_stupid (const math::number::N_bytes<r, word> &n) {
-        N x {0};
-
-        for (const word &b : n.words ().reverse ()) {
-            x <<= (sizeof (word) * 8);
-            x += b;
-        }
-
-        return x;
-    }
-
-    template<endian r, std::unsigned_integral word>
-    math::number::N_bytes<r, word> inline N_to_N_Bytes_stupid (const N &n) {
-        auto hex_string = encoding::hexidecimal::write<hex_case::lower> (n);
-        size_t bytes_encoded = (hex_string.size () - 2) / 2;
-
-        size_t bytes_extended = bytes_encoded % sizeof (word) == 0 ? bytes_encoded :
-            ((bytes_encoded / sizeof (word)) + 1) * sizeof (word);
-
-        auto hex_resized = encoding::hexidecimal::extend<negativity::nones, hex_case::lower> (hex_string, bytes_extended * 2 + 2);
-
-        return math::number::N_bytes<r, word>::read (hex_resized);
-    }
-
-    template <std::unsigned_integral word> using Nl = math::number::N_bytes<endian::little, word>;
-    template <std::unsigned_integral word> using Zl1 = math::number::Z_bytes<endian::little, negativity::twos, word>;
-    template <std::unsigned_integral word> using Zl2 = math::number::Z_bytes<endian::little, negativity::BC, word>;
-    template <std::unsigned_integral word> using Nb = math::number::N_bytes<endian::big, word>;
-    template <std::unsigned_integral word> using Zb1 = math::number::Z_bytes<endian::big, negativity::twos, word>;
-    template <std::unsigned_integral word> using Zb2 = math::number::Z_bytes<endian::big, negativity::BC, word>;
-
-    template <typename in, std::unsigned_integral word> void N_Bytes_to_N_by_word (in x) {
-
-        N n = N::read (x);
-
-        Nb<word> big {x};
-        Nl<word> little {x};
-
-        Nb<word> stupid_big = N_to_N_Bytes_stupid<endian::big, word> (n);
-        Nl<word> stupid_little = N_to_N_Bytes_stupid<endian::little, word> (n);
-
-        EXPECT_EQ (stupid_big, big) << "expected " << std::hex << stupid_big << " to equal " << big << "; input = " << x;
-        EXPECT_EQ (stupid_little, little) << "expected " << std::hex << stupid_little << " to equal " << little << "; input = " << x;
-
-        N N_big = N (big);
-        N N_little = N (little);
-
-        N N_big_stupid = N_Bytes_to_N_stupid<endian::big, word> (big);
-        N N_little_stupid = N_Bytes_to_N_stupid<endian::little, word> (little);
-
-        EXPECT_EQ (N_big_stupid, N_big) << "expected " << std::hex << N_big_stupid << " to equal " << N_big << "; input = " << x;
-        EXPECT_EQ (N_little_stupid, N_little) << "expected " << std::hex << N_little_stupid << " to equal " << N_little << "; input = " << x;
-
-        EXPECT_EQ (N_big, n);
-        EXPECT_EQ (N_little, n);
-
-    }
-
-    template <typename in> void N_Bytes_to_N (in x) {
-
-        N_Bytes_to_N_by_word<in, byte> (x);
-        N_Bytes_to_N_by_word<in, unsigned short> (x);
-        N_Bytes_to_N_by_word<in, unsigned> (x);
-        N_Bytes_to_N_by_word<in, unsigned long> (x);
-        N_Bytes_to_N_by_word<in, unsigned long long> (x);
-
-    }
-
-    TEST (NBytes, Construct) {
-        EXPECT_EQ ((bytes (N_bytes_big {byte (0)})), (bytes {}));
-        EXPECT_EQ ((bytes (N_bytes_big {int8 (0)})), (bytes {}));
-        EXPECT_EQ ((bytes (N_bytes_big {int64 (0)})), (bytes {}));
-        EXPECT_EQ ((bytes (N_bytes_big {uint64 (0)})), (bytes {}));
-
-        EXPECT_EQ ((bytes (N_bytes_big {byte (1)})), (bytes {0x01}));
-        EXPECT_EQ ((bytes (N_bytes_big {int8 (1)})), (bytes {0x01}));
-        EXPECT_EQ ((bytes (N_bytes_big {int64 (1)})), (bytes {0x01}));
-        EXPECT_EQ ((bytes (N_bytes_big {uint64 (1)})), (bytes {0x01}));
-
-        EXPECT_EQ ((bytes (N_bytes_big {byte (0x80)})), (bytes {0x80}));
-        EXPECT_EQ ((bytes (N_bytes_big {uint64 (0x80)})), (bytes {0x80}));
-
-        EXPECT_EQ ((bytes (N_bytes_big {byte (0xff)})), (bytes {0xff}));
-        EXPECT_EQ ((bytes (N_bytes_big {uint64 (0xff)})), (bytes {0xff}));
-
-        EXPECT_EQ ((bytes (N_bytes_big {uint16 (0x0100)})), (bytes {0x01, 0x00}));
-        EXPECT_EQ ((bytes (N_bytes_big {uint64 (0x0100)})), (bytes {0x01, 0x00}));
-
-        EXPECT_EQ ((bytes (N_bytes_big {uint16 (0x0102)})), (bytes {0x01, 0x02}));
-        EXPECT_EQ ((bytes (N_bytes_big {uint64 (0x0102)})), (bytes {0x01, 0x02}));
-
-        EXPECT_EQ ((bytes (N_bytes_big {uint16 (0x8003)})), (bytes {0x80, 0x03}));
-        EXPECT_EQ ((bytes (N_bytes_big {uint64 (0x8003)})), (bytes {0x80, 0x03}));
-    }
-
-    TEST (NBytes, NBytesToN) {
-
-        N_Bytes_to_N<string> ("0");
-        N_Bytes_to_N<string> ("1");
-        N_Bytes_to_N<string> ("3");
-        N_Bytes_to_N<string> ("767");
-        N_Bytes_to_N<string> ("7439");
-        N_Bytes_to_N<string> ("10920960978709");
-
-        N_Bytes_to_N<string> ("0x0fabcdef123456789012323454567600000a00aabbccddeeffffffffffffffff"
-                                "0000111122223333444455556666777788889999aaaabbbbccccddddeeeeffff"
-                                "0369cf258be147ad05af49e38d27c16b07e5c3a18f6d4b29092b4d6f81a3c5e7"
-                                "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd");
-
-        N_Bytes_to_N<string> ("0xf0abcdef123456789012323454567600000a00aabbccddeeffffffffffffffff"
-                                "0000111122223333444455556666777788889999aaaabbbbccccddddeeeeffff"
-                                "0369cf258be147ad05af49e38d27c16b07e5c3a18f6d4b29092b4d6f81a3c5e7"
-                                "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd");
-
-    }
-
     TEST (NBytes, StringToNBytes) {
 
         EXPECT_THROW ((N_bytes<endian::big, byte>::read ("")), exception);
@@ -199,10 +82,10 @@ namespace data::math::number {
         EXPECT_EQ ((N_bytes<endian::big, byte> {0}), (N_bytes<endian::big, byte> {}));
         EXPECT_EQ ((N_bytes<endian::big, byte> {0}), (N_bytes<endian::big, byte>::read ("0")));
         EXPECT_EQ ((N_bytes<endian::big, byte> {0}), (N_bytes<endian::big, byte>::read ("0x")));
-        
+
         EXPECT_FALSE ((N_bytes<endian::big, byte> {1}) == (N_bytes<endian::big, byte>::read ("0")));
         EXPECT_FALSE ((N_bytes<endian::big, byte> {0}) == (N_bytes<endian::big, byte>::read ("1")));
-        
+
         EXPECT_TRUE ((N_bytes<endian::big, byte> {1}) == (N_bytes<endian::big, byte>::read ("1")));
         EXPECT_TRUE ((N_bytes<endian::big, byte> {1}) == (N_bytes<endian::big, byte>::read ("0x01")));
         EXPECT_TRUE ((N_bytes<endian::big, byte> {1}) == (N_bytes<endian::big, byte>::read ("0x0001")));
@@ -210,101 +93,59 @@ namespace data::math::number {
         EXPECT_EQ ((N_bytes<endian::little, byte> {0}), (N_bytes<endian::little, byte> {}));
         EXPECT_EQ ((N_bytes<endian::little, byte> {0}), (N_bytes<endian::little, byte>::read ("0")));
         EXPECT_EQ ((N_bytes<endian::little, byte> {0}), (N_bytes<endian::little, byte>::read ("0x")));
-        
+
         EXPECT_FALSE ((N_bytes<endian::little, byte> {1}) == (N_bytes<endian::little, byte>::read ("0")));
         EXPECT_FALSE ((N_bytes<endian::little, byte> {0}) == (N_bytes<endian::little, byte>::read ("1")));
-        
+
         EXPECT_TRUE ((N_bytes<endian::little, byte> {1}) == (N_bytes<endian::little, byte>::read ("1")));
         EXPECT_TRUE ((N_bytes<endian::little, byte> {1}) == (N_bytes<endian::little, byte>::read ("0x01")));
         EXPECT_TRUE ((N_bytes<endian::little, byte> {1}) == (N_bytes<endian::little, byte>::read ("0x0001")));
-        
+
         EXPECT_EQ ((N_bytes<endian::big, byte>::read ("23")), (N_bytes<endian::big, byte> {23}));
         EXPECT_EQ ((N_bytes<endian::little, byte>::read ("23")), (N_bytes<endian::little, byte> {23}));
-        
+
     }
 
     TEST (NBytes, NBytesToHexString) {
-        
+
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N_bytes<endian::big, byte> {"0"}), std::string {"0x"});
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N_bytes<endian::big, byte> {"127"}), std::string {"0x7f"});
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N_bytes<endian::big, byte> {"128"}), std::string {"0x80"});
-        
+
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N_bytes<endian::little, byte> {"0"}), std::string {"0x"});
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N_bytes<endian::little, byte> {"127"}), std::string {"0x7f"});
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N_bytes<endian::little, byte> {"128"}), std::string {"0x80"});
-        
+
     }
-    
+
     TEST (NBytes, ZeroSize) {
-        
+
         EXPECT_EQ ((N_bytes<endian::big, byte> {"0x"}.size ()), 0);
         EXPECT_EQ ((N_bytes<endian::big, byte> {"0x00"}.size ()), 1);
         EXPECT_EQ ((N_bytes<endian::big, byte> {"0x000000"}.size ()), 3);
-        
+
         EXPECT_EQ ((N_bytes<endian::little, byte> {"0x"}.size ()), 0);
         EXPECT_EQ ((N_bytes<endian::little, byte> {"0x00"}.size ()), 1);
         EXPECT_EQ ((N_bytes<endian::little, byte> {"0x000000"}.size ()), 3);
-        
+
     }
-    
+
     TEST (NBytes, ZeroAndNegativeNBytes) {
-        
+
         EXPECT_EQ ((N_bytes<endian::big, byte>::read ("0x")), (N_bytes<endian::big, byte> {0}));
         EXPECT_EQ ((N_bytes<endian::big, byte>::read ("0x00")), (N_bytes<endian::big, byte> {0}));
         EXPECT_EQ ((N_bytes<endian::big, byte>::read ("0x000000")), (N_bytes<endian::big, byte> {0}));
         EXPECT_EQ ((N_bytes<endian::little, byte>::read ("0x")), (N_bytes<endian::little, byte> {0}));
         EXPECT_EQ ((N_bytes<endian::little, byte>::read ("0x00")), (N_bytes<endian::little, byte> {0}));
         EXPECT_EQ ((N_bytes<endian::little, byte>::read ("0x000000")), (N_bytes<endian::little, byte> {0}));
-        
+
         EXPECT_EQ ((N_bytes<endian::big, byte>::read ("0x01")), (N_bytes<endian::big, byte> {1}));
         EXPECT_EQ ((N_bytes<endian::big, byte>::read ("0x0001")), (N_bytes<endian::big, byte> {1}));
         EXPECT_EQ ((N_bytes<endian::big, byte>::read ("0x00000001")), (N_bytes<endian::big, byte> {1}));
         EXPECT_EQ ((N_bytes<endian::little, byte>::read ("0x01")), (N_bytes<endian::little, byte> {1}));
         EXPECT_EQ ((N_bytes<endian::little, byte>::read ("0x0001")), (N_bytes<endian::little, byte> {1}));
         EXPECT_EQ ((N_bytes<endian::little, byte>::read ("0x00000001")), (N_bytes<endian::little, byte> {1}));
-        
-    }
 
-    void test_N_to_N_bytes (string x) {
-        EXPECT_EQ ((N_bytes<endian::big, byte> {N::read (x)}), (N_bytes<endian::big, byte>::read (x)));
-        EXPECT_EQ ((N_bytes<endian::little, byte> {N::read (x)}), (N_bytes<endian::little, byte>::read (x)));
-    }
-    
-    TEST (NBytes, NToNBytes) {
-
-        test_N_to_N_bytes ("0");
-        test_N_to_N_bytes ("1");
-        test_N_to_N_bytes ("23");
-        test_N_to_N_bytes ("5704566599993321");
-        test_N_to_N_bytes ("98980987676898761029390303474536547398");
-        test_N_to_N_bytes ("98980987676898761029390303474536547399");
-        test_N_to_N_bytes ("98980987676898761029390303474536547400");
-        
-    }
-
-    template <endian r>
-    struct test_bit_shift {
-        test_bit_shift (string num, int shift) {
-            EXPECT_EQ ((N_bytes<r, byte> (num) >> shift), (N_bytes<r, byte> (num) << -shift));
-            EXPECT_EQ ((N_bytes<r, byte> (num) << shift), (N_bytes<r, byte> (num) >> -shift));
-            EXPECT_EQ ((N_bytes<r, byte> (num) << shift >> shift), (N_bytes<r, byte> (num)));
-            EXPECT_EQ ((N::read (num) >> shift), (N (N_bytes<r, byte> (num) >> shift)));
-            EXPECT_EQ ((N::read (num) << shift), (N (N_bytes<r, byte> (num) << shift)));
-        }
-    };
-    
-    TEST (NBytes, NBitShift) {
-        EXPECT_EQ ((N_bytes<endian::big, byte> {"1"} << 1), (N_bytes<endian::big, byte> {"2"}));
-        EXPECT_EQ ((N_bytes<endian::little, byte> {"1"} << 1), (N_bytes<endian::little, byte> {"2"}));
-        EXPECT_EQ ((N_bytes<endian::big, byte> {"2"} >> 1), (N_bytes<endian::big, byte> {"1"}));
-        EXPECT_EQ ((N_bytes<endian::little, byte> {"2"} >> 1), (N_bytes<endian::little, byte> {"1"}));
-
-        for (const string &num : list<string> {"0", "1", "23", "5704566599993321"})
-            for (const int &shift : list<int> {0, 1, 5, 8, 15, 16}) {
-                test_bit_shift<endian::big> {num, shift};
-                test_bit_shift<endian::little> {num, shift};
-            };
-        
     }
 
     template <endian o, std::unsigned_integral word>
@@ -314,9 +155,9 @@ namespace data::math::number {
         EXPECT_EQ (encoding::decimal::write (N_bytes<o, word> {767}), std::string {"767"});
         EXPECT_EQ (encoding::decimal::write (N_bytes<o, word> {"5704566599993321"}), std::string {"5704566599993321"});
     }
-    
+
     TEST (NBytes, NBytesToString) {
-        
+
         test_N_Bytes_to_string_decimal<endian::big, byte> ();
         test_N_Bytes_to_string_decimal<endian::little, byte> ();
         test_N_Bytes_to_string_decimal<endian::big, unsigned short> ();
@@ -327,7 +168,7 @@ namespace data::math::number {
         test_N_Bytes_to_string_decimal<endian::little, unsigned long> ();
         test_N_Bytes_to_string_decimal<endian::big, unsigned long long> ();
         test_N_Bytes_to_string_decimal<endian::little, unsigned long long> ();
-        
+
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (
             N_bytes<endian::big, byte> {1}.trim ()), std::string {"0x01"});
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (
@@ -340,25 +181,77 @@ namespace data::math::number {
             N_bytes<endian::big, byte> {"5704566599993321"}), std::string {"0x144445e9ca47e9"});
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (
             N_bytes<endian::little, byte> {"5704566599993321"}), std::string {"0x144445e9ca47e9"});
-        
+
     }
-    
+
+    TEST (NBytes, ConstructFromBuiltIn) {
+        EXPECT_EQ ((bytes (N_bytes_big {byte (0)})), (bytes {}));
+        EXPECT_EQ ((bytes (N_bytes_big {int8 (0)})), (bytes {}));
+        EXPECT_EQ ((bytes (N_bytes_big {int64 (0)})), (bytes {}));
+        EXPECT_EQ ((bytes (N_bytes_big {uint64 (0)})), (bytes {}));
+
+        EXPECT_EQ ((bytes (N_bytes_big {byte (1)})), (bytes {0x01}));
+        EXPECT_EQ ((bytes (N_bytes_big {int8 (1)})), (bytes {0x01}));
+        EXPECT_EQ ((bytes (N_bytes_big {int64 (1)})), (bytes {0x01}));
+        EXPECT_EQ ((bytes (N_bytes_big {uint64 (1)})), (bytes {0x01}));
+
+        EXPECT_EQ ((bytes (N_bytes_big {byte (0x80)})), (bytes {0x80}));
+        EXPECT_EQ ((bytes (N_bytes_big {uint64 (0x80)})), (bytes {0x80}));
+
+        EXPECT_EQ ((bytes (N_bytes_big {byte (0xff)})), (bytes {0xff}));
+        EXPECT_EQ ((bytes (N_bytes_big {uint64 (0xff)})), (bytes {0xff}));
+
+        EXPECT_EQ ((bytes (N_bytes_big {uint16 (0x0100)})), (bytes {0x01, 0x00}));
+        EXPECT_EQ ((bytes (N_bytes_big {uint64 (0x0100)})), (bytes {0x01, 0x00}));
+
+        EXPECT_EQ ((bytes (N_bytes_big {uint16 (0x0102)})), (bytes {0x01, 0x02}));
+        EXPECT_EQ ((bytes (N_bytes_big {uint64 (0x0102)})), (bytes {0x01, 0x02}));
+
+        EXPECT_EQ ((bytes (N_bytes_big {uint16 (0x8003)})), (bytes {0x80, 0x03}));
+        EXPECT_EQ ((bytes (N_bytes_big {uint64 (0x8003)})), (bytes {0x80, 0x03}));
+    }
+
+    template <endian r>
+    struct test_bit_shift {
+        test_bit_shift (string num, int shift) {
+            EXPECT_EQ ((N_bytes<r, byte> (num) >> shift), (N_bytes<r, byte> (num) << -shift));
+            EXPECT_EQ ((N_bytes<r, byte> (num) << shift), (N_bytes<r, byte> (num) >> -shift));
+            EXPECT_EQ ((N_bytes<r, byte> (num) << shift >> shift), (N_bytes<r, byte> (num)));
+            EXPECT_EQ ((N::read (num) >> shift), (N (N_bytes<r, byte> (num) >> shift)));
+            EXPECT_EQ ((N::read (num) << shift), (N (N_bytes<r, byte> (num) << shift)));
+        }
+    };
+
+    TEST (NBytes, NBitShift) {
+        EXPECT_EQ ((N_bytes<endian::big, byte> {"1"} << 1), (N_bytes<endian::big, byte> {"2"}));
+        EXPECT_EQ ((N_bytes<endian::little, byte> {"1"} << 1), (N_bytes<endian::little, byte> {"2"}));
+        EXPECT_EQ ((N_bytes<endian::big, byte> {"2"} >> 1), (N_bytes<endian::big, byte> {"1"}));
+        EXPECT_EQ ((N_bytes<endian::little, byte> {"2"} >> 1), (N_bytes<endian::little, byte> {"1"}));
+
+        for (const string &num : list<string> {"0", "1", "23", "5704566599993321"})
+            for (const int &shift : list<int> {0, 1, 5, 8, 15, 16}) {
+                test_bit_shift<endian::big> {num, shift};
+                test_bit_shift<endian::little> {num, shift};
+            };
+
+    }
+
     TEST (NBytes, Increment) {
-        
+
         auto nl0 = N_bytes<endian::big, byte>::read ("0x");
         auto nl1 = N_bytes<endian::big, byte>::read ("0x00");
         auto nl3 = N_bytes<endian::big, byte>::read ("0x000000");
         auto nb0 = N_bytes<endian::little, byte>::read ("0x");
         auto nb1 = N_bytes<endian::little, byte>::read ("0x00");
         auto nb3 = N_bytes<endian::little, byte>::read ("0x000000");
-        
+
         EXPECT_EQ (++nl0, (N_bytes<endian::big, byte> {1}));
         EXPECT_EQ (++nl1, (N_bytes<endian::big, byte> {1}));
         EXPECT_EQ (++nl3, (N_bytes<endian::big, byte> {1}));
         EXPECT_EQ (++nb0, (N_bytes<endian::little, byte> {1}));
         EXPECT_EQ (++nb1, (N_bytes<endian::little, byte> {1}));
         EXPECT_EQ (++nb3, (N_bytes<endian::little, byte> {1}));
-        
+
     }
     
 }

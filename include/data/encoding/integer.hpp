@@ -68,9 +68,6 @@ namespace data::encoding {
         constexpr bool negative (string_view);
         constexpr math::sign sign (string_view);
 
-        template <endian::order r, std::unsigned_integral word>
-        maybe<N_bytes<r, word>> read (string_view);
-
         template <std::signed_integral I>
         std::ostream &write (std::ostream &, I);
 
@@ -935,6 +932,11 @@ namespace data::math::def {
     template <negativity c, hex_case z, negativity n, hex_case zz>
     struct convert<hex::integer<c, z>, hex::integer<n, zz>> {
         hex::integer<c, z> operator () (const hex::integer<n, zz> &) const;
+    };
+
+    template <negativity neg, hex_case zz>
+    struct convert<dec_int, hex::integer<neg, zz>> {
+        dec_int operator () (const hex::integer<neg, zz> &) const;
     };
     
 }

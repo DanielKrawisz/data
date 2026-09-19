@@ -7,60 +7,6 @@
 #include <gtest/gtest.h>
 
 namespace data {
-    void test_dec_to_hex (const string &x) {
-
-        N nx = N::read (x);
-
-        EXPECT_EQ (x, encoding::decimal::write (nx));
-
-        N_bytes_little nlx = *encoding::decimal::read<endian::little, byte> (x);
-        N_bytes_big nbx = *encoding::decimal::read<endian::big, byte> (x);
-
-        N_bytes_little nxl (nx);
-        N_bytes_big nxb (nx);
-        EXPECT_EQ (nlx, nxl) << std::hex << "expected " << nlx << " to equal " << nxl;
-        EXPECT_EQ (nbx, nxb) << std::hex << "expected " << nbx << " to equal " << nxb;
-
-        EXPECT_EQ (nx, N (nlx));
-        EXPECT_EQ (nx, N (nbx));
-
-        string nlxx = encoding::decimal::write (nlx);
-        string nbxx = encoding::decimal::write (nbx);
-        EXPECT_EQ (x, nlxx) << std::hex << "expected " << x << " to equal " << nbxx;
-        EXPECT_EQ (x, nbxx) << std::hex << "expected " << x << " to equal " << nbxx;
-
-        auto nbxl = math::convert<N_bytes_little> (nbx);
-        EXPECT_EQ (nlx, nbxl) << "expected " << nlx << " == " << nbxl;
-
-        auto nlxb = math::convert<N_bytes_big> (nlx);
-        EXPECT_EQ (nbx, nlxb) << "expected " << nbx << " == " << nlxb;
-
-        auto nxh = encoding::hexidecimal::write<hex_case::lower> (nx);
-
-        EXPECT_EQ (nxh, encoding::hexidecimal::write<hex_case::lower> (nlx));
-        EXPECT_EQ (nxh, encoding::hexidecimal::write<hex_case::lower> (nbx));
-
-        EXPECT_EQ (nx, N (nxh));
-        EXPECT_EQ (nlx, N_bytes_little (nxh));
-        EXPECT_EQ (nbx, N_bytes_big (nxh));
-
-    }
-
-    TEST (Decimal, DecToHex) {
-
-        test_dec_to_hex ("0");
-        test_dec_to_hex ("1");
-        test_dec_to_hex ("9");
-        test_dec_to_hex ("129");
-        test_dec_to_hex ("7493");
-        test_dec_to_hex ("749384");
-        test_dec_to_hex ("483749384");
-        test_dec_to_hex ("7206483749384");
-        test_dec_to_hex ("24397842987206483749384");
-        test_dec_to_hex ("98980987676898761029390303474536547398");
-        test_dec_to_hex ("98980987676898761029390303474536547399");
-        test_dec_to_hex ("98980987676898761029390303474536547400");
-    }
 
     template <std::unsigned_integral word> using Nl = math::number::N_bytes<endian::little, word>;
     template <std::unsigned_integral word> using Zl2 = math::number::Z_bytes<endian::little, negativity::twos, word>;

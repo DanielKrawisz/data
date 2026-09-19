@@ -113,7 +113,7 @@ namespace data::encoding::decimal {
 namespace data::encoding::signed_decimal {
     constexpr bool valid (string_view s);
 
-    template <endian::order r, negativity n, std::unsigned_integral word>
+    template <endian::order r, negativity n, std::unsigned_integral word = byte>
     maybe<math::number::Z_bytes<r, n, word>> read (string_view);
 
     struct string;
@@ -144,7 +144,7 @@ namespace data::encoding::hexidecimal {
     template <negativity, hex_case> struct integer;
 
     template <hex_case zz> integer<negativity::nones, zz> write (const N &);
-    template <negativity n, hex_case zz> integer<n, zz> write (const Z &);
+    template <hex_case zz, negativity n = negativity::twos> integer<n, zz> write (const Z &);
 
     std::ostream &write (std::ostream &, const N &, hex_case = hex_case::lower);
     std::ostream &write (std::ostream &, const Z &, hex_case = hex_case::lower, negativity = negativity::twos);
@@ -775,11 +775,8 @@ namespace data::math::number {
     template <endian r, std::unsigned_integral word>
     Z_bytes<r, negativity::twos, word> operator - (const N_bytes<r, word> &);
 
-    template <endian r, std::unsigned_integral word>
-    Z_bytes<r, negativity::twos, word> operator - (const Z_bytes<r, negativity::twos, word> &);
-
-    template <endian r, std::unsigned_integral word>
-    Z_bytes<r, negativity::BC, word> operator - (const Z_bytes<r, negativity::BC, word> &);
+    template <endian r, negativity neg, std::unsigned_integral word>
+    Z_bytes<r, neg, word> operator - (const Z_bytes<r, neg, word> &);
 
     Z operator + (const Z &, const Z &);
     Z operator - (const Z &, const Z &);

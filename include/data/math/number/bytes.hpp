@@ -131,7 +131,7 @@ namespace data::encoding::signed_decimal {
         if (!valid (s)) return {};
         bool negative = s[0] == '-';
         string_view positive = negative ? s.substr (1) : s;
-        auto z = math::number::Z_bytes<r, n, word> ((math::number::Z_bytes<r, n, word>) (*decimal::read<r, word> (positive)));
+        auto z = math::number::Z_bytes<r, n, word> (*decimal::read<r, word> (positive));
         if (negative) z = -z;
         return {z};
     }
@@ -449,7 +449,7 @@ namespace data::math::def {
     (const hex::int2<zz> &v, const nonzero<hex::int2<zz>> &z) {
         auto d = divmod<Z> {} (Z::read (v), nonzero<Z> {Z::read (z.Value)});
         return {
-            encoding::hexidecimal::write<negativity::twos, zz> (d.Quotient),
+            encoding::hexidecimal::write<zz> (d.Quotient),
             encoding::hexidecimal::write<zz> (d.Remainder)};
     }
 
@@ -459,7 +459,7 @@ namespace data::math::def {
     (const hex::int2<zz> &v, const nonzero<hex::uint<zz>> &z) {
         auto d = divmod<Z, N> {} (Z::read (v), nonzero<N> {N {Z::read (z.Value)}});
         return {
-            encoding::hexidecimal::write<negativity::twos, zz> (d.Quotient),
+            encoding::hexidecimal::write<zz> (d.Quotient),
             encoding::hexidecimal::write<zz> (d.Remainder)};
     }
 
@@ -482,16 +482,16 @@ namespace data::math::def {
     hex::integer<c, zz> inline times<hex::integer<c, zz>>::operator ()
     (const hex::integer<c, zz> &a, const hex::integer<c, zz> &b) {
         if constexpr (c == negativity::nones)
-            return encoding::hexidecimal::write<negativity::nones, zz> (N (a) * N (b));
-        else return encoding::hexidecimal::write<c, zz> (Z (a) * Z (b));
+            return encoding::hexidecimal::write<zz> (N (a) * N (b));
+        else return encoding::hexidecimal::write<zz> (Z (a) * Z (b));
     }
 
     template <negativity c, hex_case zz>
     nonzero<hex::integer<c, zz>> inline times<hex::integer<c, zz>>::operator ()
     (const nonzero<hex::integer<c, zz>> &a, const nonzero<hex::integer<c, zz>> &b) {
         if constexpr (c == negativity::nones)
-            return nonzero {encoding::hexidecimal::write<negativity::nones, zz> (N (a.Value) * N (b.Value))};
-        else return nonzero {encoding::hexidecimal::write<c, zz> (Z (a.Value) * Z (b.Value))};
+            return nonzero {encoding::hexidecimal::write<zz> (N (a.Value) * N (b.Value))};
+        else return nonzero {encoding::hexidecimal::write<zz> (Z (a.Value) * Z (b.Value))};
     }
 
     dec_int inline times<dec_int, dec_int>::operator () (const dec_int &a, const dec_int &b) {
@@ -514,6 +514,11 @@ namespace data::math::def {
         return {
             encoding::signed_decimal::write (d.Quotient),
             encoding::decimal::write (d.Remainder)};
+    }
+
+    template <negativity neg, hex_case zz>
+    dec_int inline convert<dec_int, hex::integer<neg, zz>>::operator () (const hex::integer<neg, zz> &x) const {
+        return encoding::signed_decimal::write ((number::Z_bytes<endian::little, negativity::twos, byte> (x)));
     }
 }
 
