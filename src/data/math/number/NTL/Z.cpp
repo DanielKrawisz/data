@@ -30,6 +30,20 @@ namespace data::math::def {
 
         return result;
     }
+
+    math::sign sign<N>::operator () (const N &n) {
+        auto sgn = NTL::sign (n.Value);
+        if (sgn > 0) return math::positive;
+        if (sgn < 0) return math::negative;
+        return math::zero;
+    }
+
+    math::sign sign<Z>::operator () (const Z &z) {
+        auto sgn = NTL::sign (z.Value);
+        if (sgn > 0) return math::positive;
+        if (sgn < 0) return math::negative;
+        return math::zero;
+    }
 }
 
 namespace data::math::number {
@@ -100,12 +114,12 @@ namespace data::math::number {
 
     Z inline Z_read_hex (string_view x) {
         return Z (NTL::import_bin<byte> (byte_slice (*encoding::hex::read (x.substr (2))),
-            endian::little, endian::native, arithmetic::negativity::twos));
+            endian::big, endian::native, arithmetic::negativity::twos));
     }
 
     N inline N_read_hex (string_view x) {
         return N (NTL::import_bin<byte> (byte_slice (*encoding::hex::read (x.substr (2))),
-            endian::little, endian::native, arithmetic::negativity::nones));
+            endian::big, endian::native, arithmetic::negativity::nones));
     }
 
     N inline N_read_dec (string_view x) {

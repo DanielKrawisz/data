@@ -527,6 +527,14 @@ namespace data {
         EXPECT_EQ (N {}, N {0});
     }
 
+    TYPED_TEST (Numbers, Abs) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ (abs (N {0}), N {0});
+        EXPECT_EQ (abs (N {1}), N {1});
+        EXPECT_EQ (abs (N {2}), N {2});
+        EXPECT_EQ (abs (N {5}), N {5});
+    }
+
     TYPED_TEST (Numbers, Multiply) {
         using N = typename TestFixture::N;
         EXPECT_EQ (N {0} * N {0}, N {0});
@@ -569,9 +577,15 @@ namespace data {
         Z_bytes_BC_little, Z_bytes_BC_big,
         dec_int, hex_int, hex_int_BC>;
 
-    template <typename X> struct Naturals : ::testing::Test {
-        using N = X;
-    };
+    TYPED_TEST_SUITE (Integers, integers);
+
+    TYPED_TEST (Integers, Abs) {
+        using N = typename TestFixture::Z;
+        EXPECT_EQ (abs (-N {0}), N {0});
+        EXPECT_EQ (abs (-N {1}), N {1});
+        EXPECT_EQ (abs (-N {2}), N {2});
+        EXPECT_EQ (abs (-N {5}), N {5});
+    }
 
     using naturals = ::testing::Types<
         uint32, uint32_little, uint32_big,
@@ -584,6 +598,10 @@ namespace data {
         uint384, uint384_little, uint384_big,
         uint512, uint512_little, uint512_big,
         N, N_bytes_little, N_bytes_big, dec_uint, hex_uint, base58_uint>;
+
+    template <typename X> struct Naturals : ::testing::Test {
+        using N = X;
+    };
 
     TYPED_TEST_SUITE (Naturals, naturals);
 
@@ -638,7 +656,7 @@ namespace data {
         EXPECT_EQ (Z (0x001234) ^ Z (0x000ff0), Z (0x001dc4));
     }
 
-    TYPED_TEST (Numbers, PositiveLeftShiftIsMul2Pow) {
+    TYPED_TEST (Numbers, LeftShift) {
         using N = typename TestFixture::N;
         N test_val_1 {1};
         EXPECT_EQ (test_val_1 << 0, mul_2_pow (test_val_1, 0));
@@ -658,7 +676,45 @@ namespace data {
         EXPECT_EQ (test_val_2 << 13, mul_2_pow (test_val_2, 13));
     }
 
-    // TODO right shift
+    TYPED_TEST (Numbers, RightShift) {
+        using N = typename TestFixture::N;
+        N test_val_1 {10000000};
+        EXPECT_EQ (test_val_1 >> 0, div_2_pow (test_val_1, 0));
+        EXPECT_EQ (test_val_1 >> 1, div_2_pow (test_val_1, 1));
+        EXPECT_EQ (test_val_1 >> 2, div_2_pow (test_val_1, 2));
+        EXPECT_EQ (test_val_1 >> 3, div_2_pow (test_val_1, 3));
+        EXPECT_EQ (test_val_1 >> 5, div_2_pow (test_val_1, 5));
+        EXPECT_EQ (test_val_1 >> 8, div_2_pow (test_val_1, 8));
+        EXPECT_EQ (test_val_1 >> 13, div_2_pow (test_val_1, 13));
+        N test_val_2 {1025973000};
+        EXPECT_EQ (test_val_2 >> 0, div_2_pow (test_val_2, 0));
+        EXPECT_EQ (test_val_2 >> 1, div_2_pow (test_val_2, 1));
+        EXPECT_EQ (test_val_2 >> 2, div_2_pow (test_val_2, 2));
+        EXPECT_EQ (test_val_2 >> 3, div_2_pow (test_val_2, 3));
+        EXPECT_EQ (test_val_2 >> 5, div_2_pow (test_val_2, 5));
+        EXPECT_EQ (test_val_2 >> 8, div_2_pow (test_val_2, 8));
+        EXPECT_EQ (test_val_2 >> 13, div_2_pow (test_val_2, 13));
+    }
+
+    TYPED_TEST (Integers, LeftShift) {
+        using N = typename TestFixture::Z;
+        N test_val_1 {-1};
+        EXPECT_EQ (test_val_1 << 0, mul_2_pow (test_val_1, 0));
+        EXPECT_EQ (test_val_1 << 1, mul_2_pow (test_val_1, 1));
+        EXPECT_EQ (test_val_1 << 2, mul_2_pow (test_val_1, 2));
+        EXPECT_EQ (test_val_1 << 3, mul_2_pow (test_val_1, 3));
+        EXPECT_EQ (test_val_1 << 5, mul_2_pow (test_val_1, 5));
+        EXPECT_EQ (test_val_1 << 8, mul_2_pow (test_val_1, 8));
+        EXPECT_EQ (test_val_1 << 13, mul_2_pow (test_val_1, 13));
+        N test_val_2 {-1025973};
+        EXPECT_EQ (test_val_2 << 0, mul_2_pow (test_val_2, 0));
+        EXPECT_EQ (test_val_2 << 1, mul_2_pow (test_val_2, 1));
+        EXPECT_EQ (test_val_2 << 2, mul_2_pow (test_val_2, 2));
+        EXPECT_EQ (test_val_2 << 3, mul_2_pow (test_val_2, 3));
+        EXPECT_EQ (test_val_2 << 5, mul_2_pow (test_val_2, 5));
+        EXPECT_EQ (test_val_2 << 8, mul_2_pow (test_val_2, 8));
+        EXPECT_EQ (test_val_2 << 13, mul_2_pow (test_val_2, 13));
+    }
 
     template <typename X> struct IntegersTwos : ::testing::Test {
         using Z = X;
@@ -715,7 +771,33 @@ namespace data {
         EXPECT_EQ (-Z (5) ^ Z (6), -Z (3));
     }
 
-    // TODO bit negate.
+    TYPED_TEST (IntegersTwos, BitNegate) {
+        using Z = typename TestFixture::Z;
+        EXPECT_EQ (~Z (0), -Z (1));
+        EXPECT_EQ (~Z (-1), Z (0));
+        EXPECT_EQ (~Z (1), -Z (2));
+        EXPECT_EQ (~Z (-2), Z (1));
+    }
+
+    TYPED_TEST (IntegersTwos, RightShift) {
+        using N = typename TestFixture::Z;
+        N test_val_1 {-1000000};
+        EXPECT_EQ (test_val_1 >> 0, ~div_2_pow (~test_val_1, 0));
+        EXPECT_EQ (test_val_1 >> 1, ~div_2_pow (~test_val_1, 1));
+        EXPECT_EQ (test_val_1 >> 2, ~div_2_pow (~test_val_1, 2));
+        EXPECT_EQ (test_val_1 >> 3, ~div_2_pow (~test_val_1, 3));
+        EXPECT_EQ (test_val_1 >> 5, ~div_2_pow (~test_val_1, 5));
+        EXPECT_EQ (test_val_1 >> 8, ~div_2_pow (~test_val_1, 8));
+        EXPECT_EQ (test_val_1 >> 13, ~div_2_pow (~test_val_1, 13));
+        N test_val_2 {-1025973000};
+        EXPECT_EQ (test_val_2 >> 0, ~div_2_pow (~test_val_2, 0));
+        EXPECT_EQ (test_val_2 >> 1, ~div_2_pow (~test_val_2, 1));
+        EXPECT_EQ (test_val_2 >> 2, ~div_2_pow (~test_val_2, 2));
+        EXPECT_EQ (test_val_2 >> 3, ~div_2_pow (~test_val_2, 3));
+        EXPECT_EQ (test_val_2 >> 5, ~div_2_pow (~test_val_2, 5));
+        EXPECT_EQ (test_val_2 >> 8, ~div_2_pow (~test_val_2, 8));
+        EXPECT_EQ (test_val_2 >> 13, ~div_2_pow (~test_val_2, 13));
+    }
 
     using integers_BC = ::testing::Types<
         Z_bytes_BC_little, Z_bytes_BC_big,
@@ -760,24 +842,24 @@ namespace data {
         EXPECT_EQ (-Z (5) ^ Z (6), -Z (3));
     }
 
-    TYPED_TEST (IntegersBC, LeftShiftIsDiv2Pow) {
-        using N = typename TestFixture::Z;
-        N test_val_1 {-1};
-        EXPECT_EQ (test_val_1 << 0, mul_2_pow (test_val_1, 0));
-        EXPECT_EQ (test_val_1 << 1, mul_2_pow (test_val_1, 1));
-        EXPECT_EQ (test_val_1 << 2, mul_2_pow (test_val_1, 2));
-        EXPECT_EQ (test_val_1 << 3, mul_2_pow (test_val_1, 3));
-        EXPECT_EQ (test_val_1 << 5, mul_2_pow (test_val_1, 5));
-        EXPECT_EQ (test_val_1 << 8, mul_2_pow (test_val_1, 8));
-        EXPECT_EQ (test_val_1 << 13, mul_2_pow (test_val_1, 13));
-        N test_val_2 {-1025973};
-        EXPECT_EQ (test_val_2 << 0, mul_2_pow (test_val_2, 0));
-        EXPECT_EQ (test_val_2 << 1, mul_2_pow (test_val_2, 1));
-        EXPECT_EQ (test_val_2 << 2, mul_2_pow (test_val_2, 2));
-        EXPECT_EQ (test_val_2 << 3, mul_2_pow (test_val_2, 3));
-        EXPECT_EQ (test_val_2 << 5, mul_2_pow (test_val_2, 5));
-        EXPECT_EQ (test_val_2 << 8, mul_2_pow (test_val_2, 8));
-        EXPECT_EQ (test_val_2 << 13, mul_2_pow (test_val_2, 13));
+    TYPED_TEST (IntegersBC, RightShift) {
+        using Z = typename TestFixture::Z;
+        Z test_val_1 {-1000000};
+        EXPECT_EQ (test_val_1 >> 0, div_2_pow (test_val_1, 0));
+        EXPECT_EQ (test_val_1 >> 1, div_2_pow (test_val_1, 1));
+        EXPECT_EQ (test_val_1 >> 2, div_2_pow (test_val_1, 2));
+        EXPECT_EQ (test_val_1 >> 3, div_2_pow (test_val_1, 3));
+        EXPECT_EQ (test_val_1 >> 5, div_2_pow (test_val_1, 5));
+        EXPECT_EQ (test_val_1 >> 8, div_2_pow (test_val_1, 8));
+        EXPECT_EQ (test_val_1 >> 13, div_2_pow (test_val_1, 13));
+        Z test_val_2 {-1025973000};
+        EXPECT_EQ (test_val_2 >> 0, div_2_pow (test_val_2, 0));
+        EXPECT_EQ (test_val_2 >> 1, div_2_pow (test_val_2, 1));
+        EXPECT_EQ (test_val_2 >> 2, div_2_pow (test_val_2, 2));
+        EXPECT_EQ (test_val_2 >> 3, div_2_pow (test_val_2, 3));
+        EXPECT_EQ (test_val_2 >> 5, div_2_pow (test_val_2, 5));
+        EXPECT_EQ (test_val_2 >> 8, div_2_pow (test_val_2, 8));
+        EXPECT_EQ (test_val_2 >> 13, div_2_pow (test_val_2, 13));
     }
 
     // big numbers are numbers that are not built-in and not boost::endian::arithmetic.

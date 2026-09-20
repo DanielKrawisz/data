@@ -893,12 +893,12 @@ namespace data::math::def {
         Z operator () (const Z &, const Z &);
     };
 
-    template <> struct div_2<N> {
-        N operator () (const N &a);
+    template <> struct div_2_pow<N> {
+        N operator () (const N &a, uint32);
     };
 
-    template <> struct div_2<Z> {
-        Z operator () (const Z &a);
+    template <> struct div_2_pow<Z> {
+        Z operator () (const Z &a, uint32);
     };
 
     template <> struct mod_2<N> {
@@ -906,7 +906,7 @@ namespace data::math::def {
     };
 
     template <> struct mod_2<Z> {
-        Z operator () (const Z &a);
+        N operator () (const Z &a);
     };
 
     template <group_number Exp>

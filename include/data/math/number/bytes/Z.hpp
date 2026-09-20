@@ -741,18 +741,18 @@ namespace data::math::def {
     }
 
     template <endian r, std::unsigned_integral word>
-    math::N_bytes<r, word> inline div_2<math::N_bytes<r, word>>::operator () (const math::N_bytes<r, word> &x) {
-        return bit_div_2_unsigned (x);
+    math::N_bytes<r, word> inline div_2_pow<math::N_bytes<r, word>>::operator () (const math::N_bytes<r, word> &x, uint32 exp) {
+        return bit_div_2_pow_unsigned_and_BC (x, exp);
     }
 
     template <endian r, std::unsigned_integral word>
-    math::Z_bytes_BC<r, word> inline div_2<math::Z_bytes_BC<r, word>>::operator () (const math::Z_bytes_BC<r, word> &x) {
-        return x >> 1;
+    math::Z_bytes_BC<r, word> inline div_2_pow<math::Z_bytes_BC<r, word>>::operator () (const math::Z_bytes_BC<r, word> &x, uint32 exp) {
+        return bit_div_2_pow_unsigned_and_BC (x, exp);
     }
 
     template <endian r, std::unsigned_integral word>
-    math::Z_bytes<r, word> inline div_2<math::Z_bytes<r, word>>::operator () (const math::Z_bytes<r, word> &x) {
-        return bit_div_2_signed (x);
+    math::Z_bytes<r, word> inline div_2_pow<math::Z_bytes<r, word>>::operator () (const math::Z_bytes<r, word> &x, uint32 exp) {
+        return bit_div_2_pow_twos (x, exp);
     }
 
     template <endian r, std::unsigned_integral word>

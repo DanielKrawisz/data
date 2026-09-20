@@ -403,7 +403,7 @@ namespace data {
             long int, long unsigned int, long long int, long long unsigned int> (dec_int {"1"});
 
         test_builtin_conversions<
-            char, signed char, short int, int, long int, long long int> (dec_int {"-1"});
+            signed char, short int, int, long int, long long int> (dec_int {"-1"});
 
         test_builtin_conversions<
             char, signed char, unsigned char,
@@ -416,20 +416,20 @@ namespace data {
             long int, long unsigned int, long long int, long long unsigned int> (dec_int {"127"});
 
         test_builtin_conversions<
-            char, signed char, short int, int, long int, long long int> (dec_int {"-45"});
+            signed char, short int, int, long int, long long int> (dec_int {"-45"});
 
         test_builtin_conversions<
-            char, signed char, short int, int, long int, long long int> (dec_int {"-128"});
+            signed char, short int, int, long int, long long int> (dec_int {"-128"});
 
-        test_builtin_conversions<
-            byte, int8, uint16, int16,
-            uint32, int32, uint64, int64> (dec_int {"127"});
+        test_builtin_conversions<byte, int16, uint16, int32, uint32, int64, uint64> (dec_int {"255"});
 
-        test_builtin_conversions<byte, uint16, uint32, uint64> (dec_int {"255"});
-
-        test_builtin_conversions<int8, int16, int32, int64> (dec_int {"-128"});
+        test_builtin_conversions<int16, uint16, int32, uint32, int64, uint64> (dec_int {"32767"});
 
         test_builtin_conversions<int16, int32, int64> (dec_int {"-32768"});
+
+        test_builtin_conversions<uint16, int32, uint32, int64, uint64> (dec_int {"65535"});
+
+        test_builtin_conversions<int32, uint32, int64, uint64> (dec_int {"2147483647"});
 
         test_builtin_conversions<int32, int64> (dec_int {"-2147483648"});
     }

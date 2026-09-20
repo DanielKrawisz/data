@@ -168,10 +168,16 @@ namespace data::arithmetic {
     }
 
     template <endian r, negativity c, std::integral word>
-    bytestring<word> inline &bit_and (bytestring<word> &a, slice<const word> b) {
+    bytestring<word> &bit_and (bytestring<word> &a, slice<const word> b) {
         if (a.size () >= b.size ()) {
-            const size_t offset = r == endian::little ? 0 : a.size () - b.size ();
-            for (int i = 0; i < b.size (); i++) a[i + offset] &= b[i];
+            const size_t size_diff = a.size () - b.size ();
+            if constexpr (r == endian::little) {
+                for (int i = 0; i < b.size (); i++) a[i + 0] &= b[i];
+                for (int i = 0; i < size_diff; i++) a[i + size_diff] = 0;
+            } else {
+                for (int i = 0; i < b.size (); i++) a[i + size_diff] &= b[i];
+                for (int i = 0; i < size_diff; i++) a[i + 0] = 0;
+            }
             return a;
         }
 

@@ -90,9 +90,14 @@ namespace data {
     template <typename A> size_t constexpr size_in_base_2 (const A &);
 
     template <typename A> constexpr auto mul_2_pow (const A &, uint32 u);
+    template <typename A> constexpr auto div_2_pow (const A &, uint32 u);
 
     template <typename A> constexpr auto mul_2 (const A &x) {
         return mul_2_pow (x, 1);
+    }
+
+    template <typename A> constexpr auto div_2 (const A &x) {
+        return div_2_pow (x, 1);
     }
 
     // We use two different concepts for numbers, one more
@@ -712,7 +717,7 @@ namespace data::math::def {
     template <typename A, uint32 base> struct size_in_base;
 
     template <typename A> struct mul_2_pow;
-    template <typename A> struct div_2;
+    template <typename A> struct div_2_pow;
     template <typename A> struct mod_2;
 
     template <typename A> struct square;
@@ -780,8 +785,8 @@ namespace data {
         return math::def::mul_2_pow<A> {} (x, u);
     }
 
-    template <typename A> constexpr auto inline div_2 (const A &x) {
-        return math::def::div_2<A> {} (x);
+    template <typename A> constexpr auto inline div_2_pow (const A &x, uint32 u) {
+        return math::def::div_2_pow<A> {} (x, u);
     }
 
     template <typename A> constexpr auto inline mod_2 (const A &x) {
@@ -875,16 +880,18 @@ namespace data {
 
 namespace data::math {
     // for numbers with bit operations, we can define mul_2 and div_2 in terms of shifts
-    template <proto_number A> constexpr A inline bit_mul_2_pow (const A &x, uint32 u) {
-        return x << u;
+    template <proto_number A> constexpr A inline bit_mul_2_pow (const A &x, uint32 exp) {
+        return x << exp;
     }
 
-    template <proto_number A> constexpr A inline bit_div_2_unsigned (const A &x) {
-        return x >> 1;
+    // for unsigned numbers and sign-and-magnetude, div 2 is the same as shift right
+    template <proto_number A> constexpr A inline bit_div_2_pow_unsigned_and_BC (const A &x, uint32 exp) {
+        return x >> exp;
     }
 
-    template <proto_number A> constexpr A inline bit_div_2_signed (const A &x) {
-        return (x < 0 ? increment (x) : x) >> 1;
+    // for two's complement numbers, it's a little more complicated.
+    template <proto_number A> constexpr A inline bit_div_2_pow_twos (const A &x, uint32 exp) {
+        return ~(~x >> exp);
     }
 
     template <proto_bit_unsigned A> constexpr A inline bit_mod_2 (const A &x) {
@@ -1037,15 +1044,15 @@ namespace data::math::def {
         }
     };
 
-    template <std::signed_integral X> struct div_2<X> {
-        constexpr X operator () (X x) {
-            return bit_div_2_signed (x);
+    template <std::signed_integral X> struct div_2_pow<X> {
+        constexpr X operator () (X x, uint32 exp) {
+            return bit_div_2_pow_twos (x, exp);
         }
     };
 
-    template <std::unsigned_integral X> struct div_2<X> {
-        constexpr X operator () (X x) {
-            return bit_div_2_unsigned (x);
+    template <std::unsigned_integral X> struct div_2_pow<X> {
+        constexpr X operator () (X x, uint32 exp) {
+            return bit_div_2_pow_unsigned_and_BC (x, exp);
         }
     };
 
@@ -1065,17 +1072,17 @@ namespace data::math::def {
 // we define bit operations in terms of arithmetic operations and vice versa.
 namespace data::math {
 
-    // we now define shifts in terms of mul_2 and div_2
-    template <group_number A> constexpr A arithmetic_shift_right (const A &a, uint32 u) {
-        A x = a;
-        while (u-- > 0) x = mul_2 (x);
-        return x;
+    template <group_number A> constexpr A inline arithmetic_bit_invert_twos (const A &a) {
+        return -a - 1;
     }
 
-    template <group_number_unsigned A> constexpr A arithmetic_shift_left (const A &a, uint32 u) {
-        A x = a;
-        while (u-- > 0) x = data::div_2 (x);
-        return x;
+    // we now define shifts in terms of mul_2 and div_2
+    template <group_number A> constexpr A arithmetic_shift_right_twos (const A &a, uint32 u) {
+        return data::is_negative (a) ? -div_2_pow (-a - 1, u) : data::div_2_pow (a, u);
+    }
+
+    template <group_number_unsigned A> constexpr A arithmetic_shift_left_twos (const A &a, uint32 u) {
+        return data::is_negative (a) ? -mul_2_pow (-a - 1, u) : data::mul_2_pow (a, u);
     }
 
     // we now implement plus and minus in terms of bit operations.

@@ -49,6 +49,8 @@ namespace data {
         
     }
     
+    // here we simply ensure that hex numbers with the sign bit set are not treated as negative,
+    // as they would with a signed number type.
     TEST (N, NNegativeHex) {
         
         EXPECT_NE (N::read ("0x8000000000000000000000000000000000000000000000000000000000000000"), N (0));

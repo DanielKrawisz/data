@@ -354,8 +354,8 @@ namespace data {
         };
 
         template <endian r, size_t x, std::unsigned_integral word>
-        struct div_2<uint<r, x, word>> {
-            constexpr uint<r, x, word> operator () (const uint<r, x, word> &);
+        struct div_2_pow<uint<r, x, word>> {
+            constexpr uint<r, x, word> operator () (const uint<r, x, word> &, uint32 exp);
         };
 
         template <endian r, size_t x, std::unsigned_integral word>
@@ -364,8 +364,8 @@ namespace data {
         };
 
         template <endian r, size_t x, std::unsigned_integral word>
-        struct div_2<sint<r, x, word>> {
-            constexpr sint<r, x, word> operator () (const sint<r, x, word> &);
+        struct div_2_pow<sint<r, x, word>> {
+            constexpr sint<r, x, word> operator () (const sint<r, x, word> &, uint32 exp);
         };
 
         template <endian r, size_t x, std::unsigned_integral word>
@@ -663,8 +663,8 @@ namespace data {
 
         template <bool u, endian r, size_t x, std::unsigned_integral word>
         constexpr bounded<u, r, x, word> inline operator ~ (const bounded<u, r, x, word> &n) {
-            auto z = n;
-            arithmetic::bit_negate<word> (z.begin (), z.end (), z.begin ());
+            bounded<u, r, x, word> z;
+            arithmetic::bit_negate<word> (z.begin (), z.end (), n.begin ());
             return z;
         }
 
@@ -1179,8 +1179,8 @@ namespace data {
         }
 
         template <endian r, size_t x, std::unsigned_integral word>
-        constexpr uint<r, x, word> inline div_2<uint<r, x, word>>::operator () (const uint<r, x, word> &u) {
-            return bit_div_2_unsigned (u);
+        constexpr uint<r, x, word> inline div_2_pow<uint<r, x, word>>::operator () (const uint<r, x, word> &u, uint32 exp) {
+            return bit_div_2_pow_unsigned_and_BC (u, exp);
         }
 
         template <endian r, size_t x, std::unsigned_integral word>
@@ -1189,8 +1189,8 @@ namespace data {
         }
 
         template <endian r, size_t x, std::unsigned_integral word>
-        constexpr sint<r, x, word> inline div_2<sint<r, x, word>>::operator () (const sint<r, x, word> &u) {
-            return bit_div_2_signed (u);
+        constexpr sint<r, x, word> inline div_2_pow<sint<r, x, word>>::operator () (const sint<r, x, word> &u, uint32 exp) {
+            return bit_div_2_pow_twos (u, exp);
         }
 
         template <endian r, size_t x, std::unsigned_integral word>

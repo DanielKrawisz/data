@@ -209,30 +209,79 @@ namespace NTL {
     void conv (data::endian_integral<is_signed, r, size> &, const ZZ &);
 
 }
+
 // TODO we need to fill these in. Right now we are using defaults.
-/*
 namespace data::math::def {
 
-    sign
+    template <> struct sign<N> {
+        math::sign operator () (const N &);
+    };
 
-    template <typename A> struct div_2;
-    template <typename A> struct mod_2;
+    template <> struct sign<Z> {
+        math::sign operator () (const Z &);
+    };
 
-    template <typename A> struct square;
+    template <> struct square<N> {
+        N operator () (const N &);
+    };
 
-    template <typename A, typename Mod = A> struct negate_mod;
+    template <> struct square<Z> {
+        Z operator () (const Z &);
+    };
 
-    template <typename A, typename Mod = A> struct invert_mod;
-    template <typename A, typename B = A, typename Mod = B> struct plus_mod;
-    template <typename A, typename B = A, typename Mod = B> struct minus_mod;
+    template <> struct negate_mod<N> {
+        N operator () (const N &, const nonzero<N> &);
+    };
 
-    template <typename A, typename B = A, typename Mod = B> struct times_mod;
+    template <> struct negate_mod<Z, N> {
+        N operator () (const Z &, const nonzero<N> &);
+    };
+
+    template <> struct invert_mod<N> {
+        N operator () (const N &, const nonzero<N> &);
+    };
+
+    template <> struct invert_mod<Z, N> {
+        N operator () (const Z &, const nonzero<N> &);
+    };
+
+    template <> struct square_mod<N> {
+        N operator () (const N &, const nonzero<N> &);
+    };
+
+    template <> struct square_mod<Z, N> {
+        N operator () (const Z &, const nonzero<N> &);
+    };
+
+    template <> struct plus_mod<N> {
+        N operator () (const N &, const N &, const nonzero<N> &);
+    };
+
+    template <> struct plus_mod<Z, Z, N> {
+        N operator () (const Z &, const Z &, const nonzero<N> &);
+    };
+
+    template <> struct minus_mod<N> {
+        N operator () (const N &, const N &, const nonzero<N> &);
+    };
+
+    template <> struct minus_mod<Z, Z, N> {
+        N operator () (const Z &, const Z &, const nonzero<N> &);
+    };
+
+    template <> struct times_mod<N> {
+        N operator () (const N &, const N &, const nonzero<N> &);
+    };
+
+    template <> struct times_mod<Z, Z, N> {
+        N operator () (const Z &, const Z &, const nonzero<N> &);
+    };
+/*
 
     template <typename A, typename Mod = A> struct mul_2_mod;
-    template <typename A, typename Mod = A> struct square_mod;
 
-    template <typename A> struct divides;
-}*/
+    template <typename A> struct divides;*/
+}
 
 namespace data::math::number::NTL {
     using namespace ::NTL;
@@ -871,20 +920,20 @@ namespace data::math::def {
         return result;
     }
 
-    N inline div_2<N>::operator () (const N &a) {
-        return bit_div_2_unsigned (a);
+    N inline div_2_pow<N>::operator () (const N &a, uint32 exp) {
+        return N (a.Value >> exp);
     }
 
-    Z inline div_2<Z>::operator () (const Z &a) {
-        return bit_div_2_signed (a);
+    Z inline div_2_pow<Z>::operator () (const Z &a, uint32 exp) {
+        return Z (a.Value >> exp);
     }
 
     N inline mod_2<N>::operator () (const N &a) {
         return NTL::IsOdd (a.Value) ? N (1): N ();
     }
 
-    Z inline mod_2<Z>::operator () (const Z &a) {
-        return NTL::IsOdd (a.Value) ? Z (1): Z ();
+    N inline mod_2<Z>::operator () (const Z &a) {
+        return NTL::IsOdd (a.Value) ? N (1): N ();
     }
 
     template <group_number Exp>
@@ -931,7 +980,13 @@ namespace data::math::def {
         return nonzero {a.Value * b.Value};
     }
 
-    // TODO other mod operations.
+    N inline square<N>::operator () (const N &n) {
+        return N (NTL::sqr (n.Value));
+    }
+
+    Z inline square<Z>::operator () (const Z &z) {
+        return Z (NTL::sqr (z.Value));
+    }
 }
 
 namespace data::encoding::decimal {

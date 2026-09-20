@@ -250,53 +250,48 @@ namespace data {
         test_bit_shift_unbounded<N> (positive_numbers, shifts);
     }
 
-    // TODO make this a typed test.
-    TEST (BitOps, BitShiftUnbounded) {
+    template <typename X> struct NaturalShift : ::testing::Test {
+        using N = X;
+    };
 
-        // NOTE some of the commented tests don't compile and others are too slow.
-        /*
-        test_bit_shift_unsigned<hex_uint> ();
-        test_bit_shift_unsigned<dec_uint> ();
-        test_bit_shift_unsigned<base58_uint> ();
+    template <typename X> struct IntegerShift : ::testing::Test {
+        using Z = X;
+    };
 
-        test_bit_shift_signed<hex_int> ();
-        test_bit_shift_signed<hex_int_twos> ();
-        test_bit_shift_signed<dec_int> ();*/
+    using naturals = ::testing::Types<
+        N,
+        math::N_bytes<endian::little>,
+        math::N_bytes<endian::big>,
+        math::N_bytes<endian::little, short unsigned int>,
+        math::N_bytes<endian::big, short unsigned int>,
+        math::N_bytes<endian::little, unsigned int>,
+        math::N_bytes<endian::big, unsigned int>>;
 
+    using integers = ::testing::Types<
+        Z,
+        math::Z_bytes<endian::little>,
+        math::Z_bytes<endian::big>,
+        math::Z_bytes<endian::little, short unsigned int>,
+        math::Z_bytes<endian::big, short unsigned int>,
+        math::Z_bytes<endian::little, unsigned int>,
+        math::Z_bytes<endian::big, unsigned int>>;
+
+    TYPED_TEST_SUITE (NaturalShift, naturals);
+    TYPED_TEST_SUITE (IntegerShift, integers);
+
+    TYPED_TEST (NaturalShift, BitShiftUnbounded) {
+        using N = typename TestFixture::N;
         test_bit_shift_unsigned<N> ();
-        test_bit_shift_signed<Z> ();
-
-        test_bit_shift_unsigned<math::N_bytes<endian::little>> ();
-        test_bit_shift_unsigned<math::N_bytes<endian::big>> ();
-        test_bit_shift_unsigned<math::N_bytes<endian::little, short unsigned int>> ();
-        test_bit_shift_unsigned<math::N_bytes<endian::big, short unsigned int>> ();
-        test_bit_shift_unsigned<math::N_bytes<endian::little, unsigned int>> ();
-        test_bit_shift_unsigned<math::N_bytes<endian::big, unsigned int>> ();
-
-        test_bit_shift_signed<math::Z_bytes<endian::little>> ();
-        test_bit_shift_signed<math::Z_bytes<endian::big>> ();
-        test_bit_shift_signed<math::Z_bytes<endian::little, short unsigned int>> ();
-        test_bit_shift_signed<math::Z_bytes<endian::big, short unsigned int>> ();
-        test_bit_shift_signed<math::Z_bytes<endian::little, unsigned int>> ();
-        test_bit_shift_signed<math::Z_bytes<endian::big, unsigned int>> ();
-
-        // NOTE: the following no longer work because we changed the
-        // definition of bit shift for these types of numbers. We would
-        // need a new test for them.
-        /*
-        test_bit_shift_signed<math::Z_bytes_BC<endian::little>> ();
-        test_bit_shift_signed<math::Z_bytes_BC<endian::big>> ();
-        test_bit_shift_signed<math::Z_bytes_BC<endian::little, short unsigned int>> ();
-        test_bit_shift_signed<math::Z_bytes_BC<endian::big, short unsigned int>> ();
-        test_bit_shift_signed<math::Z_bytes_BC<endian::little, unsigned int>> ();
-        test_bit_shift_signed<math::Z_bytes_BC<endian::big, unsigned int>> ();
-        */
-
-        // TODO bigger word sizes.
     }
 
+    TYPED_TEST (IntegerShift, BitShiftUnbounded) {
+        using Z = typename TestFixture::Z;
+        test_bit_shift_signed<Z> ();
+    }
+
+    // TODO
     // Test that numbers get extended to perform bit ops if necessary.
-    TEST (BitOpsTest, BitAndOr) {
+    TEST (BitOps, BitAndOr) {
 
 
 

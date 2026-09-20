@@ -389,18 +389,18 @@ namespace data::math::def {
     };
 
     template <endian r, std::unsigned_integral word>
-    struct div_2<math::N_bytes<r, word>> {
-        math::N_bytes<r, word> operator () (const math::N_bytes<r, word> &x);
+    struct div_2_pow<math::N_bytes<r, word>> {
+        math::N_bytes<r, word> operator () (const math::N_bytes<r, word> &x, uint32 exp);
     };
 
     template <endian r, std::unsigned_integral word>
-    struct div_2<math::Z_bytes_BC<r, word>> {
-        math::Z_bytes_BC<r, word> operator () (const math::Z_bytes_BC<r, word> &x);
+    struct div_2_pow<math::Z_bytes_BC<r, word>> {
+        math::Z_bytes_BC<r, word> operator () (const math::Z_bytes_BC<r, word> &x, uint32 exp);
     };
 
     template <endian r, std::unsigned_integral word>
-    struct div_2<math::Z_bytes<r, word>> {
-        math::Z_bytes<r, word> operator () (const math::Z_bytes<r, word> &x);
+    struct div_2_pow<math::Z_bytes<r, word>> {
+        math::Z_bytes<r, word> operator () (const math::Z_bytes<r, word> &x, uint32 exp);
     };
 
     template <endian r, std::unsigned_integral word>

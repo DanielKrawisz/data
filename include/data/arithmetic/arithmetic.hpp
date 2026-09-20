@@ -66,7 +66,7 @@ namespace data::arithmetic {
         std::input_iterator iti>
     constexpr void bit_negate (ito o, sen z, iti i) {
         while (o != z) {
-            *o = ~ *i;
+            *o = ~*i;
             o++;
             i++;
         }

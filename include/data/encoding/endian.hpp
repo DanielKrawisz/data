@@ -388,10 +388,10 @@ namespace data::math::def {
     };
 
     template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct div_2<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
+    struct div_2_pow<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
         constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (
-            boost::endian::endian_arithmetic<Order, T, n_bits, Align> a) {
-            return data::div_2 (a.value ());
+            boost::endian::endian_arithmetic<Order, T, n_bits, Align> a, uint32 exp) {
+            return data::div_2_pow (a.value (), exp);
         }
     };
 
