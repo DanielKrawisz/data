@@ -825,6 +825,7 @@ namespace data {
         EXPECT_EQ (-Z (5) | Z (2), -Z (7));
         EXPECT_EQ (Z (6) | -Z (3), -Z (7));
         EXPECT_EQ (-Z (4) | -Z (1), -Z (5));
+        EXPECT_EQ (bit_or (-Z (4), -Z (1)), -Z (5));
     }
 
     TYPED_TEST (IntegersBC, BitXor) {

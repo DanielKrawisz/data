@@ -885,8 +885,8 @@ namespace data::math::def {
         hex::intBC<zz> operator () (const hex::intBC<zz> &, const hex::intBC<zz> &);
     };
 
-    template <hex_case zz> struct mul_2_pow<hex::intBC<zz>> {
-        hex::intBC<zz> operator () (const hex::intBC<zz> &, uint32 u);
+    template <negativity neg, hex_case zz> struct mul_2_pow<hex::integer<neg, zz>> {
+        hex::integer<neg, zz> operator () (const hex::integer<neg, zz> &, uint32 u);
     };
 
     template <> struct div_2_pow<dec_uint> {
@@ -2761,8 +2761,11 @@ namespace data::encoding::hexidecimal {
         return n.trim ();
     }
 
-    template <hex::letter_case zz>
-    string<zz> shift (const string<zz> &x, int i);
+    // shift the string without changing its size.
+    template <hex::letter_case zz> string<zz> bit_shift (const string<zz> &x, int i);
+
+    // shift numerically.
+    template <negativity neg, hex::letter_case zz> integer<neg, zz> bit_shift (const integer<neg, zz> &x, int i);
     
     namespace {
     
@@ -2986,19 +2989,6 @@ namespace data::encoding::hexidecimal {
             return n;
         }
         
-        template <hex::letter_case zz> 
-        integer<negativity::nones, zz> inline bit_shift (const integer<negativity::nones, zz> &x, int i) {
-            return integer<negativity::nones, zz> {shift (x, i)};
-        }
-        
-        template <hex::letter_case zz> 
-        integer<negativity::twos, zz> bit_shift (const integer<negativity::twos, zz> &x, int i);
-        
-        template <hex::letter_case zz> 
-        integer<negativity::BC, zz> inline bit_shift (const integer<negativity::BC, zz> &x, int i) {
-            return integer<negativity::BC, zz> (write<zz> (data::bit_shift (math::number::Z_bytes<endian::big, negativity::BC, byte>::read (x), i)));
-        }
-        
         template <negativity c, hex::letter_case zz> struct add;
         
         template <hex::letter_case zz> struct add<negativity::nones, zz> {
@@ -3111,15 +3101,6 @@ namespace data::encoding::hexidecimal {
             }
         };
         
-    }
-
-    template <hex::letter_case zz>
-    integer<negativity::BC, zz> bit_xor (const integer<negativity::BC, zz> &a, const integer<negativity::BC, zz> &b) {
-        if (a.size () < b.size ()) return bit_xor (b, a);
-        integer<negativity::BC, zz> n {};
-        n.resize (a.size ());
-        bit_xor (n, a, math::number::extend (b, a.size ()));
-        return n;
     }
     
     template <hex::letter_case zz> 
@@ -3269,20 +3250,22 @@ namespace data::encoding::hexidecimal {
         return x.trim ();
     }
     
-    template <negativity c, hex::letter_case zz>
-    integer<c, zz> inline operator | (const integer<c, zz> &a, const integer<c, zz> &b) {
-        return math::number::trim (bit_or (a, b));
+    template <negativity neg, hex::letter_case zz>
+    integer<neg, zz> inline operator | (const integer<neg, zz> &a, const integer<neg, zz> &b) {
+        if constexpr (neg == negativity::BC) return bit_or (a, b);
+        else return math::number::trim (bit_or (a, b));
     }
     
-    template <negativity c, hex::letter_case zz>
-    integer<c, zz> inline operator & (const integer<c, zz> &a, const integer<c, zz> &b) {
-        return math::number::trim (bit_and (a, b));
+    template <negativity neg, hex::letter_case zz>
+    integer<neg, zz> inline operator & (const integer<neg, zz> &a, const integer<neg, zz> &b) {
+        if constexpr (neg == negativity::BC) return bit_and (a, b);
+        else return math::number::trim (bit_and (a, b));
     }
 
     template <negativity neg, hex::letter_case zz>
     integer<neg, zz> inline operator ^ (const integer<neg, zz> &a, const integer<neg, zz> &b) {
-        if constexpr (neg == negativity::BC) bit_xor (a, b);
-        return math::number::trim (bit_xor (a, b));
+        if constexpr (neg == negativity::BC) return bit_xor (a, b);
+        else return math::number::trim (bit_xor (a, b));
     }
 
     template <negativity neg, hex::letter_case cx>
@@ -3293,14 +3276,12 @@ namespace data::encoding::hexidecimal {
     template <negativity c, hex::letter_case zz>
     integer<c, zz> inline operator << (const integer<c, zz> &x, int i) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
-        
         return math::number::trim (bit_shift (x, i));
     }
     
     template <negativity c, hex::letter_case zz>
     integer<c, zz> inline operator >> (const integer<c, zz> &x, int i) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
-        
         return math::number::trim (bit_shift (x, -i));
     }
     
@@ -3384,16 +3365,14 @@ namespace data::math::def {
         return encoding::hexidecimal::bit_xor (a, b);
     }
 
-    template <hex_case zz>
-    hex::intBC<zz> inline mul_2_pow<hex::intBC<zz>>::operator () (const hex::intBC<zz> &x, uint32 u) {
-        if (x < 0) -hex::intBC<zz> {encoding::hexidecimal::shift (-x, u)};
-        return hex::intBC<zz> {encoding::hexidecimal::shift (x, u)};
+    template <negativity neg, hex_case zz>
+    hex::integer<neg, zz> inline mul_2_pow<hex::integer<neg, zz>>::operator () (const hex::integer<neg, zz> &x, uint32 exp) {
+        return encoding::hexidecimal::bit_shift (x, exp);
     }
 
     template <hex_case zz>
     hex::intBC<zz> inline div_2_pow<hex::intBC<zz>>::operator () (const hex::intBC<zz> &x, uint32 exp) {
-        return x < 0 ? -hex::intBC<zz> {encoding::hexidecimal::shift (-x, -exp)}:
-            hex::intBC<zz> {encoding::hexidecimal::shift (x, -exp)};
+        return hex::intBC<zz> {encoding::hexidecimal::bit_shift (x, -exp)};
     }
 
     template <hex_case zz>

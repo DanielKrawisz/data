@@ -164,14 +164,12 @@ namespace data::encoding::hexidecimal {
         else return write<cx> (math::number::Z_bytes<endian::big, n> {x});
     }
 
-    template <hex::letter_case zz>
-    string<zz> shift (const string<zz> &x, int i) {
-        auto o = read<endian::big, byte> (x);
-        math::number::N_bytes<endian::big, byte> n;
-        n.resize (o->size ());
-        std::copy (o->begin (), o->end (), n.begin ());
-        n = n << i;
-        return write<zz> (math::number::extend (n, n.size () + 1));
+    template <negativity neg, hex::letter_case zz>
+    integer<neg, zz> inline bit_shift (const integer<neg, zz> &x, int i) {
+        return write<zz> (data::bit_shift (
+            std::conditional_t<neg == negativity::nones,
+                math::number::N_bytes<endian::big, byte>,
+                math::number::Z_bytes<endian::big, neg, byte>> (x), i));
     }
 
     template <hex_case zz, endian::order r, std::unsigned_integral word>
