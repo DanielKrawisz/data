@@ -25,9 +25,17 @@ namespace data {
     } struct test_bit_logic {
         test_bit_logic () {
 
-            EXPECT_EQ (bytes (bit_not (Z::zero ())), bytes (Z::zero ()));
-            EXPECT_EQ (bytes (bit_not (Z::zero (1))), bytes (Z (-127)));
-            EXPECT_EQ (bytes (bit_not (Z::zero (2))), bytes (Z ((1 << 16) - 1)));
+            EXPECT_TRUE (identical (bit_not (Z::zero ()), Z::zero ()));
+
+            EXPECT_TRUE (identical (bit_not (Z::zero (1)), Z (-127)));
+
+            auto bn2 = bit_not (Z::zero (2));
+            auto expected2 = -Z ((1 << 15) - 1);
+            EXPECT_TRUE (identical (bn2, expected2)) << "expected " << expected2 << " but got " << bn2;
+
+            auto bn4 = bit_not (Z::zero (4));
+            auto expected4 = -((Z (1) << 31) - 1);
+            EXPECT_TRUE (identical (bn4, expected4)) << "expected " << expected4 << " but got " << bn4;
 
         }
     };
@@ -314,7 +322,7 @@ namespace data {
         { std::max (a, b) } -> std::convertible_to<Z>;
     } struct test_min_max {
         test_min_max () {
-
+            // TODO
         }
     };
 
@@ -412,12 +420,62 @@ namespace data {
         test_bit_shift<Z> {
         test_BC () {}
     };
-    
-    // TODO make typed test.
-    TEST (BitcoinNumbers, BitcoinNumbers) {
-        test_BC<hex_int_BC> {};
-        test_BC<Z_bytes_BC_big> {};
-        test_BC<Z_bytes_BC_little> {};
+
+    // next we have typed test suites. We have several sets of numbers
+    // that we use. The first contains all number types.
+    template <typename X> struct BitcoinNumbers : ::testing::Test {
+        using N = X;
+    };
+
+    using bitcoin_numbers = ::testing::Types<
+        Z_bytes_BC_little,
+        Z_bytes_BC_big,
+        hex_int_BC>;
+
+    TYPED_TEST_SUITE (BitcoinNumbers, bitcoin_numbers);
+
+    TYPED_TEST (BitcoinNumbers, Minimal) {
+        test_minimal<typename TestFixture::N> {};
+    }
+
+    TYPED_TEST (BitcoinNumbers, Construct) {
+        test_construct<typename TestFixture::N> {};
+    }
+
+    TYPED_TEST (BitcoinNumbers, Compare) {
+        test_compare<typename TestFixture::N> {};
+    }
+
+    TYPED_TEST (BitcoinNumbers, BitLogic) {
+        test_bit_logic<typename TestFixture::N> {};
+    }
+
+    TYPED_TEST (BitcoinNumbers, BitShift) {
+        test_bit_shift<typename TestFixture::N> {};
+    }
+
+    TYPED_TEST (BitcoinNumbers, Negate) {
+        test_negate<typename TestFixture::N> {};
+    }
+
+    TYPED_TEST (BitcoinNumbers, Abs) {
+        test_abs<typename TestFixture::N> {};
+    }
+
+    TYPED_TEST (BitcoinNumbers, MinMax) {
+        test_min_max<typename TestFixture::N> {};
+    }
+
+    TYPED_TEST (BitcoinNumbers, Logic) {
+        test_logic<typename TestFixture::N> {};
+    }
+
+    TYPED_TEST (BitcoinNumbers, Increment) {
+        test_increment_and_decrement<typename TestFixture::N> {};
+    }
+
+    TYPED_TEST (BitcoinNumbers, Arithmetic) {
+        test_arithmetic<typename TestFixture::N> {};
     }
     
 }
