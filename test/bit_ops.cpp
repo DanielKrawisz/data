@@ -205,17 +205,21 @@ namespace data {
             for (int32 shift : shifts) {
                 N expected_left = number * pow (N {2}, shift);
 
-                N expected_right = nest ([] (const N &n) -> N {
+                auto div_2 = [] (const auto& n) {
                     auto qr = divmod (n, math::nonzero<N> {N {2}});
                     return qr.Remainder < 0 ? qr.Quotient - 1u : qr.Quotient;
-                }, number, shift);
+                };
+
+                N expected_right = is_negative (number) ?
+                    N (-nest (div_2, -number - 1, shift) - 1):
+                    nest (div_2, number, shift);
 
                 //auto computed_left = number << shift;
                 auto computed_right = number >> shift;
 
                 //EXPECT_EQ (expected_left, computed_left);
                 EXPECT_EQ (expected_right, computed_right) <<
-                    "expected " << number << " >> " << shift << " -> " << expected_right << "; but got " << computed_right;
+                    "expected " << std::hex << number << " >> " << shift << " -> " << expected_right << "; but got " << computed_right;
             }
         }
 
@@ -287,14 +291,6 @@ namespace data {
     TYPED_TEST (IntegerShift, BitShiftUnbounded) {
         using Z = typename TestFixture::Z;
         test_bit_shift_signed<Z> ();
-    }
-
-    // TODO
-    // Test that numbers get extended to perform bit ops if necessary.
-    TEST (BitOps, BitAndOr) {
-
-
-
     }
     
 }

@@ -881,14 +881,14 @@ namespace data::math::number {
     }
 
     template <std::integral I> I inline operator % (const Z &a, I b) {
-        if (b == 1) throw division_by_zero {};
+        if (b == 0) throw division_by_zero {};
         if constexpr (NTL::compatible<I>)
             return I (N (a.Value % long (abs (b))));
         else return I (a % N (abs (b)));
     }
 
     template <std::integral I> I inline operator % (const N &a, I b) {
-        if (b == 1) throw division_by_zero {};
+        if (b == 0) throw division_by_zero {};
         if constexpr (NTL::compatible<I>)
             return I (N (a.Value % long (b)));
         else return I (a % N (abs (b)));
@@ -921,11 +921,11 @@ namespace data::math::def {
     }
 
     N inline div_2_pow<N>::operator () (const N &a, uint32 exp) {
-        return N (a.Value >> exp);
+        return a >> exp;
     }
 
     Z inline div_2_pow<Z>::operator () (const Z &a, uint32 exp) {
-        return Z (a.Value >> exp);
+        return a >> exp;
     }
 
     N inline mod_2<N>::operator () (const N &a) {

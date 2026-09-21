@@ -1180,7 +1180,7 @@ namespace data {
 
         template <endian r, size_t x, std::unsigned_integral word>
         constexpr uint<r, x, word> inline div_2_pow<uint<r, x, word>>::operator () (const uint<r, x, word> &u, uint32 exp) {
-            return bit_div_2_pow_unsigned_and_BC (u, exp);
+            return bit_div_2_pow (u, exp);
         }
 
         template <endian r, size_t x, std::unsigned_integral word>
@@ -1190,12 +1190,12 @@ namespace data {
 
         template <endian r, size_t x, std::unsigned_integral word>
         constexpr sint<r, x, word> inline div_2_pow<sint<r, x, word>>::operator () (const sint<r, x, word> &u, uint32 exp) {
-            return bit_div_2_pow_twos (u, exp);
+            return bit_div_2_pow_signed (u, exp);
         }
 
         template <endian r, size_t x, std::unsigned_integral word>
         constexpr sint<r, x, word> inline mod_2<sint<r, x, word>>::operator () (const sint<r, x, word> &u) {
-            return data::abs (u) & 1;
+            return bit_mod_2_negative_mod (u);
         }
 
         template <bool a, endian r, size_t x, std::unsigned_integral w,

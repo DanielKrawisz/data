@@ -493,7 +493,6 @@ namespace data::arithmetic::nones {
         auto w = words<r> (x);
         auto xx = w.begin ();
         auto xy = w.begin ();
-        //if (!is_zero (w)) arithmetic::minus<word> (w.end (), xx, 1, xy);
         if (!is_zero (w)) arithmetic::subtract_with_carry<word> (w.end (), xx, xy, 1);
         return x;
     }

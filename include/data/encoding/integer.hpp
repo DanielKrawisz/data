@@ -2376,11 +2376,11 @@ namespace data::math::def {
     }
 
     dec_uint inline div_2_pow<dec_uint>::operator () (const dec_uint &a, uint32 exp) {
-        return bit_div_2_pow_unsigned_and_BC (a, exp);
+        return bit_div_2_pow (a, exp);
     }
 
     dec_int inline div_2_pow<dec_int>::operator () (const dec_int &a, uint32 exp) {
-        return bit_div_2_pow_twos (a, exp);
+        return bit_div_2_pow (a, exp);
     }
 
     dec_uint inline mod_2<dec_uint>::operator () (const dec_uint &a) {
@@ -2393,7 +2393,7 @@ namespace data::math::def {
 
     template <hex_case zz>
     hex::uint<zz> inline div_2_pow<hex::uint<zz>>::operator () (const hex::uint<zz> &x, uint32 exp) {
-        return bit_div_2_pow_unsigned_and_BC (x, exp);
+        return bit_div_2_pow (x, exp);
     }
 
     template <hex_case zz>
@@ -2403,7 +2403,7 @@ namespace data::math::def {
 
     template <hex_case zz>
     hex::int2<zz> inline div_2_pow<hex::int2<zz>>::operator () (const hex::int2<zz> &x, uint32 exp) {
-        return bit_div_2_pow_twos (x, exp);
+        return bit_div_2_pow (x, exp);
     }
 
     template <hex_case zz>

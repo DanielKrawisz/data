@@ -207,7 +207,7 @@ namespace data::math::def {
 
     template <> struct div_2_pow<base58_uint> {
         base58_uint operator () (const base58_uint &u, uint32 exp) {
-            return bit_div_2_pow_unsigned_and_BC (u, exp);
+            return bit_div_2_pow (u, exp);
         }
     };
 

@@ -840,6 +840,142 @@ namespace data::math::number {
     template <std::integral I> Z &operator *= (Z &, I);
     template <std::integral I> Z &operator /= (Z &, I);
 
+    // arithmetic
+    template <endian r, std::unsigned_integral word>
+    N_bytes<r, word> operator + (const N_bytes<r, word> &, const N_bytes<r, word> &);
+
+    template <endian r, std::unsigned_integral word>
+    N_bytes<r, word> operator - (const N_bytes<r, word> &, const N_bytes<r, word> &);
+
+    template <endian r, std::unsigned_integral word>
+    N_bytes<r, word> operator * (const N_bytes<r, word> &, const N_bytes<r, word> &);
+
+    template <endian r, negativity c, std::unsigned_integral word>
+    Z_bytes<r, c, word> operator + (const Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
+
+    template <endian r, negativity c, std::unsigned_integral word>
+    Z_bytes<r, c, word> operator - (const Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
+
+    template <endian r, negativity c, std::unsigned_integral word>
+    Z_bytes<r, c, word> operator * (const Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
+
+    template <endian r, negativity c, std::unsigned_integral word>
+    Z_bytes<r, c, word> operator + (const Z_bytes<r, c, word> &, const N_bytes<r, word> &);
+
+    template <endian r, negativity c, std::unsigned_integral word>
+    Z_bytes<r, c, word> operator - (const Z_bytes<r, c, word> &, const N_bytes<r, word> &);
+
+    template <endian r, negativity c, std::unsigned_integral word>
+    Z_bytes<r, c, word> operator + (const N_bytes<r, word> &, const Z_bytes<r, c, word> &);
+
+    template <endian r, negativity c, std::unsigned_integral word>
+    Z_bytes<r, c, word> operator - (const N_bytes<r, word> &, const Z_bytes<r, c, word> &);
+
+    template <endian r, negativity c, std::unsigned_integral word>
+    Z_bytes<r, c, word> operator * (const Z_bytes<r, c, word> &, const N_bytes<r, word> &);
+
+    template <endian r, negativity c, std::unsigned_integral word>
+    Z_bytes<r, c, word> operator * (const N_bytes<r, word> &, const Z_bytes<r, c, word> &);
+
+    template <endian r, std::unsigned_integral word, std::unsigned_integral I>
+    N_bytes<r, word> operator + (const N_bytes<r, word> &, I);
+
+    template <endian r, std::unsigned_integral word, std::unsigned_integral I>
+    N_bytes<r, word> operator - (const N_bytes<r, word> &, I);
+
+    template <endian r, std::unsigned_integral word, std::unsigned_integral I>
+    N_bytes<r, word> operator * (const N_bytes<r, word> &, I);
+
+    template <std::unsigned_integral I, endian r, std::unsigned_integral word>
+    N_bytes<r, word> operator + (I, const N_bytes<r, word> &);
+
+    template <std::unsigned_integral I, endian r, std::unsigned_integral word>
+    N_bytes<r, word> operator - (I, const N_bytes<r, word> &);
+
+    template <std::unsigned_integral I, endian r, std::unsigned_integral word>
+    N_bytes<r, word> operator * (I, const N_bytes<r, word> &);
+
+    template <endian r, std::unsigned_integral word, std::signed_integral I>
+    Z_bytes<r, negativity::twos, word> operator + (const N_bytes<r, word> &, I);
+
+    template <endian r, std::unsigned_integral word, std::signed_integral I>
+    Z_bytes<r, negativity::twos, word> operator - (const N_bytes<r, word> &, I);
+
+    template <endian r, std::unsigned_integral word, std::signed_integral I>
+    Z_bytes<r, negativity::twos, word> operator * (const N_bytes<r, word> &, I);
+
+    template <std::signed_integral I, endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator + (I, const N_bytes<r, word> &);
+
+    template <std::signed_integral I, endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator - (I, const N_bytes<r, word> &);
+
+    template <std::signed_integral I, endian r, std::unsigned_integral word>
+    Z_bytes<r, negativity::twos, word> operator * (I, const N_bytes<r, word> &);
+
+    template <endian r, negativity neg, std::unsigned_integral word, std::integral I>
+    Z_bytes<r, neg, word> operator + (const Z_bytes<r, neg, word> &, I);
+
+    template <endian r, negativity neg, std::unsigned_integral word, std::integral I>
+    Z_bytes<r, neg, word> operator - (const Z_bytes<r, neg, word> &, I);
+
+    template <endian r, negativity neg, std::unsigned_integral word, std::integral I>
+    Z_bytes<r, neg, word> operator * (const Z_bytes<r, neg, word> &, I);
+
+    template <std::integral I, endian r, negativity neg, std::unsigned_integral word>
+    Z_bytes<r, neg, word> operator + (I, const Z_bytes<r, neg, word> &);
+
+    template <std::integral I, endian r, negativity neg, std::unsigned_integral word>
+    Z_bytes<r, neg, word> operator - (I, const Z_bytes<r, neg, word> &);
+
+    template <std::integral I, endian r, negativity neg, std::unsigned_integral word>
+    Z_bytes<r, neg, word> operator * (I, const Z_bytes<r, neg, word> &);
+
+    template <endian r, std::unsigned_integral word>
+    N_bytes<r, word> &operator += (N_bytes<r, word> &, const N_bytes<r, word> &);
+
+    template <endian r, negativity c, std::unsigned_integral word>
+    Z_bytes<r, c, word> &operator += (Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
+
+    template <endian r, std::unsigned_integral word>
+    math::Z_bytes<r, word> &operator += (math::Z_bytes<r, word> &, const N_bytes<r, word> &);
+
+    template <endian r, std::unsigned_integral word>
+    N_bytes<r, word> &operator -= (N_bytes<r, word> &, const N_bytes<r, word> &);
+
+    template <endian r, negativity c, std::unsigned_integral word>
+    Z_bytes<r, c, word> &operator -= (Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
+
+    template <endian r, std::unsigned_integral word>
+    math::Z_bytes<r, word> &operator -= (math::Z_bytes<r, word> &, const N_bytes<r, word> &);
+
+    template <endian r, std::unsigned_integral word>
+    N_bytes<r, word> &operator += (N_bytes<r, word> &, uint64);
+
+    template <endian r, std::unsigned_integral word>
+    N_bytes<r, word> &operator -= (N_bytes<r, word> &, uint64);
+
+    template <endian r, negativity c, std::unsigned_integral word>
+    Z_bytes<r, c, word> &operator += (Z_bytes<r, c, word> &, int64);
+
+    template <endian r, negativity c, std::unsigned_integral word>
+    Z_bytes<r, c, word> &operator -= (Z_bytes<r, c, word> &, int64);
+
+    template <endian r, std::unsigned_integral word>
+    N_bytes<r, word> &operator *= (N_bytes<r, word> &, const N_bytes<r, word> &);
+
+    template <endian r, negativity c, std::unsigned_integral word>
+    Z_bytes<r, c, word> &operator *= (Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
+
+    template <endian r, std::unsigned_integral word>
+    math::Z_bytes<r, word> &operator *= (math::Z_bytes<r, word> &, const N_bytes<r, word> &);
+
+    template <endian r, std::unsigned_integral word>
+    N_bytes<r, word> &operator *= (N_bytes<r, word> &, uint64);
+
+    template <endian r, negativity c, std::unsigned_integral word>
+    Z_bytes<r, c, word> &operator *= (Z_bytes<r, c, word> &, int64);
+
 }
 
 namespace data::math::def {
@@ -899,6 +1035,16 @@ namespace data::math::def {
 
     template <> struct div_2_pow<Z> {
         Z operator () (const Z &a, uint32);
+    };
+
+    template <endian r, std::unsigned_integral word>
+    struct div_2_pow<math::N_bytes<r, word>> {
+        math::N_bytes<r, word> operator () (const math::N_bytes<r, word> &x, uint32 exp);
+    };
+
+    template <endian r, negativity neg, std::unsigned_integral word>
+    struct div_2_pow<math::number::Z_bytes<r, neg, word>> {
+        math::number::Z_bytes<r, neg, word> operator () (const math::number::Z_bytes<r, neg, word> &x, uint32 exp);
     };
 
     template <> struct mod_2<N> {

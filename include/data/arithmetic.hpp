@@ -884,14 +884,16 @@ namespace data::math {
         return x << exp;
     }
 
-    // for unsigned numbers and sign-and-magnetude, div 2 is the same as shift right
-    template <proto_number A> constexpr A inline bit_div_2_pow_unsigned_and_BC (const A &x, uint32 exp) {
+    // In some cases, shift and multiplication by powers of 2 are defined to be equal.
+    // they are also equal when we say that modulos are always positive.
+    template <proto_number A> constexpr A inline bit_div_2_pow (const A &x, uint32 exp) {
         return x >> exp;
     }
 
-    // for two's complement numbers, it's a little more complicated.
-    template <proto_number A> constexpr A inline bit_div_2_pow_twos (const A &x, uint32 exp) {
-        return ~(~x >> exp);
+    // for built in signed numbers, -1 / 2 -> 0.
+    template <proto_number A> constexpr A inline bit_div_2_pow_signed (const A &x, uint32 exp) {
+        if (x < 0) return -(-x >> exp);
+        return x >> exp;
     }
 
     template <proto_bit_unsigned A> constexpr A inline bit_mod_2 (const A &x) {
@@ -1046,13 +1048,13 @@ namespace data::math::def {
 
     template <std::signed_integral X> struct div_2_pow<X> {
         constexpr X operator () (X x, uint32 exp) {
-            return bit_div_2_pow_twos (x, exp);
+            return bit_div_2_pow_signed (x, exp);
         }
     };
 
     template <std::unsigned_integral X> struct div_2_pow<X> {
         constexpr X operator () (X x, uint32 exp) {
-            return bit_div_2_pow_unsigned_and_BC (x, exp);
+            return bit_div_2_pow (x, exp);
         }
     };
 

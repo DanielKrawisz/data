@@ -742,17 +742,13 @@ namespace data::math::def {
 
     template <endian r, std::unsigned_integral word>
     math::N_bytes<r, word> inline div_2_pow<math::N_bytes<r, word>>::operator () (const math::N_bytes<r, word> &x, uint32 exp) {
-        return bit_div_2_pow_unsigned_and_BC (x, exp);
+        return bit_div_2_pow (x, exp);
     }
 
-    template <endian r, std::unsigned_integral word>
-    math::Z_bytes_BC<r, word> inline div_2_pow<math::Z_bytes_BC<r, word>>::operator () (const math::Z_bytes_BC<r, word> &x, uint32 exp) {
-        return bit_div_2_pow_unsigned_and_BC (x, exp);
-    }
-
-    template <endian r, std::unsigned_integral word>
-    math::Z_bytes<r, word> inline div_2_pow<math::Z_bytes<r, word>>::operator () (const math::Z_bytes<r, word> &x, uint32 exp) {
-        return bit_div_2_pow_twos (x, exp);
+    template <endian r, negativity neg, std::unsigned_integral word>
+    math::number::Z_bytes<r, neg, word> inline
+    div_2_pow<math::number::Z_bytes<r, neg, word>>::operator () (const math::number::Z_bytes<r, neg, word> &x, uint32 exp) {
+        return bit_div_2_pow (x, exp);
     }
 
     template <endian r, std::unsigned_integral word>
