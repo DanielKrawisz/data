@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_TUPLE
-#define DATA_TUPLE
+#pragma once
 
 /*
  *    Utility functions for std::tuple
@@ -130,5 +129,3 @@ namespace data {
         return lift_impl (std::forward<F> (f), t, std::index_sequence_for<X...> {});
     }
 }
-
-#endif

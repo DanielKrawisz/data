@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_SEQUENCE
-#define DATA_SEQUENCE
+#pragma once
 
 #include <data/concepts.hpp>
 #include <data/empty.hpp>
@@ -133,5 +132,3 @@ namespace data {
     }
 
 }
-
-#endif

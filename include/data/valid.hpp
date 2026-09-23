@@ -1,8 +1,7 @@
 // Copyright (c) 2018-2020 Daniel Krawisz
 // Distributed under the Open BSV software license, see the accompanying file LICENSE.
 
-#ifndef DATA_VALID
-#define DATA_VALID
+#pragma once
 
 #include <concepts>
 
@@ -47,5 +46,3 @@ namespace data {
     }
 
 }
-
-#endif

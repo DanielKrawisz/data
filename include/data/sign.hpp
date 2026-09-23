@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_SIGN
-#define DATA_MATH_SIGN
+#pragma once
 
 #include <data/types.hpp>
 #include <data/ordered.hpp>
@@ -168,5 +167,3 @@ namespace data::math::def {
     };
 
 }
-
-#endif

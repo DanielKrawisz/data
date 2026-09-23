@@ -72,11 +72,11 @@ namespace data::math {
 
         using X = math::number::euclidian::extended<N, Z>;
         EXPECT_THROW ((void) X::algorithm (N {0}, N {0}).GCD, math::division_by_zero);
-
+        std::cout << "TEST EXTENDED EUCLIDIAN 1 " << std::endl;
         EXPECT_EQ (X::algorithm (N {1}, N {1}).GCD, 1);
 
         EXPECT_EQ (X::algorithm (N {2}, N {4}).GCD, 2);
-
+        std::cout << "TEST EXTENDED EUCLIDIAN 3" << std::endl;
         EXPECT_EQ (X::algorithm (N {1145}, N {916}).GCD, 229);
     }
     

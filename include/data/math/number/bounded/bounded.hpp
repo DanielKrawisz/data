@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_BOUNDED_BOUNDED
-#define DATA_MATH_NUMBER_BOUNDED_BOUNDED
+#pragma once
 
 #include <data/math/number/bytes/bytes.hpp>
 
@@ -2127,5 +2126,3 @@ namespace data {
 
     }
 }
-
-#endif

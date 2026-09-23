@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MAYBE
-#define DATA_MAYBE
+#pragma once
 
 #include <optional>
 #include <data/concepts.hpp>
@@ -84,5 +83,3 @@ namespace data {
     }
 
 }
-
-#endif

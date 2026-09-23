@@ -31,6 +31,17 @@ namespace data {
         constexpr bool operator == (const division &d) const {
             return Quotient == d.Quotient && Remainder == d.Remainder;
         }
+
+        // implicit conversions
+        template <typename X, typename Y = X>
+        requires ImplicitlyConvertible<N, X> && ImplicitlyConvertible<R, Y>
+        constexpr operator division<X, Y> () const;
+
+        // explicit conversions
+        template <typename X, typename Y = X>
+        requires Convertible<N, X> && Convertible<R, Y> && (
+            ExplicitlyConvertible<N, X> && ExplicitlyConvertible<R, Y>)
+        constexpr explicit operator division<X, Y> () const;
     };
 
     template <typename Z, typename N> division (const Z &, const N &) -> division<Z, N>;
@@ -49,10 +60,16 @@ namespace data::math::def {
 
     template <std::integral X, std::integral Y>
     struct divmod<X, Y> {
-        constexpr auto operator () (X dividend, math::nonzero<Y> divisor) ->
+        constexpr auto inline operator () (X dividend, math::nonzero<Y> divisor) ->
         division<decltype (dividend / divisor.Value), decltype (dividend % divisor.Value)> {
             if (divisor.Value == 0) throw division_by_zero {};
             return {dividend / divisor.Value, dividend % divisor.Value};
+        }
+    };
+
+    template <typename dividend, typename divisor = dividend> struct divides {
+        constexpr bool inline operator () (const dividend &v, const math::nonzero<divisor> &z) {
+            return divmod<dividend, divisor> {} (v, z).Remainder == 0;
         }
     };
 
@@ -69,8 +86,23 @@ namespace data {
         return o << "division {Quotient: " << x.Quotient << ", Remainder: " << x.Remainder << "}";
     }
 
-    template <typename A, typename B = A> constexpr auto divide (const A &x, const math::nonzero<B> &n) {
+    template <typename A, typename B> constexpr auto divide (const A &x, const math::nonzero<B> &n) {
         return divmod (x, n).Quotient;
+    }
+
+    template <typename N, typename R>
+    template <typename X, typename Y>
+    requires ImplicitlyConvertible<N, X> && ImplicitlyConvertible<R, Y>
+    constexpr division<N, R>::operator division<X, Y> () const {
+        return division<X, Y> {X (Quotient), Y (Remainder)};
+    }
+
+    template <typename N, typename R>
+    template <typename X, typename Y>
+    requires Convertible<N, X> && Convertible<R, Y> && (
+        ExplicitlyConvertible<N, X> && ExplicitlyConvertible<R, Y>)
+    constexpr division<N, R>::operator division<X, Y> () const {
+        return division<X, Y> {X (Quotient), Y (Remainder)};
     }
 }
 

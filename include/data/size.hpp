@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_SIZE
-#define DATA_SIZE
+#pragma once
 
 #include <concepts>
 #include <data/math/infinite.hpp>
@@ -67,7 +66,3 @@ namespace data {
     }
 
 }
-
-#endif
-
-

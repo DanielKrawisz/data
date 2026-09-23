@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ARITHMETIC_COMPLEMENTARY
-#define DATA_ARITHMETIC_COMPLEMENTARY
+#pragma once
 
 #include <data/bytes.hpp>
 #include <data/arithmetic/negativity.hpp>
@@ -727,5 +726,3 @@ namespace data::arithmetic::BC {
         return is_negative (words<r> (a)) == is_negative (words<r> (b)) ? cs : negate<r, word> (cs);
     }
 }
-
-#endif

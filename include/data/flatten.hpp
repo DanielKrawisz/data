@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_FLATTEN
-#define DATA_FLATTEN
+#pragma once
 
 /**
  * Flatten nested data structures.
@@ -235,5 +234,3 @@ namespace data {
         return result;
     }*/
 }
-
-#endif

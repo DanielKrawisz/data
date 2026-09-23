@@ -525,6 +525,7 @@ namespace data {
     TYPED_TEST (Numbers, DefaultIsZero) {
         using N = typename TestFixture::N;
         EXPECT_EQ (N {}, N {0});
+        EXPECT_EQ (N {}, 0);
     }
 
     TYPED_TEST (Numbers, Abs) {

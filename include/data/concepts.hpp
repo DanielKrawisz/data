@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_CONCEPTS
-#define DATA_CONCEPTS
+#pragma once
 
 #include <type_traits>
 #include <concepts>
@@ -137,4 +136,3 @@ namespace data {
 #define REQUIRE_CONSTEXPR(EXPR) \
     [&]() constexpr { (void)(EXPR); } ()
 
-#endif

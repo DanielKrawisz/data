@@ -3,8 +3,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ENCODING_HEX
-#define DATA_ENCODING_HEX
+#pragma once
 
 #include <ranges>
 
@@ -167,5 +166,3 @@ namespace data {
     }
     
 }
-
-#endif

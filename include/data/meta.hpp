@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_META
-#define DATA_META
+#pragma once
 
 #include <data/types.hpp>
 #include <data/concepts.hpp>
@@ -318,5 +317,3 @@ namespace data::meta {
     };
 
 }
-
-#endif

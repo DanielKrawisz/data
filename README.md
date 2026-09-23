@@ -1,11 +1,12 @@
 # data
 
-Tools and high-level programming constructs in c++. 
+Tools and high-level programming constructs in c++, including 
+functional data structures, higher-order functions, big numbers, and mathematics. 
 
 See [the standard](doc/standard.md) for all supported features and how to use them. 
 The standard will be gradually improved as we work toward a beta version.
 
-Current version is 0.0.34 alpha.
+Current version is 0.1 beta.
 
 ## Features 
 
@@ -36,27 +37,12 @@ Current version is 0.0.34 alpha.
     * hex
     * base58
     * base64
-  * cryptography 
-    * AES
-    * SHA
-    * RIPEMD160
-    * NIST_DRBG 
-  * networking in a functional style with coroutines.
-    * URLs
-    * TCP
-    * HTTP
-    * Websockets
     
 # Dependencies
   * Boost 1.86
   * GMP
-  * PEGTL
-  * Crypto++ https://github.com/weidai11/cryptopp 
-  * OpenSSL
-  * Rotella's implementation of AKS. (included)
   * compile-time-regular-expressions https://github.com/hanickadot/compile-time-regular-expressions (included)
-  * nlohmann/json (included)
-  * Google test
+  * Google test (only for tests)
 
 # Requirements
   * GCC v13+

@@ -25,51 +25,56 @@ namespace data {
     template <typename X, typename Y> requires 
     requires (const X x, const X y) {
         { x == y } -> Same<bool>;
-    } bool inline equal (const X &a, const Y &b) {
+    } constexpr bool inline equal (const X &a, const Y &b) {
         return a == b;
     }
     
     template <typename X, typename Y> requires 
     requires (const X x, const X y) {
         { x != y } -> Same<bool>;
-    } bool inline unequal (const X &a, const Y &b) {
+    } constexpr bool inline unequal (const X &a, const Y &b) {
         return a != b;
     }
 
     template <typename X, typename Y> requires 
     requires (const X x, const Y y) {
         { x <= y } -> Same<bool>;
-    } bool inline less_equal (const X &a, const Y &b) {
+    } constexpr bool inline less_equal (const X &a, const Y &b) {
         return a <= b;
     }
 
     template <typename X, typename Y> requires 
     requires (const X x, const Y y) {
         { x >= y } -> Same<bool>;
-    } bool inline greater_equal (const X &a, const Y &b) {
+    } constexpr bool inline greater_equal (const X &a, const Y &b) {
         return a >= b;
     }
 
     template <typename X, typename Y> requires 
     requires (const X x, const Y y) {
         { x < y } -> Same<bool>;
-    } bool inline less (const X &a, const Y &b) {
+    } constexpr bool inline less (const X &a, const Y &b) {
         return a < b;
     }
 
     template <typename X, typename Y> requires 
     requires (const X x, const Y y) {
         { x > y } -> Same<bool>;
-    } bool inline greater (const X &a, const Y &b) {
+    } constexpr bool inline greater (const X &a, const Y &b) {
         return a > b;
     }
 
-    template <Ordered X> const X inline &max (const X &a, const X &b) {
+    template <Ordered X> constexpr const X inline &max (const X &a, const X &b) {
         return std::max (a, b);
     }
 
-    template <Ordered X> const X inline &min (const X &a, const X &b) {
+    template <Ordered X> constexpr const X inline &min (const X &a, const X &b) {
         return std::max (a, b);
+    }
+
+    // asks whether min <= num && max >= num
+    template <typename A> constexpr A inline within (const A &num, const A &min, const A &max) {
+        return greater_equal (num, min) && less_equal (num, max);
     }
     
     

@@ -16,12 +16,20 @@
 namespace data {
 
     // basic arithmetic
-    template <typename A, typename B> constexpr auto plus (const A &, const B &);
-    template <typename A, typename B> constexpr auto minus (const A &, const B &);
-    template <typename A, typename B> constexpr auto times (const A &, const B &);
-    template <typename A, typename Exp> constexpr A pow (const A &, const Exp &);
+    template <typename A, typename B, typename ...C>
+    constexpr auto plus (const A &, const B &, C &&...);
 
-    template <typename A> auto constexpr square (const A &);
+    template <typename A, typename B>
+    constexpr auto minus (const A &, const B &);
+
+    template <typename A, typename B, typename ...C>
+    constexpr auto times (const A &, const B &, C &&...);
+
+    template <typename A, typename Exp>
+    constexpr A pow (const A &, const Exp &);
+
+    template <typename A>
+    auto constexpr square (const A &);
 
     template <typename dividend, typename divisor>
     constexpr auto divide (const dividend &a, const math::nonzero<divisor> &b);
@@ -29,8 +37,17 @@ namespace data {
     template <typename dividend, typename divisor>
     constexpr bool divides (const dividend &a, const math::nonzero<divisor> &b);
 
-    template <typename A> constexpr bool even (const A &);
-    template <typename A> constexpr bool odd (const A &);
+    template <typename A>
+    constexpr bool even (const A &);
+
+    template <typename A>
+    constexpr bool odd (const A &);
+
+    template <typename A, typename B, typename ...C>
+    constexpr auto GCD (const A &, const B &, C &&...x);
+
+    template <typename A, typename ...C> requires Same<A, C...>
+    constexpr auto LCM (const A &, const A &, C &&...x);
 
     // modular arithmetic
     template <typename A, typename Mod = A> constexpr auto mod (const A &, const math::nonzero<Mod> &);
@@ -59,12 +76,6 @@ namespace data {
 
     template <typename A> constexpr bool inline odd (const A &x) {
         return mod_2 (x) == 1;
-    }
-
-    // TODO make this the default but enable specializations.
-    template <typename dividend, typename divisor>
-    constexpr bool inline divides (const dividend &a, const math::nonzero<divisor> &b) {
-        return divide (a, b) == 0;
     }
 
     // bit arithmetic
@@ -724,6 +735,7 @@ namespace data::math::def {
 
     template <typename A, typename B = A> struct plus;
     template <typename A, typename B = A> struct minus;
+    template <typename A, typename B = A> struct GCD;
 
     template <typename A> struct bit_not;
     template <typename A, typename B = A> struct bit_and;
@@ -793,8 +805,9 @@ namespace data {
         return math::def::mod_2<A> {} (x);
     }
 
-    template <typename A, typename B> constexpr auto inline plus (const A &x, const B &y) {
-        return math::def::plus<A, B> {} (x, y);
+    template <typename A, typename B, typename ...C> constexpr auto inline plus (const A &x, const B &y, C &&...z) {
+        if constexpr (sizeof... (C) == 0) return math::def::plus<A, B> {} (x, y);
+        else return plus (math::def::plus<A, B> {} (x, y), std::forward<C> (z)...);
     }
 
     template <typename A, typename B> constexpr auto inline minus (const A &x, const B &y) {
@@ -833,8 +846,26 @@ namespace data {
         return math::def::bit_shift_left<A> {} (x, i);
     }
 
-    template <typename A, typename B> constexpr auto inline times (const A &x, const B &y) {
-        return math::def::times<A, B> {} (x, y);
+    template <typename A, typename B, typename ...C> constexpr auto inline times (const A &x, const B &y, C &&...z) {
+        auto r = math::def::times<A, B> {} (x, y);
+        if constexpr (sizeof... (C) == 0) return r;
+        else return times (r, std::forward<C> (z)...);
+    }
+
+    template <typename A, typename B, typename ...C> constexpr auto inline GCD (const A &x, const B &y, C &&...z) {
+        using negate_type = decltype (negate (x));
+        using abs_type = decltype (abs (x));
+        auto gcd = math::def::GCD<abs_type, negate_type> {} (abs (x), abs (y));
+        if constexpr (sizeof... (C) == 0) return gcd;
+        else return GCD (gcd, std::forward<C> (z)...);
+    }
+
+    template <typename A, typename ...C> requires Same<A, C...>
+    constexpr auto inline LCM (const A &x, const A &y, C &&...z) {
+        if (is_zero (x) || is_zero (y)) return abs (A (0));
+        auto lcm = abs (times (x, y)) / GCD (x, y);
+        if constexpr (sizeof... (C) == 0) return abs (A (lcm));
+        else return LCM (lcm, std::forward<C> (z)...);
     }
 
     template <typename A, typename Mod> constexpr A inline pow (const A &x, const Mod &y) {

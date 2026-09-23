@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_PRIORITY_QUEUE
-#define DATA_PRIORITY_QUEUE
+#pragma once
 
 #include <data/tools/priority_queue.hpp>
 #include <data/tree.hpp>
@@ -14,5 +13,3 @@ namespace data {
     template <typename X> using priority_queue = tool::priority_queue<tree<X>, X>;
 
 }
-
-#endif

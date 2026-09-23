@@ -14,15 +14,23 @@
 
 #include <gtest/gtest.h>
 
-namespace data::math {
-/*
-    template <typename X>
-    struct NumberTheory : ::testing::Test {
+namespace data {
+    template <WholeNumber X>
+    struct TheoryNumbers : ::testing::Test {
         using number = X;
     };
 
+    template <WholeNumber X>
+    struct TheoryNaturals : ::testing::Test {
+        using number = X;
+    };
 
-    using test_cases = ::testing::Types<
+    template <WholeNumber X>
+    struct TheoryIntegers : ::testing::Test {
+        using number = X;
+    };
+
+    using numbers = ::testing::Types<
         int64, int64_little, int64_big,
         uint64, uint64_little, uint64_big,
         int80, int80_little, int80_big,
@@ -40,86 +48,90 @@ namespace data::math {
         math::Z_bytes<endian::little, unsigned short>,
         math::Z_bytes<endian::little, unsigned int>,
         math::Z_bytes<endian::little, unsigned long>,
-        math::Z_bytes<endian::little, unsigned long long>,
-        dec_uint, hex_uint, dec_int, hex_int, hex_int_BC>;
-    */
+        math::Z_bytes<endian::little, unsigned long long>/*,
+        dec_uint, hex_uint, dec_int, hex_int, hex_int_BC*/>;
 
-    number::eratosthenes<N> e {};
-    number::primes<N> primes (e);
+    using naturals = ::testing::Types<
+        uint64, uint64_little, uint64_big,
+        uint80, uint80_little, uint80_big,
+        uint128, uint128_little, uint128_big,
+        uint160, uint256, uint512,
+        N, N_bytes_little, N_bytes_big,
+        math::N_bytes<endian::little, unsigned short>,
+        math::N_bytes<endian::little, unsigned int>,
+        math::N_bytes<endian::little, unsigned long>,
+        math::N_bytes<endian::little, unsigned long long>/*,
+        dec_uint, hex_uint*/>;
 
-    auto p2 = primes[0];
-    auto p3 = primes[1];
-    auto p5 = primes[2];
-    auto p7 = primes[3];
-    auto p11 = primes[4];
-    auto p13 = primes[5];
-    auto p17 = primes[6];
+    using integers = ::testing::Types<
+        int64, int64_little, int64_big,
+        int80, int80_little, int80_big,
+        int128, int128_little, int128_big,
+        int160, int256, int512,
+        Z, Z_bytes_little, Z_bytes_big,
+        math::Z_bytes<endian::little, unsigned short>,
+        math::Z_bytes<endian::little, unsigned int>,
+        math::Z_bytes<endian::little, unsigned long>,
+        math::Z_bytes<endian::little, unsigned long long>/*,
+        dec_int, hex_int, hex_int_BC*/>;
 
-    TEST (NumberTheoryTest, TestFactor) {
+    TYPED_TEST_SUITE (TheoryNumbers, numbers);
 
-        EXPECT_EQ ((number::factorize<N> (nonzero<N> {1}, e)),
-            (number::factorization<N> {}));
+    TYPED_TEST_SUITE (TheoryNaturals, naturals);
 
-        EXPECT_EQ ((number::factorize<N> (nonzero<N> {2}, e)),
-            (number::factorization<N> {{p2, 1}}));
+    TYPED_TEST_SUITE (TheoryIntegers, integers);
 
-        EXPECT_EQ ((number::factorize<N> (nonzero<N> {3}, e)),
-            (number::factorization<N> {{p3, 1}}));
-
-        EXPECT_EQ ((number::factorize<N> (nonzero<N> {4}, e)),
-            (number::factorization<N> {{p2, 2}}));
-
-        EXPECT_EQ ((number::factorize<N> (nonzero<N> {5}, e)),
-            (number::factorization<N> {{p5, 1}}));
-
-        EXPECT_EQ ((number::factorize<N> (nonzero<N> {6}, e)),
-            (number::factorization<N> {{p2, 1}, {p3, 1}}));
-
-        EXPECT_EQ ((number::factorize<N> (nonzero<N> {8}, e)),
-            (number::factorization<N> {{p2, 3}}));
-
-        EXPECT_EQ ((number::factorize<N> (nonzero<N> {9}, e)),
-            (number::factorization<N> {{p3, 2}}));
-
-        EXPECT_EQ ((number::factorize<N> (nonzero<N> {10}, e)),
-            (number::factorization<N> {{p2, 1}, {p5, 1}}));
-
-        EXPECT_EQ ((number::factorize<N> (nonzero<N> {12}, e)),
-            (number::factorization<N> {{p2, 2}, {p3, 1}}));
-
-        EXPECT_EQ ((number::factorize<N> (nonzero<N> {17}, e)),
-            (number::factorization<N> {{p17, 1}}));
-
-        EXPECT_EQ ((number::factorize<N> (nonzero<N> {21}, e)),
-            (number::factorization<N> {{p3, 1}, {p7, 1}}));
-
+    TYPED_TEST (TheoryNumbers, GCD) {
+        using N = typename TestFixture::number;
+        EXPECT_EQ (GCD (N {0}, N (0)), N {0});
+        EXPECT_EQ (GCD (N {0}, N (0), N (0)), N {0});
+        EXPECT_EQ (GCD (N {0}, N {1}), N {1});
+        EXPECT_EQ (GCD (N {0}, N {1}, N (0)), N {1});
+        EXPECT_EQ (GCD (N {1}, N {1}), N {1});
+        EXPECT_EQ (GCD (N {2}, N {1}), N {1});
+        EXPECT_EQ (GCD (N {2}, N {2}), N {2});
+        EXPECT_EQ (GCD (N {2}, N {3}), N {1});
+        EXPECT_EQ (GCD (N {2}, N {4}), N {2});
+        EXPECT_EQ (GCD (N {4}, N {6}), N {2});
     }
 
-    TEST (NumberTheory, Totient) {
+    TYPED_TEST (TheoryNumbers, LCM) {
+        using N = typename TestFixture::number;
+        EXPECT_EQ (LCM (N {0}, N (0)), N {0});
+        EXPECT_EQ (LCM (N {0}, N {1}), N {0});
+        EXPECT_EQ (LCM (N {1}, N {1}), N {1});
+        EXPECT_EQ (LCM (N {2}, N {1}), N {2});
+        EXPECT_EQ (LCM (N {2}, N {2}), N {2});
+        EXPECT_EQ (LCM (N {2}, N {3}), N {6});
+        EXPECT_EQ (LCM (N {2}, N {4}), N {4});
+        EXPECT_EQ (LCM (N {4}, N {6}), N {12});
+    }
 
-        EXPECT_EQ (number::totient<N> (nonzero<N> {1}, e), N {1});
-        EXPECT_EQ (number::totient<N> (nonzero<N> {2}, e), N {1});
-        EXPECT_EQ (number::totient<N> (nonzero<N> {5}, e), N {4});
-        EXPECT_EQ (number::totient<N> (nonzero<N> {6}, e), N {2});
-        EXPECT_EQ (number::totient<N> (nonzero<N> {10}, e), N {4});
-        EXPECT_EQ (number::totient<N> (nonzero<N> {15}, e), N {8});
-        EXPECT_EQ (number::totient<N> (nonzero<N> {16}, e), N {8});
-        EXPECT_EQ (number::totient<N> (nonzero<N> {25}, e), N {20});
-        EXPECT_EQ (number::totient<N> (nonzero<N> {36}, e), N {12});
-        EXPECT_EQ (number::totient<N> (nonzero<N> {100}, e), N {40});
-        EXPECT_EQ (number::totient<N> (nonzero<N> {101}, e), N {100});
-        EXPECT_EQ (number::totient<N> (nonzero<N> {210}, e), N {48});
-        EXPECT_EQ (number::totient<N> (nonzero<N> {760}, e), N {288});
-        EXPECT_EQ (number::totient<N> (nonzero<N> {761}, e), N {760});
-        EXPECT_EQ (number::totient<N> (nonzero<N> {997}, e), N {996});
-        EXPECT_EQ (number::totient<N> (nonzero<N> {1024}, e), N {512});
-        EXPECT_EQ (number::totient<N> (nonzero<N> {12345}, e), N {6576});
+    TYPED_TEST (TheoryIntegers, GCD) {
+        using N = typename TestFixture::number;
+        EXPECT_EQ (GCD (N {0}, N {-1}), N {1});
+        EXPECT_EQ (GCD (N {1}, N {-1}), N {1});
+        EXPECT_EQ (GCD (N {-2}, N {1}), N {1});
+        EXPECT_EQ (GCD (N {2}, N {-2}), N {2});
+        EXPECT_EQ (GCD (N {2}, N {-3}), N {1});
+        EXPECT_EQ (GCD (N {-2}, N {4}), N {2});
+        EXPECT_EQ (GCD (N {-4}, N {6}), N {2});
+    }
 
+    TYPED_TEST (TheoryIntegers, LCM) {
+        using N = typename TestFixture::number;
+        EXPECT_EQ (LCM (N {0}, N {-1}), N {0});
+        EXPECT_EQ (LCM (N {1}, N {-1}), N {1});
+        EXPECT_EQ (LCM (N {-2}, N {1}), N {2});
+        EXPECT_EQ (LCM (N {2}, N {-2}), N {2});
+        EXPECT_EQ (LCM (N {-2}, N {3}), N {6});
+        EXPECT_EQ (LCM (N {2}, N {-4}), N {4});
+        EXPECT_EQ (LCM (N {-4}, N {6}), N {12});
     }
 
     template <typename N> void power_mod_test_case (N mod, N base, N exp, N expected) {
-        EXPECT_EQ ((data::pow_mod<N> (base, exp, nonzero {mod})), expected) <<
-            "expected " << base << " ^ " << exp << " % " << mod << " == " << expected;
+        EXPECT_EQ ((data::pow_mod<N> (base, exp, math::nonzero {mod})), expected) <<
+        "expected " << base << " ^ " << exp << " % " << mod << " == " << expected;
     }
 
     template <typename N> void test_power_mod () {
@@ -136,7 +148,7 @@ namespace data::math {
         power_mod_test_case (N {65537}, N {2}, N {32768}, N {1});
     }
 
-    TEST (NumberTheory, PowerMod) {
+    TYPED_TEST (TheoryNumbers, PowerMod) {
         test_power_mod<N> ();
         test_power_mod<N_bytes_little> ();
         test_power_mod<N_bytes_big> ();
@@ -153,12 +165,87 @@ namespace data::math {
         test_power_mod<hex_uint> ();
     }
 
-    TEST (NumberTheory, PrimitiveRoot) {
-        EXPECT_EQ ((*number::primitive_root<N> (nonzero<N> {761}, e)), N {6});
+    template <WholeNumber N> math::number::eratosthenes<N> e {};
+    template <WholeNumber N> math::number::primes<N> primes (e<N>);
+
+    template <WholeNumber N> auto p2 = primes<N>[0];
+    template <WholeNumber N> auto p3 = primes<N>[1];
+    template <WholeNumber N> auto p5 = primes<N>[2];
+    template <WholeNumber N> auto p7 = primes<N>[3];
+    template <WholeNumber N> auto p11 = primes<N>[4];
+    template <WholeNumber N> auto p13 = primes<N>[5];
+    template <WholeNumber N> auto p17 = primes<N>[6];
+
+    TYPED_TEST (TheoryNaturals, Factor) {
+        using N = typename TestFixture::number;
+
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {1}, e<N>)),
+            (math::number::factorization<N> {}));
+
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {2}, e<N>)),
+            (math::number::factorization<N> {{p2<N>, 1}}));
+
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {3}, e<N>)),
+            (math::number::factorization<N> {{p3<N>, 1}}));
+
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {4}, e<N>)),
+            (math::number::factorization<N> {{p2<N>, 2}}));
+
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {5}, e<N>)),
+            (math::number::factorization<N> {{p5<N>, 1}}));
+
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {6}, e<N>)),
+            (math::number::factorization<N> {{p2<N>, 1}, {p3<N>, 1}}));
+
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {8}, e<N>)),
+            (math::number::factorization<N> {{p2<N>, 3}}));
+
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {9}, e<N>)),
+            (math::number::factorization<N> {{p3<N>, 2}}));
+
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {10}, e<N>)),
+            (math::number::factorization<N> {{p2<N>, 1}, {p5<N>, 1}}));
+
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {12}, e<N>)),
+            (math::number::factorization<N> {{p2<N>, 2}, {p3<N>, 1}}));
+
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {17}, e<N>)),
+            (math::number::factorization<N> {{p17<N>, 1}}));
+
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {21}, e<N>)),
+            (math::number::factorization<N> {{p3<N>, 1}, {p7<N>, 1}}));
+
     }
 
-    number::eratosthenes<uint32> e32 {};
-    number::eratosthenes<uint64> e64 {};
+    TYPED_TEST (TheoryNaturals, Totient) {
+        using N = typename TestFixture::number;
+
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {1}, e<N>), N {1});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {2}, e<N>), N {1});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {5}, e<N>), N {4});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {6}, e<N>), N {2});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {10}, e<N>), N {4});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {15}, e<N>), N {8});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {16}, e<N>), N {8});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {25}, e<N>), N {20});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {36}, e<N>), N {12});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {100}, e<N>), N {40});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {101}, e<N>), N {100});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {210}, e<N>), N {48});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {760}, e<N>), N {288});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {761}, e<N>), N {760});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {997}, e<N>), N {996});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {1024}, e<N>), N {512});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {12345}, e<N>), N {6576});
+
+    }
+
+    TYPED_TEST (TheoryNaturals, PrimitiveRoot) {
+        EXPECT_EQ ((*math::number::primitive_root<N> (math::nonzero<N> {761}, e<N>)), N {6});
+    }
+
+    math::number::eratosthenes<uint32> e32 {};
+    math::number::eratosthenes<uint64> e64 {};
 
     list<tuple<uint32, uint32>> cryptosystems_9_bit {
         {257, 3}, {263, 5}, {269, 2}, {271, 6}, {277, 5}, {281, 3}, {283, 3}, {293, 2}, {307, 5},
@@ -884,12 +971,12 @@ namespace data::math {
         {131023, 6}, {131041, 17}, {131059, 2}, {131063, 5}, {131071, 3}};
 
     // test how long it takes to prove that these numbers are prime.
-    TEST (NumberTheoryTest, Test9BitPrimes) {
+    TEST (NumberTheory, Test9BitPrimes) {
         for (const auto &[prime, root] : cryptosystems_9_bit) {
-            auto fact = number::factorize<uint32> (nonzero {prime}, e32);
+            auto fact = math::number::factorize<uint32> (math::nonzero {prime}, e32);
             EXPECT_EQ ((fact.size ()), 1);
             EXPECT_EQ (fact[0].Exponent, 1);
-            EXPECT_TRUE (number::is_primitive_root<uint32> (nonzero {prime}, root, e32));
+            EXPECT_TRUE (math::number::is_primitive_root<uint32> (math::nonzero {prime}, root, e32));
 
             // TODO generate random primitive roots and verify that
             // an exponent only corresponds to a primitive root when
@@ -899,10 +986,10 @@ namespace data::math {
 
     TEST (NumberTheory, Test17BitPrimes) {
         for (const auto &[prime, root] : cryptosystems_17_bit) {
-            auto fact = number::factorize<uint64> (nonzero {prime}, e64);
+            auto fact = math::number::factorize<uint64> (math::nonzero {prime}, e64);
             EXPECT_EQ ((fact.size ()), 1);
             EXPECT_EQ (fact[0].Exponent, 1);
-            EXPECT_TRUE (number::is_primitive_root<uint64> (nonzero {prime}, root, e64));
+            EXPECT_TRUE (math::number::is_primitive_root<uint64> (math::nonzero {prime}, root, e64));
         }
     }
 
@@ -911,15 +998,15 @@ namespace data::math {
             uint32 alice_secret = 180;
             uint32 bob_secret = 200;
             for (const auto &[prime, root] : cryptosystems_9_bit)
-                EXPECT_EQ ((data::pow_mod (data::pow_mod (root, alice_secret, nonzero {prime}), bob_secret, nonzero {prime})),
-                    (data::pow_mod (data::pow_mod (root, bob_secret, nonzero {prime}), alice_secret, nonzero {prime})));
+                EXPECT_EQ ((data::pow_mod (data::pow_mod (root, alice_secret, math::nonzero {prime}), bob_secret, math::nonzero {prime})),
+                    (data::pow_mod (data::pow_mod (root, bob_secret, math::nonzero {prime}), alice_secret, math::nonzero {prime})));
         }
         {
             uint64 alice_secret = 13030;
             uint64 bob_secret = 29101;
             for (const auto &[prime, root] : cryptosystems_17_bit)
-                EXPECT_EQ ((data::pow_mod (data::pow_mod (root, alice_secret, nonzero {prime}), bob_secret, nonzero {prime})),
-                    (data::pow_mod (data::pow_mod (root, bob_secret, nonzero {prime}), alice_secret, nonzero {prime})));
+                EXPECT_EQ ((data::pow_mod (data::pow_mod (root, alice_secret, math::nonzero {prime}), bob_secret, math::nonzero {prime})),
+                    (data::pow_mod (data::pow_mod (root, bob_secret, math::nonzero {prime}), alice_secret, math::nonzero {prime})));
         }
     }
 
@@ -931,11 +1018,12 @@ namespace data::math {
             uint32 message = 131;
 
             for (const auto &[prime, base] : cryptosystems_9_bit) {
-                auto public_key = data::pow_mod (base, secret_key, nonzero {prime});
+                auto public_key = data::pow_mod (base, secret_key, math::nonzero {prime});
                 // corresponds to the point R in a digital signature.
-                auto header_R = data::pow_mod (base, random_number, nonzero {prime});
+                auto header_R = data::pow_mod (base, random_number, math::nonzero {prime});
                 // For encryption, we use these shared secrets to generate an authenticated encryption scheme.
-                EXPECT_EQ ((data::pow_mod (public_key, random_number, nonzero {prime})), (data::pow_mod (header_R, secret_key, nonzero {prime})));
+                EXPECT_EQ ((data::pow_mod (public_key, random_number, math::nonzero {prime})),
+                    (data::pow_mod (header_R, secret_key, math::nonzero {prime})));
             }
         }
 
@@ -944,11 +1032,12 @@ namespace data::math {
             uint64 secret_key = 12314;
             uint64 message = 47989;
             for (const auto &[prime, base] : cryptosystems_17_bit) {
-                auto public_key = data::pow_mod (base, secret_key, nonzero {prime});
+                auto public_key = data::pow_mod (base, secret_key, math::nonzero {prime});
                 // corresponds to the point R in a digital signature.
-                auto header_R = data::pow_mod (base, random_number, nonzero {prime});
+                auto header_R = data::pow_mod (base, random_number, math::nonzero {prime});
                 // we use these shared secrets to generate an authenticated encryption scheme.
-                EXPECT_EQ ((data::pow_mod (public_key, random_number, nonzero {prime})), (data::pow_mod (header_R, secret_key, nonzero {prime})));
+                EXPECT_EQ ((data::pow_mod (public_key, random_number, math::nonzero {prime})),
+                    (data::pow_mod (header_R, secret_key, math::nonzero {prime})));
             }
         }
     }

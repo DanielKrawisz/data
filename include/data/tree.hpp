@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_TREE
-#define DATA_TREE
+#pragma once
 
 #include <data/tools/linked_tree.hpp>
 
@@ -17,5 +16,3 @@ namespace data {
     }
 
 }
-
-#endif

@@ -14,8 +14,6 @@ namespace data {
     // associated with any numeric operation because
     // different representations of the same number result
     // in different numeric values when bit not is applied.
-    // TODO We need to test that the results of bit logical
-    // operations is not trimmed.
     template <typename Z> requires requires (const Z &z) {
         { bit_not (z) } -> ImplicitlyConvertible<Z>;
     } && requires (const Z &a, const Z &b) {
@@ -36,6 +34,9 @@ namespace data {
             auto bn4 = bit_not (Z::zero (4));
             auto expected4 = -((Z (1) << 31) - 1);
             EXPECT_TRUE (identical (bn4, expected4)) << "expected " << expected4 << " but got " << bn4;
+
+            // TODO We need to test that the results of bit logical
+            // operations is not trimmed.
 
         }
     };

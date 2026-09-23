@@ -61,10 +61,10 @@ target_link_libraries (
   Boost::log
 )
 
-set(BIGNUM_BACKEND "NTL" CACHE STRING "Big-number backend")
-set_property(CACHE BIGNUM_BACKEND PROPERTY STRINGS GMP NTL)
+set (BIGNUM_BACKEND "NTL" CACHE STRING "Big-number backend")
+set_property (CACHE BIGNUM_BACKEND PROPERTY STRINGS GMP NTL)
 
-if(BIGNUM_BACKEND STREQUAL "GMP")
+if (BIGNUM_BACKEND STREQUAL "GMP")
 
     target_sources(numbers PRIVATE
         math/number/gmp/N.cpp
@@ -77,7 +77,7 @@ if(BIGNUM_BACKEND STREQUAL "GMP")
         BIGNUM_GMP
     )
 
-elseif(BIGNUM_BACKEND STREQUAL "NTL")
+elseif (BIGNUM_BACKEND STREQUAL "NTL")
 
     target_sources(numbers PRIVATE
         math/number/NTL/Z.cpp
@@ -88,13 +88,13 @@ elseif(BIGNUM_BACKEND STREQUAL "NTL")
         BIGNUM_NTL
     )
 
-else()
+else ()
 
-    message(FATAL_ERROR
+    message (FATAL_ERROR
         "BIGNUM_BACKEND must be GMP or NTL"
     )
 
-endif()
+endif ()
 
 target_sources (
   numbers
@@ -106,7 +106,7 @@ target_sources (
 
 )
 
-target_include_directories(numbers PUBLIC
+target_include_directories (numbers PUBLIC
     /home/stag/local/ntl/include
 )
 
@@ -120,11 +120,14 @@ target_link_libraries (
 
   Data::string
   Boost::boost
+  ctre
+
+  PRIVATE
+
   GMP::GMP
   PkgConfig::NTL
   rotella
   gmpxx
-  ctre
 )
 
 target_link_libraries (
@@ -192,7 +195,7 @@ install (FILES
 
 set (CPACK_PACKAGE_VENDOR "Daniel Krawisz")
 set (CPACK_PACKAGE_CONTACT "email@example.com")
-set (CPACK_PACKAGE_DESCRIPTION "WhatsOnChain API")
+set (CPACK_PACKAGE_DESCRIPTION "functional data structures")
 include (CPack)
 
 include(GNUInstallDirs)

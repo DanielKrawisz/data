@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ARITHMETIC_ARITHMETIC
-#define DATA_ARITHMETIC_ARITHMETIC
+#pragma once
 
 #include <data/sign.hpp>
 #include <data/norm.hpp>
@@ -572,5 +571,3 @@ namespace data::arithmetic {
         }
     }
 }
-
-#endif

@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ENCODING_READ
-#define DATA_ENCODING_READ
+#pragma once
 
 #include <data/encoding/base64.hpp>
 #include <data/concepts.hpp>
@@ -122,5 +121,3 @@ namespace data::encoding {
         return result;
     }
 }
-
-#endif

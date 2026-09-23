@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ABS
-#define DATA_ABS
+#pragma once
 
 #include <data/types.hpp>
 #include <data/ordered.hpp>
@@ -218,5 +217,3 @@ static_assert (!data::math::abs_unsigned<data::int64>);
 static_assert (!data::math::abs_and_negate_signed<data::uint64>);
 static_assert (!data::math::abs_and_negate_unsigned<data::uint64>);
 static_assert (!data::math::abs_unsigned<data::uint64>);
-
-#endif

@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_NTL_Z
-#define DATA_MATH_NUMBER_NTL_Z
+#pragma once
 
 #include <data/slice.hpp>
 #include <data/arithmetic/negativity.hpp>
@@ -243,6 +242,23 @@ namespace data::math::def {
 
     template <> struct invert_mod<Z, N> {
         N operator () (const Z &, const nonzero<N> &);
+    };
+
+    template <> struct GCD<N, Z> {
+        N operator () (const Z &, const Z &);
+        N operator () (const N &, const N &);
+    };
+
+    template <> struct GCD<Z, Z> {
+        Z operator () (const Z &, const Z &);
+    };
+
+    template <> struct divides<Z> {
+        bool operator () (const Z &a, const nonzero<Z> &b);
+    };
+
+    template <> struct divides<N> {
+        bool operator () (const N &a, const nonzero<N> &b);
     };
 
     template <> struct square_mod<N> {
@@ -987,6 +1003,22 @@ namespace data::math::def {
     Z inline square<Z>::operator () (const Z &z) {
         return Z (NTL::sqr (z.Value));
     }
+
+    N inline GCD<N, Z>::operator () (const Z &a, const Z &b) {
+        return N (NTL::GCD (a.Value, b.Value));
+    }
+
+    N inline GCD<N, Z>::operator () (const N &a, const N &b) {
+        return N (NTL::GCD (a.Value, b.Value));
+    }
+
+    bool inline divides<Z>::operator () (const Z &a, const nonzero<Z> &b) {
+        return NTL::divide (a.Value, b.Value.Value);
+    }
+
+    bool inline divides<N>::operator () (const N &a, const nonzero<N> &b) {
+        return NTL::divide (a.Value, b.Value.Value);
+    }
 }
 
 namespace data::encoding::decimal {
@@ -1309,8 +1341,3 @@ namespace data::math::number::NTL {
     }
 
 }
-
-static_assert (data::group_number<data::N>);
-static_assert (data::group_number<data::Z>);
-
-#endif

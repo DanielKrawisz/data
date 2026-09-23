@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_EXTENDED_EUCLIDIAN
-#define DATA_MATH_NUMBER_EXTENDED_EUCLIDIAN
+#pragma once
 
 #include <data/valid.hpp>
 #include <data/math/number/division.hpp>
@@ -52,7 +51,7 @@ namespace data::math::number::euclidian {
                 Div {d}, BezoutS {s}, BezoutT {t} {}
             
             constexpr sequence operator / (const sequence &s) const {
-                division<N> div = natural_divmod<N> (Div.Remainder, s.Div.Remainder);
+                division<N> div = data::divmod (Div.Remainder, math::nonzero {s.Div.Remainder});
                 return {div,
                     static_cast<Z> (BezoutS - s.BezoutS * div.Quotient),
                     static_cast<Z> (BezoutT - s.BezoutT * div.Quotient)};
@@ -84,7 +83,7 @@ namespace data::math::number {
     template <ring_number_signed Z, RingNumber N>
     constexpr auto natural_invert_mod (const Z &x, const nonzero<N> &mod) ->
         maybe<decltype (divmod (x, mod).Remainder)> {
-        if (mod.Value < 0) throw exception {} << "mod by negative number";
+        if (mod.Value == 0) throw division_by_zero {};
         using remainder_type = decltype (integer_divmod<number::EUCLIDIAN_ALWAYS_POSITIVE> (x, mod.Value).Remainder);
         auto proof = number::euclidian::extended<remainder_type, Z>::algorithm
             (remainder_type (mod.Value), integer_divmod<number::EUCLIDIAN_ALWAYS_POSITIVE> (x, mod.Value).Remainder);
@@ -93,6 +92,7 @@ namespace data::math::number {
     }
 }
 
+// default definition for invert mod and GCD.
 namespace data::math::def {
     template <typename Z, typename N>
     struct invert_mod {
@@ -100,13 +100,13 @@ namespace data::math::def {
             return number::natural_invert_mod<Z, N> (x, mod);
         }
     };
-}
 
-namespace data {
-    template <typename N, typename Z = N>
-    constexpr N inline GCD (const N &a, const N &b) {
-        return data::math::number::euclidian::extended<N, Z>::algorithm (a, b).GCD;
-    }
+    template <typename N, typename Z>
+    struct GCD {
+        constexpr N inline operator () (const N &a, const N &b) {
+            if (data::is_zero (a)) return data::abs (b);
+            if (data::is_zero (b)) return data::abs (a);
+            return number::euclidian::extended<N, Z>::algorithm (a, b).GCD;
+        }
+    };
 }
-
-#endif

@@ -3,8 +3,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ENCODING_INTEGER
-#define DATA_ENCODING_INTEGER
+#pragma once
 
 #include <ctre.hpp>
 
@@ -997,15 +996,9 @@ namespace data::math::number {
     
     template <hex_case cx> 
     size_t minimal_size (const hex::intBC<cx> &);
-    
-    template <hex_case cx> 
-    hex::uint<cx> extend (const hex::uint<cx> &, size_t);
-    
-    template <hex_case cx> 
-    hex::int2<cx> extend (const hex::int2<cx> &, size_t);
-    
-    template <hex_case cx> 
-    hex::intBC<cx> extend (const hex::intBC<cx> &, size_t);
+
+    template <negativity neg, hex_case zz>
+    hex::integer<neg, zz> extend (const hex::integer<neg, zz> &x, size_t size);
     
     template <hex_case cx> 
     hex::uint<cx> trim (const hex::uint<cx> &);
@@ -1610,10 +1603,10 @@ namespace data::encoding::signed_decimal {
 }
 
 namespace data::encoding::hexidecimal {
-    
+
     constexpr bool inline valid (string_view s) {
         return ctre::match<pattern> (s);
-    } 
+    }
     
     constexpr bool inline zero (string_view s) {
         return ctre::match<zero_pattern> (s);
@@ -2648,10 +2641,12 @@ namespace data::encoding::hexidecimal {
 namespace data::math::number {
     
     template <hex_case zz> hex::uint<zz> trim (const hex::uint<zz> &x) {
-        
-        if (!x.valid ()) throw exception {} << "cannot trim invalid hexidecimal string: " << x;
+
+        if (!x.valid ())
+            throw exception {} << "cannot trim invalid hexidecimal string: " << x;
         
         if (is_minimal (x)) return x;
+
         auto i = x.begin () + 2;
         while (i != x.end () && i[0] == '0' && i[1] == '0') i += 2;
         
@@ -2663,7 +2658,8 @@ namespace data::math::number {
     
     template <hex_case cx> hex::int2<cx> trim (const hex::int2<cx> &x) {
 
-        if (!x.valid ()) throw exception {} << "cannot trim invalid hexidecimal string: " << x;
+        if (!x.valid ())
+            throw exception {} << "cannot trim invalid hexidecimal string: " << x;
         
         size_t min_size = minimal_size (x);
         
@@ -2677,8 +2673,10 @@ namespace data::math::number {
     }
     
     template <hex_case cx> hex::intBC<cx> trim (const hex::intBC<cx> &x) {
-        
-        if (!x.valid ()) throw exception {} << "cannot trim invalid hexidecimal string: " << x;
+
+        if (!x.valid ())
+            throw exception {} << "cannot trim invalid hexidecimal string: " << x;
+
         if (is_minimal (x)) return x;
 
         hex::intBC<cx> n {};
@@ -2869,22 +2867,30 @@ namespace data::encoding::hexidecimal {
 
         }
         
-        // the out string will always be 2 characters longer than the other two. 
+        // Both inputs are treated as positive numbers.
         template <hex::letter_case zz>
-        void plus (string<zz> &out, const string<zz> &a, const string<zz> &b) {
+        string<zz> plus_hex (const string<zz> &a, const string<zz> &b) {
+            if (a.size () < b.size ()) return plus_hex (b, a);
+
+            // now a.size >= b.size ()
+
+            string<zz> out; // string will start out as "0x"
+            out.resize (a.size () + 2);
+
             auto characters = hex::characters (zz);
-            
             auto ai = a.rbegin ();
-            auto ae = a.rbegin () + a.size () - 2;
+            auto ae = a.rend () - 2;
             
             auto bi = b.rbegin ();
+            auto be = b.rend () - 2;
             
             auto oi = out.rbegin ();
-            auto oe = out.rbegin () + out.size () - 2;
+            auto oe = out.rend () - 2;
             
             int remainder = 0;
             
-            while (ai != ae) {
+            // add digit by digit
+            while (bi != be) {
                 auto d = int (digit (*ai)) + int (digit (*bi)) + remainder;
                 *oi = characters[d % 16];
                 remainder = d >> 4;
@@ -2893,12 +2899,23 @@ namespace data::encoding::hexidecimal {
                 bi++;
                 oi++;
             }
+
+            // in case a.size () > b.size ()
+            while (ai != ae) {
+                auto d = int (digit (*ai)) + remainder;
+                *oi = characters[d % 16];
+                remainder = d >> 4;
+                ai++;
+                oi++;
+            }
             
             while (oi != oe) {
                 *oi = characters[remainder % 16];
                 remainder = remainder >> 4;
                 oi++;
             }
+
+            return out;
         }
         
         // the out string will always be 2 characters longer than the other two. 
@@ -2907,12 +2924,12 @@ namespace data::encoding::hexidecimal {
             auto characters = hex::characters (zz);
             
             auto ai = a.rbegin ();
-            auto ae = a.rbegin () + a.size () - 2;
+            auto ae = a.rend () - 2;
             
             auto bi = b.rbegin ();
             
             auto oi = out.rbegin ();
-            auto oe = out.rbegin () + out.size () - 2;
+            auto oe = out.rend () - 2;
             
             int remainder = 0;
             
@@ -2995,18 +3012,14 @@ namespace data::encoding::hexidecimal {
             integer<negativity::nones, zz> operator () (
                 const integer<negativity::nones, zz> &a,
                 const integer<negativity::nones, zz> &b) {
-                if (a.size () < b.size ()) return add<negativity::nones, zz> {} (b, a);
-                integer<negativity::nones, zz> n {};
-                n.resize (a.size () + 2);
-                plus (n, a, math::number::extend (b, a.size ()));
-                return n;
+                return integer<negativity::nones, zz> {plus_hex (a, b)};
             }
         };
         
         template <hex::letter_case zz> 
         integer<negativity::nones, zz> minus (const integer<negativity::nones, zz> &a, const integer<negativity::nones, zz> &b) {
             if (b > a) return integer<negativity::nones, zz> {};
-            // these numbers are both trimmed, so we can expect that the size of b is less than that of a. 
+            // these numbers are both trimmed, so we can expect that the size of b is less than or equal to that of a.
             integer<negativity::nones, zz> n {};
             n.resize (a.size ());
             minus (n, a, math::number::extend (b, a.size ()));
@@ -3017,18 +3030,17 @@ namespace data::encoding::hexidecimal {
             integer<c, zz> operator () (
                 const integer<c, zz> &a, 
                 const integer<c, zz> &b) {
-
                 if (a.size () < b.size ()) return add<c, zz> {} (b, a);
                 
                 bool an = is_negative (a);
                 bool bn = is_negative (b);
                 
-                if (an && bn) return -add<c, zz> {} (-a, -b);
-                
-                integer<c, zz> n {};
-                n.resize (a.size () + 2);
+                if (an && bn)
+                    return -add<c, zz> {} (-a, -b);
                 
                 if (an || bn) {
+                    integer<c, zz> n {};
+                    n.resize (a.size () + 2);
                     auto ab = data::abs (a);
                     auto bb = data::abs (b);
                     
@@ -3059,9 +3071,9 @@ namespace data::encoding::hexidecimal {
                     }
                     
                 } 
-                
-                plus (n, a, math::number::extend (b, a.size ()));
-                return n;
+
+                // size of a is definitely >= size of b here.
+                return integer<c, zz> {plus_hex (a, b)};
             }
         };
         
@@ -3416,59 +3428,9 @@ namespace data::math::number {
                 encoding::hexidecimal::digit (x[4]) >= 8);
     }
     
-    template <hex_case zz>
-    hex::uint<zz> extend (const hex::uint<zz> &x, size_t size) {
-        if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
-        
-        if (size & 1 || size < 2) throw exception {} << "invalid size " << size;
-        
-        if (x.size () > size) {
-            auto minimal = minimal_size (x);
-            if (minimal > size) throw exception ("cannot extend below minimal size");
-            return extend (trim (x), size);
-        }
-        
-        hex::uint<zz> n;
-        n.resize (size);
-        auto i = n.begin () + 2;
-        for (int zeros = 0; zeros < size - x.size (); zeros ++) {
-            *i = '0';
-            i ++;
-        }
-        
-        std::copy (x.begin () + 2, x.end (), i);
-        return n;
-    }
-    
-    template <hex_case zz>
-    hex::int2<zz> extend (const hex::int2<zz> &x, size_t size) {
-        if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
-        
-        if (size & 1 || size < 2) throw exception {} << "invalid size " << size;
-        
-        if (x.size () > size) {
-            auto minimal = minimal_size (x);
-            if (minimal > size) throw exception ("cannot extend below minimal size");
-            return extend (trim (x), size);
-        }
-        
-        hex::uint<zz> n;
-        n.resize (size);
-        auto i = n.begin () + 2;
+    template <negativity neg, hex_case zz>
+    hex::integer<neg, zz> extend (const hex::integer<neg, zz> &x, size_t size) {
 
-        char fill = data::is_negative (x) ? (zz == hex_case::upper ? 'F' : 'f') : '0';
-
-        for (int zeros = 0; zeros < size - x.size (); zeros ++) {
-            *i = fill;
-            i ++;
-        }
-        
-        std::copy (x.begin () + 2, x.end (), i);
-        return n;
-    }
-    
-    template <hex_case zz>
-    hex::intBC<zz> extend (const hex::intBC<zz> &x, size_t size) {
         if (!x.valid ()) throw exception {} << "invalid hexidecimal string: " << x;
         
         if (size & 1 || size < 2) throw exception {} << "invalid size " << size;
@@ -3478,28 +3440,56 @@ namespace data::math::number {
             if (minimal > size) throw exception ("cannot extend below minimal size");
             return extend (trim (x), size);
         }
-        
+
         if (x.size () == size) return x;
-        
-        hex::intBC<zz> n;
-        n.resize (size);
-        auto i = n.begin () + 2;
-        for (int zeros = 0; zeros < size - x.size (); zeros ++) {
-            *i = '0';
-            i++;
-        }
-        
-        std::copy (x.begin () + 2, x.end (), i);
-        if (x.size () > 2 && size > 2) {
-            auto sign_digit = encoding::hexidecimal::digit (x[2]);
-            if (sign_digit >= 8) {
-                n[2] = '8';
-                n[2 + size - x.size ()] = encoding::hex::characters (zz)[sign_digit - 8];
+
+        if constexpr (neg == negativity::nones) {
+
+            hex::uint<zz> n;
+            n.resize (size);
+            auto i = n.begin () + 2;
+
+            for (int zeros = 0; zeros < size - x.size (); zeros ++) {
+                *i = '0';
+                i ++;
             }
+
+            std::copy (x.begin () + 2, x.end (), i);
+            return n;
+        } else if constexpr (neg == negativity::twos) {
+            hex::int2<zz> n;
+            n.resize (size);
+            auto i = n.begin () + 2;
+
+            char fill = data::is_negative (x) ? (zz == hex_case::upper ? 'F' : 'f') : '0';
+
+            for (int zeros = 0; zeros < size - x.size (); zeros ++) {
+                *i = fill;
+                i ++;
+            }
+
+            std::copy (x.begin () + 2, x.end (), i);
+            return n;
+        } else {
+            hex::intBC<zz> n;
+            n.resize (size);
+            auto i = n.begin () + 2;
+            for (int zeros = 0; zeros < size - x.size (); zeros ++) {
+                *i = '0';
+                i++;
+            }
+
+            std::copy (x.begin () + 2, x.end (), i);
+            if (x.size () > 2 && size > 2) {
+                auto sign_digit = encoding::hexidecimal::digit (x[2]);
+                if (sign_digit >= 8) {
+                    n[2] = '8';
+                    n[2 + size - x.size ()] = encoding::hex::characters (zz)[sign_digit - 8];
+                }
+            }
+
+            return n;
         }
-        
-        return n;
-        
     }
     
     template <hex_case zz>
@@ -3555,6 +3545,4 @@ namespace data::math::number {
         }
     }
 }
-
-#endif
 

@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_FACTOR
-#define DATA_MATH_NUMBER_FACTOR
+#pragma once
 
 #include <data/list.hpp>
 #include <data/math/number/division.hpp>
@@ -84,6 +83,4 @@ namespace data::math::number {
     }
 
 }
-
-#endif
 
