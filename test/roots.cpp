@@ -4,6 +4,8 @@
 
 #include <data/math.hpp>
 
+#include <data/math/number/NTL/roots.hpp>
+
 #include <gtest/gtest.h>
 
 namespace data {

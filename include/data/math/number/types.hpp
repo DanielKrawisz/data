@@ -1078,6 +1078,15 @@ namespace data::math::def {
         number::Z_bytes<r, c, word> operator () (const Z &) const;
     };
 
+    template <endian r, std::unsigned_integral word>
+    struct convert<number::N_bytes<r, word>, N> {
+        number::N_bytes<r, word> operator () (const N &) const;
+    };
+
+    template <endian r, std::unsigned_integral word>
+    struct convert<N, number::N_bytes<r, word>> {
+        N operator () (const number::N_bytes<r, word> &) const;
+    };
 }
 
 #endif

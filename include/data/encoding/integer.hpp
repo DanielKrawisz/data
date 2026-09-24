@@ -7,8 +7,7 @@
 
 #include <ctre.hpp>
 
-#include <boost/algorithm/hex.hpp>
-#include <boost/algorithm/string.hpp>
+#include <data/encoding/hex.hpp>
 
 #include <data/arithmetic/negativity.hpp>
 #include <data/math/number/bounded/bounded.hpp>

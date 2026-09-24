@@ -10,6 +10,11 @@
 #include <data/math/number/factor.hpp>
 #include <data/math/number/totient.hpp>
 #include <data/math/number/primitive_root.hpp>
+
+#include <data/math/number/NTL/random.hpp>
+#include <data/math/number/NTL/prime.hpp>
+#include <data/math/number/random.hpp>
+
 #include <data/tuple.hpp>
 
 #include <gtest/gtest.h>
@@ -242,6 +247,39 @@ namespace data {
 
     TYPED_TEST (TheoryNaturals, PrimitiveRoot) {
         EXPECT_EQ ((*math::number::primitive_root<N> (math::nonzero<N> {761}, e<N>)), N {6});
+    }
+
+    TYPED_TEST (TheoryNaturals, RandomPrimes) {
+        auto seed = *encoding::hex::read ("abcd1234");
+
+        auto source = NTL::generator {seed};
+
+        const size_t bits = 40;
+        const int rounds = 100;
+
+        N rn = math::number::generate_random<N> (source, bits);
+
+        EXPECT_EQ (rn, N {dec_int {"1086328581678"}});
+
+        EXPECT_FALSE (math::number::is_prime (source, rn, rounds));
+
+        // generate random prime
+        math::number::prime<N> rp = math::number::generate_random_prime<N> (source, bits, rounds);
+
+        EXPECT_EQ (rp.Value, N {dec_int {"977795739113"}});
+
+        EXPECT_TRUE (math::number::is_prime (source, rp.Value, rounds));
+
+        math::number::prime<N> np = math::number::next_prime (rp.Value + 1u, rounds);
+
+        EXPECT_EQ (np.Value, N {dec_int {"977795739127"}});
+
+        // generate safe prime
+        math::number::prime<N> rp_safe = math::number::generate_random_prime<N> (source, bits, rounds, true);
+
+        EXPECT_EQ (rp_safe.Value, N {dec_int {"888729816323"}});
+
+        EXPECT_TRUE (math::number::is_safe (source, rp_safe, rounds));
     }
 
     math::number::eratosthenes<uint32> e32 {};

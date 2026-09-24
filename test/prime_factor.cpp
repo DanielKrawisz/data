@@ -4,6 +4,7 @@
 
 #include <data/math/number/factor.hpp>
 #include <data/numbers.hpp>
+#include <data/math/number/NTL/prime.hpp>
 
 #include <gtest/gtest.h>
 
@@ -17,7 +18,7 @@ namespace data::math::number {
 
             static list<power<N, N>> read (factorization<N> f) {
                 list<power<N, N>> p;
-                for (const auto &x : f) p <<= power<N, N> {x.Base.Prime.Value, x.Exponent};
+                for (const auto &x : f) p <<= power<N, N> {x.Base.Value, x.Exponent};
                 return p;
             }
 

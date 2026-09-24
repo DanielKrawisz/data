@@ -2,7 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/math/number/NTL/Z.hpp>
+#include <data/math/number/NTL/prime.hpp>
+#include <data/math/number/NTL/roots.hpp>
 #include <rotella/akslib.h>
 
 #include <cstring>

@@ -61,40 +61,12 @@ target_link_libraries (
   Boost::log
 )
 
-set (BIGNUM_BACKEND "NTL" CACHE STRING "Big-number backend")
-set_property (CACHE BIGNUM_BACKEND PROPERTY STRINGS GMP NTL)
-
-if (BIGNUM_BACKEND STREQUAL "GMP")
-
-    target_sources(numbers PRIVATE
-        math/number/gmp/N.cpp
-        math/number/gmp/mpq.cpp
-        math/number/gmp/aks.cpp
-        math/number/gmp/sqrt.cpp
-    )
-
-    target_compile_definitions(numbers PUBLIC
-        BIGNUM_GMP
-    )
-
-elseif (BIGNUM_BACKEND STREQUAL "NTL")
-
-    target_sources(numbers PRIVATE
-        math/number/NTL/Z.cpp
-        math/number/NTL/GMP.cpp
-    )
-
-    target_compile_definitions(numbers PRIVATE
-        BIGNUM_NTL
-    )
-
-else ()
-
-    message (FATAL_ERROR
-        "BIGNUM_BACKEND must be GMP or NTL"
-    )
-
-endif ()
+target_sources(numbers PRIVATE
+  ../NTL/Z.cpp
+  ../NTL/random.cpp
+  math/number/NTL/Z.cpp
+  math/number/NTL/GMP.cpp
+)
 
 target_sources (
   numbers

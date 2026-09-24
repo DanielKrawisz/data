@@ -34,7 +34,7 @@ namespace data {
                 std::vector<byte> output (16);
 
                 EXPECT_THROW (
-                    math::number::NTL::export_bin (
+                    NTL::export_bin (
                         slice<byte> {output},
                         negative.Value,
                         word_order,
@@ -59,7 +59,7 @@ namespace data {
                 std::vector<byte> output (7);
 
                 EXPECT_THROW (
-                    math::number::NTL::export_bin(
+                    NTL::export_bin(
                         slice<byte> {output},
                         value.Value,
                         word_order,
@@ -88,7 +88,7 @@ namespace data {
 
             // Use uint8_t here so the word representation itself cannot
             // obscure what is being tested.
-            math::number::NTL::export_bin (
+            NTL::export_bin (
                 slice<byte> {output},
                 one.Value,
                 endian::little,
@@ -109,7 +109,7 @@ namespace data {
                 for (size_t size : {1u, 2u, 4u, 8u, 16u}) {
                     std::vector<byte> output (size, 0);
 
-                    math::number::NTL::export_bin (
+                    NTL::export_bin (
                         slice<byte> {output},
                         minus_one.Value,
                         word_order,
@@ -188,7 +188,7 @@ namespace data {
 
             compare_type encoded = compare_type::zero (words);
 
-            math::number::NTL::export_bin (
+            NTL::export_bin (
                 slice<W> {encoded},
                 z.Value,
                 word_order,
@@ -196,7 +196,7 @@ namespace data {
                 neg
             );
 
-            const NTL::ZZ recovered = math::number::NTL::import_bin (
+            const NTL::ZZ recovered = NTL::import_bin (
                 slice<const W> {encoded},
                 word_order,
                 byte_order,

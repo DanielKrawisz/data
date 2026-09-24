@@ -2,20 +2,6 @@
 #include <data/math/number/NTL/Z.hpp>
 #include <data/encoding/integer.hpp>
 
-namespace NTL {
-
-    void conv (ZZ &x, const data::encoding::signed_decimal::string &u) {
-        if (!u.valid ()) throw data::exception {} << "Invalid decimal string";
-        if (u[0] == '-') x = -conv<NTL::ZZ> (u.c_str () + 1);
-        else conv (x, u.c_str ());
-    }
-
-    void conv (ZZ &x, const data::encoding::base58::string &u) {
-        if (!u.valid ()) throw data::exception {} << "Invalid base58 string";
-        x = data::encoding::base58::decode<data::Z> (u)->Value;
-    }
-}
-
 namespace data::math::def {
     division<Z, N> divmod<Z, Z>::operator () (const Z &a, const nonzero<Z> &b) {
         if (b.Value == 0) throw math::division_by_zero {};

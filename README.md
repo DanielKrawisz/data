@@ -54,7 +54,7 @@ Current version is 0.1 beta.
 
 # Build instructions
 
-  * `cmale -B build -S .`
+  * `_PATH="$HOME/local/ntl/lib/pkgconfig" cmake -S . -B build     -G Ninja     -DCMAKE_CXX_COMPILER=/opt/gcc-16.2/bin/g++ -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_CXX_FLAGS=-fdiagnostics-color=always`
   * `cmake --build build`
   * `cmake --install build`
 
@@ -64,7 +64,7 @@ This library is an alpha product. This is what is planned for version 1.
   * functional RB map algorithms
     * remove
     * merge
-    * interction
+    * intersection
     * complements
   * list works more like Mathematica's List. 
     * inner
@@ -82,15 +82,3 @@ This library is an alpha product. This is what is planned for version 1.
     * Projective space
     * Hyperbolic space
     * infinite classes of compact Lie Groups (no exceptionals for now)
-  * Async: golang style channel
-  * crypto
-    * Better definitions of cryptographic algorithms, like hash functions, MACs, and block ciphers. 
-    * More block cipher modes
-    * Stream ciphers, including block cyphers as stream ciphers.
-    * Elliptic curves (SEC and other standard curves)
-    * Rabin, ElGamal, and RSA signatures. 
-  * networking
-    * websockets
-    * run external programs
-    * thread safe (multithreaded async lock)
-  * separate crypto and networking into separate libraries. 

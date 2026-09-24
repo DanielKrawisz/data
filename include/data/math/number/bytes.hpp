@@ -476,6 +476,16 @@ namespace data::math::def {
         return z.operator number::Z_bytes<r, c, word> ();
     }
 
+    template <endian r, std::unsigned_integral word>
+    number::N_bytes<r, word> inline convert<number::N_bytes<r, word>, N>::operator () (const N &n) const {
+        return n.operator number::N_bytes<r, word> ();
+    }
+
+    template <endian r, std::unsigned_integral word>
+    N inline convert<N, number::N_bytes<r, word>>::operator () (const number::N_bytes<r, word> &n) const {
+        return N (n);
+    }
+
     template <negativity c, hex_case zz>
     hex::integer<c, zz> inline times<hex::integer<c, zz>>::operator ()
     (const hex::integer<c, zz> &a, const hex::integer<c, zz> &b) {
