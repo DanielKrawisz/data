@@ -222,7 +222,7 @@ namespace data::math::number {
     writer<word> &operator << (writer<word> &o, const bounded<u, r, x, word> &n);
 
     template <bool u, data::endian r, size_t x, std::unsigned_integral word>
-    reader<word> &operator >> (reader<word> &o, const bounded<u, r, x, word> &n);
+    reader<word> &operator >> (reader<word> &o, bounded<u, r, x, word> &n);
 
     // increment and decrement.
     Z &operator ++ (Z &);

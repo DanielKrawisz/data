@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_DIVISION
-#define DATA_MATH_NUMBER_DIVISION
+#pragma once
 
 #include <data/increment.hpp>
 #include <data/arithmetic.hpp>
@@ -127,5 +126,3 @@ namespace data::math::number {
     }
 
 }
-
-#endif

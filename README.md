@@ -57,6 +57,18 @@ Current version is 0.1 beta.
   * `_PATH="$HOME/local/ntl/lib/pkgconfig" cmake -S . -B build     -G Ninja     -DCMAKE_CXX_COMPILER=/opt/gcc-16.2/bin/g++ -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_CXX_FLAGS=-fdiagnostics-color=always`
   * `cmake --build build`
   * `cmake --install build`
+  
+# Examples
+
+## Functional Programming 
+
+### Functional Data Structures 
+
+### Higher-Order Functions 
+
+## Numbers 
+
+### 
 
 # For version 1:
 

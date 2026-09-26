@@ -241,7 +241,7 @@ namespace NTL {
         if (!input_is_negative) {
             // switch to little endian.
             if (byte_order != data::endian::little && sizeof (U) > 1)
-                for (U &x : bytes) x = boost::endian::endian_reverse<U> (x);
+                for (U &x : bytes) x = std::byteswap (x);
 
             // from now on we are using little endian word and byte order.
             return ZZFromBytes (
@@ -251,7 +251,7 @@ namespace NTL {
 
         // first convert to native endian.
         if (byte_order != data::endian::native && sizeof (U) > 1)
-            for (U &x : bytes) x = boost::endian::endian_reverse<U> (x);
+            for (U &x : bytes) x = std::byteswap (x);
 
         // negate
         if (neg == data::negativity::twos) data::arithmetic::twos::negate<data::endian::little, U> (bytes);
@@ -259,7 +259,7 @@ namespace NTL {
 
         // switch to little endian
         if (data::endian::native != data::endian::little && sizeof (U) > 1)
-            for (U &x : bytes) x = boost::endian::endian_reverse<U> (x);
+            for (U &x : bytes) x = std::byteswap (x);
 
         auto zzz = ZZFromBytes (
             reinterpret_cast<const unsigned char *> (bytes.data ()),

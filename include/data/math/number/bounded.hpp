@@ -2,17 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_BOUNDED
-#define DATA_MATH_NUMBER_BOUNDED
+#pragma once
 
 #include <type_traits>
 #include <iterator>
 #include <data/math/number/bounded/bounded.hpp>
-#ifdef BIGNUM_GMP
-#include <data/math/number/gmp/Z.hpp>
-#else
-#include <data/math/number/NTL/Z.hpp>
-#endif
+#include <data/float.hpp>
 #include <data/math/number/extended_euclidian.hpp>
 #include <data/encoding/integer.hpp>
 #include <data/encoding/digits.hpp>
@@ -75,37 +70,15 @@ namespace data::math::number {
             else throw exception {} << "invalid integer string \"" << x << "\"";
         }
     }
-
-    template <bool u, endian r, size_t x, std::unsigned_integral word>
-    constexpr bounded<u, r, x, word> inline operator / (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
-        return def::divmod<bounded<u, r, x, word>> {} (a, nonzero<bounded<u, r, x, word>> {b}).Quotient;
-    }
-
-    template <bool u, endian r, size_t x, std::unsigned_integral word>
-    constexpr bounded<u, r, x, word> inline operator % (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
-        return data::mod<bounded<u, r, x, word>> (a, nonzero<bounded<u, r, x, word>> {b});
-    }
     
-    template <endian r, size_t x, std::unsigned_integral word>
-    constexpr uint64 inline operator % (const uint<r, x, word> &a, uint64 b) {
-        return uint64 (a % uint<r, x, word> (b));
-    }
-    
-    template <endian r, size_t x, std::unsigned_integral word>
-    constexpr uint64 inline operator % (const sint<r, x, word> &a, uint64 b) {
-        return uint64 (a % uint<r, x, word> (b));
-    }
-    
-    // TODO need N_bytes constructor that takes bounded.
     template <endian r, size_t size, std::unsigned_integral word>
     inline bounded<false, r, size, word>::operator double () const {
-        return double (N (N_bytes<r, word> (*this)));
+        return import_float<double> (slice<const word> (*this), r, endian::native, negativity::nones);
     }
     
-    // TODO need Z_bytes constructor that takes bounded.
     template <endian r, size_t size, std::unsigned_integral word>
     inline bounded<true, r, size, word>::operator double () const {
-        return double (Z (Z_bytes<r, negativity::twos, word> (*this)));
+        return import_float<double> (slice<const word> (*this), r, endian::native, negativity::twos);
     }
 
     template <endian r, size_t size, std::unsigned_integral word>
@@ -294,5 +267,3 @@ namespace data::math::number {
     template struct bounded<true, endian::little, 16, uint32>;
 
 }
-
-#endif

@@ -66,6 +66,7 @@ add_executable (
     bounded.cpp                  # TODO: should be typed test, has commented sections
     N_bytes.cpp
     Z_bytes.cpp
+    float.cpp
     NTL.cpp
     numbers.cpp                  # TODO: We have some typed test suites, but we need more.
     N.cpp

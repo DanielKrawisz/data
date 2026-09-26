@@ -736,6 +736,18 @@ namespace data {
             throw exception {} << "Try to write a uint with invalid flags";
         }
 
+        template <bool u, data::endian r, size_t x, std::unsigned_integral word>
+        writer<word> inline &operator << (writer<word> &o, const bounded<u, r, x, word> &n) {
+            o.write (n.data (), x);
+            return o;
+        }
+
+        template <bool u, data::endian r, size_t x, std::unsigned_integral word>
+        reader<word> inline &operator >> (reader<word> &o, bounded<u, r, x, word> &n) {
+            o.read (n.data (), x);
+            return o;
+        }
+
         template <bool u, endian r, size_t size, std::unsigned_integral word>
         constexpr bounded<u, r, size, word> inline operator ++ (bounded<u, r, size, word> &x, int) {
             bounded n = x;
@@ -2122,6 +2134,26 @@ namespace data {
                     acc_bits -= std::min (acc_bits, dst_bits);
                 }
             }
+        }
+
+        template <bool u, endian r, size_t x, std::unsigned_integral word>
+        constexpr bounded<u, r, x, word> inline operator / (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
+            return def::divmod<bounded<u, r, x, word>> {} (a, nonzero<bounded<u, r, x, word>> {b}).Quotient;
+        }
+
+        template <bool u, endian r, size_t x, std::unsigned_integral word>
+        constexpr bounded<u, r, x, word> inline operator % (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
+            return data::mod<bounded<u, r, x, word>> (a, nonzero<bounded<u, r, x, word>> {b});
+        }
+
+        template <endian r, size_t x, std::unsigned_integral word>
+        constexpr uint64 inline operator % (const uint<r, x, word> &a, uint64 b) {
+            return uint64 (a % uint<r, x, word> (b));
+        }
+
+        template <endian r, size_t x, std::unsigned_integral word>
+        constexpr uint64 inline operator % (const sint<r, x, word> &a, uint64 b) {
+            return uint64 (a % uint<r, x, word> (b));
         }
 
     }

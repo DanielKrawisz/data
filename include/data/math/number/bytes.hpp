@@ -2,14 +2,15 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_BYTES
-#define DATA_MATH_NUMBER_BYTES
+#pragma once
 
-#ifdef BIGNUM_GMP
-#include <data/math/number/gmp/Z.hpp>
-#else
+#include <data/math/number/bytes.hpp>
+#include <data/encoding/integer.hpp>
+
+// TODO we would like to remove this include eventually.
 #include <data/math/number/NTL/Z.hpp>
-#endif
+
+#include <data/float.hpp>
 
 #include <data/encoding/digits.hpp>
 
@@ -18,7 +19,7 @@
 // and put it here.
 
 namespace data::math::number {
-    
+
     template <endian r, std::unsigned_integral word>
     N_bytes<r, word> inline N_bytes<r, word>::read (string_view x) {
         if (!encoding::natural::valid (x))
@@ -94,17 +95,17 @@ namespace data::math::number {
     
     template <endian r, std::unsigned_integral word> inline
     N_bytes<r, word>::operator double () const {
-        return double (N (*this));
+        return import_float<double> (slice<const word> (*this), r, endian::native, negativity::nones);
     }
     
     template <endian r, std::unsigned_integral word> inline
     Z_bytes<r, negativity::twos, word>::operator double () const {
-        return double (Z (*this));
+        return import_float<double> (slice<const word> (*this), r, endian::native, negativity::twos);
     }
     
     template <endian r, std::unsigned_integral word> inline
     Z_bytes<r, negativity::BC, word>::operator double () const {
-        return double (Z (*this));
+        return import_float<double> (slice<const word> (*this), r, endian::native, negativity::BC);
     }
     
 }
@@ -116,10 +117,10 @@ namespace data::encoding::decimal {
         if (!valid (s)) return {};
         return {read_base<N_bytes<r, word>> (s, 10, digit)};
     }
-    
+
     template <endian::order r, std::unsigned_integral word>
-    string inline write (const math::N_bytes<r, word> &n) {
-        std::string x = write_base (N (n), characters ());
+    string write (const math::N_bytes<r, word> &n) {
+        std::string x = write_base (n, characters ());
         return x == "" ? string {"0"} : string {x};
     }
 }
@@ -211,13 +212,13 @@ namespace data::encoding::hexidecimal {
         
         template <endian::order r, negativity c>
         using bytes_type = get_bytes_type<r, c>::value;
-        
+
         using nat = math::number::N;
         
         template <hex::letter_case zz>
         inline nat read_num (const integer<negativity::nones, zz> &n) {
             return read_base<nat> (n.substr (2), 16, &digit);
-        } 
+        }
         
         template <typename N>
         std::string write_hexidecimal (const N &n) {
@@ -529,5 +530,3 @@ namespace data::math::def {
         return encoding::signed_decimal::write ((number::Z_bytes<endian::little, negativity::twos, byte> (x)));
     }
 }
-
-#endif

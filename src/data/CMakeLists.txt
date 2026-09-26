@@ -78,10 +78,6 @@ target_sources (
 
 )
 
-target_include_directories (numbers PUBLIC
-    /home/stag/local/ntl/include
-)
-
 target_compile_features (numbers PUBLIC cxx_std_23)
 set_target_properties (numbers PROPERTIES CXX_EXTENSIONS ON)
 
@@ -93,11 +89,11 @@ target_link_libraries (
   Data::string
   Boost::boost
   ctre
+  PkgConfig::NTL
 
   PRIVATE
 
   GMP::GMP
-  PkgConfig::NTL
   rotella
   gmpxx
 )
