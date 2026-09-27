@@ -757,6 +757,11 @@ namespace data::math::number {
         else return I (a % N (abs (b)));
     }
 
+    template <endian r, negativity c, std::unsigned_integral word>
+    bool inline operator == (const Z &a, const Z_bytes<r, c, word> &b) {
+        return a == Z (b);
+    }
+
 }
 
 namespace data::math::def {

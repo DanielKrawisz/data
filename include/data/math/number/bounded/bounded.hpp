@@ -1056,12 +1056,6 @@ namespace data {
 
     }
 
-    template <bool is_signed, endian r, size_t size, std::unsigned_integral word>
-    reader<word> inline &operator >> (reader<word> &rr, math::number::bounded<is_signed, r, size, word> &x) {
-        rr.read (x.data (), size);
-        return rr;
-    }
-
     namespace math::number {
 
         template <endian r, size_t x, std::unsigned_integral word>

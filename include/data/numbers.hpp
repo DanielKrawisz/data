@@ -2,23 +2,15 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_NUMBERS
-#define DATA_NUMBERS
+#pragma once
 
 // defines float32 and float64
 #include <data/float.hpp>
 
 #include <data/integral.hpp>
-#include <data/math/number/bytes/Z.hpp>
-#ifdef BIGNUM_GMP
-#include <data/math/number/gmp/Z.hpp>
-#include <data/math/number/gmp/aks.hpp>
-#include <data/encoding/base58.hpp>
-#else
 #include <data/math/number/NTL/Z.hpp>
-#endif
-#include <data/math/number/bytes.hpp>
 #include <data/math/number/bounded.hpp>
+#include <data/math/number/bytes.hpp>
 
 #include <algorithm>
 
@@ -205,5 +197,3 @@ namespace data::encoding::hexidecimal {
     template struct integer<negativity::BC, hex_case::lower>;
     template struct integer<negativity::BC, hex_case::upper>;
 }
-
-#endif
