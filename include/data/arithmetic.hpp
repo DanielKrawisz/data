@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ARITHMETIC
-#define DATA_ARITHMETIC
+#pragma once
 
 #include <data/types.hpp>
 #include <data/maybe.hpp>
@@ -1201,5 +1200,3 @@ namespace data::math::def {
         }
     };
 }
-
-#endif

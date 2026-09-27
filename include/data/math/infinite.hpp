@@ -8,7 +8,6 @@
 #include <data/either.hpp>
 #include <data/ordered.hpp>
 #include <data/sign.hpp>
-#include <iostream>
 
 namespace data::math {
     // attach infinite values to a type.

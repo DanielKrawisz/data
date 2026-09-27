@@ -1,5 +1,4 @@
-#ifndef DATA_TOOLS_POINTER_TREE_HPP
-#define DATA_TOOLS_POINTER_TREE_HPP
+#pragma once
 
 #include <data/tree.hpp>
 #include <data/list/linked_list.hpp>
@@ -55,5 +54,3 @@ namespace data {
     };
 
 }
-
-#endif

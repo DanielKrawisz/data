@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_HALVES
-#define DATA_HALVES
+#pragma once
 
 #include <type_traits>
 #include <concepts>
@@ -152,5 +151,3 @@ namespace data {
     };
     
 }
-
-#endif

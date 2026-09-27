@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_BYTES
-#define DATA_BYTES
+#pragma once
 
 #include <data/cross.hpp>
 #include <data/array.hpp>
@@ -167,6 +166,3 @@ namespace data::encoding::hex {
         return z;
     }
 }
-
-#endif
-

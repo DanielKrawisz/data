@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_ALGEBRA_FINITE_FIELD
-#define DATA_MATH_ALGEBRA_FINITE_FIELD
+#pragma once
 
 #include <data/math/number/prime.hpp>
 #include <data/math/number/modular.hpp>
@@ -130,6 +129,3 @@ namespace data::math {
         return *this * e.inverse ();
     }
 }
-
-#endif
-
