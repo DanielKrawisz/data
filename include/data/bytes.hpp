@@ -163,7 +163,7 @@ namespace data::encoding::hex {
         if ((this->size () / 2) % sizeof (word) != 0)
             throw invalid {} << ": invalid hex string size " << this->size () << " for word size " << sizeof (word);
         bytestring<word> z (this->size () / (sizeof (word) * 2));
-        decode (this->end (), this->begin (), z.data ());
+        decode (this->begin (), this->end (), z.data ());
         return z;
     }
 }

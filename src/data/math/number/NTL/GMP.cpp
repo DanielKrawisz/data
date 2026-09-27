@@ -12,23 +12,22 @@
 
 namespace data::math::number::NTL {
 
-    mpz_class to_mpz (const ZZ &x)
-    {
+    mpz_class to_mpz (const ZZ &x) {
         mpz_class result;
 
-        const long n = x.size();
+        const long n = x.size ();
 
         if (n != 0) {
-            mp_limb_t* p = mpz_limbs_write(result.get_mpz_t(), n);
+            mp_limb_t* p = mpz_limbs_write (result.get_mpz_t (), n);
 
-            std::memcpy(
+            std::memcpy (
                 p,
-                NTL::ZZ_limbs_get(x),
+                NTL::ZZ_limbs_get (x),
                 n * sizeof (mp_limb_t));
 
-            mpz_limbs_finish(
-                result.get_mpz_t(),
-                ::NTL::sign(x) < 0 ? -n : n
+            mpz_limbs_finish (
+                result.get_mpz_t (),
+                ::NTL::sign (x) < 0 ? -n : n
             );
         }
 
@@ -39,15 +38,15 @@ namespace data::math::number::NTL {
     {
         NTL::ZZ result;
 
-        const mp_size_t n = mpz_size(x.get_mpz_t());
+        const mp_size_t n = mpz_size (x.get_mpz_t ());
 
         if (n != 0) {
-            NTL::ZZ_limbs_set(
+            NTL::ZZ_limbs_set (
                 result,
                 mpz_limbs_read (x.get_mpz_t ()),
                 n);
 
-            if (mpz_sgn(x.get_mpz_t()) < 0)
+            if (mpz_sgn (x.get_mpz_t ()) < 0)
                 result = -result;
         }
 
@@ -63,7 +62,7 @@ namespace data::math::number::NTL {
         using R = std::invoke_result_t<F, const mpz_class &>;
 
         if constexpr (std::same_as<R, mpz_class>)
-            return to_ZZ (std::invoke(std::forward<F> (f), gx));
+            return to_ZZ (std::invoke (std::forward<F> (f), gx));
         else
             return std::invoke (std::forward<F> (f), gx);
     }

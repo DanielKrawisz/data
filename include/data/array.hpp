@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ARRAY
-#define DATA_ARRAY
+#pragma once
 
 #include <data/slice.hpp>
 #include <data/valid.hpp>
@@ -765,5 +764,3 @@ namespace data {
     }
 
 }
-
-#endif

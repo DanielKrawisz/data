@@ -23,15 +23,15 @@ namespace data::math::number {
                 // TODO it is possible that the number string is too big, but we won't know.
                 *this = encoding::read_base<bounded<false, r, size, word>> (x, 10, encoding::decimal::digit);
             else if (encoding::hexidecimal::valid (x) && x.size () == size * sizeof (word) * 2 + 2)
-                encoding::hex::decode (x.end (), x.begin () + 2, this->words ().rbegin ());
+                encoding::hex::decode (x.begin () + 2, x.end (), this->words ().rbegin ());
             else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
-                encoding::hex::decode (x.end (), x.begin (), this->begin ());
+                encoding::hex::decode (x.begin (), x.end (), this->begin ());
         } else {
             if (encoding::decimal::valid (x)) *this = bounded {N_bytes<r, word>::read (x)};
             else if (encoding::hexidecimal::valid (x) && x.size () == size * sizeof (word) * 2 + 2)
-                encoding::hex::decode (x.end (), x.begin () + 2, this->words ().rbegin ());
+                encoding::hex::decode (x.begin () + 2, x.end (), this->words ().rbegin ());
             else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
-                encoding::hex::decode (x.end (), x.begin (), this->begin ());
+                encoding::hex::decode (x.begin (), x.end (), this->begin ());
             else throw data::exception {} << "invalid natural string \"" << x << "\"";
         }
     }
@@ -54,9 +54,9 @@ namespace data::math::number {
                         encoding::read_base<bounded<false, r, size, word>> (x.substr (1), 10, encoding::decimal::digit));
                 }
             } else if (encoding::hexidecimal::valid (x) && x.size () == size * sizeof (word) * 2 + 2)
-                encoding::hex::decode (x.end (), x.begin () + 2, this->words ().rbegin ());
+                encoding::hex::decode (x.begin () + 2, x.end (), this->words ().rbegin ());
             else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
-                encoding::hex::decode (x.end (), x.begin (), this->begin ());
+                encoding::hex::decode (x.begin (), x.end (), this->begin ());
         } else {
             if (encoding::signed_decimal::valid (x)) {
                 auto zb = Z_bytes<r, negativity::twos, word>::read (x);
@@ -64,9 +64,9 @@ namespace data::math::number {
                 *this = bounded {zb};
             }
             else if (encoding::hexidecimal::valid (x) && x.size () == 2 * size * sizeof (word) + 2)
-                encoding::hex::decode (x.end (), x.begin () + 2, this->words ().rbegin ());
+                encoding::hex::decode (x.begin () + 2, x.end (), this->words ().rbegin ());
             else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
-                encoding::hex::decode (x.end (), x.begin (), this->begin ());
+                encoding::hex::decode (x.begin (), x.end (), this->begin ());
             else throw exception {} << "invalid integer string \"" << x << "\"";
         }
     }

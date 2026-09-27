@@ -126,17 +126,6 @@ endif ()
 # Dependencies
 # ---------------------------------------------------------
 
-# required for pretty much everything.
-find_package (Boost 1.88 COMPONENTS thread chrono log_setup log REQUIRED)
-# if we do not have boost
-#   * linux:
-#     * go to the boost website, download and extract the latest version.
-#     * `./bootstrap.sh`
-#     * `./b2`
-#     * `sudo ./b2 install`
-
-add_definitions ("-DHAS_BOOST")
-
 find_package (GMP REQUIRED)
 # if we do not have GMP
 #   * on linux, `sudo apt-get install libgmp3-dev`

@@ -9,8 +9,6 @@
 
 #include <ctre.hpp>
 
-#include <boost/algorithm/hex.hpp>
-
 #include <data/encoding/invalid.hpp>
 #include <data/maybe.hpp>
 #include <data/array.hpp>
@@ -74,12 +72,31 @@ namespace data::encoding::hex {
     std::ostream &write (std::ostream &o, range r, letter_case q = letter_case::lower) {
         return o << write (r, q);
     }
+
+    constexpr char to_char (unsigned x, letter_case q) {
+        return x < 10
+            ? char ('0' + x)
+            : char ((q == letter_case::lower ? 'a' : 'A') + x - 10);
+    }
+
+    template <std::input_iterator iti, std::sentinel_for<iti> sen, typename ito>
+    constexpr void encode (iti it, sen end, ito out, letter_case q = letter_case::lower) {
+        using word_type = unconst<unref<decltype (*it)>>;
+        constexpr size_t word_size = sizeof (word_type);
+
+        while (it != end) {
+            word_type value = *it++;
+
+            for (int i = word_size * 8 - 4; i >= 0; i -= 4) {
+                *out++ = to_char (static_cast<unsigned> ((value >> i) & word_type {0xf}), q);
+            }
+        }
+    }
     
     template <std::ranges::range range> 
-    string write (range r, letter_case q = letter_case::lower) {
+    string inline write (range r, letter_case q = letter_case::lower) {
         string output ((r.end () - r.begin ()) * sizeof (decltype (*r.begin ())));
-        if (q == letter_case::upper) boost::algorithm::hex (r.begin (), r.end (), output.begin ());
-        else boost::algorithm::hex_lower (r.begin (), r.end (), output.begin ());
+        encode (r.begin (), r.end (), output.begin (), q);
         return output;
     }
     
@@ -108,8 +125,7 @@ namespace data::encoding::hex {
     template <endian::order o, size_t x>
     fixed<x> write (endian::integral<false, o, x> n, letter_case q) {
         fixed<x> output;
-        if (q == letter_case::upper) boost::algorithm::hex (n.begin (), n.end (), output.begin ());
-        else boost::algorithm::hex_lower (n.begin (), n.end (), output.begin ());
+        encode (n.begin (), n.end (), output.begin (), q);
         return output;
     }
 
@@ -124,10 +140,8 @@ namespace data::encoding::hex {
         throw invalid {} << "; bad character " << c << " (" << (int64 (c)) << ")";
     }
 
-    // first is the end iterator, then its corresponding input iterator and finally the output iterator.
-    template <typename sen, std::input_iterator iti, typename ito>
-    requires std::sentinel_for<sen, iti>
-    constexpr void decode (sen end, iti it, ito out) {
+    template <std::input_iterator iti, std::sentinel_for<iti> sen, typename ito>
+    constexpr void decode (iti it, sen end, ito out) {
         using word_type = unconst<unref<decltype (*out)>>;
         constexpr const size_t word_size = sizeof (word_type);
         while (it != end) {
@@ -149,7 +163,7 @@ namespace data::encoding::hex {
     template <size_t n> fixed<n>::operator byte_array<n> () const {
         if (!this->valid ()) throw invalid {} << ": " << *this;
         byte_array<n> T;
-        encoding::hex::decode (this->end (), this->begin (), T.data ());
+        encoding::hex::decode (this->begin (), this->end (), T.data ());
         return T;
     }
     

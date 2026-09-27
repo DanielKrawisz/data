@@ -2822,13 +2822,12 @@ namespace data::encoding::hexidecimal {
             std::vector<byte> a_d ((out.size () - 2) >> 1);
             std::vector<byte> b_d ((out.size () - 2) >> 1);
             
-            encoding::hex::decode (a.end (), a.begin () + 2, a_d.begin ());
-            encoding::hex::decode (b.end (), b.begin () + 2, b_d.begin ());
+            encoding::hex::decode (a.begin () + 2, a.end (), a_d.begin ());
+            encoding::hex::decode (b.begin () + 2, b.end (), b_d.begin ());
             
             arithmetic::bit_and<byte> (out_d.begin (), out_d.end (), a_d.begin (), b_d.begin ());
-            
-            if (zz == hex_case::lower) boost::algorithm::hex_lower (out_d.begin (), out_d.end (), out.begin () + 2);
-            else boost::algorithm::hex (out_d.begin (), out_d.end (), out.begin () + 2);
+
+            encoding::hex::encode (out_d.begin (), out_d.end (), out.begin () + 2, zz);
 
         }
         
@@ -2839,13 +2838,12 @@ namespace data::encoding::hexidecimal {
             std::vector<byte> a_d ((out.size () - 2) >> 1);
             std::vector<byte> b_d ((out.size () - 2) >> 1);
             
-            encoding::hex::decode (a.end (), a.begin () + 2, a_d.begin ());
-            encoding::hex::decode (b.end (), b.begin () + 2, b_d.begin ());
+            encoding::hex::decode (a.begin () + 2, a.end (), a_d.begin ());
+            encoding::hex::decode (b.begin () + 2, b.end (), b_d.begin ());
             
             arithmetic::bit_or<byte> (out_d.begin (), out_d.end (), a_d.begin (), b_d.begin ());
-            
-            if (zz == hex_case::lower) boost::algorithm::hex_lower (out_d.begin (), out_d.end (), out.begin() + 2);
-            else boost::algorithm::hex (out_d.begin (), out_d.end (), out.begin () + 2);
+
+            encoding::hex::encode (out_d.begin (), out_d.end (), out.begin () + 2, zz);
 
         }
         
@@ -2856,13 +2854,12 @@ namespace data::encoding::hexidecimal {
             std::vector<byte> a_d ((out.size () - 2) >> 1);
             std::vector<byte> b_d ((out.size () - 2) >> 1);
             
-            encoding::hex::decode (a.end (), a.begin () + 2, a_d.begin ());
-            encoding::hex::decode (b.end (), b.begin () + 2, b_d.begin ());
+            encoding::hex::decode (a.begin () + 2, a.end (), a_d.begin ());
+            encoding::hex::decode (b.begin () + 2, b.end (), b_d.begin ());
             
             arithmetic::bit_xor<byte> (out_d.begin (), out_d.end (), a_d.begin (), b_d.begin ());
             
-            if (zz == hex_case::lower) boost::algorithm::hex_lower (out_d.begin (), out_d.end (), out.begin () + 2);
-            else boost::algorithm::hex (out_d.begin (), out_d.end (), out.begin () + 2);
+            encoding::hex::encode (out_d.begin (), out_d.end (), out.begin () + 2, zz);
 
         }
         

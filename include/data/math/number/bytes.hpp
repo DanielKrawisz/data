@@ -190,14 +190,14 @@ namespace data::encoding::hexidecimal {
     template <negativity n, hex::letter_case cx>
     template <endian::order e> inline complemented_string<n, cx>::operator math::number::Z_bytes<e, n, byte> () const {
         auto result = math::number::Z_bytes<e, n, byte>::zero (this->size () / 2 - 1);
-        hex::decode (this->end (), this->begin () + 2, result.words ().rbegin ());
+        hex::decode (this->begin () + 2, this->end (), result.words ().rbegin ());
         return result;
     }
 
     template <hex::letter_case cx>
     template <endian::order e> inline complemented_string<negativity::nones, cx>::operator math::number::N_bytes<e, byte> () const {
         auto result = math::number::N_bytes<e, byte>::zero (this->size () / 2 - 1);
-        hex::decode (this->end (), this->begin () + 2, result.words ().rbegin ());
+        hex::decode (this->begin () + 2, this->end (), result.words ().rbegin ());
         return result;
     }
     

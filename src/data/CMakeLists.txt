@@ -55,13 +55,10 @@ target_link_libraries (
   PUBLIC
 
   Data::core
-  Boost::boost
   ctre
-  Boost::log_setup
-  Boost::log
 )
 
-target_sources(numbers PRIVATE
+target_sources (numbers PRIVATE
   ../NTL/Z.cpp
   ../NTL/random.cpp
   math/number/NTL/Z.cpp
@@ -87,7 +84,6 @@ target_link_libraries (
   PUBLIC
 
   Data::string
-  Boost::boost
   ctre
   PkgConfig::NTL
 
