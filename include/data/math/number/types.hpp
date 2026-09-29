@@ -2,12 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_TYPES
-#define DATA_MATH_NUMBER_TYPES
+#pragma once
 
-#include <data/arithmetic.hpp>
-#include <data/encoding/endian.hpp>
 #include <data/arithmetic/negativity.hpp>
+#include <data/arithmetic.hpp>
+#include <data/encoding/hex.hpp>
+#include <data/encoding/endian.hpp>
 #include <data/math/power.hpp>
 
 // Basic number types.
@@ -139,23 +139,21 @@ namespace data::encoding::signed_decimal {
 namespace data::encoding::hexidecimal {
     constexpr bool valid (string_view s);
 
-    template <hex_case zz> struct string;
-
-    template <negativity, hex_case> struct integer;
-
-    template <hex_case zz> integer<negativity::nones, zz> write (const N &);
-    template <hex_case zz, negativity n = negativity::twos> integer<n, zz> write (const Z &);
-
     std::ostream &write (std::ostream &, const N &, hex_case = hex_case::lower);
     std::ostream &write (std::ostream &, const Z &, hex_case = hex_case::lower, negativity = negativity::twos);
 
     template <hex_case zz> struct string;
+
+    template <negativity, hex_case> struct integer;
 
     template <hex_case zz, endian::order r, std::unsigned_integral word>
     integer<negativity::nones, zz> write (const math::number::N_bytes<r, word> &);
 
     template <hex_case zz, endian::order r, negativity n, std::unsigned_integral word>
     integer<n, zz> write (const math::number::Z_bytes<r, n, word> &);
+
+    template <hex_case zz> integer<negativity::nones, zz> write (const N &);
+    template <hex_case zz, negativity n = negativity::twos> integer<n, zz> write (const Z &);
 
 }
 
@@ -333,9 +331,23 @@ namespace data::math::number {
     };
 }
 
-// signed versus unsigned.
-namespace data {
+namespace data::hex {
+    template <hex_case zz> using uint = encoding::hexidecimal::integer<negativity::nones, zz>;
+    template <hex_case zz> using int2 = encoding::hexidecimal::integer<negativity::twos, zz>;
+    template <hex_case zz> using intBC = encoding::hexidecimal::integer<negativity::BC, zz>;
+    template <negativity c, hex_case zz> using integer = encoding::hexidecimal::integer<c, zz>;
+}
 
+namespace data {
+    using dec_uint = encoding::decimal::string;
+    using dec_int = encoding::signed_decimal::string;
+
+    template <hex_case zz>
+    struct make_signed<hex::intBC<zz>> {
+        using type = hex::intBC<zz>;
+    };
+
+    // signed versus unsigned.
     template <endian r, size_t x, std::unsigned_integral word>
     struct make_unsigned<math::uint<r, x, word>> {
         using type = math::uint<r, x, word>;
@@ -366,6 +378,9 @@ namespace data {
 
     template <endian a, negativity nb, endian c, negativity nd, std::unsigned_integral word>
     bool identical (const math::number::Z_bytes<a, nb, word> &, const math::number::Z_bytes<c, nd, word> &);
+
+    template<negativity a, hex_case b, negativity c, hex_case d>
+    bool identical (const hex::integer<a, b> &, const hex::integer<c, d> &);
 
 }
 
@@ -1073,9 +1088,51 @@ namespace data::math::def {
         N operator () (const Z &x, const Exp &y, const nonzero<N> &z);
     };
 
+    // conversions
+    template <std::integral I> struct convert<N, I> {
+        N operator () (I) const;
+    };
+
+    template <std::integral I> struct convert<Z, I> {
+        Z operator () (I) const;
+    };
+
+    template <std::integral I> struct convert<I, N> {
+        I operator () (const N &) const;
+    };
+
+    template <std::integral I> struct convert<I, Z> {
+        I operator () (const Z &) const;
+    };
+
+    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+    struct convert<N, boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
+        N operator () (const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &) const;
+    };
+
+    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+    struct convert<Z, boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
+        Z operator () (const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &) const;
+    };
+
+    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+    struct convert<boost::endian::endian_arithmetic<Order, T, n_bits, Align>, N> {
+        boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (const N &) const;
+    };
+
+    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+    struct convert<boost::endian::endian_arithmetic<Order, T, n_bits, Align>, Z> {
+        boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (const Z &) const;
+    };
+
     template <endian r, negativity c, std::unsigned_integral word>
     struct convert<number::Z_bytes<r, c, word>, Z> {
         number::Z_bytes<r, c, word> operator () (const Z &) const;
+    };
+
+    template <endian r, negativity c, std::unsigned_integral word>
+    struct convert<Z, number::Z_bytes<r, c, word>> {
+        Z operator () (const number::Z_bytes<r, c, word> &) const;
     };
 
     template <endian r, std::unsigned_integral word>
@@ -1087,6 +1144,44 @@ namespace data::math::def {
     struct convert<N, number::N_bytes<r, word>> {
         N operator () (const number::N_bytes<r, word> &) const;
     };
-}
 
-#endif
+    template <bool is_signed, endian r, size_t size, std::unsigned_integral word>
+    struct convert<number::bounded<is_signed, r, size, word>, Z> {
+        number::bounded<is_signed, r, size, word> operator () (const Z &) const;
+    };
+
+    template <bool is_signed, endian r, size_t size, std::unsigned_integral word>
+    struct convert<Z, number::bounded<is_signed, r, size, word>> {
+        Z operator () (const number::bounded<is_signed, r, size, word> &) const;
+    };
+
+    template <bool is_signed, endian r, size_t size, std::unsigned_integral word>
+    struct convert<number::bounded<is_signed, r, size, word>, N> {
+        number::bounded<is_signed, r, size, word> operator () (const N &) const;
+    };
+
+    template <bool is_signed, endian r, size_t size, std::unsigned_integral word>
+    struct convert<N, number::bounded<is_signed, r, size, word>> {
+        N operator () (const number::bounded<is_signed, r, size, word> &) const;
+    };
+
+    template <> struct convert<N, dec_uint> {
+        N operator () (const dec_uint &) const;
+    };
+
+    template <hex_case zz> struct convert<N, hex::uint<zz>> {
+        N operator () (const hex::uint<zz> &) const;
+    };
+
+    template <> struct convert<Z, dec_int> {
+        Z operator () (const dec_int &) const;
+    };
+
+    template <hex_case zz> struct convert<Z, hex::int2<zz>> {
+        Z operator () (const hex::int2<zz> &) const;
+    };
+
+    template <hex_case zz> struct convert<Z, hex::intBC<zz>> {
+        Z operator () (const hex::intBC<zz> &) const;
+    };
+}

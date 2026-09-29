@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <data/numbers.hpp>
+#include <data/math.hpp>
 
 #include <data/math/power.hpp>
 #include <data/math/number/eratosthenes.hpp>
@@ -132,6 +132,46 @@ namespace data {
         EXPECT_EQ (LCM (N {-2}, N {3}), N {6});
         EXPECT_EQ (LCM (N {2}, N {-4}), N {4});
         EXPECT_EQ (LCM (N {-4}, N {6}), N {12});
+    }
+
+    TYPED_TEST (TheoryNaturals, Sqrt) {
+        using N = typename TestFixture::number;
+
+        EXPECT_EQ (sqrt (N {0}), (set<N> {N {0}}));
+        EXPECT_EQ (sqrt (N {1}), (set<N> {N {1}}));
+        EXPECT_EQ (sqrt (N {2}), (set<N> {}));
+        EXPECT_EQ (sqrt (N {3}), (set<N> {}));
+        EXPECT_EQ (sqrt (N {4}), (set<N> {N {2}}));
+        EXPECT_EQ (sqrt (N {9}), (set<N> {N {3}}));
+        EXPECT_EQ (sqrt (N {16}), (set<N> {N {4}}));
+    }
+
+    TYPED_TEST (TheoryIntegers, Sqrt) {
+        using N = typename TestFixture::number;
+
+        EXPECT_EQ (sqrt (N {-1}), (set<N> {}));
+        EXPECT_EQ (sqrt (N {-4}), (set<N> {}));
+        EXPECT_EQ (sqrt (N {-16}), (set<N> {}));
+
+        EXPECT_EQ (sqrt (N {0}), (set<N> {N {0}}));
+        EXPECT_EQ (sqrt (N {1}), (set<N> {N {1}, N {-1}}));
+        EXPECT_EQ (sqrt (N {2}), (set<N> {}));
+        EXPECT_EQ (sqrt (N {3}), (set<N> {}));
+        EXPECT_EQ (sqrt (N {4}), (set<N> {N {2}, N {-2}}));
+        EXPECT_EQ (sqrt (N {9}), (set<N> {N {3}, N {-3}}));
+    }
+
+    TYPED_TEST (TheoryNaturals, SqrtMod) {
+        using N = typename TestFixture::number;
+
+        EXPECT_EQ (sqrt_mod (N {0}, N {2}), (set<N> {N {0}}));
+        EXPECT_EQ (sqrt_mod (N {1}, N {2}), (set<N> {N {1}}));
+
+        EXPECT_EQ (sqrt_mod (N {0}, N {7}), (set<N> {N {0}}));
+        EXPECT_EQ (sqrt_mod (N {1}, N {7}), (set<N> {N {1}, N {6}}));
+        EXPECT_EQ (sqrt_mod (N {2}, N {7}), (set<N> {N {3}, N {4}}));
+        EXPECT_EQ (sqrt_mod (N {4}, N {7}), (set<N> {N {2}, N {5}}));
+        EXPECT_EQ (sqrt_mod (N {6}, N {7}), (set<N> {}));
     }
 
     template <typename N> void power_mod_test_case (N mod, N base, N exp, N expected) {

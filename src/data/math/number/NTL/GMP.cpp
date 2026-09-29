@@ -94,7 +94,7 @@ namespace data::math::number::NTL {
     set<Z> roots (const Z &n, uint64 p) {
         if (p == 0) return n == 1 ? set<Z> {n} : set<Z> {};
 
-        if (p == 1 || n == 0 || n == 1) return set<Z> {n};
+        if (p == 1 || n == 0) return set<Z> {n};
 
         if (p % 2 == 0) {
             if (n < 0) return set<Z> {};

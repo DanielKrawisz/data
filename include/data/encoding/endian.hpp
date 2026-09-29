@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ENDIAN
-#define DATA_ENDIAN
+#pragma once
 
 #include <boost/endian.hpp>
 
@@ -455,6 +454,3 @@ namespace data {
     typedef endian_integral<false, endian::little, 7>  uint56_little;
     typedef endian_integral<false, endian::little, 8>  uint64_little;
 }
-
-#endif
-

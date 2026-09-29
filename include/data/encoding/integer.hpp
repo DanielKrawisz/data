@@ -677,27 +677,6 @@ namespace data::encoding {
     }
 }
 
-namespace data::hex {
-    template <hex_case zz> using uint = encoding::hexidecimal::integer<negativity::nones, zz>;
-    template <hex_case zz> using int2 = encoding::hexidecimal::integer<negativity::twos, zz>;
-    template <hex_case zz> using intBC = encoding::hexidecimal::integer<negativity::BC, zz>;
-    template <negativity c, hex_case zz> using integer = encoding::hexidecimal::integer<c, zz>;
-}
-
-namespace data {
-    using dec_uint = encoding::decimal::string;
-    using dec_int = encoding::signed_decimal::string;
-
-    template<negativity a, hex_case b, negativity c, hex_case d>
-    bool identical (const hex::integer<a, b> &, const hex::integer<c, d> &);
-
-    template <hex_case zz>
-    struct make_signed<hex::intBC<zz>> {
-        using type = hex::intBC<zz>;
-    };
-    
-}
-
 namespace data::math::def {
 
     template <> struct sign<dec_uint> {

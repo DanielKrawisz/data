@@ -403,6 +403,11 @@ namespace data {
             long int, long unsigned int, long long int, long long unsigned int> (dec_int {"1"});
 
         test_builtin_conversions<
+            char, signed char, unsigned char,
+            short int, short unsigned int, int, unsigned int,
+            long int, long unsigned int, long long int, long long unsigned int> (dec_int {"2"});
+
+        test_builtin_conversions<
             signed char, short int, int, long int, long long int> (dec_int {"-1"});
 
         test_builtin_conversions<

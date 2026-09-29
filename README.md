@@ -60,15 +60,49 @@ Current version is 0.1 beta.
   
 # Examples
 
+## Basic Utils
+
+### Logical types
+
+### Infinite Limits
+
 ## Functional Programming 
 
 ### Functional Data Structures 
 
 ### Higher-Order Functions 
 
+## Combinatorics
+
+### Figurate Numbers
+
+### Permutations
+
+### Iterating over Permutations, subsets, etc
+
+## Linear Algebra
+
+### constexpr arrays
+
 ## Numbers 
 
-### 
+### Fixed-width Integral types
+
+### N and Z
+
+### N_bytes and Z_bytes
+
+### String number types
+
+## Algebra
+
+### Rational 
+
+### Modular
+
+### Cayley Dickson 
+
+### Polynomials
 
 # For version 1:
 

@@ -1,6 +1,7 @@
 
 #include <data/math/number/NTL/Z.hpp>
 #include <data/encoding/integer.hpp>
+#include <data/math/number/NTL/roots.hpp>
 
 namespace data::math::def {
     division<Z, N> divmod<Z, Z>::operator () (const Z &a, const nonzero<Z> &b) {
@@ -190,3 +191,42 @@ namespace data::encoding::hexidecimal {
     }
 }
 
+namespace data::math::number::NTL {
+
+    set<N> sqrt_mod (const N &x, const N &mod) {
+        return sqrt_mod (Z (x), mod);
+    }
+
+    set<N> sqrt_mod (const Z &x, const N &mod) {
+        if (x > mod || is_negative (x))
+            return {};
+
+        if (mod == 2) {
+            set<N> r;
+            if (x.Value == 0 || x.Value == 1)
+                r = insert (r, N (x.Value));
+            return r;
+        }
+
+        if (NTL::ProbPrime (mod.Value) == 0)
+            throw exception {} << "can only sqrt mod against a probable prime";
+
+        if (x == 0) return {data::abs (x)};
+
+        if (Jacobi (x.Value, mod.Value) != 1) return {};
+
+        ZZ r = SqrRootMod (x.Value, mod.Value);
+
+        set<N> result;
+        result = insert (result, N (r));
+
+        if (r != 0) {
+            ZZ other = mod.Value - r;
+            if (other != r)
+                result = insert (result, N (other));
+        }
+
+        return result;
+    }
+
+}

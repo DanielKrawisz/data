@@ -549,6 +549,23 @@ namespace data::math::number {
     Z_bytes<r, negativity::twos, word> inline operator & (I x, const N_bytes<r, word> &u) {
         return Z_bytes<r, negativity::twos, word> {x} & Z_bytes<r, negativity::twos, word> {u};
     }
+
+    template <endian r, std::unsigned_integral word>
+    inline Z_bytes<r, negativity::twos, word>::operator N_bytes<r, word> () const {
+        N_bytes<r, word> n;
+        n.resize (this->size ());
+        std::copy (this->begin (), this->end (), n.begin ());
+        return n;
+    }
+
+    // for little endian, these are an implementation of bitcoin numbers.
+    template <endian r, std::unsigned_integral word>
+    inline Z_bytes<r, negativity::BC, word>::operator N_bytes<r, word> () const {
+        N_bytes<r, word> n;
+        n.resize (this->size ());
+        std::copy (this->begin (), this->end (), n.begin ());
+        return n;
+    }
     
 }
 

@@ -18,8 +18,8 @@ namespace data::math::number {
 
         template <std::integral I> Z (I u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
-        template <bool is_signed, endian r, std::size_t size>
-        Z (endian_integral<is_signed, r, size> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
+        template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+        Z (boost::endian::endian_arithmetic<Order, T, n_bits, Align> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
         static Z read (string_view x);
 
@@ -33,11 +33,8 @@ namespace data::math::number {
         template <endian r, std::unsigned_integral word>
         explicit Z (const N_bytes<r, word> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
-        template <endian r, size_t size, std::unsigned_integral word>
-        explicit Z (const bounded<true, r, size, word> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
-
-        template <endian r, size_t size, std::unsigned_integral word>
-        explicit Z (const bounded<false, r, size, word> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
+        template <bool is_signed, endian r, size_t size, std::unsigned_integral word>
+        explicit Z (const bounded<is_signed, r, size, word> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
         template <std::integral I>
         explicit operator I () const {
@@ -52,12 +49,20 @@ namespace data::math::number {
             return NTL::conv<dec_int> (Value);
         }
 
+        template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+        explicit Z (const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &x): Value {NTL::conv<NTL::ZZ> (x)} {}
+
+        template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+        explicit operator boost::endian::endian_arithmetic<Order, T, n_bits, Align> () const {
+            return NTL::conv<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> (Value);
+        }
+
         // TODO get rid of these operators and make them constructors.
         template <endian r, negativity c, std::unsigned_integral word>
         explicit operator Z_bytes<r, c, word> () const;
 
-        template <endian r, size_t size, std::unsigned_integral word>
-        explicit operator bounded<true, r, size, word> () const;
+        template <bool is_signed, endian r, size_t size, std::unsigned_integral word>
+        explicit operator bounded<is_signed, r, size, word> () const;
 
         template <hex_case zz> explicit operator hex::int2<zz> () const {
             return encoding::hexidecimal::write<zz> (Z_bytes<endian::little, negativity::twos, byte> (*this));
@@ -103,8 +108,10 @@ namespace data::math::number {
         template <endian r, std::unsigned_integral word>
         explicit N (const N_bytes<r, word> &n) : Value {NTL::conv<NTL::ZZ> (n)} {}
 
-        template <endian r, size_t size, std::unsigned_integral word>
-        explicit N (const bounded<false, r, size, word> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
+        template <bool is_signed, endian r, size_t size, std::unsigned_integral word>
+        explicit N (const bounded<is_signed, r, size, word> &u): Value {NTL::conv<NTL::ZZ> (u)} {
+            if (Value < 0) throw exception {} << "cannot instantiate N with negative number " << Value;
+        }
 
         operator Z () const {
             return Z (Value);
@@ -135,6 +142,14 @@ namespace data::math::number {
             if constexpr (n == negativity::nones)
                 return encoding::hexidecimal::write<zz> (N_bytes<endian::little, byte> (*this));
             else return encoding::hexidecimal::write<zz> (Z_bytes<endian::little, n, byte> (*this));
+        }
+
+        template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+        explicit N (const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &x): Value {NTL::conv<NTL::ZZ> (x)} {}
+
+        template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+        explicit operator boost::endian::endian_arithmetic<Order, T, n_bits, Align> () const {
+            return NTL::conv<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> (Value);
         }
 
         template <endian r, std::unsigned_integral word>
@@ -463,14 +478,14 @@ namespace data::math::number {
         return z;
     }
 
-    template <endian r, size_t size, std::unsigned_integral word>
-    inline Z::operator bounded<true, r, size, word> () const {
-        return NTL::conv<bounded<true, r, size, word>> (this->Value);
+    template <bool is_signed, endian r, size_t size, std::unsigned_integral word>
+    inline Z::operator bounded<is_signed, r, size, word> () const {
+        return NTL::conv<bounded<is_signed, r, size, word>> (Value);
     }
 
     template <bool u, endian r, size_t size, std::unsigned_integral word>
     inline N::operator bounded<u, r, size, word> () const {
-        return NTL::conv<bounded<u, r, size, word>> (this->Value);
+        return NTL::conv<bounded<u, r, size, word>> (Value);
     }
 
     template <endian r, negativity c, std::unsigned_integral word>
@@ -478,10 +493,10 @@ namespace data::math::number {
 
         constexpr size_t bits = sizeof (word) * 8;
 
-        size_t size = is_zero (*this) ? 0 : (NTL::bit_width (this->Value) + bits - 1) / bits;
+        size_t size = is_zero (*this) ? 0 : (NTL::bit_width (Value) + bits - 1) / bits;
 
         if constexpr (c == negativity::BC) {
-            if (NTL::sign (this->Value) < 0 &&
+            if (NTL::sign (Value) < 0 &&
                 NTL::NumBits (NTL::abs (this->Value)) == size * bits)
                 ++size;
         }
@@ -870,6 +885,102 @@ namespace data::math::def {
 
     bool inline divides<N>::operator () (const N &a, const nonzero<N> &b) {
         return NTL::divide (a.Value, b.Value.Value);
+    }
+
+    template <std::integral I>
+    N inline convert<N, I>::operator () (I u) const {
+        return N (u);
+    }
+
+    template <std::integral I>
+    Z inline convert<Z, I>::operator () (I i) const {
+        return Z (i);
+    }
+
+    template <std::integral I>
+    I inline convert<I, N>::operator () (const N &n) const {
+        return I (n);
+    }
+
+    template <std::integral I>
+    I inline convert<I, Z>::operator () (const Z &n) const {
+        return I (n);
+    }
+
+    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+    N inline convert<N, boost::endian::endian_arithmetic<Order, T, n_bits, Align>>::operator ()
+    (const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &u) const {
+        return N (u);
+    }
+
+    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+    Z inline convert<Z, boost::endian::endian_arithmetic<Order, T, n_bits, Align>>::operator ()
+    (const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &i) const {
+        return Z (i);
+    }
+
+    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+    boost::endian::endian_arithmetic<Order, T, n_bits, Align> inline
+    convert<boost::endian::endian_arithmetic<Order, T, n_bits, Align>, N>::operator () (const N &n) const {
+        return boost::endian::endian_arithmetic<Order, T, n_bits, Align> (n);
+    }
+
+    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+    boost::endian::endian_arithmetic<Order, T, n_bits, Align> inline
+    convert<boost::endian::endian_arithmetic<Order, T, n_bits, Align>, Z>::operator () (const Z &n) const {
+        return boost::endian::endian_arithmetic<Order, T, n_bits, Align> (n);
+    }
+
+    template <endian r, negativity c, std::unsigned_integral word>
+    Z inline convert<Z, number::Z_bytes<r, c, word>>::operator () (const number::Z_bytes<r, c, word> &z) const {
+        return Z (z);
+    }
+
+    template <bool is_signed, endian r, size_t size, std::unsigned_integral word>
+    number::bounded<is_signed, r, size, word> inline
+    convert<number::bounded<is_signed, r, size, word>, Z>::operator () (const Z &z) const {
+        return number::bounded<is_signed, r, size, word> (z);
+    }
+
+    template <bool is_signed, endian r, size_t size, std::unsigned_integral word>
+    Z inline convert<Z, number::bounded<is_signed, r, size, word>>::operator ()
+    (const number::bounded<is_signed, r, size, word> &n) const {
+        return Z (n);
+    }
+
+    template <bool is_signed, endian r, size_t size, std::unsigned_integral word>
+    number::bounded<is_signed, r, size, word> inline
+    convert<number::bounded<is_signed, r, size, word>, N>::operator () (const N &n) const {
+        return number::bounded<is_signed, r, size, word> (n);
+    }
+
+    template <bool is_signed, endian r, size_t size, std::unsigned_integral word>
+    N inline convert<N, number::bounded<is_signed, r, size, word>>::operator ()
+    (const number::bounded<is_signed, r, size, word> &n) const {
+        return N (n);
+    }
+
+    N inline convert<N, dec_uint>::operator () (const dec_uint &u) const {
+        return N (u);
+    }
+
+    template <hex_case zz>
+    N inline convert<N, hex::uint<zz>>::operator () (const hex::uint<zz> &u) const {
+        return N (u);
+    }
+
+    Z inline convert<Z, dec_int>::operator () (const dec_int &u) const {
+        return Z (u);
+    }
+
+    template <hex_case zz>
+    Z inline convert<Z, hex::int2<zz>>::operator () (const hex::int2<zz> &u) const {
+        return Z (u);
+    }
+
+    template <hex_case zz>
+    Z inline convert<Z, hex::intBC<zz>>::operator () (const hex::intBC<zz> &u) const {
+        return Z (u);
     }
 }
 

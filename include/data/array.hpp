@@ -101,6 +101,9 @@ namespace data {
             std::copy (x.begin (), x.end (), this->begin ());
         }
 
+        // size of vector must be equal to Size
+        array (std::vector<X> &&);
+
         // make an array filled with a particular value.
         constexpr static array filled (const X &x);
 

@@ -21,9 +21,6 @@ namespace NTL {
 
     template <std::unsigned_integral I> void conv (ZZ &, const I &);
 
-    template <bool is_signed, data::endian r, std::size_t size>
-    void conv (ZZ &, const data::endian_integral<is_signed, r, size> &);
-
     void conv (ZZ &x, const data::encoding::decimal::string &);
 
     void conv (ZZ &x, const data::encoding::signed_decimal::string &);
@@ -55,8 +52,11 @@ namespace NTL {
     template <bool is_signed, data::endian r, std::size_t size, std::unsigned_integral word>
     void conv (data::math::number::bounded<is_signed, r, size, word> &, const ZZ &);
 
-    template <bool is_signed, data::endian r, std::size_t size>
-    void conv (data::endian_integral<is_signed, r, size> &, const ZZ &);
+    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+    void conv (ZZ &, const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &);
+
+    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+    void conv (boost::endian::endian_arithmetic<Order, T, n_bits, Align> &, const ZZ &);
 
     template <std::unsigned_integral U>
     ZZ import_bin (
@@ -123,13 +123,6 @@ namespace NTL {
             is_signed ? data::negativity::twos : data::negativity::nones);
     }
 
-    template <bool is_signed, data::endian r, std::size_t size>
-    void inline conv (ZZ &x, const data::endian_integral<is_signed, r, size> &u) {
-        x = import_bin<data::byte> (
-            data::slice<const data::byte> (u), r, data::endian::native,
-            is_signed ? data::negativity::twos : data::negativity::nones);
-    }
-
     void inline conv (ZZ &x, const data::encoding::decimal::string &u) {
         conv (x, u.c_str ());
     }
@@ -172,10 +165,20 @@ namespace NTL {
             is_signed ? data::negativity::twos : data::negativity::nones);
     }
 
-    template <bool is_signed, data::endian r, std::size_t size>
-    void inline conv (data::endian_integral<is_signed, r, size> &x, const ZZ &u) {
-        export_bin<data::byte> (data::slice<data::byte> (x), u, r, data::endian::native,
-            is_signed ? data::negativity::twos : data::negativity::nones);
+    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+    void inline conv (ZZ &x, const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &u) {
+        x = import_bin<data::byte> (
+            data::slice<const data::byte> (u),
+            Order,
+            data::endian::native, // this value doesn't matter since we're using bytes
+            std::signed_integral<T> ? data::negativity::twos : data::negativity::nones);
+    }
+
+    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+    void inline conv (boost::endian::endian_arithmetic<Order, T, n_bits, Align> &x, const ZZ &u) {
+        export_bin<data::byte> (data::slice<data::byte> (x), u, Order,
+            data::endian::native, // this value doesn't matter since we're using bytes
+            std::signed_integral<T> ? data::negativity::twos : data::negativity::nones);
     }
 
     template <std::unsigned_integral U>
