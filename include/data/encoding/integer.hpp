@@ -1577,6 +1577,10 @@ namespace data::encoding::signed_decimal {
     string inline operator ~ (const string &x) {
         return math::arithmetic_bit_invert_twos (x);
     }
+
+    string inline operator * (const decimal::string &n, const string &x) {
+        return string {n} * x;
+    }
     
 }
 
@@ -2613,6 +2617,11 @@ namespace data::encoding::hexidecimal {
                 return std::tolower (n);
             });
         return j;
+    }
+
+    template <hex::letter_case cx>
+    integer<negativity::twos, cx> inline operator * (const integer<negativity::nones, cx> &n, const integer<negativity::twos, cx> &x) {
+        return integer<negativity::twos, cx> {n} * x;
     }
 }
 

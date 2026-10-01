@@ -51,32 +51,43 @@ namespace data {
     static_assert (Integer<long int>);
 
     static_assert (Natural<N>);
-    static_assert (number_system<Z, N>);
-
     static_assert (Integer<Z>);
+    static_assert (NumberSystem<Z, N>);
 
     static_assert (Natural<N_bytes_little>);
     static_assert (Natural<N_bytes_big>);
 
-    static_assert (number_system<Z_bytes_little, N_bytes_little>);
-    static_assert (number_system<Z_bytes_big, N_bytes_big>);
+    static_assert (NumberSystem<Z_bytes_little, N_bytes_little>);
+    static_assert (NumberSystem<Z_bytes_big, N_bytes_big>);
 
     static_assert (Integer<Z_bytes_BC_little>);
     static_assert (Integer<Z_bytes_BC_big>);
-    static_assert (number_system<Z_bytes_BC_little>);
-    static_assert (number_system<Z_bytes_BC_big>);
+    static_assert (NumberSystem<Z_bytes_BC_little>);
+    static_assert (NumberSystem<Z_bytes_BC_big>);
 
     static_assert (Natural<dec_uint>);
-    static_assert (number_system<dec_int, dec_uint>);
+    static_assert (NumberSystem<dec_int, dec_uint>);
 
     static_assert (Natural<hex_uint>);
-    static_assert (number_system<hex_int, hex_uint>);
+    static_assert (NumberSystem<hex_int, hex_uint>);
 
     // TODO put these back in
-    //static_assert (Integer<hex_int_BC>);
-    //static_assert (number_system<hex_int_BC>);
+    static_assert (Integer<hex_int_BC>);
+    static_assert (NumberSystem<hex_int_BC>);
 
     static_assert (Natural<base58_uint>);
+
+    template <> struct twice<int64> {
+        using type = int128;
+    };
+
+    template <> struct twice<int64_little> {
+        using type = int128_little;
+    };
+
+    template <> struct twice<int64_big> {
+        using type = int128_big ;
+    };
 
 }
 

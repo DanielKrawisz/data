@@ -6,7 +6,6 @@
 
 #include <type_traits>
 #include <concepts>
-#include <data/encoding/endian.hpp>
 
 namespace data::encoding {
     template <std::size_t S> struct int_by_size;

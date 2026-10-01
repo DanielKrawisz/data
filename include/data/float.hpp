@@ -305,7 +305,7 @@ namespace data {
     }
 
     template <std::floating_point F, std::unsigned_integral U>
-    F import_float (
+    constexpr F import_float (
         slice<const U> x,
         endian word_order,
         endian byte_order,

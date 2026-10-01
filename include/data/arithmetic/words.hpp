@@ -2,14 +2,14 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ARITHMETIC_WORDS
-#define DATA_ARITHMETIC_WORDS
+#pragma once
 
 #include <iterator>
 #include <limits>
 #include <type_traits>
 #include <sstream>
 #include <data/slice.hpp>
+#include <data/encoding/endian.hpp>
 #include <data/arithmetic/arithmetic.hpp>
 #include <data/tools/index_iterator.hpp>
 #include <data/exception.hpp>
@@ -435,5 +435,3 @@ namespace data::arithmetic {
             std::reverse_iterator {Data.begin ()}, x, fill);
     }
 }
-
-#endif

@@ -620,22 +620,26 @@ namespace data {
             // Implicitly convert from a smaller or equal size signed number
             template <endian o, size_t u, std::unsigned_integral w>
             requires (u * sizeof (w) <= size * sizeof (word))
-            bounded (const bounded<true, o, u, w> &);
+            constexpr bounded (const bounded<true, o, u, w> &);
 
             // Implicitly convert from a smaller unsigned number
             template <endian o, size_t u, std::unsigned_integral w>
             requires (u * sizeof (w) < size * sizeof (word))
-            bounded (const bounded<false, o, u, w> &);
+            constexpr bounded (const bounded<false, o, u, w> &);
 
             // Explicitly convert from a greater size signed number.
             template <endian o, size_t u, std::unsigned_integral w>
             requires (u * sizeof (w) > size * sizeof (word))
-            explicit bounded (const bounded<true, o, u, w> &);
+            constexpr explicit bounded (const bounded<true, o, u, w> &);
 
             // Explicitly convert from an equal or greater size unsigned number.
             template <endian o, size_t u, std::unsigned_integral w>
             requires (u * sizeof (w) >= size * sizeof (word))
-            explicit bounded (const bounded<false, o, u, w> &);
+            constexpr explicit bounded (const bounded<false, o, u, w> &);
+
+            template <class T, std::size_t n_bits>
+            requires (n_bits / 8 <= size * sizeof (word)) && std::signed_integral<T>
+            constexpr bounded (const boost::endian::endian_arithmetic<r, T, n_bits, boost::endian::align::no> &);
 
         };
     }
@@ -1581,6 +1585,26 @@ namespace data {
             }
         }
 
+        template <bool u, endian r, size_t x, std::unsigned_integral word>
+        constexpr bounded<u, r, x, word> inline operator / (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
+            return def::divmod<bounded<u, r, x, word>> {} (a, nonzero<bounded<u, r, x, word>> {b}).Quotient;
+        }
+
+        template <bool u, endian r, size_t x, std::unsigned_integral word>
+        constexpr bounded<u, r, x, word> inline operator % (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
+            return data::mod<bounded<u, r, x, word>> (a, nonzero<bounded<u, r, x, word>> {b});
+        }
+
+        template <endian r, size_t x, std::unsigned_integral word>
+        constexpr uint64 inline operator % (const uint<r, x, word> &a, uint64 b) {
+            return uint64 (a % uint<r, x, word> (b));
+        }
+
+        template <endian r, size_t x, std::unsigned_integral word>
+        constexpr uint64 inline operator % (const sint<r, x, word> &a, uint64 b) {
+            return uint64 (a % uint<r, x, word> (b));
+        }
+
         template <endian r, size_t size, std::unsigned_integral word,
         endian o, negativity neg, std::unsigned_integral w>
         std::weak_ordering inline operator <=> (const uint<r, size, word> &a, const Z_bytes<o, neg, w> &b) {
@@ -1869,7 +1893,7 @@ namespace data {
         template <endian r, size_t size, std::unsigned_integral word>
         template <endian o, size_t u, std::unsigned_integral w>
         requires (u * sizeof (w) <= size * sizeof (word))
-        bounded<true, r, size, word>::bounded (const bounded<true, o, u, w> &n): bounded {} {
+        constexpr bounded<true, r, size, word>::bounded (const bounded<true, o, u, w> &n): bounded {} {
 
             if constexpr (sizeof (w) == sizeof (word)) {
                 std::copy (n.words ().begin (),
@@ -1952,7 +1976,7 @@ namespace data {
         template <endian r, size_t size, std::unsigned_integral word>
         template <endian o, size_t u, std::unsigned_integral w>
         requires (u * sizeof (w) < size * sizeof (word))
-        bounded<true, r, size, word>::bounded (const bounded<false, o, u, w> &n): bounded {} {
+        constexpr bounded<true, r, size, word>::bounded (const bounded<false, o, u, w> &n): bounded {} {
             if constexpr (sizeof (w) == sizeof (word)) {
                 std::copy (n.words().begin (),
                     n.words ().end (),
@@ -2012,7 +2036,7 @@ namespace data {
         template <endian r, size_t size, std::unsigned_integral word>
         template <endian o, size_t u, std::unsigned_integral w>
         requires (u * sizeof (w) > size * sizeof (word))
-        bounded<true, r, size, word>::bounded (const bounded<true, o, u, w> &n): bounded {} {
+        constexpr bounded<true, r, size, word>::bounded (const bounded<true, o, u, w> &n): bounded {} {
 
             if constexpr (sizeof (w) == sizeof (word)) {
                 std::copy (n.words ().begin (),
@@ -2028,19 +2052,24 @@ namespace data {
                 auto src_end = n.words ().end ();
                 auto dst = this->words ().begin ();
 
-                word acc = 0;
-                size_t acc_bits = 0;
-
+                // keep going until we get to the end of the destination,
+                // which is bigger than the source.
                 while (dst != this->words ().end ()) {
+                    // make a word out of dst.
+                    word acc = 0;
+                    // how many bits we have read into acc.
+                    size_t acc_bits = 0;
+
+                    // read bits from source until
+                    // we have read in a full word.
                     while (acc_bits < dst_bits && src != src_end) {
                         acc |= (word (*src) << acc_bits);
                         acc_bits += src_bits;
                         ++src;
                     }
 
+                    // put our word into the destination
                     *dst++ = acc;
-                    acc >>= dst_bits;
-                    acc_bits -= std::min (acc_bits, dst_bits);
                 }
 
             } else {
@@ -2073,7 +2102,7 @@ namespace data {
         template <endian r, size_t size, std::unsigned_integral word>
         template <endian o, size_t u, std::unsigned_integral w>
         requires (u * sizeof (w) >= size * sizeof (word))
-        bounded<true, r, size, word>::bounded (const bounded<false, o, u, w> &n): bounded {} {
+        constexpr bounded<true, r, size, word>::bounded (const bounded<false, o, u, w> &n): bounded {} {
 
             if constexpr (sizeof (w) == sizeof (word)) {
                 std::copy (n.words ().begin (),
@@ -2130,24 +2159,28 @@ namespace data {
             }
         }
 
-        template <bool u, endian r, size_t x, std::unsigned_integral word>
-        constexpr bounded<u, r, x, word> inline operator / (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
-            return def::divmod<bounded<u, r, x, word>> {} (a, nonzero<bounded<u, r, x, word>> {b}).Quotient;
-        }
+        template <endian r, size_t size, std::unsigned_integral word>
+        template <class T, std::size_t n_bits>
+        requires (n_bits / 8 <= size * sizeof (word)) && std::signed_integral<T>
+        constexpr bounded<true, r, size, word>::bounded (const boost::endian::endian_arithmetic<r, T, n_bits, boost::endian::align::no> &n): bounded {is_negative (T (n)) ? -1 : 0} {
 
-        template <bool u, endian r, size_t x, std::unsigned_integral word>
-        constexpr bounded<u, r, x, word> inline operator % (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
-            return data::mod<bounded<u, r, x, word>> (a, nonzero<bounded<u, r, x, word>> {b});
-        }
+            if (n == 0 || n == -1) return;
 
-        template <endian r, size_t x, std::unsigned_integral word>
-        constexpr uint64 inline operator % (const uint<r, x, word> &a, uint64 b) {
-            return uint64 (a % uint<r, x, word> (b));
-        }
+            if constexpr (sizeof (T) <= sizeof (word))
+                this->words ().begin () = static_cast<word> (T (n));
+            else if constexpr (sizeof (word) == 1)
+                std::copy (n.begin (), n.end (), this->words ().begin ());
+            else {
+                T src = T (n);
+                auto dst = this->words ().begin ();
 
-        template <endian r, size_t x, std::unsigned_integral word>
-        constexpr uint64 inline operator % (const sint<r, x, word> &a, uint64 b) {
-            return uint64 (a % uint<r, x, word> (b));
+                while (true) {
+                    *dst = static_cast<word> (src);
+                    if (src == 0 || src == -1) return;
+                    src >>= (sizeof (word) * 8);
+                    dst++;
+                }
+            }
         }
 
     }

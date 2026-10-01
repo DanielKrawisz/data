@@ -46,10 +46,11 @@ namespace data {
     // This is not normally allowed by GMP.
 /*
     static_assert (has_numeric_limits<N>);
-    static_assert (has_numeric_limits<Z>);
     static_assert (has_numeric_limits<N_bytes_big>);
-    static_assert (has_numeric_limits<Z_bytes_big>);
     static_assert (has_numeric_limits<N_bytes_little>);
+
+    static_assert (has_numeric_limits<Z>);
+    static_assert (has_numeric_limits<Z_bytes_big>);
     static_assert (has_numeric_limits<Z_bytes_little>);
     static_assert (has_numeric_limits<Z_bytes_BC_big>);
     static_assert (has_numeric_limits<Z_bytes_BC_little>);

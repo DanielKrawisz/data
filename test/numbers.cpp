@@ -4,6 +4,7 @@
 
 #include <data/concepts.hpp>
 #include <data/numbers.hpp>
+#include <data/math/fraction.hpp>
 
 #include "gtest/gtest.h"
 
@@ -227,6 +228,7 @@ namespace data {
             { is_negative (a) } -> Same<bool>;
             { is_zero (a) } -> Same<bool>;
             { square (a) } -> ImplicitlyConvertible<NN>;
+            { abs (a) };
         } && requires (const NN &a, const NN &b) {
             { a + b } -> ImplicitlyConvertible<NN>;
             { a - b } -> ImplicitlyConvertible<NN>;
@@ -264,13 +266,34 @@ namespace data {
         basic_arithmetic_big_signed<NN> &&
         basic_arithmetic_big_unsigned<NN>;
 
-    template <typename N> concept basic_number =
-        proto_number<N> && basic_arithmetic<N> &&
+    // TODO integral domain should be uncommented.
+    template <typename N> concept basic_number = WholeNumber<N> && //math::integral_domain<N> &&
+        proto_number<N> && basic_arithmetic<N> && !math::field<N> &&
         requires (const N &a) {
             requires Same<decltype (abs (a)), decltype (quadrance (a))>;
             { math::re (a) } -> Same<N>;
+            { floor (a) } -> Same<N>;
+            { ceiling (a) } -> Same<N>;
+            { round (a) } -> Same<N>;
+            { is_whole (a) } -> ImplicitlyConvertible<bool>;
+            { numerator (a) } -> ImplicitlyConvertible<N>;
+            { denominator (a) } -> ImplicitlyConvertible<N>;
+            { frac (a) } -> ImplicitlyConvertible<N>;
         } && requires (const N &a, const N &b) {
             { math::inner (a, b) } -> ImplicitlyConvertible<N>;
+        };
+
+    template <typename ZZ, typename NN = ZZ> concept modable =
+        requires (const ZZ &a, const NN &b) {
+            { a % b } -> ImplicitlyConvertible<NN>;
+        } && requires (const ZZ &a, const math::nonzero<NN> &b) {
+            { mod (a, b) } -> ImplicitlyConvertible<NN>;
+            { negate_mod (a, b) } -> ImplicitlyConvertible<NN>;
+        } && requires (const ZZ &a, const ZZ &b, const math::nonzero<NN> &c) {
+            { plus_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
+            { minus_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
+            { times_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
+            { pow_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
         };
 
     template <typename N> concept basic_number_big_unsigned =
@@ -320,21 +343,6 @@ namespace data {
     static_assert (basic_number_big<dec_int>);
     static_assert (basic_number_big<hex_int>);
     static_assert (basic_number_big<hex_int_BC>);
-
-    // a number does not necessarily have mod operations because
-    // it may require an unsigned version of that number.
-    template <typename ZZ, typename NN = ZZ> concept modable =
-        requires (const ZZ &a, const NN &b) {
-            { a % b } -> ImplicitlyConvertible<NN>;
-        } && requires (const ZZ &a, const math::nonzero<NN> &b) {
-            { mod (a, b) } -> ImplicitlyConvertible<NN>;
-            { negate_mod (a, b) } -> ImplicitlyConvertible<NN>;
-        } && requires (const ZZ &a, const ZZ &b, const math::nonzero<NN> &c) {
-            { plus_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
-            { minus_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
-            { times_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
-            { pow_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
-        };
 
     // numbers that are homo modable (can be modded with itself) are
     //   * built-in-like numbers
@@ -386,11 +394,17 @@ namespace data {
         math::homo_abs_and_negate<NN> && homo_modable<NN> &&
         bit_negate_arithmetic<NN>;
 
+    template <typename Z> concept fractionable =
+        requires (const Z &z, const Z &n) {
+            { math::over (z, z) };
+        };
+
     // for number types that resemble built in types, we enforce
     // the non-intuitive rule that when you add signed and unsigned
     // versions together, you get the unsigned version.
     // TODO need to say how divide works.
     template <typename NN, typename ZZ> concept integral_number_system =
+        fractionable<ZZ> &&
         IntegralSystem<ZZ, NN> &&
         integral_number<NN> && integral_number<ZZ> &&
         comparable_to<NN, ZZ> && Unsigned<NN> && Signed<ZZ> &&
@@ -426,6 +440,8 @@ namespace data {
     // that the result of adding a signed and unsigned number
     // will be signed, etc.
     template <typename N, typename Z> concept pure_number_system =
+        NumberSystem<Z, N> &&
+        fractionable<Z> &&
         natural_number<N> && basic_number<Z> &&
         Unsigned<N> && Signed<Z> &&
         math::hetero_abs_and_negate<N, Z> && modable<Z, N> &&
@@ -655,6 +671,25 @@ namespace data {
         EXPECT_EQ (Z (0x00f0) ^ Z (0x000f), Z (0x00ff));
         EXPECT_EQ (Z (0x00aa) ^ Z (0x00cc), Z (0x0066));
         EXPECT_EQ (Z (0x001234) ^ Z (0x000ff0), Z (0x001dc4));
+    }
+
+    TYPED_TEST (Numbers, TrivialFunctions) {
+        using Z = typename TestFixture::N;
+        EXPECT_EQ (math::re (Z (0)), Z (0));
+        EXPECT_EQ (round (Z (0)), Z (0));
+        EXPECT_EQ (floor (Z (0)), Z (0));
+        EXPECT_EQ (ceiling (Z (0)), Z (0));
+        EXPECT_EQ (numerator (Z (0)), Z (0));
+        EXPECT_TRUE (is_whole (Z (0)));
+        EXPECT_EQ (denominator (Z (0)), Z (1));
+
+        EXPECT_EQ (math::re (Z (1)), Z (1));
+        EXPECT_EQ (round (Z (1)), Z (1));
+        EXPECT_EQ (floor (Z (1)), Z (1));
+        EXPECT_EQ (ceiling (Z (1)), Z (1));
+        EXPECT_EQ (numerator (Z (1)), Z (1));
+        EXPECT_TRUE (is_whole (Z (1)));
+        EXPECT_EQ (denominator (Z (1)), Z (1));
     }
 
     template <typename X> struct IntegersTwos : ::testing::Test {

@@ -48,6 +48,14 @@ namespace data {
     template <typename A, typename ...C> requires Same<A, C...>
     constexpr auto LCM (const A &, const A &, C &&...x);
 
+    template <typename A> constexpr auto floor (const A &);
+    template <typename A> constexpr auto ceiling (const A &);
+    template <typename A> constexpr auto round (const A &);
+    template <typename A> constexpr auto is_whole (const A &);
+    template <typename A> constexpr auto numerator (const A &);
+    template <typename A> constexpr auto denominator (const A &);
+    template <typename A> constexpr auto frac (const A &);
+
     // modular arithmetic
     template <typename A, typename Mod = A> constexpr auto mod (const A &, const math::nonzero<Mod> &);
 
@@ -642,8 +650,8 @@ namespace data {
     // and does not require a negate operation.
     template <typename Z> concept WholeNumber =
         div_number<Z> && requires (const Z &a, const Z &b) {
-            { a % b };
-            { divmod (a, math::nonzero {b}) };
+            { a % abs (b) };
+            { divmod (a, math::nonzero {abs (b)}) };
         } && (Signed<Z> || Unsigned<Z>);
 
     template <typename Z> concept Integer =
@@ -655,7 +663,7 @@ namespace data {
         };
 
     // now we have two types that go together as signed and unsigned versions of each other.
-    template <typename Z, typename N = Z> concept number_system =
+    template <typename Z, typename N = Z> concept NumberSystem =
         MultiplicativeNumberSystem<Z, N> &&
         ring_algebraic_signed<Z> &&
         ring_algebraic_unsigned<N> &&
@@ -752,6 +760,14 @@ namespace data::math::def {
         }
     };
 
+    template <typename A> struct floor;
+    template <typename A> struct ceiling;
+    template <typename A> struct round;
+    template <typename A> struct numerator;
+    template <typename A> struct denominator;
+    template <typename A> struct frac;
+    template <typename A> struct is_whole;
+
     template <typename A, typename B = A> struct divide;
 
     template <typename A, typename Mod = A> struct mod;
@@ -798,6 +814,34 @@ namespace data {
 
     template <typename A> constexpr auto inline div_2_pow (const A &x, uint32 u) {
         return math::def::div_2_pow<A> {} (x, u);
+    }
+
+    template <typename A> constexpr auto floor (const A &x) {
+        return math::def::floor<A> {} (x);
+    }
+
+    template <typename A> constexpr auto ceiling (const A &x) {
+        return math::def::ceiling<A> {} (x);
+    }
+
+    template <typename A> constexpr auto numerator (const A &x) {
+        return math::def::numerator<A> {} (x);
+    }
+
+    template <typename A> constexpr auto denominator (const A &x) {
+        return math::def::denominator<A> {} (x);
+    }
+
+    template <typename A> constexpr auto round (const A &x) {
+        return math::def::round<A> {} (x);
+    }
+
+    template <typename A> constexpr auto is_whole (const A &x) {
+        return math::def::is_whole<A> {} (x);
+    }
+
+    template <typename A> constexpr auto frac (const A &x) {
+        return math::def::frac<A> {} (x);
     }
 
     template <typename A> constexpr auto inline mod_2 (const A &x) {
@@ -1197,6 +1241,48 @@ namespace data::math::def {
         constexpr auto operator () (const A &a, const nonzero<B> &b) const {
             if (b.Value == 0) throw math::division_by_zero {};
             return divmod<A, B> {} (a, b).Remainder;
+        }
+    };
+
+    template <WholeNumber X> struct round<X> {
+        constexpr auto operator () (const X &a) const {
+            return a;
+        }
+    };
+
+    template <WholeNumber X> struct floor<X> {
+        constexpr auto operator () (const X &a) const {
+            return a;
+        }
+    };
+
+    template <WholeNumber X> struct ceiling<X> {
+        constexpr auto operator () (const X &a) const {
+            return a;
+        }
+    };
+
+    template <WholeNumber X> struct numerator<X> {
+        constexpr auto operator () (const X &a) const {
+            return a;
+        }
+    };
+
+    template <WholeNumber X> struct denominator<X> {
+        constexpr auto operator () (const X &a) const {
+            return 1;
+        }
+    };
+
+    template <WholeNumber X> struct is_whole<X> {
+        constexpr auto operator () (const X &a) const {
+            return true;
+        }
+    };
+
+    template <WholeNumber X> struct frac<X> {
+        constexpr auto operator () (const X &a) const {
+            return 0;
         }
     };
 }

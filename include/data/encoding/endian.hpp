@@ -9,6 +9,7 @@
 #include <data/stream.hpp>
 #include <data/size.hpp>
 #include <data/complex.hpp>
+#include <data/arithmetic/halves.hpp>
 #include <data/math/algebra.hpp>
 #include <data/divmod.hpp>
 #include <data/increment.hpp>
@@ -412,6 +413,12 @@ namespace data {
     template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
     struct make_signed<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
         using type = boost::endian::endian_arithmetic<Order, std::make_signed_t<T>, n_bits, Align>;
+    };
+
+    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+    struct twice<boost::endian::endian_arithmetic<Order, T, n_bits, Align>,
+        std::void_t<typename encoding::int_by_size<sizeof (T) * 2>::type>> {
+        using type = boost::endian::endian_arithmetic<Order, typename encoding::int_by_size<sizeof (T) * 2>::type, n_bits * 2, Align>;
     };
 
     // big endian signed integer unaligned types

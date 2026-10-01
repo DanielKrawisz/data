@@ -382,6 +382,11 @@ namespace data {
     template<negativity a, hex_case b, negativity c, hex_case d>
     bool identical (const hex::integer<a, b> &, const hex::integer<c, d> &);
 
+    template <bool u, endian e, size_t size, std::unsigned_integral word>
+    struct twice<math::number::bounded<u, e, size, word>> {
+        using type = math::number::bounded<u, e, size * 2, word>;
+    };
+
 }
 
 namespace data::math::number {
@@ -1026,10 +1031,6 @@ namespace data::math::def {
 
     template <> struct inverse<plus<Z>, Z> {
         Z operator () (const Z &a, const Z &b);
-    };
-
-    template <> struct inverse<times<Z>, Z> {
-        nonzero<Z> operator () (const nonzero<Z> &a, const nonzero<Z> &b);
     };
 
     template <> struct identity<times<Z>, Z> {

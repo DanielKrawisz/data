@@ -15,7 +15,7 @@ namespace data::math {
     template <typename elem, typename plus = def::plus<elem>, typename times = def::times<elem>>
     concept field = integral_domain<elem, plus, times> &&
     requires (const elem &a, const elem &b) {
-        {a / b} -> Same<elem>;
+        { a / b } -> Same<elem>;
     } && requires (const nonzero<elem> &a, const nonzero<elem> &b) {
         { def::inverse<times, elem> {} (a, b) } -> ImplicitlyConvertible<nonzero<elem>>;
     };
