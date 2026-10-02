@@ -3,10 +3,105 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/numbers.hpp>
+#include <data/math.hpp>
 #include <data/math/fraction.hpp>
 #include <data/tuple.hpp>
 
 #include <gtest/gtest.h>
+
+namespace data::math {
+
+    static_assert (Real<fraction<Z>>);
+    static_assert (Real<fraction<Z_bytes_little>>);
+    static_assert (Real<fraction<Z_bytes_big>>);
+    static_assert (Real<fraction<Z_bytes_BC_little>>);
+    static_assert (Real<fraction<Z_bytes_BC_big>>);
+    static_assert (Real<fraction<int64>>);
+    static_assert (Real<fraction<int128>>);
+    static_assert (Real<fraction<int128_little>>);
+    static_assert (Real<fraction<int128_big>>);
+    static_assert (Real<fraction<dec_int>>);
+    static_assert (Real<fraction<hex_int>>);
+    static_assert (Real<fraction<hex_int_BC>>);
+
+    static_assert (Complex<complex<fraction<Z>>>);
+    static_assert (Complex<complex<fraction<Z_bytes_little>>>);
+    static_assert (Complex<complex<fraction<Z_bytes_big>>>);
+    static_assert (Complex<complex<fraction<Z_bytes_BC_little>>>);
+    static_assert (Complex<complex<fraction<Z_bytes_BC_big>>>);
+    static_assert (Complex<complex<fraction<int64>>>);
+    static_assert (Complex<complex<fraction<int128>>>);
+    static_assert (Complex<complex<fraction<int128_little>>>);
+    static_assert (Complex<complex<fraction<int128_big>>>);
+    static_assert (Complex<complex<fraction<dec_int>>>);
+    static_assert (Complex<complex<fraction<hex_int>>>);
+    static_assert (Complex<complex<fraction<hex_int_BC>>>);
+
+    static_assert (Complex<fraction<complex<Z>>>);
+    static_assert (Complex<fraction<complex<Z_bytes_little>>>);
+    static_assert (Complex<fraction<complex<Z_bytes_big>>>);
+    static_assert (Complex<fraction<complex<Z_bytes_BC_little>>>);
+    static_assert (Complex<fraction<complex<Z_bytes_BC_big>>>);
+    static_assert (Complex<fraction<complex<int64>>>);
+    static_assert (Complex<fraction<complex<int128>>>);
+    static_assert (Complex<fraction<complex<int128_little>>>);
+    static_assert (Complex<fraction<complex<int128_big>>>);
+    static_assert (Complex<fraction<complex<dec_int>>>);
+    static_assert (Complex<fraction<complex<hex_int>>>);
+    static_assert (Complex<fraction<complex<hex_int_BC>>>);
+
+    static_assert (Quaternionic<quaternion<fraction<Z>>>);
+    static_assert (Quaternionic<quaternion<fraction<Z_bytes_little>>>);
+    static_assert (Quaternionic<quaternion<fraction<Z_bytes_big>>>);
+    static_assert (Quaternionic<quaternion<fraction<Z_bytes_BC_little>>>);
+    static_assert (Quaternionic<quaternion<fraction<Z_bytes_BC_big>>>);
+    static_assert (Quaternionic<quaternion<fraction<int64>>>);
+    static_assert (Quaternionic<quaternion<fraction<int128>>>);
+    static_assert (Quaternionic<quaternion<fraction<int128_little>>>);
+    static_assert (Quaternionic<quaternion<fraction<int128_big>>>);
+    static_assert (Quaternionic<quaternion<fraction<dec_int>>>);
+    static_assert (Quaternionic<quaternion<fraction<hex_int>>>);
+    static_assert (Quaternionic<quaternion<fraction<hex_int_BC>>>);
+
+    static_assert (Quaternionic<fraction<quaternion<Z>>>);
+    static_assert (Quaternionic<fraction<quaternion<Z_bytes_little>>>);
+    static_assert (Quaternionic<fraction<quaternion<Z_bytes_big>>>);
+    static_assert (Quaternionic<fraction<quaternion<Z_bytes_BC_little>>>);
+    static_assert (Quaternionic<fraction<quaternion<Z_bytes_BC_big>>>);
+    static_assert (Quaternionic<fraction<quaternion<int64>>>);
+    static_assert (Quaternionic<fraction<quaternion<int128>>>);
+    static_assert (Quaternionic<fraction<quaternion<int128_little>>>);
+    static_assert (Quaternionic<fraction<quaternion<int128_big>>>);
+    static_assert (Quaternionic<fraction<quaternion<dec_int>>>);
+    static_assert (Quaternionic<fraction<quaternion<hex_int>>>);
+    static_assert (Quaternionic<fraction<quaternion<hex_int_BC>>>);
+
+    static_assert (Octonionic<octonion<fraction<Z>>>);
+    static_assert (Octonionic<octonion<fraction<Z_bytes_little>>>);
+    static_assert (Octonionic<octonion<fraction<Z_bytes_big>>>);
+    static_assert (Octonionic<octonion<fraction<Z_bytes_BC_little>>>);
+    static_assert (Octonionic<octonion<fraction<Z_bytes_BC_big>>>);
+    static_assert (Octonionic<octonion<fraction<int64>>>);
+    static_assert (Octonionic<octonion<fraction<int128>>>);
+    static_assert (Octonionic<octonion<fraction<int128_little>>>);
+    static_assert (Octonionic<octonion<fraction<int128_big>>>);
+    static_assert (Octonionic<octonion<fraction<dec_int>>>);
+    static_assert (Octonionic<octonion<fraction<hex_int>>>);
+    static_assert (Octonionic<octonion<fraction<hex_int_BC>>>);
+
+    static_assert (Octonionic<fraction<octonion<Z>>>);
+    static_assert (Octonionic<fraction<octonion<Z_bytes_little>>>);
+    static_assert (Octonionic<fraction<octonion<Z_bytes_big>>>);
+    static_assert (Octonionic<fraction<octonion<Z_bytes_BC_little>>>);
+    static_assert (Octonionic<fraction<octonion<Z_bytes_BC_big>>>);
+    static_assert (Octonionic<fraction<octonion<int64>>>);
+    static_assert (Octonionic<fraction<octonion<int128>>>);
+    static_assert (Octonionic<fraction<octonion<int128_little>>>);
+    static_assert (Octonionic<fraction<octonion<int128_big>>>);
+    static_assert (Octonionic<fraction<octonion<dec_int>>>);
+    static_assert (Octonionic<fraction<octonion<hex_int>>>);
+    static_assert (Octonionic<fraction<octonion<hex_int_BC>>>);
+}
 
 namespace data {
 
@@ -64,6 +159,12 @@ namespace data {
 
         { q == q } -> ImplicitlyConvertible<bool>;
         { q != q } -> ImplicitlyConvertible<bool>;
+        { is_whole (q) } -> ImplicitlyConvertible<bool>;
+    };
+
+    template <typename Q>
+    concept RationalOrdered =
+    requires (Q q) {
         { q < q } -> ImplicitlyConvertible<bool>;
         { q <= q } -> ImplicitlyConvertible<bool>;
         { q > q } -> ImplicitlyConvertible<bool>;
@@ -71,7 +172,6 @@ namespace data {
 
         { abs (q) } -> ImplicitlyConvertible<Q>;
         { sign (q) } -> ImplicitlyConvertible<math::sign>;
-        { is_whole (q) } -> ImplicitlyConvertible<bool>;
     };
 
     template <typename Q>
@@ -112,11 +212,12 @@ namespace data {
 
         using Q = math::fraction<num, den>;
 
-        //static_assert (!WholeNumber<Q>);
+        static_assert (!WholeNumber<Q>);
         static_assert (math::field<Q>);
         static_assert (RationalConstruction<num, den>);
         static_assert (RationalConstructible<Q>);
         static_assert (RationalBasic<Q>);
+        static_assert (RationalOrdered<Q>);
         static_assert (RationalWithLiterals<Q>);
 
         static_assert (requires (Q q) {
@@ -140,6 +241,14 @@ namespace data {
 
         static_assert (requires (Q q, math::nonzero<den> d) {
             { mod (q, d) } -> ImplicitlyConvertible<Q>;
+        });
+
+        static_assert (requires (Q q) {
+            { math::re (q) } -> ImplicitlyConvertible<Q>;
+            { math::im (q) } -> ImplicitlyConvertible<Q>;
+            { math::ev (q) } -> ImplicitlyConvertible<Q>;
+            { math::od (q) } -> ImplicitlyConvertible<Q>;
+            { math::conjugate (q) } -> ImplicitlyConvertible<Q>;
         });
 
     };
@@ -361,12 +470,12 @@ namespace data {
     using fixed_test_cases = ::testing::Types<
         tuple<int32, int32>,
         tuple<int32_little, int32_little>,
-        tuple<int32_big, int32_big>/*,
+        //tuple<int32_big, int32_big>,
         tuple<int64, int64>,
-        tuple<int64_little, int64_little>,
-        tuple<int64_big, int64_big>,
+        //tuple<int64_little, int64_little>,
+        tuple<int64_big, int64_big>/*,
         tuple<int128, int128>,
-        tuple<int128_little, int128_little>,
+        //tuple<int128_little, int128_little>,
         tuple<int128_big, int128_big>*/>;
 
     template <typename tuple>

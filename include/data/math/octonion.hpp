@@ -44,6 +44,7 @@ namespace data::math {
             static octonion e2 {0, 0, 1, 0, 0, 0, 0, 0};
             return e2;
         }
+
         static octonion E3 () {
             static octonion e3 {0, 0, 0, 1, 0, 0, 0, 0};
             return e3;

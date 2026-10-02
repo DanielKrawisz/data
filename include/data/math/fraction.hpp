@@ -206,22 +206,6 @@ namespace data::math {
         template <typename Z, typename N = decltype (quadrance (std::declval<Z> ()))> struct over;
     }
 
-    namespace number {
-
-        template <typename Z, typename N> struct increment<fraction<Z, N>> {
-            constexpr fraction<Z, N> operator () (const fraction<Z, N> &x) {
-                return x + 1;
-            }
-        };
-
-        template <typename Z, typename N> struct decrement<fraction<Z, N>> {
-            constexpr fraction<Z, N> operator () (const fraction<Z, N> &x) {
-                return x - 1;
-            }
-        };
-
-    }
-
     template <typename Z, typename N>
     std::ostream &operator << (std::ostream &o, const fraction<Z, N> &x);
 
@@ -304,6 +288,46 @@ namespace data::math::def {
     struct over<octonion<Z>, N> {
         fraction<octonion<Z>, N> operator () (const octonion<Z> &numerator, const N &denominator);
         fraction<octonion<Z>, N> operator () (const octonion<Z> &numerator, const octonion<Z> &denominator);
+    };
+
+    template <WholeNumber Z, typename N>
+    struct ev<fraction<Z, N>> {
+        fraction<Z, N> operator () (const fraction<Z, N> &x);
+    };
+
+    template <WholeNumber Z, typename N>
+    struct ev<fraction<complex<Z>, N>> {
+        fraction<Z, N> operator () (const fraction<complex<Z>, N> &x);
+    };
+
+    template <WholeNumber Z, typename N>
+    struct ev<fraction<quaternion<Z>, N>> {
+        fraction<complex<Z>, N> operator () (const fraction<quaternion<Z>, N> &x);
+    };
+
+    template <WholeNumber Z, typename N>
+    struct ev<fraction<octonion<Z>, N>> {
+        fraction<quaternion<Z>, N> operator () (const fraction<octonion<Z>, N> &x);
+    };
+
+    template <WholeNumber Z, typename N>
+    struct od<fraction<Z, N>> {
+        fraction<Z, N> operator () (const fraction<Z, N> &x);
+    };
+
+    template <WholeNumber Z, typename N>
+    struct od<fraction<complex<Z>, N>> {
+        fraction<Z, N> operator () (const fraction<complex<Z>, N> &x);
+    };
+
+    template <WholeNumber Z, typename N>
+    struct od<fraction<quaternion<Z>, N>> {
+        fraction<complex<Z>, N> operator () (const fraction<quaternion<Z>, N> &x);
+    };
+
+    template <WholeNumber Z, typename N>
+    struct od<fraction<octonion<Z>, N>> {
+        fraction<quaternion<Z>, N> operator () (const fraction<octonion<Z>, N> &x);
     };
 }
 
@@ -444,6 +468,46 @@ namespace data::math::def {
     template <typename Z, typename N>
     constexpr fraction<Z, N> inline conjugate<fraction<Z, N>>::operator () (const fraction<Z, N> &x) {
         return x;
+    }
+
+    template <WholeNumber Z, typename N>
+    fraction<Z, N> inline ev<fraction<Z, N>>::operator () (const fraction<Z, N> &x) {
+        return x;
+    }
+
+    template <WholeNumber Z, typename N>
+    fraction<Z, N> inline od<fraction<Z, N>>::operator () (const fraction<Z, N> &x) {
+        return 0;
+    }
+
+    template <WholeNumber Z, typename N>
+    fraction<Z, N> inline ev<fraction<complex<Z>, N>>::operator () (const fraction<complex<Z>, N> &x) {
+        return math::over<Z, N> (math::ev (data::numerator (x)), data::denominator (x));
+    }
+
+    template <WholeNumber Z, typename N>
+    fraction<Z, N> inline od<fraction<complex<Z>, N>>::operator () (const fraction<complex<Z>, N> &x) {
+        return math::over<Z, N> (math::od (data::numerator (x)), data::denominator (x));
+    }
+
+    template <WholeNumber Z, typename N>
+    fraction<complex<Z>, N> inline ev<fraction<quaternion<Z>, N>>::operator () (const fraction<quaternion<Z>, N> &x) {
+        return math::over<complex<Z>, N> (math::ev (data::numerator (x)), data::denominator (x));
+    }
+
+    template <WholeNumber Z, typename N>
+    fraction<quaternion<Z>, N> inline ev<fraction<octonion<Z>, N>>::operator () (const fraction<octonion<Z>, N> &x) {
+        return math::over<quaternion<Z>, N> (math::ev (data::numerator (x)), data::denominator (x));
+    }
+
+    template <WholeNumber Z, typename N>
+    fraction<complex<Z>, N> inline od<fraction<quaternion<Z>, N>>::operator () (const fraction<quaternion<Z>, N> &x) {
+        return math::over<complex<Z>, N> (math::od (data::numerator (x)), data::denominator (x));
+    }
+
+    template <WholeNumber Z, typename N>
+    fraction<quaternion<Z>, N> inline od<fraction<octonion<Z>, N>>::operator () (const fraction<octonion<Z>, N> &x) {
+        return math::over<quaternion<Z>, N> (math::od (data::numerator (x)), data::denominator (x));
     }
 
 }

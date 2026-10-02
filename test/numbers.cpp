@@ -552,6 +552,13 @@ namespace data {
         EXPECT_EQ (abs (N {5}), N {5});
     }
 
+    TYPED_TEST (Numbers, ReIm) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ (math::re (N {1}), N {1});
+        EXPECT_EQ (math::im (N {1}), N {0});
+        EXPECT_EQ (math::conjugate (N {1}), N {1});
+    }
+
     TYPED_TEST (Numbers, Multiply) {
         using N = typename TestFixture::N;
         EXPECT_EQ (N {0} * N {0}, N {0});

@@ -18,14 +18,16 @@ namespace data::math::number {
 
     template <endian r, size_t size, std::unsigned_integral word>
     constexpr bounded<false, r, size, word>::bounded (string_view x) {
+
         if consteval {
             if (encoding::decimal::valid (x))
-                // TODO it is possible that the number string is too big, but we won't know.
+                // TODO it is possible that the number string is too big, but we won't know yet.
                 *this = encoding::read_base<bounded<false, r, size, word>> (x, 10, encoding::decimal::digit);
             else if (encoding::hexidecimal::valid (x) && x.size () == size * sizeof (word) * 2 + 2)
                 encoding::hex::decode (x.begin () + 2, x.end (), this->words ().rbegin ());
             else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
                 encoding::hex::decode (x.begin (), x.end (), this->begin ());
+            else throw data::exception {} << "invalid natural string \"" << x << "\"";
         } else {
             if (encoding::decimal::valid (x)) *this = bounded {N_bytes<r, word>::read (x)};
             else if (encoding::hexidecimal::valid (x) && x.size () == size * sizeof (word) * 2 + 2)

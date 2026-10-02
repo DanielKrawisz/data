@@ -11,8 +11,6 @@
 
 namespace data::math {
 
-    // TODO we need to be able to compare fractions and
-
     static_assert (Real<Z>);
     static_assert (Real<Z_bytes_little>);
     static_assert (Real<Z_bytes_big>);
@@ -177,23 +175,12 @@ namespace data::math {
         complex<fraction<dec_int>>,
         complex<fraction<hex_int>>,
         complex<fraction<hex_int_BC>>,
-        complex<fraction<int64>>,/*
+        complex<fraction<int64>>,
         complex<fraction<int64_little>>,
-        complex<fraction<int64_big>>,*/
+        complex<fraction<int64_big>>,
         complex<fraction<int128>>,
         complex<fraction<int128_little>>,
-        complex<fraction<int128_big>>/*,
-        fraction<complex<Z>>,
-        fraction<complex<Z_bytes_little>>,
-        fraction<complex<Z_bytes_big>>,
-        fraction<complex<Z_bytes_BC_little>>,
-        fraction<complex<Z_bytes_BC_big>>,
-        fraction<complex<int64>>,
-        fraction<complex<int64_little>>,
-        fraction<complex<int64_big>>,
-        fraction<complex<int128>>,
-        fraction<complex<int128_little>>,
-        fraction<complex<int128_big>>*/>;
+        complex<fraction<int128_big>>>;
 
     using quat_test_cases = ::testing::Types<
         quat128, quat256,
@@ -205,23 +192,12 @@ namespace data::math {
         quaternion<fraction<dec_int>>,
         quaternion<fraction<hex_int>>,
         quaternion<fraction<hex_int_BC>>,
-        quaternion<fraction<int64>>,/*
+        quaternion<fraction<int64>>,
         quaternion<fraction<int64_little>>,
-        quaternion<fraction<int64_big>>,*/
+        quaternion<fraction<int64_big>>,
         quaternion<fraction<int128>>,
         quaternion<fraction<int128_little>>,
-        quaternion<fraction<int128_big>>/*,
-        fraction<quaternion<Z>>,
-        fraction<quaternion<Z_bytes_little>>,
-        fraction<quaternion<Z_bytes_big>>,
-        fraction<quaternion<Z_bytes_BC_little>>,
-        fraction<quaternion<Z_bytes_BC_big>>,
-        fraction<quaternion<int64>>,
-        fraction<quaternion<int64_little>>,
-        fraction<quaternion<int64_big>>,
-        fraction<quaternion<int128>>,
-        fraction<quaternion<int128_little>>,
-        fraction<quaternion<int128_big>>*/>;
+        quaternion<fraction<int128_big>>>;
 
     using oct_test_cases = ::testing::Types<
         oct256, oct512,
@@ -233,23 +209,12 @@ namespace data::math {
         octonion<fraction<dec_int>>,
         octonion<fraction<hex_int>>,
         octonion<fraction<hex_int_BC>>,
-        octonion<fraction<int64>>,/*
+        octonion<fraction<int64>>,
         octonion<fraction<int64_little>>,
-        octonion<fraction<int64_big>>,*/
+        octonion<fraction<int64_big>>,
         octonion<fraction<int128>>,
         octonion<fraction<int128_little>>,
-        octonion<fraction<int128_big>>/*,
-        fraction<octonion<Z>>,
-        fraction<octonion<Z_bytes_little>>,
-        fraction<octonion<Z_bytes_big>>,
-        fraction<octonion<Z_bytes_BC_little>>,
-        fraction<octonion<Z_bytes_BC_big>>,
-        fraction<octonion<int64>>,
-        fraction<octonion<int64_little>>,
-        fraction<octonion<int64_big>>,
-        fraction<octonion<int128>>,
-        fraction<octonion<int128_little>>,
-        fraction<octonion<int128_big>>*/>;
+        octonion<fraction<int128_big>>>;
 }
 
 namespace data {

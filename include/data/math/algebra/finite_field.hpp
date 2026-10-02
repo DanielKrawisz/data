@@ -23,8 +23,8 @@ namespace data::math {
     template <auto P, RingNumber N>
     struct prime_field : number::modular<P, N> {
         using number::modular<P, N>::modular;
-        prime_field (const number::modular<P, N> &n): number::modular<P, N> {n} {}
-        prime_field (number::modular<P, N> &&n): number::modular<P, N> {n} {}
+        constexpr prime_field (const number::modular<P, N> &n): number::modular<P, N> {n} {}
+        constexpr prime_field (number::modular<P, N> &&n): number::modular<P, N> {n} {}
     
         constexpr prime_field operator + (const prime_field &) const;
         constexpr prime_field operator - (const prime_field &) const;
