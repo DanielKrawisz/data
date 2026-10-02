@@ -133,11 +133,6 @@ TYPED_TEST (RealPolynomialField, Division) {
     test_polynomial_basic_algebra<typename TestFixture::mod_19> ();
 }
 /*
-
-TYPED_TEST (RealPolynomialField, Division) {
-    using Q = typename TestFixture::base;
-}
-
 TYPED_TEST (ComplexPolynomialRing, Algebra) {
     test_polynomial_basic_algebra<typename TestFixture::base> ();
 }

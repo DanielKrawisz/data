@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_OCTONIAN
-#define DATA_MATH_OCTONIAN
+#pragma once
 
 #include <data/math/quaternion.hpp>
 
@@ -11,6 +10,20 @@ namespace data::math {
     template <typename R> class octonion;
 
     template <typename R> bool operator == (const octonion<R> &, const octonion<R> &);
+
+    template <typename R, ImplicitlyConvertible<quaternion<R>> W> bool operator == (const octonion<R> &, const W &);
+
+    template <typename R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> operator + (const octonion<R> &, const W &);
+    template <typename R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> operator + (const W &, const octonion<R> &);
+
+    template <typename R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> operator - (const octonion<R> &, const W &);
+    template <typename R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> operator - (const W &, const octonion<R> &);
+
+    template <typename R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> operator * (const octonion<R> &, const W &);
+    template <typename R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> operator * (const W &, const octonion<R> &);
+
+    template <typename R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> operator / (const octonion<R> &, const W &);
+    template <typename R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> operator / (const W &, const octonion<R> &);
 
     template <typename R> std::ostream &operator << (std::ostream &o, const octonion<R> &x);
 
@@ -70,8 +83,8 @@ namespace data::math {
             return e7;
         }
         
-        octonion operator ~ () const {
-            return oct::operator ~ ();
+        octonion operator * () const {
+            return oct::operator * ();
         }
         
         octonion operator + (const octonion &x) const {
@@ -101,6 +114,42 @@ namespace data::math {
 
     template <typename R> bool inline operator == (const octonion<R> &a, const octonion<R> &b) {
         return static_cast<cayley_dickson<quaternion<R>>> (a) == static_cast<cayley_dickson<quaternion<R>>> (b);
+    }
+
+    template <typename R, ImplicitlyConvertible<quaternion<R>> W> bool inline operator == (const octonion<R> &a, const W &b) {
+        return a == octonion<R> (b);
+    }
+
+    template <typename R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> inline operator + (const octonion<R> &a, const W &b) {
+        return a + octonion<R> (b);
+    }
+
+    template <typename R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> inline operator + (const W &a, const octonion<R> &b) {
+        return octonion<R> (a) + b;
+    }
+
+    template <typename R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> inline operator - (const octonion<R> &a, const W &b) {
+        return a - octonion<R> (b);
+    }
+
+    template <typename R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> inline operator - (const W &a, const octonion<R> &b) {
+        return octonion<R> (a) + b;
+    }
+
+    template <typename R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> inline operator * (const octonion<R> &a, const W &b) {
+        return a * octonion<R> (b);
+    }
+
+    template <typename R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> inline operator * (const W &a, const octonion<R> &b) {
+        return octonion<R> (a) + b;
+    }
+
+    template <typename R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> inline operator / (const octonion<R> &a, const W &b) {
+        return a / octonion<R> (b);
+    }
+
+    template <typename R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> inline operator / (const W &a, const octonion<R> &b) {
+        return octonion<R> (a) + b;
     }
 
     template <typename R> std::ostream &operator << (std::ostream &o, const octonion<R> &x) {
@@ -180,5 +229,3 @@ namespace data::math::linear {
     };
     
 }
-
-#endif

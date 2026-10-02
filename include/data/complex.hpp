@@ -49,8 +49,6 @@ namespace data::math {
     template <typename A> concept cayley_dickson_algebra =
         quad_algebra<A> && requires (const A &x) {
             requires Same<decltype (ev (x)), decltype (od (x))>;
-            //requires Same<decltype (ev (x)), A> ||
-            //    (sub_quad_algebra<decltype (ev (x)), A>);
             requires Ordered<decltype (re (x))>;
             requires ImplicitlyConvertible<decltype (abs (re (x))),
                 decltype (quadrance (x))>;

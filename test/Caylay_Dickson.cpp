@@ -64,15 +64,17 @@ namespace data::math {
     static_assert (Octonionic<octonion<hex_int_BC>>);
 
     template <typename X>
-    // requires NumberComparable<X>
     void test_complex (X zero, X one, X i) {
+        EXPECT_EQ (zero, 0);
+        EXPECT_EQ (one, 1);
+
         EXPECT_NE (zero, one);
         EXPECT_NE (zero, i);
         EXPECT_NE (one, i);
 
-        EXPECT_EQ (~zero, zero);
-        EXPECT_EQ (~one, one);
-        EXPECT_EQ (~i, -i);
+        EXPECT_EQ (*zero, zero);
+        EXPECT_EQ (*one, one);
+        EXPECT_EQ (*i, -i);
 
         EXPECT_EQ (zero * zero, zero);
         EXPECT_EQ (zero * one, zero);
@@ -165,94 +167,319 @@ namespace data::math {
         EXPECT_EQ (e7, -x);
     };
 
-    using complex_test_cases = ::testing::Types<
-        complex64, complex128,
-        complex<fraction<Z>>,
-        complex<fraction<Z_bytes_little>>,
-        complex<fraction<Z_bytes_big>>,
-        complex<fraction<Z_bytes_BC_little>>,
-        complex<fraction<Z_bytes_BC_big>>,
-        complex<fraction<dec_int>>,
-        complex<fraction<hex_int>>,
-        complex<fraction<hex_int_BC>>,
-        complex<fraction<int64>>,
-        complex<fraction<int64_little>>,
-        complex<fraction<int64_big>>,
-        complex<fraction<int128>>,
-        complex<fraction<int128_little>>,
-        complex<fraction<int128_big>>>;
+    using test_cases = ::testing::Types<
+        float32, float64,
+        int32, int64, int32_little, int64_big,
+        int128, int128_little, int160, int160_big,
+        Z, Z_bytes_little, Z_bytes_BC_big,
+        dec_int, hex_int, hex_int_BC,
+        fraction<int32>, fraction<int64>,
+        fraction<int32_little>, fraction<int64_big>,
+        fraction<int128>, fraction<int128_little>,
+        fraction<int160>, fraction<int160_big>,
+        fraction<Z>, fraction<Z_bytes_little>,
+        fraction<Z_bytes_BC_big>,
+        fraction<dec_int>, fraction<hex_int>,
+        fraction<hex_int_BC>>;
 
-    using quat_test_cases = ::testing::Types<
-        quat128, quat256,
-        quaternion<fraction<Z>>,
-        quaternion<fraction<Z_bytes_little>>,
-        quaternion<fraction<Z_bytes_big>>,
-        quaternion<fraction<Z_bytes_BC_little>>,
-        quaternion<fraction<Z_bytes_BC_big>>,
-        quaternion<fraction<dec_int>>,
-        quaternion<fraction<hex_int>>,
-        quaternion<fraction<hex_int_BC>>,
-        quaternion<fraction<int64>>,
-        quaternion<fraction<int64_little>>,
-        quaternion<fraction<int64_big>>,
-        quaternion<fraction<int128>>,
-        quaternion<fraction<int128_little>>,
-        quaternion<fraction<int128_big>>>;
-
-    using oct_test_cases = ::testing::Types<
-        oct256, oct512,
-        octonion<fraction<Z>>,
-        octonion<fraction<Z_bytes_little>>,
-        octonion<fraction<Z_bytes_big>>,
-        octonion<fraction<Z_bytes_BC_little>>,
-        octonion<fraction<Z_bytes_BC_big>>,
-        octonion<fraction<dec_int>>,
-        octonion<fraction<hex_int>>,
-        octonion<fraction<hex_int_BC>>,
-        octonion<fraction<int64>>,
-        octonion<fraction<int64_little>>,
-        octonion<fraction<int64_big>>,
-        octonion<fraction<int128>>,
-        octonion<fraction<int128_little>>,
-        octonion<fraction<int128_big>>>;
 }
 
 namespace data {
 
     template <typename N>
-    struct Complex : ::testing::Test {
-        using complex = N;
+    struct CayleyDickson : ::testing::Test {
+        using base_ring = N;
     };
 
-    TYPED_TEST_SUITE (Complex, math::complex_test_cases);
+    TYPED_TEST_SUITE (CayleyDickson, math::test_cases);
 
-    TYPED_TEST (Complex, Complex) {
-        using C = typename TestFixture::complex;
-        test_complex<C> (C {0}, C {1}, C::I ());
+    TYPED_TEST (CayleyDickson, Complex) {
+        using R = typename TestFixture::base_ring;
+        using CR = math::complex<R>;
+
+        static_assert (requires {
+            CR {1};
+        });
+
+        static_assert (ImplicitlyConvertible<R, CR>);
+
+        static_assert (requires (const R &x, const CR &z) {
+            { x == z } -> ImplicitlyConvertible<bool>;
+            { z == x } -> ImplicitlyConvertible<bool>;
+        });
+
+        static_assert (requires (const CR &z) {
+            { 1 == z } -> ImplicitlyConvertible<bool>;
+            { z == 1 } -> ImplicitlyConvertible<bool>;
+        });
+
+        static_assert (requires (const R &x, const CR &z) {
+            { x + z } -> ImplicitlyConvertible<CR>;
+            { z + x } -> ImplicitlyConvertible<CR>;
+        });
+
+        static_assert (requires (const R &x, const CR &z) {
+            { x - z } -> ImplicitlyConvertible<CR>;
+            { z - x } -> ImplicitlyConvertible<CR>;
+        });
+
+        static_assert (requires (const R &x, const CR &z) {
+            { x * z } -> ImplicitlyConvertible<CR>;
+            { z * x } -> ImplicitlyConvertible<CR>;
+        });
+
+        static_assert (requires (const R &x, const CR &z) {
+            { x / z } -> ImplicitlyConvertible<CR>;
+            { z / x } -> ImplicitlyConvertible<CR>;
+        });
+
+        static_assert (requires (const CR &z) {
+            { 1 + z } -> ImplicitlyConvertible<CR>;
+            { z + 1 } -> ImplicitlyConvertible<CR>;
+        });
+
+        static_assert (requires (const CR &z) {
+            { 1 - z } -> ImplicitlyConvertible<CR>;
+            { z - 1 } -> ImplicitlyConvertible<CR>;
+        });
+
+        static_assert (requires (const CR &z) {
+            { 1 * z } -> ImplicitlyConvertible<CR>;
+            { z * 1 } -> ImplicitlyConvertible<CR>;
+        });
+
+        static_assert (requires (const CR &z) {
+            { 1 / z } -> ImplicitlyConvertible<CR>;
+            { z / 1 } -> ImplicitlyConvertible<CR>;
+        });
+
+        EXPECT_EQ (CR {}, CR {R {}});
+        EXPECT_EQ (CR {}, CR {0});
+        EXPECT_EQ (CR {0}, R {});
+        EXPECT_EQ (R {}, CR {0});
+
+        test_complex<CR> (CR {0}, CR {1}, CR::I ());
     }
 
-    template <typename N>
-    struct Quaternion : ::testing::Test {
-        using quat = N;
-    };
+    TYPED_TEST (CayleyDickson, Quaternion) {
+        using R = typename TestFixture::base_ring;
+        using CR = math::complex<R>;
+        using HR = math::quaternion<R>;
 
-    TYPED_TEST_SUITE (Quaternion, math::quat_test_cases);
+        static_assert (requires {
+            HR {1};
+        });
 
-    TYPED_TEST (Quaternion, Quaternion) {
-        using H = typename TestFixture::quat;
-        test_quaternion<H> (H {0}, H {1}, H::I (), H::J ());
+        static_assert (ImplicitlyConvertible<R, HR>);
+        static_assert (ImplicitlyConvertible<CR, HR>);
+
+        static_assert (requires (const R &x, const HR &z) {
+            { x == z } -> ImplicitlyConvertible<bool>;
+            { z == x } -> ImplicitlyConvertible<bool>;
+        });
+
+        static_assert (requires (const CR &x, const HR &z) {
+            { x == z } -> ImplicitlyConvertible<bool>;
+            { z == x } -> ImplicitlyConvertible<bool>;
+        });
+
+        static_assert (requires (const HR &z) {
+            { 1 == z } -> ImplicitlyConvertible<bool>;
+            { z == 1 } -> ImplicitlyConvertible<bool>;
+        });
+
+        static_assert (requires (const R &x, const HR &z) {
+            { x + z } -> ImplicitlyConvertible<HR>;
+            { z + x } -> ImplicitlyConvertible<HR>;
+        });
+
+        static_assert (requires (const R &x, const HR &z) {
+            { x - z } -> ImplicitlyConvertible<HR>;
+            { z - x } -> ImplicitlyConvertible<HR>;
+        });
+
+        static_assert (requires (const R &x, const HR &z) {
+            { x * z } -> ImplicitlyConvertible<HR>;
+            { z * x } -> ImplicitlyConvertible<HR>;
+        });
+
+        static_assert (requires (const R &x, const HR &z) {
+            { x / z } -> ImplicitlyConvertible<HR>;
+            { z / x } -> ImplicitlyConvertible<HR>;
+        });
+
+        static_assert (requires (const CR &x, const HR &z) {
+            { x + z } -> ImplicitlyConvertible<HR>;
+            { z + x } -> ImplicitlyConvertible<HR>;
+        });
+
+        static_assert (requires (const CR &x, const HR &z) {
+            { x - z } -> ImplicitlyConvertible<HR>;
+            { z - x } -> ImplicitlyConvertible<HR>;
+        });
+
+        static_assert (requires (const CR &x, const HR &z) {
+            { x * z } -> ImplicitlyConvertible<HR>;
+            { z * x } -> ImplicitlyConvertible<HR>;
+        });
+
+        static_assert (requires (const CR &x, const HR &z) {
+            { x / z } -> ImplicitlyConvertible<HR>;
+            { z / x } -> ImplicitlyConvertible<HR>;
+        });
+
+        static_assert (requires (const HR &z) {
+            { 1 + z } -> ImplicitlyConvertible<HR>;
+            { z + 1 } -> ImplicitlyConvertible<HR>;
+        });
+
+        static_assert (requires (const HR &z) {
+            { 1 - z } -> ImplicitlyConvertible<HR>;
+            { z - 1 } -> ImplicitlyConvertible<HR>;
+        });
+
+        static_assert (requires (const HR &z) {
+            { 1 * z } -> ImplicitlyConvertible<HR>;
+            { z * 1 } -> ImplicitlyConvertible<HR>;
+        });
+
+        static_assert (requires (const HR &z) {
+            { 1 / z } -> ImplicitlyConvertible<HR>;
+            { z / 1 } -> ImplicitlyConvertible<HR>;
+        });
+
+        EXPECT_EQ (HR {}, HR {R {}});
+        EXPECT_EQ (HR {}, HR {CR {}});
+        EXPECT_EQ (HR {}, HR {0});
+        EXPECT_EQ (HR {0}, R {});
+        EXPECT_EQ (R {}, HR {0});
+
+        test_quaternion<HR> (HR {0}, HR {1}, HR::I (), HR::J ());
     }
 
-    template <typename N>
-    struct Octonion : ::testing::Test {
-        using oct = N;
-    };
+    TYPED_TEST (CayleyDickson, Octonion) {
+        using R = typename TestFixture::base_ring;
+        using CR = math::complex<R>;
+        using HR = math::quaternion<R>;
+        using OR = math::octonion<R>;
 
-    TYPED_TEST_SUITE (Octonion, math::oct_test_cases);
+        static_assert (requires {
+            OR {1};
+        });
 
-    TYPED_TEST (Octonion, Octonion) {
-        using O = typename TestFixture::oct;
-        test_octonion<O> (O {0}, O {1}, O::E1 (), O::E2 (), O::E4 ());
+        static_assert (ImplicitlyConvertible<R, OR>);
+        static_assert (ImplicitlyConvertible<CR, OR>);
+        static_assert (ImplicitlyConvertible<HR, OR>);
+
+        static_assert (requires (const R &x, const OR &z) {
+            { x == z } -> ImplicitlyConvertible<bool>;
+            { z == x } -> ImplicitlyConvertible<bool>;
+        });
+
+        static_assert (requires (const CR &x, const OR &z) {
+            { x == z } -> ImplicitlyConvertible<bool>;
+            { z == x } -> ImplicitlyConvertible<bool>;
+        });
+
+        static_assert (requires (const HR &x, const OR &z) {
+            { x == z } -> ImplicitlyConvertible<bool>;
+            { z == x } -> ImplicitlyConvertible<bool>;
+        });
+
+        static_assert (requires (const OR &z) {
+            { 1 == z } -> ImplicitlyConvertible<bool>;
+            { z == 1 } -> ImplicitlyConvertible<bool>;
+        });
+
+        static_assert (requires (const R &x, const OR &z) {
+            { x + z } -> ImplicitlyConvertible<OR>;
+            { z + x } -> ImplicitlyConvertible<OR>;
+        });
+
+        static_assert (requires (const R &x, const OR &z) {
+            { x - z } -> ImplicitlyConvertible<OR>;
+            { z - x } -> ImplicitlyConvertible<OR>;
+        });
+
+        static_assert (requires (const R &x, const OR &z) {
+            { x * z } -> ImplicitlyConvertible<OR>;
+            { z * x } -> ImplicitlyConvertible<OR>;
+        });
+
+        static_assert (requires (const R &x, const OR &z) {
+            { x / z } -> ImplicitlyConvertible<OR>;
+            { z / x } -> ImplicitlyConvertible<OR>;
+        });
+
+        static_assert (requires (const CR &x, const OR &z) {
+            { x + z } -> ImplicitlyConvertible<OR>;
+            { z + x } -> ImplicitlyConvertible<OR>;
+        });
+
+        static_assert (requires (const CR &x, const OR &z) {
+            { x - z } -> ImplicitlyConvertible<OR>;
+            { z - x } -> ImplicitlyConvertible<OR>;
+        });
+
+        static_assert (requires (const CR &x, const OR &z) {
+            { x * z } -> ImplicitlyConvertible<OR>;
+            { z * x } -> ImplicitlyConvertible<OR>;
+        });
+
+        static_assert (requires (const CR &x, const OR &z) {
+            { x / z } -> ImplicitlyConvertible<OR>;
+            { z / x } -> ImplicitlyConvertible<OR>;
+        });
+
+        static_assert (requires (const HR &x, const OR &z) {
+            { x + z } -> ImplicitlyConvertible<OR>;
+            { z + x } -> ImplicitlyConvertible<OR>;
+        });
+
+        static_assert (requires (const HR &x, const OR &z) {
+            { x - z } -> ImplicitlyConvertible<OR>;
+            { z - x } -> ImplicitlyConvertible<OR>;
+        });
+
+        static_assert (requires (const HR &x, const OR &z) {
+            { x * z } -> ImplicitlyConvertible<OR>;
+            { z * x } -> ImplicitlyConvertible<OR>;
+        });
+
+        static_assert (requires (const HR &x, const OR &z) {
+            { x / z } -> ImplicitlyConvertible<OR>;
+            { z / x } -> ImplicitlyConvertible<OR>;
+        });
+
+        static_assert (requires (const OR &z) {
+            { 1 + z } -> ImplicitlyConvertible<OR>;
+            { z + 1 } -> ImplicitlyConvertible<OR>;
+        });
+
+        static_assert (requires (const OR &z) {
+            { 1 - z } -> ImplicitlyConvertible<OR>;
+            { z - 1 } -> ImplicitlyConvertible<OR>;
+        });
+
+        static_assert (requires (const OR &z) {
+            { 1 * z } -> ImplicitlyConvertible<OR>;
+            { z * 1 } -> ImplicitlyConvertible<OR>;
+        });
+
+        static_assert (requires (const OR &z) {
+            { 1 / z } -> ImplicitlyConvertible<OR>;
+            { z / 1 } -> ImplicitlyConvertible<OR>;
+        });
+
+        EXPECT_EQ (OR {}, OR {R {}});
+        EXPECT_EQ (OR {}, OR {HR {}});
+        EXPECT_EQ (OR {}, OR {CR {}});
+        EXPECT_EQ (OR {}, R {});
+        EXPECT_EQ (OR {}, OR {0});
+        EXPECT_EQ (OR {0}, R {0});
+        EXPECT_EQ (R {0}, OR {0});
+
+        test_octonion<OR> (OR {0}, OR {1}, OR::E1 (), OR::E2 (), OR::E4 ());
     }
 
 }
