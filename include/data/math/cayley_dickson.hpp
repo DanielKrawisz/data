@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_CAYLEY_DICKSON
-#define DATA_MATH_CAYLEY_DICKSON
+#pragma once
 
 #include <data/norm.hpp>
 #include <data/math/nonzero.hpp>
@@ -37,7 +36,7 @@ namespace data::math {
         cayley_dickson (NDA n): Even (n), Odd (0) {}
         
         // conjugate
-        cayley_dickson operator ~ () const;
+        cayley_dickson operator * () const;
         
         cayley_dickson operator + (const cayley_dickson &x) const;
         
@@ -96,7 +95,7 @@ namespace data::math::linear {
 namespace data::math {
     
     template <cayley_dickson_algebra nda>
-    cayley_dickson<nda> inline cayley_dickson<nda>::operator ~ () const {
+    cayley_dickson<nda> inline cayley_dickson<nda>::operator * () const {
         return conjugate (*this);
     }
     
@@ -131,5 +130,3 @@ namespace data::math {
     }
     
 }
-
-#endif

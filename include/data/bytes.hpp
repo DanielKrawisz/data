@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_BYTES
-#define DATA_BYTES
+#pragma once
 
 #include <data/cross.hpp>
 #include <data/array.hpp>
@@ -49,9 +48,9 @@ namespace data {
 
     using lazy_bytes_writer = lazy_writer<bytes, byte>;
 
-    template <endian::order r, typename word, size_t ... sizes> struct oriented;
+    template <endian r, typename word, size_t ... sizes> struct oriented;
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian r, std::unsigned_integral word>
     struct oriented<r, word> : public bytestring<word> {
         using bytestring<word>::bytestring;
 
@@ -67,7 +66,7 @@ namespace data {
     };
 
     // all constructors constexpr
-    template <endian::order r, std::unsigned_integral word, size_t size>
+    template <endian r, std::unsigned_integral word, size_t size>
     struct oriented<r, word, size> : public bytes_array<word, size> {
         using bytes_array<word, size>::bytes_array;
         constexpr oriented (const bytes_array<word, size> &x) : bytes_array<word, size> {x} {}
@@ -163,10 +162,7 @@ namespace data::encoding::hex {
         if ((this->size () / 2) % sizeof (word) != 0)
             throw invalid {} << ": invalid hex string size " << this->size () << " for word size " << sizeof (word);
         bytestring<word> z (this->size () / (sizeof (word) * 2));
-        decode (this->end (), this->begin (), z.data ());
+        decode (this->begin (), this->end (), z.data ());
         return z;
     }
 }
-
-#endif
-

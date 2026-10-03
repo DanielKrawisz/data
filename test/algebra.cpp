@@ -10,7 +10,8 @@
 #include <data/math/algebra/cyclic_group.hpp>
 #include <data/math/algebra/dihedral_group.hpp>
 #include <data/math.hpp>
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 namespace data::math::linear {
     

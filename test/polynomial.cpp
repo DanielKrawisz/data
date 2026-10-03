@@ -8,137 +8,105 @@
 #include <data/numbers.hpp>
 #include <data/math.hpp>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 using namespace data;
 
-template <math::ring Q>
-struct test_polynomial {
-    using poly = polynomial<Q, uint32>;
-
-    poly X;
-    poly P1;
-    poly P2;
-
-    test_polynomial () :
-    X {poly::var ()},
-    P1 {(X ^ 2) + 1},
-    P2 {X * 3 + 2} {
-        /*
-        EXPECT_EQ (X.degree (), 1);
-        EXPECT_EQ (P1.degree (), 2);
-        EXPECT_EQ (P2.degree (), 1);
-
-        EXPECT_FALSE (P1 == P2);
-
-        EXPECT_EQ ((X ^ 3).degree (), 3);
-
-        auto sum = P1 + P2;
-        auto product = P1 * P2;
-        auto comp_right = P1 (P2);
-        auto comp_left = P2 (P1);
-
-        auto expected_sum = (X ^ 2u) + X * 3u + 3u;
-        auto expected_product = (X ^ 3u) * 3u + (X ^ 2u) * 2u + X * 3u + 2u;
-        auto expected_comp_right = (X ^ 2u) * 9u + X * 12u + 5u;
-        auto expected_comp_left = (X ^ 2u) * 3u + 5u;
-
-        EXPECT_TRUE (sum == expected_sum);
-        EXPECT_TRUE (product == expected_product) << "expected " << P1 << " * " << P2 << " -> " << expected_product << " but got " << product;
-        EXPECT_TRUE (comp_right == expected_comp_right);
-        EXPECT_TRUE (comp_left == expected_comp_left);
-
-        poly expected_d_p1 = X * 2;
-        poly expected_d_p2 = poly {3};
-        auto expected_d_sum = X * 2 + 3;
-        auto expected_d_product = (X ^ 2u) * 9u + X * 4u + 3u;
-        auto expected_d_comp_right = X * 18u + 12;
-        auto expected_d_comp_left = X * 6u;
-
-        EXPECT_TRUE (P1.derivative () == expected_d_p1);
-        EXPECT_TRUE (P2.derivative () == expected_d_p2);
-        EXPECT_TRUE (sum.derivative () == expected_d_sum);
-        EXPECT_TRUE (product.derivative () == expected_d_product);
-        EXPECT_TRUE (comp_right.derivative () == expected_d_comp_right);
-        EXPECT_TRUE (comp_left.derivative () == expected_d_comp_left);*/
-
-    }
-
-    void test_polynomial_division () {
-        auto expected_quotient = X * Q {1, 3} + Q {2, 9};
-        auto expected_remainder = Q {13, 9};
-
-        auto d = divmod (P1, math::nonzero {P2});
-        EXPECT_EQ (d.Quotient, expected_quotient);
-        EXPECT_EQ (d.Remainder, expected_remainder);
-    }
-};
-
-template <math::ring Z> requires math::field<fraction<Z>>
-struct test_polynomial_division : test_polynomial<Z> {
-    test_polynomial_division () : test_polynomial<Z> {} {
-        test_polynomial<Z>::test_polynomial_division ();
-    }
-};
-
-using test_cases = ::testing::Types<
+using polynomial_test_cases = ::testing::Types<
     Z,
     Z_bytes_little,
     Z_bytes_big,
     Z_bytes_BC_little,
-    Z_bytes_BC_big,/*
+    Z_bytes_BC_big,
     int64,
     int64_little,
     int64_big,
     int128,
     int128_little,
-    int128_big,*/
+    int128_big,
     dec_int,
     hex_int,
-    hex_int_BC,
+    hex_int_BC>;
 
-    fraction<Z>,
-    fraction<Z_bytes_little>,
-    fraction<Z_bytes_big>,
-    fraction<Z_bytes_BC_little>,
-    fraction<Z_bytes_BC_big>,/*
-    fraction<int64>,
-    fraction<int64_little>,
-    fraction<int64_big>,
-    fraction<int128>,
-    fraction<int128_little>,
-    fraction<int128_big>,*/
-    fraction<dec_int>,
-    fraction<hex_int>,
-    fraction<hex_int_BC>/*,
-
-    math::complex<fraction<Z>>,
-    math::complex<fraction<Z_bytes_little>>,
-    math::complex<fraction<Z_bytes_big>>,
-    math::complex<fraction<Z_bytes_BC_little>>,
-    math::complex<fraction<Z_bytes_BC_big>>,
-    math::complex<fraction<int64>>,
-    math::complex<fraction<int64_little>>,
-    math::complex<fraction<int64_big>>,
-    math::complex<fraction<int128>>,
-    math::complex<fraction<int128_little>>,
-    math::complex<fraction<int128_big>>,
-    math::complex<fraction<dec_int>>,
-    math::complex<fraction<hex_int>>,
-    math::complex<fraction<hex_int_BC>>*/>;
-
-
-template <typename N>
-struct Polynomial : ::testing::Test {
-    using base = N;
+template <typename Z>
+struct RealPolynomialRing : ::testing::Test {
+    using base = Z;
 };
 
-TYPED_TEST_SUITE (Polynomial, test_cases);
+template <typename Z>
+struct RealPolynomialField : ::testing::Test {
+    using Q = math::fraction<Z>;
+    using mod_17 = math::number::modular<uint32 {17}>;
+    using mod_19 = math::number::modular<uint32 {19}>;
+};
 
-TYPED_TEST (Polynomial, Ring) {
-    using Q = typename TestFixture::base;
+template <typename Z>
+struct ComplexPolynomialRing : ::testing::Test {
+    using base = math::complex<Z>;
+};
 
-    using poly = polynomial<Q, uint32>;
+template <typename Z>
+struct ComplexPolynomialField : ::testing::Test {
+    using base = math::fraction<math::complex<Z>>;
+};
+
+TYPED_TEST_SUITE (RealPolynomialRing, polynomial_test_cases);
+
+TYPED_TEST_SUITE (RealPolynomialField, polynomial_test_cases);
+
+TYPED_TEST_SUITE (ComplexPolynomialRing, polynomial_test_cases);
+
+TYPED_TEST_SUITE (ComplexPolynomialField, polynomial_test_cases);
+
+template <typename Z> void test_polynomial_basic_algebra () {
+    using poly = polynomial<Z, int32>;
+
+
+    static_assert (requires {
+        poly {1};
+    });
+
+    static_assert (ImplicitlyConvertible<Z, poly>);
+
+    static_assert (requires (const Z &x, const poly &z) {
+        { x == z } -> ImplicitlyConvertible<bool>;
+        { z == x } -> ImplicitlyConvertible<bool>;
+    });
+
+    static_assert (requires (const poly &z) {
+        { 1 == z } -> ImplicitlyConvertible<bool>;
+        { z == 1 } -> ImplicitlyConvertible<bool>;
+    });
+
+    static_assert (requires (const Z &x, const poly &z) {
+        { x + z } -> ImplicitlyConvertible<poly>;
+        { z + x } -> ImplicitlyConvertible<poly>;
+    });
+
+    static_assert (requires (const Z &x, const poly &z) {
+        { x - z } -> ImplicitlyConvertible<poly>;
+        { z - x } -> ImplicitlyConvertible<poly>;
+    });
+
+    static_assert (requires (const Z &x, const poly &z) {
+        { x * z } -> ImplicitlyConvertible<poly>;
+        { z * x } -> ImplicitlyConvertible<poly>;
+    });
+
+    static_assert (requires (const poly &z) {
+        { 1 + z } -> ImplicitlyConvertible<poly>;
+        { z + 1 } -> ImplicitlyConvertible<poly>;
+    });
+
+    static_assert (requires (const poly &z) {
+        { 1 - z } -> ImplicitlyConvertible<poly>;
+        { z - 1 } -> ImplicitlyConvertible<poly>;
+    });
+
+    static_assert (requires (const poly &z) {
+        { 1 * z } -> ImplicitlyConvertible<poly>;
+        { z * 1 } -> ImplicitlyConvertible<poly>;
+    });
 
     poly X = poly::var ();
     poly P1 = (X ^ 2) + 1;
@@ -157,10 +125,10 @@ TYPED_TEST (Polynomial, Ring) {
     auto comp_right = P1 (P2);
     auto comp_left = P2 (P1);
 
-    auto expected_sum = (X ^ 2u) + X * 3u + 3u;
-    auto expected_product = (X ^ 3u) * 3u + (X ^ 2u) * 2u + X * 3u + 2u;
-    auto expected_comp_right = (X ^ 2u) * 9u + X * 12u + 5u;
-    auto expected_comp_left = (X ^ 2u) * 3u + 5u;
+    auto expected_sum = (X ^ 2) + X * 3u + 3u;
+    auto expected_product = (X ^ 3) * 3u + (X ^ 2u) * 2u + X * 3u + 2u;
+    auto expected_comp_right = (X ^ 2) * 9u + X * 12u + 5u;
+    auto expected_comp_left = (X ^ 2) * 3u + 5u;
 
     EXPECT_TRUE (sum == expected_sum);
     EXPECT_TRUE (product == expected_product) << "expected " << P1 << " * " << P2 << " -> " << expected_product << " but got " << product;
@@ -170,7 +138,7 @@ TYPED_TEST (Polynomial, Ring) {
     poly expected_d_p1 = X * 2;
     poly expected_d_p2 = poly {3};
     auto expected_d_sum = X * 2 + 3;
-    auto expected_d_product = (X ^ 2u) * 9u + X * 4u + 3u;
+    auto expected_d_product = (X ^ 2) * 9u + X * 4u + 3u;
     auto expected_d_comp_right = X * 18u + 12;
     auto expected_d_comp_left = X * 6u;
 
@@ -180,7 +148,57 @@ TYPED_TEST (Polynomial, Ring) {
     EXPECT_TRUE (product.derivative () == expected_d_product);
     EXPECT_TRUE (comp_right.derivative () == expected_d_comp_right);
     EXPECT_TRUE (comp_left.derivative () == expected_d_comp_left);
-
 }
+
+template <typename Z> void test_polynomial_division () {
+    using poly = polynomial<Z, int32>;
+
+    static_assert (requires (const Z &x, const poly &z) {
+        { z / x } -> ImplicitlyConvertible<poly>;
+    });
+
+    static_assert (requires (const poly &z) {
+        { z / 1 } -> ImplicitlyConvertible<poly>;
+    });
+
+    poly X = poly::var ();
+    poly P1 = (X ^ 3) + (X ^ 2) * 2 - X + 7;
+    poly P2 = X ^ 2 + 1;
+
+    auto [Q, R] = divmod (P1, math::nonzero {P2});
+
+    EXPECT_EQ (Q, X + 2);
+    EXPECT_EQ (R, X * -2 + 5);
+    EXPECT_EQ (P1, P2 * Q + R);
+}
+
+TYPED_TEST (RealPolynomialRing, Algebra) {
+    test_polynomial_basic_algebra<typename TestFixture::base> ();
+}
+
+TYPED_TEST (RealPolynomialField, Algbera) {
+    test_polynomial_basic_algebra<typename TestFixture::Q> ();
+    test_polynomial_basic_algebra<typename TestFixture::mod_17> ();
+    test_polynomial_basic_algebra<typename TestFixture::mod_19> ();
+}
+
+TYPED_TEST (RealPolynomialField, Division) {
+    test_polynomial_basic_algebra<typename TestFixture::Q> ();
+    test_polynomial_basic_algebra<typename TestFixture::mod_17> ();
+    test_polynomial_basic_algebra<typename TestFixture::mod_19> ();
+}
+// TODO uncomment these
+/*
+TYPED_TEST (ComplexPolynomialRing, Algebra) {
+    test_polynomial_basic_algebra<typename TestFixture::base> ();
+}
+
+TYPED_TEST (ComplexPolynomialField, Algebra) {
+    test_polynomial_basic_algebra<typename TestFixture::base> ();
+}
+
+TYPED_TEST (ComplexPolynomialField, Division) {
+    using C = typename TestFixture::base;
+}*/
 
 // TODO division

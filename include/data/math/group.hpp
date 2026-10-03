@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_GROUP
-#define DATA_MATH_GROUP
+#pragma once
 
 #include <data/concepts.hpp>
 #include <data/arithmetic.hpp>
@@ -20,5 +19,3 @@ namespace data::math {
     };
     
 }
-
-#endif 

@@ -2,11 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "gtest/gtest.h"
 #include <data/math.hpp>
 #include <data/math/linear/inner.hpp>
 #include <data/math/linear/exterior.hpp>
 #include <data/math/algebra/finite_field.hpp>
+
+#include <gtest/gtest.h>
 
 namespace data::math {
 

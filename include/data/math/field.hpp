@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_FIELD
-#define DATA_MATH_FIELD
+#pragma once
 
 #include <data/concepts.hpp>
 #include <data/arithmetic.hpp>
@@ -15,7 +14,7 @@ namespace data::math {
     template <typename elem, typename plus = def::plus<elem>, typename times = def::times<elem>>
     concept field = integral_domain<elem, plus, times> &&
     requires (const elem &a, const elem &b) {
-        {a / b} -> Same<elem>;
+        { a / b } -> Same<elem>;
     } && requires (const nonzero<elem> &a, const nonzero<elem> &b) {
         { def::inverse<times, elem> {} (a, b) } -> ImplicitlyConvertible<nonzero<elem>>;
     };
@@ -27,5 +26,3 @@ namespace data::math {
     concept normed_field = field<elem, plus, times> && normed_ring<elem, plus, times>;
     
 }
-
-#endif

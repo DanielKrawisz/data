@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_TOOLS_STORE
-#define DATA_TOOLS_STORE
+#pragma once
 
 #include <data/meta.hpp>
 
@@ -37,5 +36,3 @@ namespace data {
     };
 
 }
-
-#endif

@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ARITHMETIC_NEGATIVITY
-#define DATA_ARITHMETIC_NEGATIVITY
+#pragma once
 
 #include <ostream>
 
@@ -37,7 +36,7 @@ namespace data::arithmetic {
 }
 
 namespace data {
-    using neg = arithmetic::negativity;
+    using negativity = arithmetic::negativity;
 
     template <typename X> constexpr bool is_negative_zero (const X &x);
     template <typename X> constexpr bool is_positive_zero (const X &x);
@@ -61,5 +60,3 @@ namespace data {
     }
 
 }
-
-#endif

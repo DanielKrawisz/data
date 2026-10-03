@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_STREAM
-#define DATA_STREAM
+#pragma once
 
 #include <exception>
 #include <data/concepts.hpp>
@@ -225,6 +224,4 @@ namespace data {
     }
     
 }
-
-#endif
 

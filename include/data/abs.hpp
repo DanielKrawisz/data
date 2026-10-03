@@ -2,18 +2,38 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ABS
-#define DATA_ABS
+#pragma once
 
 #include <data/types.hpp>
 #include <data/ordered.hpp>
 #include <data/exception.hpp>
 
+namespace data::math::def {
+    template <typename A> struct negate {};
+    template <typename A> struct abs {};
+}
+
+namespace data::math {
+    template <typename A> concept has_negate = requires (const A &x) {
+        {def::negate<A> {} (x)};
+    };
+
+    template <typename A> concept has_abs = requires (const A &x) {
+        {def::abs<A> {} (x)};
+    };
+}
+
+// these can be template specialized to make the corresponding functions behave as you wish.
 namespace data {
 
-    template <typename A> constexpr auto negate (const A &);
+    template <math::has_negate A> constexpr auto inline negate (const A &x) {
+        return math::def::negate<A> {} (x);
+    }
 
-    template <typename A> constexpr auto abs (const A &);
+    // abs should match with negate
+    template <math::has_abs A> constexpr auto inline abs (const A &x) {
+        return math::def::abs<A> {} (x);
+    }
 
     template <typename X> struct make_signed;
     template <typename X> struct make_unsigned;
@@ -31,30 +51,7 @@ namespace data {
 
 }
 
-namespace data::math::def {
-    template <typename A> struct negate;
-    template <typename A> struct abs;
-}
-
-// these can be template specialized to make the corresponding functions behave as you wish.
-namespace data {
-
-    template <typename A> constexpr auto inline negate (const A &x) {
-        return math::def::negate<A> {} (x);
-    }
-
-    // abs should match with negate
-    template <typename A> constexpr auto inline abs (const A &x) {
-        return math::def::abs<A> {} (x);
-    }
-}
-
 namespace data::math {
-    // Check if negate (A) is well-formed on A and returns A
-    template <typename A>
-    concept has_negate = requires (const A &a) {
-            { def::negate<A> {} (a) };
-        };
 
     // Check if negate (A) is well-formed on A and returns A
     template <typename A, typename = void>
@@ -218,5 +215,3 @@ static_assert (!data::math::abs_unsigned<data::int64>);
 static_assert (!data::math::abs_and_negate_signed<data::uint64>);
 static_assert (!data::math::abs_and_negate_unsigned<data::uint64>);
 static_assert (!data::math::abs_unsigned<data::uint64>);
-
-#endif

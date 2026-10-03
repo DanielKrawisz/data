@@ -3,14 +3,13 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/numbers.hpp"
-#include "data/math/fraction.hpp"
-#include "data/math.hpp"
-#include "gtest/gtest.h"
+#include <data/numbers.hpp>
+#include <data/math/fraction.hpp>
+#include <data/math.hpp>
+
+#include <gtest/gtest.h>
 
 namespace data::math {
-
-    // TODO we need to be able to compare fractions and
 
     static_assert (Real<Z>);
     static_assert (Real<Z_bytes_little>);
@@ -65,15 +64,17 @@ namespace data::math {
     static_assert (Octonionic<octonion<hex_int_BC>>);
 
     template <typename X>
-    // requires NumberComparable<X>
-    void test_complex (X zero, X one, X i) {
+    void test_complex_whole (X zero, X one, X i) {
+        EXPECT_EQ (zero, 0);
+        EXPECT_EQ (one, 1);
+
         EXPECT_NE (zero, one);
         EXPECT_NE (zero, i);
         EXPECT_NE (one, i);
 
-        EXPECT_EQ (~zero, zero);
-        EXPECT_EQ (~one, one);
-        EXPECT_EQ (~i, -i);
+        EXPECT_EQ (*zero, zero);
+        EXPECT_EQ (*one, one);
+        EXPECT_EQ (*i, -i);
 
         EXPECT_EQ (zero * zero, zero);
         EXPECT_EQ (zero * one, zero);
@@ -86,9 +87,9 @@ namespace data::math {
         EXPECT_EQ (i * i, -one);
     };
 
-    template <typename X> void test_quaternion (X zero, X one, X i, X j) {
-        test_complex<X> (zero, one, i);
-        test_complex<X> (zero, one, j);
+    template <typename X> void test_quaternion_whole (X zero, X one, X i, X j) {
+        test_complex_whole<X> (zero, one, i);
+        test_complex_whole<X> (zero, one, j);
 
         EXPECT_NE (i, j);
         EXPECT_NE (-i, j);
@@ -106,10 +107,10 @@ namespace data::math {
         EXPECT_EQ (k * j * i, -one);
     };
 
-    template <typename X> void test_octonion (X zero, X one, X i, X j, X k) {
-        test_quaternion<X> (zero, one, i, j);
-        test_quaternion<X> (zero, one, j, k);
-        test_quaternion<X> (zero, one, k, i);
+    template <typename X> void test_octonion_whole (X zero, X one, X i, X j, X k) {
+        test_quaternion_whole<X> (zero, one, i, j);
+        test_quaternion_whole<X> (zero, one, j, k);
+        test_quaternion_whole<X> (zero, one, k, i);
 
         auto e3 = i * j;
         auto e5 = j * k;
@@ -166,127 +167,195 @@ namespace data::math {
         EXPECT_EQ (e7, -x);
     };
 
-    using complex_test_cases = ::testing::Types<
-        complex64, complex128,
-        complex<fraction<Z>>,
-        complex<fraction<Z_bytes_little>>,
-        complex<fraction<Z_bytes_big>>,
-        complex<fraction<Z_bytes_BC_little>>,
-        complex<fraction<Z_bytes_BC_big>>,
-        complex<fraction<dec_int>>,
-        complex<fraction<hex_int>>,
-        complex<fraction<hex_int_BC>>,
-        complex<fraction<int64>>,/*
-        complex<fraction<int64_little>>,
-        complex<fraction<int64_big>>,*/
-        complex<fraction<int128>>,
-        complex<fraction<int128_little>>,
-        complex<fraction<int128_big>>/*,
-        fraction<complex<Z>>,
-        fraction<complex<Z_bytes_little>>,
-        fraction<complex<Z_bytes_big>>,
-        fraction<complex<Z_bytes_BC_little>>,
-        fraction<complex<Z_bytes_BC_big>>,
-        fraction<complex<int64>>,
-        fraction<complex<int64_little>>,
-        fraction<complex<int64_big>>,
-        fraction<complex<int128>>,
-        fraction<complex<int128_little>>,
-        fraction<complex<int128_big>>*/>;
+    using test_cases_whole = ::testing::Types<
+        int32, int64, int32_little, int64_big,
+        int128, int128_little, int160, int160_big,
+        Z, Z_bytes_little, Z_bytes_BC_big,
+        dec_int, hex_int, hex_int_BC>;
 
-    using quat_test_cases = ::testing::Types<
-        quat128, quat256,
-        quaternion<fraction<Z>>,
-        quaternion<fraction<Z_bytes_little>>,
-        quaternion<fraction<Z_bytes_big>>,
-        quaternion<fraction<Z_bytes_BC_little>>,
-        quaternion<fraction<Z_bytes_BC_big>>,
-        quaternion<fraction<dec_int>>,
-        quaternion<fraction<hex_int>>,
-        quaternion<fraction<hex_int_BC>>,
-        quaternion<fraction<int64>>,/*
-        quaternion<fraction<int64_little>>,
-        quaternion<fraction<int64_big>>,*/
-        quaternion<fraction<int128>>,
-        quaternion<fraction<int128_little>>,
-        quaternion<fraction<int128_big>>/*,
-        fraction<quaternion<Z>>,
-        fraction<quaternion<Z_bytes_little>>,
-        fraction<quaternion<Z_bytes_big>>,
-        fraction<quaternion<Z_bytes_BC_little>>,
-        fraction<quaternion<Z_bytes_BC_big>>,
-        fraction<quaternion<int64>>,
-        fraction<quaternion<int64_little>>,
-        fraction<quaternion<int64_big>>,
-        fraction<quaternion<int128>>,
-        fraction<quaternion<int128_little>>,
-        fraction<quaternion<int128_big>>*/>;
+    using test_cases_unwhole = ::testing::Types<
+        float32, float64,
+        int32, int64, int32_little, int64_big,
+        int128, int128_little, int160, int160_big,
+        Z, Z_bytes_little, Z_bytes_BC_big,
+        dec_int, hex_int, hex_int_BC,
+        fraction<int32>, fraction<int64>,
+        fraction<int32_little>, fraction<int64_big>,
+        fraction<int128>, fraction<int128_little>,
+        fraction<int160>, fraction<int160_big>,
+        fraction<Z>, fraction<Z_bytes_little>,
+        fraction<Z_bytes_BC_big>,
+        fraction<dec_int>, fraction<hex_int>,
+        fraction<hex_int_BC>>;
 
-    using oct_test_cases = ::testing::Types<
-        oct256, oct512,
-        octonion<fraction<Z>>,
-        octonion<fraction<Z_bytes_little>>,
-        octonion<fraction<Z_bytes_big>>,
-        octonion<fraction<Z_bytes_BC_little>>,
-        octonion<fraction<Z_bytes_BC_big>>,
-        octonion<fraction<dec_int>>,
-        octonion<fraction<hex_int>>,
-        octonion<fraction<hex_int_BC>>,
-        octonion<fraction<int64>>,/*
-        octonion<fraction<int64_little>>,
-        octonion<fraction<int64_big>>,*/
-        octonion<fraction<int128>>,
-        octonion<fraction<int128_little>>,
-        octonion<fraction<int128_big>>/*,
-        fraction<octonion<Z>>,
-        fraction<octonion<Z_bytes_little>>,
-        fraction<octonion<Z_bytes_big>>,
-        fraction<octonion<Z_bytes_BC_little>>,
-        fraction<octonion<Z_bytes_BC_big>>,
-        fraction<octonion<int64>>,
-        fraction<octonion<int64_little>>,
-        fraction<octonion<int64_big>>,
-        fraction<octonion<int128>>,
-        fraction<octonion<int128_little>>,
-        fraction<octonion<int128_big>>*/>;
 }
 
 namespace data {
 
     template <typename N>
-    struct Complex : ::testing::Test {
-        using complex = N;
+    struct CayleyDicksonRing : ::testing::Test {
+        using base_ring = N;
     };
-
-    TYPED_TEST_SUITE (Complex, math::complex_test_cases);
-
-    TYPED_TEST (Complex, Complex) {
-        using C = typename TestFixture::complex;
-        test_complex<C> (C {0}, C {1}, C::I ());
-    }
 
     template <typename N>
-    struct Quaternion : ::testing::Test {
-        using quat = N;
+    struct CayleyDicksonField : ::testing::Test {
+        using base_field = N;
     };
 
-    TYPED_TEST_SUITE (Quaternion, math::quat_test_cases);
+    TYPED_TEST_SUITE (CayleyDicksonRing, math::test_cases_whole);
 
-    TYPED_TEST (Quaternion, Quaternion) {
-        using H = typename TestFixture::quat;
-        test_quaternion<H> (H {0}, H {1}, H::I (), H::J ());
-    }
+    TYPED_TEST_SUITE (CayleyDicksonField, math::test_cases_unwhole);
 
-    template <typename N>
-    struct Octonion : ::testing::Test {
-        using oct = N;
+    template <typename R, typename CR>
+    concept RingSubAlgebra = ImplicitlyConvertible<R, CR> && requires {
+        CR {1};
+    } && requires (const R &x, const CR &z) {
+        { x == z } -> ImplicitlyConvertible<bool>;
+        { z == x } -> ImplicitlyConvertible<bool>;
+        { x + z } -> ImplicitlyConvertible<CR>;
+        { z + x } -> ImplicitlyConvertible<CR>;
+        { x - z } -> ImplicitlyConvertible<CR>;
+        { z - x } -> ImplicitlyConvertible<CR>;
+        { x * z } -> ImplicitlyConvertible<CR>;
+        { z * x } -> ImplicitlyConvertible<CR>;
+    } && requires (const CR &z) {
+        { 1 == z } -> ImplicitlyConvertible<bool>;
+        { z == 1 } -> ImplicitlyConvertible<bool>;
+        { 1 + z } -> ImplicitlyConvertible<CR>;
+        { z + 1 } -> ImplicitlyConvertible<CR>;
+        { 1 - z } -> ImplicitlyConvertible<CR>;
+        { z - 1 } -> ImplicitlyConvertible<CR>;
+        { 1 * z } -> ImplicitlyConvertible<CR>;
+        { z * 1 } -> ImplicitlyConvertible<CR>;
     };
 
-    TYPED_TEST_SUITE (Octonion, math::oct_test_cases);
+    template <typename R, typename CR>
+    concept FieldSubAlgebra = RingSubAlgebra<R, CR> &&
+    requires (const R &x, const CR &z) {
+        { x / z } -> ImplicitlyConvertible<CR>;
+        { z / x } -> ImplicitlyConvertible<CR>;
+    } && requires (const CR &z) {
+        { 1 / z } -> ImplicitlyConvertible<CR>;
+        { z / 1 } -> ImplicitlyConvertible<CR>;
+    };
 
-    TYPED_TEST (Octonion, Octonion) {
-        using O = typename TestFixture::oct;
-        test_octonion<O> (O {0}, O {1}, O::E1 (), O::E2 (), O::E4 ());
+    template <typename R, typename CR>
+    requires RingSubAlgebra<R, CR>
+    void test_complex_ring () {
+
+        EXPECT_EQ (CR {}, CR {R {}});
+        EXPECT_EQ (CR {}, CR {0});
+        EXPECT_EQ (CR {0}, R {});
+        EXPECT_EQ (R {}, CR {0});
+
+        math::test_complex_whole<CR> (CR {0}, CR {1}, CR::I ());
     }
+
+    template <typename R, typename CR>
+    requires FieldSubAlgebra<R, CR>
+    void test_complex_field () {
+
+        test_complex_ring<R, CR> ();
+    }
+
+    TYPED_TEST (CayleyDicksonRing, Complex) {
+        using R = typename TestFixture::base_ring;
+        using CR = math::complex<R>;
+
+        test_complex_ring<R, CR> ();
+    }
+
+    TYPED_TEST (CayleyDicksonField, Complex) {
+        using R = typename TestFixture::base_field;
+        using CR = math::complex<R>;
+
+        test_complex_field<R, CR> ();
+    }
+    // TODO uncommenting this requires a lot of work.
+/*
+    TYPED_TEST (CayleyDicksonRing, Rationalize) {
+        using G = math::complex<typename TestFixture::base_ring>;
+        using C = math::fraction<G>;
+
+        math::test_complex_whole<C> (G {0}, G {1}, G::I ());
+    }*/
+
+    template <typename R, typename CR, typename HR>
+    requires RingSubAlgebra<R, HR> && RingSubAlgebra<CR, HR>
+    void test_quaternionic_ring () {
+
+        EXPECT_EQ (HR {}, HR {R {}});
+        EXPECT_EQ (HR {}, HR {CR {}});
+        EXPECT_EQ (HR {}, HR {0});
+        EXPECT_EQ (HR {0}, R {});
+        EXPECT_EQ (R {}, HR {0});
+
+        math::test_quaternion_whole<HR> (HR {0}, HR {1}, HR::I (), HR::J ());
+    }
+
+    template <typename R, typename CR, typename HR>
+    requires FieldSubAlgebra<R, HR> && FieldSubAlgebra<CR, HR>
+    void test_quaternionic_field () {
+
+        test_quaternionic_ring<R, CR, HR> ();
+    }
+
+    TYPED_TEST (CayleyDicksonRing, Quaternion) {
+        using R = typename TestFixture::base_ring;
+        using CR = math::complex<R>;
+        using HR = math::quaternion<R>;
+
+        test_quaternionic_ring<R, CR, HR> ();
+    }
+
+    TYPED_TEST (CayleyDicksonField, Quaternion) {
+        using R = typename TestFixture::base_field;
+        using CR = math::complex<R>;
+        using HR = math::quaternion<R>;
+
+        test_quaternionic_field<R, CR, HR> ();
+    }
+
+    template <typename R, typename CR, typename HR, typename OR>
+    requires RingSubAlgebra<R, OR> && RingSubAlgebra<CR, OR> && RingSubAlgebra<HR, OR>
+    void test_octonionic_ring () {
+
+        EXPECT_EQ (OR {}, OR {R {}});
+        EXPECT_EQ (OR {}, OR {HR {}});
+        EXPECT_EQ (OR {}, OR {CR {}});
+        EXPECT_EQ (OR {}, R {});
+        EXPECT_EQ (OR {}, OR {0});
+        EXPECT_EQ (OR {0}, R {0});
+        EXPECT_EQ (R {0}, OR {0});
+
+        math::test_octonion_whole<OR> (OR {0}, OR {1}, OR::E1 (), OR::E2 (), OR::E4 ());
+    }
+
+    template <typename R, typename CR, typename HR, typename OR>
+    requires RingSubAlgebra<R, OR> && RingSubAlgebra<CR, OR> && RingSubAlgebra<HR, OR>
+    void test_octonionic_field () {
+
+        test_octonionic_ring<R, CR, HR, OR> ();
+    }
+
+    TYPED_TEST (CayleyDicksonRing, Octonion) {
+        using R = typename TestFixture::base_ring;
+        using CR = math::complex<R>;
+        using HR = math::quaternion<R>;
+        using OR = math::octonion<R>;
+
+        test_octonionic_ring<R, CR, HR, OR> ();
+    }
+
+    TYPED_TEST (CayleyDicksonField, Octonion) {
+        using R = typename TestFixture::base_field;
+        using CR = math::complex<R>;
+        using HR = math::quaternion<R>;
+        using OR = math::octonion<R>;
+
+        test_octonionic_field<R, CR, HR, OR> ();
+    }
+
+    // TODO constexpr
 
 }

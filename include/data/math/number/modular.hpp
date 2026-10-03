@@ -200,6 +200,7 @@ namespace data::math::number {
 
     template <auto mod, mod_base X>
     constexpr maybe<modular<mod, X>> invert (const modular<mod, X> &x) {
+        //auto proof = euclidian::extended<X, decltype (-x.Value)>::algorithm (mod, x.Value);
         auto proof = euclidian::extended<X, modular<mod, X>>::algorithm (mod, x.Value);
         if (proof.GCD != 1) return {};
         return proof.BezoutT;

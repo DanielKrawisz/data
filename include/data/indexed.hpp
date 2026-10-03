@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_INDEXED
-#define DATA_INDEXED
+#pragma once
 
 #include <data/types.hpp>
 #include <data/concepts.hpp>
@@ -16,6 +15,3 @@ namespace data {
     };
     
 }
-
-#endif
-

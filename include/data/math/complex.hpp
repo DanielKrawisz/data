@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_COMPLEX
-#define DATA_MATH_COMPLEX
+#pragma once
 
 #include <data/math/cayley_dickson.hpp>
 
@@ -12,6 +11,20 @@ namespace data::math {
     template <typename R> struct complex;
 
     template <typename R> bool operator == (const complex<R> &, const complex<R> &);
+
+    template <typename R, ImplicitlyConvertible<R> W> bool operator == (const complex<R> &, const W &);
+
+    template <typename R, ImplicitlyConvertible<R> W> complex<R> operator + (const complex<R> &, const W &);
+    template <typename R, ImplicitlyConvertible<R> W> complex<R> operator + (const W &, const complex<R> &);
+
+    template <typename R, ImplicitlyConvertible<R> W> complex<R> operator - (const complex<R> &, const W &);
+    template <typename R, ImplicitlyConvertible<R> W> complex<R> operator - (const W &, const complex<R> &);
+
+    template <typename R, ImplicitlyConvertible<R> W> complex<R> operator * (const complex<R> &, const W &);
+    template <typename R, ImplicitlyConvertible<R> W> complex<R> operator * (const W &, const complex<R> &);
+
+    template <typename R, ImplicitlyConvertible<R> W> complex<R> operator / (const complex<R> &, const W &);
+    template <typename R, ImplicitlyConvertible<R> W> complex<R> operator / (const W &, const complex<R> &);
 
     template <typename R> std::ostream &operator << (std::ostream &, const complex<R> &);
     
@@ -26,8 +39,8 @@ namespace data::math {
         using cayley_dickson<R>::cayley_dickson;
         complex (cayley_dickson<R> &&c) : cayley_dickson<R> {c} {}
         
-        complex operator ~ () const {
-            return cayley_dickson<R>::operator ~ ();
+        complex operator * () const {
+            return cayley_dickson<R>::operator * ();
         }
         
         complex operator + (const complex &x) const {
@@ -105,6 +118,40 @@ namespace data::math {
     template <typename R> bool inline operator == (const complex<R> &a, const complex<R> &b) {
         return static_cast<cayley_dickson<R>> (a) == static_cast<cayley_dickson<R>> (b);
     }
-}
 
-#endif
+    template <typename R, ImplicitlyConvertible<R> W> bool inline operator == (const complex<R> &a, const W &b) {
+        return a == complex<R> (b);
+    }
+
+    template <typename R, ImplicitlyConvertible<R> W> complex<R> inline operator + (const complex<R> &a, const W &b) {
+        return a + complex<R> (b);
+    }
+
+    template <typename R, ImplicitlyConvertible<R> W> complex<R> inline operator + (const W &a, const complex<R> &b) {
+        return complex<R> (a) + b;
+    }
+
+    template <typename R, ImplicitlyConvertible<R> W> complex<R> inline operator - (const complex<R> &a, const W &b) {
+        return a - complex<R> (b);
+    }
+
+    template <typename R, ImplicitlyConvertible<R> W> complex<R> inline operator - (const W &a, const complex<R> &b) {
+        return complex<R> (a) - b;
+    }
+
+    template <typename R, ImplicitlyConvertible<R> W> complex<R> inline operator * (const complex<R> &a, const W &b) {
+        return a * complex<R> (b);
+    }
+
+    template <typename R, ImplicitlyConvertible<R> W> complex<R> inline operator * (const W &a, const complex<R> &b) {
+        return complex<R> (a) * b;
+    }
+
+    template <typename R, ImplicitlyConvertible<R> W> complex<R> inline operator / (const complex<R> &a, const W &b) {
+        return a / complex<R> (b);
+    }
+
+    template <typename R, ImplicitlyConvertible<R> W> complex<R> inline operator / (const W &a, const complex<R> &b) {
+        return complex<R> (a) / b;
+    }
+}

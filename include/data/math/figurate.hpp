@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_FIGURATE
-#define DATA_MATH_FIGURATE
+#pragma once
 
 #include <data/arithmetic.hpp>
 
@@ -68,6 +67,4 @@ namespace data::math {
         return polytopic_number<N> (4, n);
     }
 }
-
-#endif
 

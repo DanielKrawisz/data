@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_HAMILTONIAN
-#define DATA_MATH_HAMILTONIAN
+#pragma once
 
 #include <data/math/complex.hpp>
 
@@ -11,6 +10,20 @@ namespace data::math {
     template <typename R> class quaternion;
 
     template <typename R> bool operator == (const quaternion<R> &, const quaternion<R> &);
+
+    template <typename R, ImplicitlyConvertible<complex<R>> W> bool operator == (const quaternion<R> &, const W &);
+
+    template <typename R, ImplicitlyConvertible<complex<R>> W> quaternion<R> operator + (const quaternion<R> &, const W &);
+    template <typename R, ImplicitlyConvertible<complex<R>> W> quaternion<R> operator + (const W &, const quaternion<R> &);
+
+    template <typename R, ImplicitlyConvertible<complex<R>> W> quaternion<R> operator - (const quaternion<R> &, const W &);
+    template <typename R, ImplicitlyConvertible<complex<R>> W> quaternion<R> operator - (const W &, const quaternion<R> &);
+
+    template <typename R, ImplicitlyConvertible<complex<R>> W> quaternion<R> operator * (const quaternion<R> &, const W &);
+    template <typename R, ImplicitlyConvertible<complex<R>> W> quaternion<R> operator * (const W &, const quaternion<R> &);
+
+    template <typename R, ImplicitlyConvertible<complex<R>> W> quaternion<R> operator / (const quaternion<R> &, const W &);
+    template <typename R, ImplicitlyConvertible<complex<R>> W> quaternion<R> operator / (const W &, const quaternion<R> &);
 
     template <typename R> std::ostream &operator << (std::ostream &o, const quaternion<R> &x);
 
@@ -44,8 +57,8 @@ namespace data::math {
             return hamiltonian::conjugate ();
         }
         
-        quaternion operator ~ () const {
-            return hamiltonian::operator ~ ();
+        quaternion operator * () const {
+            return hamiltonian::operator * ();
         }
         
         quaternion operator + (const quaternion &x) const {
@@ -79,6 +92,42 @@ namespace data::math {
 
     template <typename R> std::ostream &operator << (std::ostream &o, const quaternion<R> &x) {
         return o << "(" << ev (x) << " + j " << od (x) << ")";
+    }
+
+    template <typename R, ImplicitlyConvertible<complex<R>> W> bool inline operator == (const quaternion<R> &a, const W &b) {
+        return a == quaternion<R> (b);
+    }
+
+    template <typename R, ImplicitlyConvertible<complex<R>> W> quaternion<R> inline operator + (const quaternion<R> &a, const W &b) {
+        return a + quaternion<R> (b);
+    }
+
+    template <typename R, ImplicitlyConvertible<complex<R>> W> quaternion<R> inline operator + (const W &a, const quaternion<R> &b) {
+        return quaternion<R> (a) + b;
+    }
+
+    template <typename R, ImplicitlyConvertible<complex<R>> W> quaternion<R> inline operator - (const quaternion<R> &a, const W &b) {
+        return a - quaternion<R> (b);
+    }
+
+    template <typename R, ImplicitlyConvertible<complex<R>> W> quaternion<R> inline operator - (const W &a, const quaternion<R> &b) {
+        return quaternion<R> (a) - b;
+    }
+
+    template <typename R, ImplicitlyConvertible<complex<R>> W> quaternion<R> inline operator * (const quaternion<R> &a, const W &b) {
+        return a * quaternion<R> (b);
+    }
+
+    template <typename R, ImplicitlyConvertible<complex<R>> W> quaternion<R> inline operator * (const W &a, const quaternion<R> &b) {
+        return quaternion<R> (a) * b;
+    }
+
+    template <typename R, ImplicitlyConvertible<complex<R>> W> quaternion<R> inline operator / (const quaternion<R> &a, const W &b) {
+        return a / quaternion<R> (b);
+    }
+
+    template <typename R, ImplicitlyConvertible<complex<R>> W> quaternion<R> inline operator / (const W &a, const quaternion<R> &b) {
+        return quaternion<R> (a) / b;
     }
 }
 
@@ -125,5 +174,3 @@ namespace data::math::linear {
     };
     
 }
-
-#endif

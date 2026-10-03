@@ -6,7 +6,8 @@
 #include <data/string.hpp>
 #include <data/encoding/hex.hpp>
 #include <data/arithmetic/words.hpp>
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 namespace data {
     

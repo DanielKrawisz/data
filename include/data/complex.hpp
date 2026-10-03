@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_COMPLEX
-#define DATA_COMPLEX
+#pragma once
 
 #include <data/norm.hpp>
 #include <data/arithmetic.hpp>
@@ -50,8 +49,6 @@ namespace data::math {
     template <typename A> concept cayley_dickson_algebra =
         quad_algebra<A> && requires (const A &x) {
             requires Same<decltype (ev (x)), decltype (od (x))>;
-            //requires Same<decltype (ev (x)), A> ||
-            //    (sub_quad_algebra<decltype (ev (x)), A>);
             requires Ordered<decltype (re (x))>;
             requires ImplicitlyConvertible<decltype (abs (re (x))),
                 decltype (quadrance (x))>;
@@ -145,5 +142,3 @@ namespace data::math::def {
     };
 
 }
-
-#endif

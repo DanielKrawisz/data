@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ARITHMETIC_ARITHMETIC
-#define DATA_ARITHMETIC_ARITHMETIC
+#pragma once
 
 #include <data/sign.hpp>
 #include <data/norm.hpp>
@@ -66,7 +65,7 @@ namespace data::arithmetic {
         std::input_iterator iti>
     constexpr void bit_negate (ito o, sen z, iti i) {
         while (o != z) {
-            *o = ~ *i;
+            *o = ~*i;
             o++;
             i++;
         }
@@ -572,5 +571,3 @@ namespace data::arithmetic {
         }
     }
 }
-
-#endif

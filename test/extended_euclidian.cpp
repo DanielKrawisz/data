@@ -2,11 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/math/number/extended_euclidian.hpp"
-#include "data/math/number/bytes.hpp"
-#include "data/numbers.hpp"
-#include "data/tuple.hpp"
-#include "gtest/gtest.h"
+#include <data/math/number/extended_euclidian.hpp>
+#include <data/math/number/bytes.hpp>
+#include <data/numbers.hpp>
+#include <data/tuple.hpp>
+
+#include <gtest/gtest.h>
 
 namespace data::math {
     
@@ -71,11 +72,11 @@ namespace data::math {
 
         using X = math::number::euclidian::extended<N, Z>;
         EXPECT_THROW ((void) X::algorithm (N {0}, N {0}).GCD, math::division_by_zero);
-
+        std::cout << "TEST EXTENDED EUCLIDIAN 1 " << std::endl;
         EXPECT_EQ (X::algorithm (N {1}, N {1}).GCD, 1);
 
         EXPECT_EQ (X::algorithm (N {2}, N {4}).GCD, 2);
-
+        std::cout << "TEST EXTENDED EUCLIDIAN 3" << std::endl;
         EXPECT_EQ (X::algorithm (N {1145}, N {916}).GCD, 229);
     }
     

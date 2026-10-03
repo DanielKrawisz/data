@@ -2,14 +2,14 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/encoding/base58.hpp"
-#include "data/encoding/hex.hpp"
-#include "data/math/number/gmp/Z.hpp"
-#include "data/encoding/invalid.hpp"
+#include <data/encoding/base58.hpp>
+#include <data/encoding/hex.hpp>
+#include <data/encoding/invalid.hpp>
 #include <data/numbers.hpp>
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include "gmock/gmock-matchers.h"
+
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
 
 namespace data::encoding {
     
@@ -28,15 +28,15 @@ namespace data::encoding {
     
     TEST (Base58, Base58NToString) {
 
-        EXPECT_EQ (*base58::decode<N> ("1"), N {0});
-        EXPECT_EQ (*base58::decode<N> ("2"), N {1});
-        EXPECT_EQ (*base58::decode<N> ("1"), N {"0"});
-        EXPECT_EQ (*base58::decode<N> ("2"), N {"1"});
-        EXPECT_EQ (*base58::decode<N> ("1"), N {"0x"});
-        EXPECT_EQ (*base58::decode<N> ("2"), N {"0x01"});
-        EXPECT_EQ (*base58::decode<N> ("56"), N {"0xED"});
+        EXPECT_EQ (*base58::decode<N> ("1"), N::read ("0"));
+        EXPECT_EQ (*base58::decode<N> ("2"), N::read ("1"));
+        EXPECT_EQ (*base58::decode<N> ("1"), N::read ("0"));
+        EXPECT_EQ (*base58::decode<N> ("2"), N::read ("1"));
+        EXPECT_EQ (*base58::decode<N> ("1"), N::read ("0x"));
+        EXPECT_EQ (*base58::decode<N> ("2"), N::read ("0x01"));
+        EXPECT_EQ (*base58::decode<N> ("56"), N::read ("0xED"));
         EXPECT_EQ (*base58::decode<N> ("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS"),
-            N {"0x805AA786A57B3BFC0DFDF2EC86760339F018114A7E30C2D2701CF294DC60829D9B011CD8E391"});
+            N::read ("0x805AA786A57B3BFC0DFDF2EC86760339F018114A7E30C2D2701CF294DC60829D9B011CD8E391"));
         
         EXPECT_EQ (base58::encode<N> (*base58::decode<N> ("KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS")),
             "KzFvxm6N9qW11MbVoZM8c3tp6UHqf1qrh9EMcHPj74cgBWRmRvBS");
