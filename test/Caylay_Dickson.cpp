@@ -261,6 +261,10 @@ namespace data {
         test_complex<CR> (CR {0}, CR {1}, CR::I ());
     }
 
+    TYPED_TEST (CayleyDickson, ComplexDivMod) {
+        //TODO
+    }
+
     TYPED_TEST (CayleyDickson, Quaternion) {
         using R = typename TestFixture::base_ring;
         using CR = math::complex<R>;

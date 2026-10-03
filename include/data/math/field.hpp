@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_FIELD
-#define DATA_MATH_FIELD
+#pragma once
 
 #include <data/concepts.hpp>
 #include <data/arithmetic.hpp>
@@ -27,5 +26,3 @@ namespace data::math {
     concept normed_field = field<elem, plus, times> && normed_ring<elem, plus, times>;
     
 }
-
-#endif

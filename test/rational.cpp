@@ -205,10 +205,10 @@ namespace data {
         { math::over (n, d) } -> Same<math::fraction<N, D>>;
     };
 
-    template <typename tuple>
-    struct RationalFraction : ::testing::Test {
-        using num = typename std::tuple_element<0, tuple>::type;
-        using den = typename std::tuple_element<1, tuple>::type;
+    template <typename N, typename D>
+    struct Fraction {
+        using num = N;
+        using den = D;
 
         using Q = math::fraction<num, den>;
 
@@ -217,17 +217,11 @@ namespace data {
         static_assert (RationalConstruction<num, den>);
         static_assert (RationalConstructible<Q>);
         static_assert (RationalBasic<Q>);
-        static_assert (RationalOrdered<Q>);
         static_assert (RationalWithLiterals<Q>);
 
         static_assert (requires (Q q) {
             { numerator (q) } -> ImplicitlyConvertible<num>;
             { denominator (q) } -> ImplicitlyConvertible<den>;
-        });
-
-        static_assert (requires (Q q) {
-            { floor (q) } -> ImplicitlyConvertible<num>;
-            { ceiling (q) } -> ImplicitlyConvertible<num>;
         });
 
         static_assert (requires (Q q) {
@@ -239,10 +233,6 @@ namespace data {
             { pow (q, d) } -> ImplicitlyConvertible<Q>;
         });
 
-        static_assert (requires (Q q, math::nonzero<den> d) {
-            { mod (q, d) } -> ImplicitlyConvertible<Q>;
-        });
-
         static_assert (requires (Q q) {
             { math::re (q) } -> ImplicitlyConvertible<Q>;
             { math::im (q) } -> ImplicitlyConvertible<Q>;
@@ -252,6 +242,43 @@ namespace data {
         });
 
     };
+
+    template <typename tuple>
+    struct RationalFraction : Fraction<
+        typename std::tuple_element<0, tuple>::type,
+        typename std::tuple_element<1, tuple>::type>, ::testing::Test {
+        using num = typename std::tuple_element<0, tuple>::type;
+        using den = typename std::tuple_element<1, tuple>::type;
+
+        using Q = math::fraction<num, den>;
+
+        static_assert (RationalOrdered<Q>);
+
+        static_assert (requires (Q q) {
+            { floor (q) } -> ImplicitlyConvertible<num>;
+            { ceiling (q) } -> ImplicitlyConvertible<num>;
+        });
+
+        static_assert (requires (Q q, math::nonzero<den> d) {
+            { mod (q, d) } -> ImplicitlyConvertible<Q>;
+        });
+
+    };
+
+    template <typename tuple>
+    struct ComplexRationalFraction : Fraction<
+        math::complex<typename std::tuple_element<0, tuple>::type>,
+        typename std::tuple_element<1, tuple>::type>, ::testing::Test {};
+
+    template <typename tuple>
+    struct QuaternionicRationalFraction : Fraction<
+        math::quaternion<typename std::tuple_element<0, tuple>::type>,
+        typename std::tuple_element<1, tuple>::type>, ::testing::Test {};
+
+    template <typename tuple>
+    struct OctonionicRationalFraction : Fraction<
+        math::octonion<typename std::tuple_element<0, tuple>::type>,
+        typename std::tuple_element<1, tuple>::type>, ::testing::Test {};
 
     using test_cases = ::testing::Types<
         tuple<int32, int32>,
@@ -284,6 +311,12 @@ namespace data {
         tuple<hex_int_BC, hex_int_BC>>;
 
     TYPED_TEST_SUITE (RationalFraction, test_cases);
+/*
+    TYPED_TEST_SUITE (ComplexRationalFraction, test_cases);
+
+    TYPED_TEST_SUITE (QuaternionicRationalFraction, test_cases);
+
+    TYPED_TEST_SUITE (OctonionicRationalFraction, test_cases);*/
 
     TYPED_TEST (RationalFraction, Basics) {
         using denominator = typename TestFixture::den;
@@ -292,6 +325,30 @@ namespace data {
         test_fraction<numerator, denominator> {} ();
 
     }
+/*
+    TYPED_TEST (ComplexRationalFraction, Basics) {
+        using denominator = typename TestFixture::den;
+        using numerator = typename TestFixture::num;
+
+        test_fraction<numerator, denominator> {} ();
+
+    }
+
+    TYPED_TEST (QuaternionicRationalFraction, Basics) {
+        using denominator = typename TestFixture::den;
+        using numerator = typename TestFixture::num;
+
+        test_fraction<numerator, denominator> {} ();
+
+    }
+
+    TYPED_TEST (OctonionicRationalFraction, Basics) {
+        using denominator = typename TestFixture::den;
+        using numerator = typename TestFixture::num;
+
+        test_fraction<numerator, denominator> {} ();
+
+    }*/
 
     TYPED_TEST (RationalFraction, Arithmetic) {
         using Q = typename TestFixture::Q;

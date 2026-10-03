@@ -61,6 +61,53 @@ TYPED_TEST_SUITE (ComplexPolynomialField, polynomial_test_cases);
 template <typename Z> void test_polynomial_basic_algebra () {
     using poly = polynomial<Z, int32>;
 
+
+    static_assert (requires {
+        poly {1};
+    });
+
+    static_assert (ImplicitlyConvertible<Z, poly>);
+
+    static_assert (requires (const Z &x, const poly &z) {
+        { x == z } -> ImplicitlyConvertible<bool>;
+        { z == x } -> ImplicitlyConvertible<bool>;
+    });
+
+    static_assert (requires (const poly &z) {
+        { 1 == z } -> ImplicitlyConvertible<bool>;
+        { z == 1 } -> ImplicitlyConvertible<bool>;
+    });
+
+    static_assert (requires (const Z &x, const poly &z) {
+        { x + z } -> ImplicitlyConvertible<poly>;
+        { z + x } -> ImplicitlyConvertible<poly>;
+    });
+
+    static_assert (requires (const Z &x, const poly &z) {
+        { x - z } -> ImplicitlyConvertible<poly>;
+        { z - x } -> ImplicitlyConvertible<poly>;
+    });
+
+    static_assert (requires (const Z &x, const poly &z) {
+        { x * z } -> ImplicitlyConvertible<poly>;
+        { z * x } -> ImplicitlyConvertible<poly>;
+    });
+
+    static_assert (requires (const poly &z) {
+        { 1 + z } -> ImplicitlyConvertible<poly>;
+        { z + 1 } -> ImplicitlyConvertible<poly>;
+    });
+
+    static_assert (requires (const poly &z) {
+        { 1 - z } -> ImplicitlyConvertible<poly>;
+        { z - 1 } -> ImplicitlyConvertible<poly>;
+    });
+
+    static_assert (requires (const poly &z) {
+        { 1 * z } -> ImplicitlyConvertible<poly>;
+        { z * 1 } -> ImplicitlyConvertible<poly>;
+    });
+
     poly X = poly::var ();
     poly P1 = (X ^ 2) + 1;
     poly P2 = X * 3 + 2;
@@ -106,6 +153,14 @@ template <typename Z> void test_polynomial_basic_algebra () {
 template <typename Z> void test_polynomial_division () {
     using poly = polynomial<Z, int32>;
 
+    static_assert (requires (const Z &x, const poly &z) {
+        { z / x } -> ImplicitlyConvertible<poly>;
+    });
+
+    static_assert (requires (const poly &z) {
+        { z / 1 } -> ImplicitlyConvertible<poly>;
+    });
+
     poly X = poly::var ();
     poly P1 = (X ^ 3) + (X ^ 2) * 2 - X + 7;
     poly P2 = X ^ 2 + 1;
@@ -132,13 +187,9 @@ TYPED_TEST (RealPolynomialField, Division) {
     test_polynomial_basic_algebra<typename TestFixture::mod_17> ();
     test_polynomial_basic_algebra<typename TestFixture::mod_19> ();
 }
-/*
+
 TYPED_TEST (ComplexPolynomialRing, Algebra) {
     test_polynomial_basic_algebra<typename TestFixture::base> ();
-}
-
-TYPED_TEST (ComplexPolynomialRing, Division) {
-    using G = typename TestFixture::base;
 }
 
 TYPED_TEST (ComplexPolynomialField, Algebra) {
@@ -147,6 +198,6 @@ TYPED_TEST (ComplexPolynomialField, Algebra) {
 
 TYPED_TEST (ComplexPolynomialField, Division) {
     using C = typename TestFixture::base;
-}*/
+}
 
 // TODO division

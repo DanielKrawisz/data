@@ -40,11 +40,29 @@ namespace data::math {
     template <ring A, group_number N, char x>
     polynomial<A, N, x> operator + (const polynomial<A, N, x>, const polynomial<A, N, x>);
 
+    template <ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    polynomial<A, N, x> operator + (const W &, const polynomial<A, N, x>);
+
+    template <ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    polynomial<A, N, x> operator + (const polynomial<A, N, x>, const W &);
+
     template <ring A, group_number N, char x>
     polynomial<A, N, x> operator - (const polynomial<A, N, x>, const polynomial<A, N, x>);
 
+    template <ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    polynomial<A, N, x> operator - (const W &, const polynomial<A, N, x>);
+
+    template <ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    polynomial<A, N, x> operator - (const polynomial<A, N, x>, const W &);
+
     template <ring A, group_number N, char x>
     polynomial<A, N, x> operator * (const polynomial<A, N, x>, const polynomial<A, N, x>);
+
+    template <ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    polynomial<A, N, x> operator * (const W &, const polynomial<A, N, x>);
+
+    template <ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    polynomial<A, N, x> operator * (const polynomial<A, N, x>, const W &);
 
     template <typename A, group_number N, char x>
     std::ostream &operator << (std::ostream &o, const polynomial<A, N, x> &p);
@@ -494,6 +512,36 @@ namespace data::math {
         return fold ([] (const polynomial p, const term &t) -> polynomial {
             return p + t.derivative ();
         }, polynomial {}, reverse (Terms)).normalize ();
+    }
+
+    template <ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    polynomial<A, N, x> inline operator + (const W &a, const polynomial<A, N, x> b) {
+        return polynomial<A, N, x> (a) + b;
+    }
+
+    template <ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    polynomial<A, N, x> inline operator + (const polynomial<A, N, x> a, const W &b) {
+        return a + polynomial<A, N, x> (b);
+    }
+
+    template <ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    polynomial<A, N, x> inline operator - (const W &a, const polynomial<A, N, x> b) {
+        return polynomial<A, N, x> (a) - b;
+    }
+
+    template <ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    polynomial<A, N, x> inline operator - (const polynomial<A, N, x> a, const W &b) {
+        return a - polynomial<A, N, x> (b);
+    }
+
+    template <ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    polynomial<A, N, x> inline operator * (const W &a, const polynomial<A, N, x> b) {
+        return polynomial<A, N, x> (a) * b;
+    }
+
+    template <ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    polynomial<A, N, x> inline operator * (const polynomial<A, N, x> a, const W &b) {
+        return a * polynomial<A, N, x> (b);
     }
     
 }

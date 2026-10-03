@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_RING
-#define DATA_MATH_RING
+#pragma once
 
 #include <data/math/nonzero.hpp>
 #include <data/math/group.hpp>
@@ -27,5 +26,3 @@ namespace data::math {
     };
     
 }
-
-#endif 
