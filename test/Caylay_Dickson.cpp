@@ -64,7 +64,7 @@ namespace data::math {
     static_assert (Octonionic<octonion<hex_int_BC>>);
 
     template <typename X>
-    void test_complex (X zero, X one, X i) {
+    void test_complex_whole (X zero, X one, X i) {
         EXPECT_EQ (zero, 0);
         EXPECT_EQ (one, 1);
 
@@ -87,9 +87,9 @@ namespace data::math {
         EXPECT_EQ (i * i, -one);
     };
 
-    template <typename X> void test_quaternion (X zero, X one, X i, X j) {
-        test_complex<X> (zero, one, i);
-        test_complex<X> (zero, one, j);
+    template <typename X> void test_quaternion_whole (X zero, X one, X i, X j) {
+        test_complex_whole<X> (zero, one, i);
+        test_complex_whole<X> (zero, one, j);
 
         EXPECT_NE (i, j);
         EXPECT_NE (-i, j);
@@ -107,10 +107,10 @@ namespace data::math {
         EXPECT_EQ (k * j * i, -one);
     };
 
-    template <typename X> void test_octonion (X zero, X one, X i, X j, X k) {
-        test_quaternion<X> (zero, one, i, j);
-        test_quaternion<X> (zero, one, j, k);
-        test_quaternion<X> (zero, one, k, i);
+    template <typename X> void test_octonion_whole (X zero, X one, X i, X j, X k) {
+        test_quaternion_whole<X> (zero, one, i, j);
+        test_quaternion_whole<X> (zero, one, j, k);
+        test_quaternion_whole<X> (zero, one, k, i);
 
         auto e3 = i * j;
         auto e5 = j * k;
@@ -167,7 +167,13 @@ namespace data::math {
         EXPECT_EQ (e7, -x);
     };
 
-    using test_cases = ::testing::Types<
+    using test_cases_whole = ::testing::Types<
+        int32, int64, int32_little, int64_big,
+        int128, int128_little, int160, int160_big,
+        Z, Z_bytes_little, Z_bytes_BC_big,
+        dec_int, hex_int, hex_int_BC>;
+
+    using test_cases_unwhole = ::testing::Types<
         float32, float64,
         int32, int64, int32_little, int64_big,
         int128, int128_little, int160, int160_big,
@@ -187,170 +193,96 @@ namespace data::math {
 namespace data {
 
     template <typename N>
-    struct CayleyDickson : ::testing::Test {
+    struct CayleyDicksonRing : ::testing::Test {
         using base_ring = N;
     };
 
-    TYPED_TEST_SUITE (CayleyDickson, math::test_cases);
+    template <typename N>
+    struct CayleyDicksonField : ::testing::Test {
+        using base_field = N;
+    };
 
-    TYPED_TEST (CayleyDickson, Complex) {
-        using R = typename TestFixture::base_ring;
-        using CR = math::complex<R>;
+    TYPED_TEST_SUITE (CayleyDicksonRing, math::test_cases_whole);
 
-        static_assert (requires {
-            CR {1};
-        });
+    TYPED_TEST_SUITE (CayleyDicksonField, math::test_cases_unwhole);
 
-        static_assert (ImplicitlyConvertible<R, CR>);
+    template <typename R, typename CR>
+    concept RingSubAlgebra = ImplicitlyConvertible<R, CR> && requires {
+        CR {1};
+    } && requires (const R &x, const CR &z) {
+        { x == z } -> ImplicitlyConvertible<bool>;
+        { z == x } -> ImplicitlyConvertible<bool>;
+        { x + z } -> ImplicitlyConvertible<CR>;
+        { z + x } -> ImplicitlyConvertible<CR>;
+        { x - z } -> ImplicitlyConvertible<CR>;
+        { z - x } -> ImplicitlyConvertible<CR>;
+        { x * z } -> ImplicitlyConvertible<CR>;
+        { z * x } -> ImplicitlyConvertible<CR>;
+    } && requires (const CR &z) {
+        { 1 == z } -> ImplicitlyConvertible<bool>;
+        { z == 1 } -> ImplicitlyConvertible<bool>;
+        { 1 + z } -> ImplicitlyConvertible<CR>;
+        { z + 1 } -> ImplicitlyConvertible<CR>;
+        { 1 - z } -> ImplicitlyConvertible<CR>;
+        { z - 1 } -> ImplicitlyConvertible<CR>;
+        { 1 * z } -> ImplicitlyConvertible<CR>;
+        { z * 1 } -> ImplicitlyConvertible<CR>;
+    };
 
-        static_assert (requires (const R &x, const CR &z) {
-            { x == z } -> ImplicitlyConvertible<bool>;
-            { z == x } -> ImplicitlyConvertible<bool>;
-        });
+    template <typename R, typename CR>
+    concept FieldSubAlgebra = RingSubAlgebra<R, CR> &&
+    requires (const R &x, const CR &z) {
+        { x / z } -> ImplicitlyConvertible<CR>;
+        { z / x } -> ImplicitlyConvertible<CR>;
+    } && requires (const CR &z) {
+        { 1 / z } -> ImplicitlyConvertible<CR>;
+        { z / 1 } -> ImplicitlyConvertible<CR>;
+    };
 
-        static_assert (requires (const CR &z) {
-            { 1 == z } -> ImplicitlyConvertible<bool>;
-            { z == 1 } -> ImplicitlyConvertible<bool>;
-        });
-
-        static_assert (requires (const R &x, const CR &z) {
-            { x + z } -> ImplicitlyConvertible<CR>;
-            { z + x } -> ImplicitlyConvertible<CR>;
-        });
-
-        static_assert (requires (const R &x, const CR &z) {
-            { x - z } -> ImplicitlyConvertible<CR>;
-            { z - x } -> ImplicitlyConvertible<CR>;
-        });
-
-        static_assert (requires (const R &x, const CR &z) {
-            { x * z } -> ImplicitlyConvertible<CR>;
-            { z * x } -> ImplicitlyConvertible<CR>;
-        });
-
-        static_assert (requires (const R &x, const CR &z) {
-            { x / z } -> ImplicitlyConvertible<CR>;
-            { z / x } -> ImplicitlyConvertible<CR>;
-        });
-
-        static_assert (requires (const CR &z) {
-            { 1 + z } -> ImplicitlyConvertible<CR>;
-            { z + 1 } -> ImplicitlyConvertible<CR>;
-        });
-
-        static_assert (requires (const CR &z) {
-            { 1 - z } -> ImplicitlyConvertible<CR>;
-            { z - 1 } -> ImplicitlyConvertible<CR>;
-        });
-
-        static_assert (requires (const CR &z) {
-            { 1 * z } -> ImplicitlyConvertible<CR>;
-            { z * 1 } -> ImplicitlyConvertible<CR>;
-        });
-
-        static_assert (requires (const CR &z) {
-            { 1 / z } -> ImplicitlyConvertible<CR>;
-            { z / 1 } -> ImplicitlyConvertible<CR>;
-        });
+    template <typename R, typename CR>
+    requires RingSubAlgebra<R, CR>
+    void test_complex_ring () {
 
         EXPECT_EQ (CR {}, CR {R {}});
         EXPECT_EQ (CR {}, CR {0});
         EXPECT_EQ (CR {0}, R {});
         EXPECT_EQ (R {}, CR {0});
 
-        test_complex<CR> (CR {0}, CR {1}, CR::I ());
+        math::test_complex_whole<CR> (CR {0}, CR {1}, CR::I ());
     }
 
-    TYPED_TEST (CayleyDickson, ComplexDivMod) {
-        //TODO
+    template <typename R, typename CR>
+    requires FieldSubAlgebra<R, CR>
+    void test_complex_field () {
+
+        test_complex_ring<R, CR> ();
     }
 
-    TYPED_TEST (CayleyDickson, Quaternion) {
+    TYPED_TEST (CayleyDicksonRing, Complex) {
         using R = typename TestFixture::base_ring;
         using CR = math::complex<R>;
-        using HR = math::quaternion<R>;
 
-        static_assert (requires {
-            HR {1};
-        });
+        test_complex_ring<R, CR> ();
+    }
 
-        static_assert (ImplicitlyConvertible<R, HR>);
-        static_assert (ImplicitlyConvertible<CR, HR>);
+    TYPED_TEST (CayleyDicksonField, Complex) {
+        using R = typename TestFixture::base_field;
+        using CR = math::complex<R>;
 
-        static_assert (requires (const R &x, const HR &z) {
-            { x == z } -> ImplicitlyConvertible<bool>;
-            { z == x } -> ImplicitlyConvertible<bool>;
-        });
+        test_complex_field<R, CR> ();
+    }
+    // TODO uncommenting this requires a lot of work.
+/*
+    TYPED_TEST (CayleyDicksonRing, Rationalize) {
+        using G = math::complex<typename TestFixture::base_ring>;
+        using C = math::fraction<G>;
 
-        static_assert (requires (const CR &x, const HR &z) {
-            { x == z } -> ImplicitlyConvertible<bool>;
-            { z == x } -> ImplicitlyConvertible<bool>;
-        });
+        math::test_complex_whole<C> (G {0}, G {1}, G::I ());
+    }*/
 
-        static_assert (requires (const HR &z) {
-            { 1 == z } -> ImplicitlyConvertible<bool>;
-            { z == 1 } -> ImplicitlyConvertible<bool>;
-        });
-
-        static_assert (requires (const R &x, const HR &z) {
-            { x + z } -> ImplicitlyConvertible<HR>;
-            { z + x } -> ImplicitlyConvertible<HR>;
-        });
-
-        static_assert (requires (const R &x, const HR &z) {
-            { x - z } -> ImplicitlyConvertible<HR>;
-            { z - x } -> ImplicitlyConvertible<HR>;
-        });
-
-        static_assert (requires (const R &x, const HR &z) {
-            { x * z } -> ImplicitlyConvertible<HR>;
-            { z * x } -> ImplicitlyConvertible<HR>;
-        });
-
-        static_assert (requires (const R &x, const HR &z) {
-            { x / z } -> ImplicitlyConvertible<HR>;
-            { z / x } -> ImplicitlyConvertible<HR>;
-        });
-
-        static_assert (requires (const CR &x, const HR &z) {
-            { x + z } -> ImplicitlyConvertible<HR>;
-            { z + x } -> ImplicitlyConvertible<HR>;
-        });
-
-        static_assert (requires (const CR &x, const HR &z) {
-            { x - z } -> ImplicitlyConvertible<HR>;
-            { z - x } -> ImplicitlyConvertible<HR>;
-        });
-
-        static_assert (requires (const CR &x, const HR &z) {
-            { x * z } -> ImplicitlyConvertible<HR>;
-            { z * x } -> ImplicitlyConvertible<HR>;
-        });
-
-        static_assert (requires (const CR &x, const HR &z) {
-            { x / z } -> ImplicitlyConvertible<HR>;
-            { z / x } -> ImplicitlyConvertible<HR>;
-        });
-
-        static_assert (requires (const HR &z) {
-            { 1 + z } -> ImplicitlyConvertible<HR>;
-            { z + 1 } -> ImplicitlyConvertible<HR>;
-        });
-
-        static_assert (requires (const HR &z) {
-            { 1 - z } -> ImplicitlyConvertible<HR>;
-            { z - 1 } -> ImplicitlyConvertible<HR>;
-        });
-
-        static_assert (requires (const HR &z) {
-            { 1 * z } -> ImplicitlyConvertible<HR>;
-            { z * 1 } -> ImplicitlyConvertible<HR>;
-        });
-
-        static_assert (requires (const HR &z) {
-            { 1 / z } -> ImplicitlyConvertible<HR>;
-            { z / 1 } -> ImplicitlyConvertible<HR>;
-        });
+    template <typename R, typename CR, typename HR>
+    requires RingSubAlgebra<R, HR> && RingSubAlgebra<CR, HR>
+    void test_quaternionic_ring () {
 
         EXPECT_EQ (HR {}, HR {R {}});
         EXPECT_EQ (HR {}, HR {CR {}});
@@ -358,122 +290,35 @@ namespace data {
         EXPECT_EQ (HR {0}, R {});
         EXPECT_EQ (R {}, HR {0});
 
-        test_quaternion<HR> (HR {0}, HR {1}, HR::I (), HR::J ());
+        math::test_quaternion_whole<HR> (HR {0}, HR {1}, HR::I (), HR::J ());
     }
 
-    TYPED_TEST (CayleyDickson, Octonion) {
+    template <typename R, typename CR, typename HR>
+    requires FieldSubAlgebra<R, HR> && FieldSubAlgebra<CR, HR>
+    void test_quaternionic_field () {
+
+        test_quaternionic_ring<R, CR, HR> ();
+    }
+
+    TYPED_TEST (CayleyDicksonRing, Quaternion) {
         using R = typename TestFixture::base_ring;
         using CR = math::complex<R>;
         using HR = math::quaternion<R>;
-        using OR = math::octonion<R>;
 
-        static_assert (requires {
-            OR {1};
-        });
+        test_quaternionic_ring<R, CR, HR> ();
+    }
 
-        static_assert (ImplicitlyConvertible<R, OR>);
-        static_assert (ImplicitlyConvertible<CR, OR>);
-        static_assert (ImplicitlyConvertible<HR, OR>);
+    TYPED_TEST (CayleyDicksonField, Quaternion) {
+        using R = typename TestFixture::base_field;
+        using CR = math::complex<R>;
+        using HR = math::quaternion<R>;
 
-        static_assert (requires (const R &x, const OR &z) {
-            { x == z } -> ImplicitlyConvertible<bool>;
-            { z == x } -> ImplicitlyConvertible<bool>;
-        });
+        test_quaternionic_field<R, CR, HR> ();
+    }
 
-        static_assert (requires (const CR &x, const OR &z) {
-            { x == z } -> ImplicitlyConvertible<bool>;
-            { z == x } -> ImplicitlyConvertible<bool>;
-        });
-
-        static_assert (requires (const HR &x, const OR &z) {
-            { x == z } -> ImplicitlyConvertible<bool>;
-            { z == x } -> ImplicitlyConvertible<bool>;
-        });
-
-        static_assert (requires (const OR &z) {
-            { 1 == z } -> ImplicitlyConvertible<bool>;
-            { z == 1 } -> ImplicitlyConvertible<bool>;
-        });
-
-        static_assert (requires (const R &x, const OR &z) {
-            { x + z } -> ImplicitlyConvertible<OR>;
-            { z + x } -> ImplicitlyConvertible<OR>;
-        });
-
-        static_assert (requires (const R &x, const OR &z) {
-            { x - z } -> ImplicitlyConvertible<OR>;
-            { z - x } -> ImplicitlyConvertible<OR>;
-        });
-
-        static_assert (requires (const R &x, const OR &z) {
-            { x * z } -> ImplicitlyConvertible<OR>;
-            { z * x } -> ImplicitlyConvertible<OR>;
-        });
-
-        static_assert (requires (const R &x, const OR &z) {
-            { x / z } -> ImplicitlyConvertible<OR>;
-            { z / x } -> ImplicitlyConvertible<OR>;
-        });
-
-        static_assert (requires (const CR &x, const OR &z) {
-            { x + z } -> ImplicitlyConvertible<OR>;
-            { z + x } -> ImplicitlyConvertible<OR>;
-        });
-
-        static_assert (requires (const CR &x, const OR &z) {
-            { x - z } -> ImplicitlyConvertible<OR>;
-            { z - x } -> ImplicitlyConvertible<OR>;
-        });
-
-        static_assert (requires (const CR &x, const OR &z) {
-            { x * z } -> ImplicitlyConvertible<OR>;
-            { z * x } -> ImplicitlyConvertible<OR>;
-        });
-
-        static_assert (requires (const CR &x, const OR &z) {
-            { x / z } -> ImplicitlyConvertible<OR>;
-            { z / x } -> ImplicitlyConvertible<OR>;
-        });
-
-        static_assert (requires (const HR &x, const OR &z) {
-            { x + z } -> ImplicitlyConvertible<OR>;
-            { z + x } -> ImplicitlyConvertible<OR>;
-        });
-
-        static_assert (requires (const HR &x, const OR &z) {
-            { x - z } -> ImplicitlyConvertible<OR>;
-            { z - x } -> ImplicitlyConvertible<OR>;
-        });
-
-        static_assert (requires (const HR &x, const OR &z) {
-            { x * z } -> ImplicitlyConvertible<OR>;
-            { z * x } -> ImplicitlyConvertible<OR>;
-        });
-
-        static_assert (requires (const HR &x, const OR &z) {
-            { x / z } -> ImplicitlyConvertible<OR>;
-            { z / x } -> ImplicitlyConvertible<OR>;
-        });
-
-        static_assert (requires (const OR &z) {
-            { 1 + z } -> ImplicitlyConvertible<OR>;
-            { z + 1 } -> ImplicitlyConvertible<OR>;
-        });
-
-        static_assert (requires (const OR &z) {
-            { 1 - z } -> ImplicitlyConvertible<OR>;
-            { z - 1 } -> ImplicitlyConvertible<OR>;
-        });
-
-        static_assert (requires (const OR &z) {
-            { 1 * z } -> ImplicitlyConvertible<OR>;
-            { z * 1 } -> ImplicitlyConvertible<OR>;
-        });
-
-        static_assert (requires (const OR &z) {
-            { 1 / z } -> ImplicitlyConvertible<OR>;
-            { z / 1 } -> ImplicitlyConvertible<OR>;
-        });
+    template <typename R, typename CR, typename HR, typename OR>
+    requires RingSubAlgebra<R, OR> && RingSubAlgebra<CR, OR> && RingSubAlgebra<HR, OR>
+    void test_octonionic_ring () {
 
         EXPECT_EQ (OR {}, OR {R {}});
         EXPECT_EQ (OR {}, OR {HR {}});
@@ -483,7 +328,34 @@ namespace data {
         EXPECT_EQ (OR {0}, R {0});
         EXPECT_EQ (R {0}, OR {0});
 
-        test_octonion<OR> (OR {0}, OR {1}, OR::E1 (), OR::E2 (), OR::E4 ());
+        math::test_octonion_whole<OR> (OR {0}, OR {1}, OR::E1 (), OR::E2 (), OR::E4 ());
     }
+
+    template <typename R, typename CR, typename HR, typename OR>
+    requires RingSubAlgebra<R, OR> && RingSubAlgebra<CR, OR> && RingSubAlgebra<HR, OR>
+    void test_octonionic_field () {
+
+        test_octonionic_ring<R, CR, HR, OR> ();
+    }
+
+    TYPED_TEST (CayleyDicksonRing, Octonion) {
+        using R = typename TestFixture::base_ring;
+        using CR = math::complex<R>;
+        using HR = math::quaternion<R>;
+        using OR = math::octonion<R>;
+
+        test_octonionic_ring<R, CR, HR, OR> ();
+    }
+
+    TYPED_TEST (CayleyDicksonField, Octonion) {
+        using R = typename TestFixture::base_field;
+        using CR = math::complex<R>;
+        using HR = math::quaternion<R>;
+        using OR = math::octonion<R>;
+
+        test_octonionic_field<R, CR, HR, OR> ();
+    }
+
+    // TODO constexpr
 
 }

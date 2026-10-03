@@ -28,14 +28,14 @@ namespace data::math {
     template <typename Z, typename N>
     constexpr bool operator == (const fraction<Z, N> &, const fraction<Z, N> &);
 
+    template <typename Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    constexpr bool inline operator == (const fraction<Z> &a, const ZZ &b);
+
+    template <typename Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    constexpr bool inline operator == (const ZZ &a, const fraction<Z> &b);
+
     template <Ordered Z, Ordered N>
     constexpr auto operator <=> (const fraction<Z, N> &x, const fraction<Z, N> &y);
-
-    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
-    constexpr bool operator == (const fraction<Z> &, const ZZ &);
-
-    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
-    constexpr bool operator == (const ZZ &, const fraction<Z> &);
 
     template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
     constexpr auto operator <=> (const fraction<Z> &, const ZZ &);
@@ -45,6 +45,10 @@ namespace data::math {
 
     template <typename Z, typename N> constexpr fraction<Z, N> operator - (const fraction<Z, N> &);
     template <typename Z, typename N> constexpr fraction<Z, N> operator ~ (const fraction<Z, N> &);
+
+    template <typename Z, typename N>
+    requires requires (Z z) { { *z } -> Same<Z>; }
+    constexpr fraction<Z, N> operator * (const fraction<Z, N> &);
 
     template <typename Z, typename N> constexpr fraction<Z, N> operator + (const fraction<Z, N> &, const fraction<Z, N> &);
     template <typename Z, typename N> constexpr fraction<Z, N> operator - (const fraction<Z, N> &, const fraction<Z, N> &);
@@ -242,6 +246,50 @@ namespace data::math {
         return def::over<Z, N> {} (numerator, denominator);
     }
 
+    template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
+    constexpr inline fraction<Z, N>::fraction () : Numerator {0}, Denominator {1u} {}
+
+    template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
+    template <typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    constexpr inline fraction<Z, N>::fraction (ZZ n, ZZ d) : fraction (over<Z> (Z (n), Z (d))) {}
+
+    template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
+    template <typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    constexpr inline fraction<Z, N>::fraction (ZZ n) : Numerator {Z (n)}, Denominator {1u} {}
+
+    template <Ordered Z, Ordered N>
+    constexpr auto inline operator <=> (const fraction<Z, N> &x, const fraction<Z, N> &y) {
+        if constexpr (requires { typename twice<Z>::type; }) {
+            using doubled = typename twice<Z>::type;
+            return static_cast<doubled> (x.Numerator) * static_cast<doubled> (y.Denominator.Value) <=> static_cast<doubled> (y.Numerator) * static_cast<doubled> (x.Denominator.Value);
+        } else return x.Numerator * static_cast<Z> (y.Denominator.Value) <=> static_cast<Z> (y.Numerator * x.Denominator.Value);
+    }
+
+    template <typename Z, typename N>
+    constexpr bool inline operator == (const fraction<Z, N> &a, const fraction<Z, N> &b) {
+        return a.Numerator == b.Numerator && (a.Numerator == 0 || a.Denominator == b.Denominator);
+    }
+
+    template <typename Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    constexpr bool inline operator == (const fraction<Z> &a, const ZZ &b) {
+        return a == fraction<Z> {b};
+    }
+
+    template <typename Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    constexpr bool inline operator == (const ZZ &a, const fraction<Z> &b) {
+        return fraction<Z> {a} == b;
+    }
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    constexpr auto inline operator <=> (const fraction<Z> &a, const ZZ &b) {
+        return a <=> fraction<Z> {b};
+    }
+
+    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
+    constexpr auto inline operator <=> (const ZZ &a, const fraction<Z> &b) {
+        return fraction<Z> {a} <=> b;
+    }
+
 }
 
 namespace data::math::def {
@@ -337,50 +385,6 @@ namespace data::math {
     std::ostream inline &operator << (std::ostream &o, const fraction<Z, N> &x) {
         if (x.Denominator.Value == 1) return o << x.Numerator;
         return o << "(" << x.Numerator << " / " << x.Denominator.Value << ")";
-    }
-
-    template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
-    constexpr inline fraction<Z, N>::fraction () : Numerator {0}, Denominator {1u} {}
-
-    template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
-    template <typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
-    constexpr inline fraction<Z, N>::fraction (ZZ n, ZZ d) : fraction (over<Z> (Z (n), Z (d))) {}
-
-    template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
-    template <typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
-    constexpr inline fraction<Z, N>::fraction (ZZ n) : Numerator {Z (n)}, Denominator {1u} {}
-
-    template <Ordered Z, Ordered N>
-    constexpr auto inline operator <=> (const fraction<Z, N> &x, const fraction<Z, N> &y) {
-        if constexpr (requires { typename twice<Z>::type; }) {
-            using doubled = typename twice<Z>::type;
-            return static_cast<doubled> (x.Numerator) * static_cast<doubled> (y.Denominator.Value) <=> static_cast<doubled> (y.Numerator) * static_cast<doubled> (x.Denominator.Value);
-        } else return x.Numerator * static_cast<Z> (y.Denominator.Value) <=> static_cast<Z> (y.Numerator * x.Denominator.Value);
-    }
-
-    template <typename Z, typename N>
-    constexpr bool inline operator == (const fraction<Z, N> &a, const fraction<Z, N> &b) {
-        return a <=> b == 0;
-    }
-
-    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
-    constexpr bool inline operator == (const fraction<Z> &a, const ZZ &b) {
-        return a == fraction<Z> {b};
-    }
-
-    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
-    constexpr bool inline operator == (const ZZ &a, const fraction<Z> &b) {
-        return fraction<Z> {a} == b;
-    }
-
-    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
-    constexpr auto inline operator <=> (const fraction<Z> &a, const ZZ &b) {
-        return a <=> fraction<Z> {b};
-    }
-
-    template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
-    constexpr auto inline operator <=> (const ZZ &a, const fraction<Z> &b) {
-        return fraction<Z> {a} <=> b;
     }
 
     template <Ordered Z, typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
