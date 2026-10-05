@@ -307,13 +307,13 @@ namespace data {
 
         test_complex_ring<R, CR> ();
     }
-/*
+
     TYPED_TEST (CayleyDicksonField, Complex) {
         using R = typename TestFixture::base_field;
         using CR = math::complex<R>;
 
         test_complex_field<R, CR> ();
-    }*/
+    }
     // TODO uncommenting this requires a lot of work.
     // we need round before we can do this.
 /*
@@ -351,7 +351,7 @@ namespace data {
 
         test_quaternionic_ring<R, CR, HR> ();
     }
-/*
+
     TYPED_TEST (CayleyDicksonField, Quaternion) {
         using R = typename TestFixture::base_field;
         using CR = math::complex<R>;
@@ -362,7 +362,7 @@ namespace data {
         math::test_round_fractional<HR> (HR {1});
         math::test_round_fractional<HR> (HR::I ());
         math::test_round_fractional<HR> (HR::J ());
-    }*/
+    }
 
     template <typename R, typename CR, typename HR, typename OR>
     requires RealSubAlgebra<R, OR> && RingSubAlgebra<CR, OR> && RingSubAlgebra<HR, OR>
@@ -382,7 +382,6 @@ namespace data {
     template <typename R, typename CR, typename HR, typename OR>
     requires RingSubAlgebra<R, OR> && RingSubAlgebra<CR, OR> && RingSubAlgebra<HR, OR>
     void test_octonionic_field () {
-
         test_octonionic_ring<R, CR, HR, OR> ();
     }
 
@@ -394,7 +393,7 @@ namespace data {
 
         test_octonionic_ring<R, CR, HR, OR> ();
     }
-/*
+
     TYPED_TEST (CayleyDicksonField, Octonion) {
         using R = typename TestFixture::base_field;
         using CR = math::complex<R>;
@@ -407,7 +406,7 @@ namespace data {
         math::test_round_fractional<OR> (OR::E1 ());
         math::test_round_fractional<OR> (OR::E2 ());
         math::test_round_fractional<OR> (OR::E3 ());
-    }*/
+    }
 
     // TODO constexpr
 

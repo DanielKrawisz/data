@@ -2,23 +2,22 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_POINT
-#define DATA_POINT
+#pragma once
 
 #include <data/math/linear/exterior.hpp>
 
 namespace data::math::space {
 
-    template <ring X, size_t dim> using scalar = exterior<X, dim, 0>;
-    template <ring X, size_t dim> using vector = exterior<X, dim, 1>;
-    template <ring X, size_t dim> using bivec = exterior<X, dim, 2>;
-    template <ring X, size_t dim> using trivec = exterior<X, dim, 3>;
+    template <Ring X, size_t dim> using scalar = exterior<X, dim, 0>;
+    template <Ring X, size_t dim> using vector = exterior<X, dim, 1>;
+    template <Ring X, size_t dim> using bivec = exterior<X, dim, 2>;
+    template <Ring X, size_t dim> using trivec = exterior<X, dim, 3>;
 
     // affine geometry is like Euclid without circles.
     // technically, we do not have the full exterior algebra
     // available because we don't have the Hodge star without
     // a notion of perpendicularity.
-    template <field X, size_t dim> struct affine {
+    template <Field X, size_t dim> struct affine {
         // technically, this is an incorrect use of the term.
         template <size_t order> struct simplex;
 
@@ -69,7 +68,7 @@ namespace data::math::space {
         constexpr static transformation flip (const exterior<X, dim, order> &, const exterior<X, dim, dim - order> &);
     };
 
-    template <field X, size_t dim>
+    template <Field X, size_t dim>
     //requires normed<X> && Ordered<decltype (data::norm (std::declval<X> ()))>
     struct Euclidian : affine<X, dim> {
         template <size_t order> using simplex = affine<X, dim>::simplex;
@@ -105,7 +104,7 @@ namespace data::math::space {
         static transformation flip (const exterior<X, order, dim> &);
     };
 
-    template <field X, size_t dim>
+    template <Field X, size_t dim>
     struct elliptic : Euclidian<X, dim> {
         template <size_t order>
         struct simplex : Euclidian<X, dim>::template simplex<order> {
@@ -134,7 +133,7 @@ namespace data::math::space {
         };
     };
 
-    template <field X, size_t dim> struct projective {
+    template <Field X, size_t dim> struct projective {
         template <size_t order> using affine_exterior = data::math::template exterior<X, order, dim + 1>;
 
         template <size_t order>
@@ -179,12 +178,12 @@ namespace data::math::space {
 
 namespace data::math::space {
     // valid if nonzero.
-    template <field X, size_t dim> template <size_t order>
+    template <Field X, size_t dim> template <size_t order>
     bool inline projective<X, dim>::exterior<order>::valid () const {
         return affine_exterior<order + 1>::valid () && static_cast<affine_exterior<order + 1>> (*this) != affine_exterior<order + 1> {0};
     }
 
-    template <field X, size_t dim>
+    template <Field X, size_t dim>
     template <size_t order>
     bool inline projective<X, dim>::exterior<order>::operator == (const exterior &x) const {
         auto ia = this->begin ();
@@ -204,7 +203,7 @@ namespace data::math::space {
         return true;
     }
 
-    template <field X, size_t dim> template <size_t order>
+    template <Field X, size_t dim> template <size_t order>
     bool projective<X, dim>::simplex<order>::valid () const {
         if (!space::template exterior<coordinate, order, dim>::valid ()) return false;
         // infinite values are not allowed to appear after the first finite value.
@@ -215,23 +214,21 @@ namespace data::math::space {
         return true;
     };
 
-    template <field X, size_t dim> template <size_t order>
+    template <Field X, size_t dim> template <size_t order>
     bool inline elliptic<X, dim>::simplex<order>::valid () const {
         return static_cast<exterior<X, order + 1, dim + 1>> (*this) * static_cast<exterior<X, order + 1, dim + 1>> (*this) == X {0};
     }
 
-    template <field X, size_t dim>
+    template <Field X, size_t dim>
     constexpr bool affine<X, dim>::transformation::valid () const {
         if (!invertable (*this) && (*this)[dim * dim - 1] != X {1}) return false;
         for (int index = dim * (dim - 1); index < dim * dim - 1; index++) if ((*this)[index] != X {0}) return false;
         return true;
     }
 
-    template <field X, size_t dim> template <size_t order>
+    template <Field X, size_t dim> template <size_t order>
     constexpr affine<X, dim>::transformation inline affine<X, dim>::flip (const exterior<X, dim, order> &a, const exterior<X, dim, dim - order> &b) {
         return projector (b, a) - projector (a, b);
     }
 }
-
-#endif
 

@@ -24,7 +24,8 @@ namespace data::math {
 
     template <Field R> quaternion<R> operator ~ (const quaternion<R> &);
     template <Field R> quaternion<R> operator / (const quaternion<R> &, const quaternion<R> &);
-    template <Field R, ImplicitlyConvertible<complex<R>> W> quaternion<R> operator / (const quaternion<R> &, const W &);
+    template <Field R, ImplicitlyConvertible<R> W> quaternion<R> operator / (const quaternion<R> &, const W &);
+    template <Field R> quaternion<R> operator / (const quaternion<R> &, const complex<R> &);
     template <Field R, ImplicitlyConvertible<complex<R>> W> quaternion<R> operator / (const W &, const quaternion<R> &);
 
     template <Ring R> std::ostream &operator << (std::ostream &o, const quaternion<R> &x);
@@ -34,6 +35,8 @@ namespace data::math {
         using complex = math::complex<R>;
         using hamiltonian = cayley_dickson<complex>;
         
+        // TODO the definitions above ought to be private.
+
         using hamiltonian::hamiltonian;
         quaternion (R r, R i, R j, R k) : quaternion {complex {r, i}, complex {j, k}} {}
         quaternion (const complex &x) : quaternion {x, complex {}} {}
@@ -88,39 +91,44 @@ namespace data::math {
     }
 
     template <Ring R, ImplicitlyConvertible<complex<R>> W> bool inline operator == (const quaternion<R> &a, const W &b) {
-        return a == quaternion<R> (b);
+        return static_cast<quaternion<R>::hamiltonian> (a) == complex<R> (b);
     }
 
     template <Ring R, ImplicitlyConvertible<complex<R>> W> quaternion<R> inline operator + (const quaternion<R> &a, const W &b) {
-        return a + quaternion<R> (b);
+        return static_cast<quaternion<R>::hamiltonian> (a) + complex<R> (b);
     }
 
     template <Ring R, ImplicitlyConvertible<complex<R>> W> quaternion<R> inline operator + (const W &a, const quaternion<R> &b) {
-        return quaternion<R> (a) + b;
+        return compplex<R> (a) + static_cast<quaternion<R>::hamiltonian> (b);
     }
 
     template <Ring R, ImplicitlyConvertible<complex<R>> W> quaternion<R> inline operator - (const quaternion<R> &a, const W &b) {
-        return a - quaternion<R> (b);
+        return static_cast<quaternion<R>::hamiltonian> (a) - complex<R> (b);
     }
 
     template <Ring R, ImplicitlyConvertible<complex<R>> W> quaternion<R> inline operator - (const W &a, const quaternion<R> &b) {
-        return quaternion<R> (a) - b;
+        return complex<R> (a) - static_cast<quaternion<R>::hamiltonian> (b);
     }
 
     template <Ring R, ImplicitlyConvertible<complex<R>> W> quaternion<R> inline operator * (const quaternion<R> &a, const W &b) {
-        return a * quaternion<R> (b);
+        return static_cast<quaternion<R>::hamiltonian> (a) * complex<R> (b);
     }
 
     template <Ring R, ImplicitlyConvertible<complex<R>> W> quaternion<R> inline operator * (const W &a, const quaternion<R> &b) {
-        return quaternion<R> (a) * b;
+        return complex<R> (a) * static_cast<quaternion<R>::hamiltonian> (b);
     }
 
-    template <Field R, ImplicitlyConvertible<complex<R>> W> quaternion<R> inline operator / (const quaternion<R> &a, const W &b) {
-        return a / quaternion<R> (b);
+    template <Field R, ImplicitlyConvertible<R> W> quaternion<R> inline operator / (const quaternion<R> &a, const W &b) {
+        auto bb = R (b);
+        return quaternion<R> {a.Even / bb, a.Odd / bb};
     }
 
     template <Field R, ImplicitlyConvertible<complex<R>> W> quaternion<R> inline operator / (const W &a, const quaternion<R> &b) {
-        return quaternion<R> (a) / b;
+        return complex<R> (a) / static_cast<quaternion<R>::hamiltonian> (b);
+    }
+
+    template <Field R> quaternion<R> inline operator / (const quaternion<R> &a, const complex<R> &b) {
+        return quaternion<R> {a.Even / b, a.Odd / b};
     }
 
     template <Field R> quaternion<R> inline operator ~ (const quaternion<R> &x) {

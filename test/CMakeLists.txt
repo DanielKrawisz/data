@@ -99,6 +99,8 @@ add_executable (
     algebra.cpp
     #exterior.cpp
     #elliptic_curve.cpp
+
+    #TODO there is nothing here that checks point.hpp and elliptic_curve.hpp
 )
 
 target_link_libraries (unit_tests PRIVATE crypto numbers gtest_main gmock)

@@ -122,10 +122,10 @@ namespace data::math::def {
 
     // if abs and inner are defined, then quadrance x is inner x x.
     template <typename X> requires requires (const X &x) {
-        { data::abs (math::re (math::inner (x, x))) };
+        { math::re (math::inner (x, x)) };
     } struct quadrance<X> {
         constexpr auto operator () (const X &x) {
-            return data::abs (math::re (math::inner (x, x)));
+            return math::re (math::inner (x, x));
         }
     };
 

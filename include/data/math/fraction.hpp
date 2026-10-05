@@ -17,12 +17,12 @@ namespace data::math {
     // and turning it into its fraction field. We can also use
     // it on the unit quaternions to form the rational quaternions
     // and same with octonions.
-    template <typename Z, typename N = decltype (quadrance (std::declval<Z> ()))>
+    template <typename Z, typename N = decltype (abs (quadrance (std::declval<Z> ())))>
     requires IntegralDomain<Z> && ImplicitlyConvertible<N, Z>
     struct fraction;
 
     // construct a fraction
-    template <typename Z, typename N = decltype (quadrance (std::declval<Z> ()))>
+    template <typename Z, typename N = decltype (abs (quadrance (std::declval<Z> ())))>
     constexpr math::fraction<Z, N> inline over (const Z &numerator, const Z &denominator);
 
     template <typename Z, typename N>
@@ -228,7 +228,7 @@ namespace data::math {
         };
 
         // a way of constructing fractions.
-        template <typename Z, typename N = decltype (quadrance (std::declval<Z> ()))> struct over;
+        template <typename Z, typename N = decltype (abs (quadrance (std::declval<Z> ())))> struct over;
     }
 
     template <typename Z, typename N>

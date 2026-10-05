@@ -270,7 +270,6 @@ namespace data {
     template <typename N> concept basic_number = WholeNumber<N> && //math::integral_domain<N> &&
         proto_number<N> && basic_arithmetic<N> && !math::Field<N> &&
         requires (const N &a) {
-            requires Same<decltype (abs (a)), decltype (quadrance (a))>;
             { math::re (a) } -> Same<N>;
             { floor (a) } -> Same<N>;
             { ceiling (a) } -> Same<N>;
@@ -552,6 +551,19 @@ namespace data {
         EXPECT_EQ (abs (N {5}), N {5});
     }
 
+    TYPED_TEST (Numbers, Square) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ (square (N {0}), N {0});
+        EXPECT_EQ (square (N {1}), N {1});
+        EXPECT_EQ (square (N {2}), N {4});
+        EXPECT_EQ (square (N {5}), N {25});
+
+        EXPECT_EQ (quadrance (N {0}), N {0});
+        EXPECT_EQ (quadrance (N {1}), N {1});
+        EXPECT_EQ (quadrance (N {2}), N {4});
+        EXPECT_EQ (quadrance (N {5}), N {25});
+    }
+
     TYPED_TEST (Numbers, ReIm) {
         using N = typename TestFixture::N;
         EXPECT_EQ (math::re (N {1}), N {1});
@@ -609,6 +621,19 @@ namespace data {
         EXPECT_EQ (abs (-N {1}), N {1});
         EXPECT_EQ (abs (-N {2}), N {2});
         EXPECT_EQ (abs (-N {5}), N {5});
+    }
+
+    TYPED_TEST (Integers, Square) {
+        using N = typename TestFixture::Z;
+        EXPECT_EQ (square (-N {0}), N {0});
+        EXPECT_EQ (square (-N {1}), N {1});
+        EXPECT_EQ (square (-N {2}), N {4});
+        EXPECT_EQ (square (-N {5}), N {25});
+
+        EXPECT_EQ (quadrance (-N {0}), N {0});
+        EXPECT_EQ (quadrance (-N {1}), N {1});
+        EXPECT_EQ (quadrance (-N {2}), N {4});
+        EXPECT_EQ (quadrance (-N {5}), N {25});
     }
 
     using naturals = ::testing::Types<

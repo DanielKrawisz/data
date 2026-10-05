@@ -140,39 +140,39 @@ namespace data::math {
     }
 
     template <Ring R, ImplicitlyConvertible<R> W> bool inline operator == (const complex<R> &a, const W &b) {
-        return a == complex<R> (b);
+        return static_cast<cayley_dickson<R>> (a) == R (b);
     }
 
     template <Ring R, ImplicitlyConvertible<R> W> complex<R> inline operator + (const complex<R> &a, const W &b) {
-        return a + complex<R> (b);
+        return static_cast<cayley_dickson<R>> (a) + R (b);
     }
 
     template <Ring R, ImplicitlyConvertible<R> W> complex<R> inline operator + (const W &a, const complex<R> &b) {
-        return complex<R> (a) + b;
+        return R (a) + static_cast<cayley_dickson<R>> (b);
     }
 
     template <Ring R, ImplicitlyConvertible<R> W> complex<R> inline operator - (const complex<R> &a, const W &b) {
-        return a - complex<R> (b);
+        return static_cast<cayley_dickson<R>> (a) - R (b);
     }
 
     template <Ring R, ImplicitlyConvertible<R> W> complex<R> inline operator - (const W &a, const complex<R> &b) {
-        return complex<R> (a) - b;
+        return R (a) - static_cast<cayley_dickson<R>> (b);
     }
 
     template <Ring R, ImplicitlyConvertible<R> W> complex<R> inline operator * (const complex<R> &a, const W &b) {
-        return a * complex<R> (b);
+        return static_cast<cayley_dickson<R>> (a) * R (b);
     }
 
     template <Field R, ImplicitlyConvertible<R> W> complex<R> inline operator * (const W &a, const complex<R> &b) {
-        return complex<R> (a) * b;
+        return R (a) * static_cast<cayley_dickson<R>> (b);
     }
 
     template <Field R, ImplicitlyConvertible<R> W> complex<R> inline operator / (const complex<R> &a, const W &b) {
-        return a / complex<R> (b);
+        return static_cast<cayley_dickson<R>> (a) / R (b);
     }
 
     template <Field R, ImplicitlyConvertible<R> W> complex<R> inline operator / (const W &a, const complex<R> &b) {
-        return complex<R> (a) / b;
+        return R (a) / static_cast<cayley_dickson<R>> (b);
     }
 
     template <Field R> complex<R> inline operator / (const complex<R> &a, const complex<R> &b) {

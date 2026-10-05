@@ -8,6 +8,7 @@
 #include <data/complex.hpp>
 
 #include <data/math/number/modular.hpp>
+#include <data/math/algebra/finite_field.hpp>
 
 #include <data/math/permutation.hpp>
 #include <data/math/polynomial.hpp>

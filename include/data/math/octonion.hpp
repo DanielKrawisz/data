@@ -24,8 +24,10 @@ namespace data::math {
 
     template <Field R> octonion<R> operator ~ (const octonion<R> &);
     template <Field R> octonion<R> operator / (const octonion<R> &, const octonion<R> &);
-    template <Field R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> operator / (const octonion<R> &, const W &);
+    template <Field R, ImplicitlyConvertible<R> W> octonion<R> operator / (const octonion<R> &, const W &);
     template <Field R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> operator / (const W &, const octonion<R> &);
+    template <Field R> octonion<R> operator / (const octonion<R> &, const complex<R> &);
+    template <Field R> octonion<R> operator / (const octonion<R> &, const quaternion<R> &);
 
     template <Ring R> std::ostream &operator << (std::ostream &o, const octonion<R> &x);
 
@@ -137,8 +139,17 @@ namespace data::math {
         return octonion<R> (a) + b;
     }
 
-    template <Field R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> inline operator / (const octonion<R> &a, const W &b) {
-        return a / octonion<R> (b);
+    template <Field R, ImplicitlyConvertible<R> W> octonion<R> operator / (const octonion<R> &a, const W &b) {
+        auto bb = R (b);
+        return octonion<R> {a.Even / bb, a.Odd / bb};
+    }
+
+    template <Field R> octonion<R> operator / (const octonion<R> &a, const complex<R> &b) {
+        return octonion<R> {a.Even / b, a.Odd / b};
+    }
+
+    template <Field R> octonion<R> operator / (const octonion<R> &a, const quaternion<R> &b) {
+        return octonion<R> {a.Even / b, a.Odd / b};
     }
 
     template <Field R, ImplicitlyConvertible<quaternion<R>> W> octonion<R> inline operator / (const W &a, const octonion<R> &b) {
