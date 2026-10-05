@@ -10,14 +10,14 @@
 namespace data {
     
     template <typename N,
-        math::field f2 = math::prime_field<N {2}>,
-        math::field f3 = math::prime_field<N {3}>,
-        math::field f5 = math::prime_field<N {5}>,
-        math::field f7 = math::prime_field<N {7}>,
-        math::field f11 = math::prime_field<N {11}>,
-        math::field f13 = math::prime_field<N {13}>,
-        math::field f17 = math::prime_field<N {17}>,
-        math::field f19 = math::prime_field<N {19}>>
+        math::Field f2 = math::prime_field<N {2}>,
+        math::Field f3 = math::prime_field<N {3}>,
+        math::Field f5 = math::prime_field<N {5}>,
+        math::Field f7 = math::prime_field<N {7}>,
+        math::Field f11 = math::prime_field<N {11}>,
+        math::Field f13 = math::prime_field<N {13}>,
+        math::Field f17 = math::prime_field<N {17}>,
+        math::Field f19 = math::prime_field<N {19}>>
     void test_prime_field () {
 
         // make the zero element for each prime field.

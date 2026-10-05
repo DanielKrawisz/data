@@ -126,5 +126,7 @@ namespace data {
         test_case (-70768521109235, 70768521109235u);
         
     }
+
+    // quadrance, inner
 }
 

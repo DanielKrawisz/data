@@ -18,7 +18,7 @@ namespace data::math {
     // it on the unit quaternions to form the rational quaternions
     // and same with octonions.
     template <typename Z, typename N = decltype (quadrance (std::declval<Z> ()))>
-    requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
+    requires IntegralDomain<Z> && ImplicitlyConvertible<N, Z>
     struct fraction;
 
     // construct a fraction
@@ -193,6 +193,27 @@ namespace data::math {
         };
 
         template <WholeNumber Z, WholeNumber N>
+        struct round<complex<fraction<Z, N>>> {
+            constexpr complex<fraction<Z, N>> operator () (const complex<fraction<Z, N>> &x) {
+                return complex<fraction<Z, N>> {data::round (math::ev (x)), data::round (math::od (x))};
+            }
+        };
+
+        template <WholeNumber Z, WholeNumber N>
+        struct round<quaternion<fraction<Z, N>>> {
+            constexpr quaternion<fraction<Z, N>> operator () (const quaternion<fraction<Z, N>> &x) {
+                return quaternion<fraction<Z, N>> {data::round (math::ev (x)), data::round (math::od (x))};
+            }
+        };
+
+        template <WholeNumber Z, WholeNumber N>
+        struct round<octonion<fraction<Z, N>>> {
+            constexpr octonion<fraction<Z, N>> operator () (const octonion<fraction<Z, N>> &x) {
+                return octonion<fraction<Z, N>> {data::round (math::ev (x)), data::round (math::od (x))};
+            }
+        };
+
+        template <WholeNumber Z, WholeNumber N>
         struct is_whole<fraction<Z, N>> {
             constexpr bool operator () (const fraction<Z, N> &x) {
                 return x.Denominator.Value == 1;
@@ -213,7 +234,7 @@ namespace data::math {
     template <typename Z, typename N>
     std::ostream &operator << (std::ostream &o, const fraction<Z, N> &x);
 
-    template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
+    template <typename Z, typename N> requires IntegralDomain<Z> && ImplicitlyConvertible<N, Z>
     struct fraction {
 
         Z Numerator;
@@ -246,14 +267,14 @@ namespace data::math {
         return def::over<Z, N> {} (numerator, denominator);
     }
 
-    template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
+    template <typename Z, typename N> requires IntegralDomain<Z> && ImplicitlyConvertible<N, Z>
     constexpr inline fraction<Z, N>::fraction () : Numerator {0}, Denominator {1u} {}
 
-    template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
+    template <typename Z, typename N> requires IntegralDomain<Z> && ImplicitlyConvertible<N, Z>
     template <typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
     constexpr inline fraction<Z, N>::fraction (ZZ n, ZZ d) : fraction (over<Z> (Z (n), Z (d))) {}
 
-    template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
+    template <typename Z, typename N> requires IntegralDomain<Z> && ImplicitlyConvertible<N, Z>
     template <typename ZZ> requires ImplicitlyConvertible<ZZ, Z>
     constexpr inline fraction<Z, N>::fraction (ZZ n) : Numerator {Z (n)}, Denominator {1u} {}
 
@@ -322,19 +343,16 @@ namespace data::math::def {
 
     template <WholeNumber Z, typename N>
     struct over<complex<Z>, N> {
-        fraction<complex<Z>, N> operator () (const complex<Z> &numerator, const N &denominator);
         fraction<complex<Z>, N> operator () (const complex<Z> &numerator, const complex<Z> &denominator);
     };
 
     template <WholeNumber Z, typename N>
     struct over<quaternion<Z>, N> {
-        fraction<quaternion<Z>, N> operator () (const quaternion<Z> &numerator, const N &denominator);
         fraction<quaternion<Z>, N> operator () (const quaternion<Z> &numerator, const quaternion<Z> &denominator);
     };
 
     template <WholeNumber Z, typename N>
     struct over<octonion<Z>, N> {
-        fraction<octonion<Z>, N> operator () (const octonion<Z> &numerator, const N &denominator);
         fraction<octonion<Z>, N> operator () (const octonion<Z> &numerator, const octonion<Z> &denominator);
     };
 
@@ -549,22 +567,22 @@ namespace data::math {
         return a * def::inverse<def::times<fraction<Z>>, fraction<Z>> {} (nonzero {b}).Value;
     }
 
-    template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
+    template <typename Z, typename N> requires IntegralDomain<Z> && ImplicitlyConvertible<N, Z>
     constexpr fraction<Z, N> inline &fraction<Z, N>::operator += (const fraction &f) {
         return *this = *this + f;
     }
 
-    template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
+    template <typename Z, typename N> requires IntegralDomain<Z> && ImplicitlyConvertible<N, Z>
     constexpr fraction<Z, N> inline &fraction<Z, N>::operator -= (const fraction &f) {
         return *this = *this - f;
     }
 
-    template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
+    template <typename Z, typename N> requires IntegralDomain<Z> && ImplicitlyConvertible<N, Z>
     constexpr fraction<Z, N> inline &fraction<Z, N>::operator *= (const fraction &f) {
         return *this = *this * f;
     }
 
-    template <typename Z, typename N> requires integral_domain<Z> && ImplicitlyConvertible<N, Z>
+    template <typename Z, typename N> requires IntegralDomain<Z> && ImplicitlyConvertible<N, Z>
     constexpr fraction<Z, N> inline &fraction<Z, N>::operator /= (const fraction &f) {
         return *this = *this / f;
     }

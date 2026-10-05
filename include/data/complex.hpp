@@ -31,7 +31,7 @@ namespace data::math {
     template <typename A> constexpr A imaginary_unit (uint32);
 
     template <typename A> concept quad_algebra =
-        math::ring<A> && requires (const A &x, const A &y) {
+        math::Ring<A> && requires (const A &x, const A &y) {
             { inner (x, y) } -> ImplicitlyConvertible<A>;
         };
 
@@ -66,7 +66,7 @@ namespace data::math {
 
     template <typename A> concept Octonionic = cayley_dickson_algebra<A> && Quaternionic<decltype (ev (std::declval<A> ()))>;
 
-    template <typename A> concept CompositionAlgebra = cayley_dickson_algebra<A> && math::field<A>;
+    template <typename A> concept CompositionAlgebra = cayley_dickson_algebra<A> && math::Field<A>;
 
     template <typename A> constexpr auto re (const A &x) {
         if constexpr (ImplicitlyConvertible<A, decltype (ev (x))>) {

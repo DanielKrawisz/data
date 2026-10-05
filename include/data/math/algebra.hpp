@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_ALGEBRA
-#define DATA_MATH_ALGEBRA
+#pragma once
 
 #include <data/math/nonzero.hpp>
 #include <data/arithmetic.hpp>
@@ -49,5 +48,3 @@ namespace data::math::def {
     };
     
 }
-
-#endif

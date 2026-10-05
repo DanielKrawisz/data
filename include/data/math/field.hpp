@@ -12,7 +12,7 @@
 namespace data::math {
 
     template <typename elem, typename plus = def::plus<elem>, typename times = def::times<elem>>
-    concept field = integral_domain<elem, plus, times> &&
+    concept Field = IntegralDomain<elem, plus, times> &&
     requires (const elem &a, const elem &b) {
         { a / b } -> Same<elem>;
     } && requires (const nonzero<elem> &a, const nonzero<elem> &b) {
@@ -20,9 +20,9 @@ namespace data::math {
     };
 
     template <typename elem, typename plus = def::plus<elem>, typename times = def::times<elem>>
-    concept normed_ring = ring<elem, plus, times> && Normed<elem>;
+    concept NormedRing = Ring<elem, plus, times> && Normed<elem>;
 
     template <typename elem, typename plus = def::plus<elem>, typename times = def::times<elem>>
-    concept normed_field = field<elem, plus, times> && normed_ring<elem, plus, times>;
+    concept RormedField = Field<elem, plus, times> && NormedRing<elem, plus, times>;
     
 }

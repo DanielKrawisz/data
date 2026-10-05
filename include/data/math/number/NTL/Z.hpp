@@ -250,6 +250,10 @@ namespace data::math::def {
     template <> struct times_mod<Z, Z, N> {
         N operator () (const Z &, const Z &, const nonzero<N> &);
     };
+
+    template <> struct convert<N, base58_uint> {
+        N operator () (const base58_uint &) const;
+    };
 /*
 
     template <typename A, typename Mod = A> struct mul_2_mod;
@@ -981,6 +985,10 @@ namespace data::math::def {
     template <hex_case zz>
     Z inline convert<Z, hex::intBC<zz>>::operator () (const hex::intBC<zz> &u) const {
         return Z (u);
+    }
+
+    N inline convert<N, base58_uint>::operator () (const base58_uint &n) const {
+        return N (n);
     }
 }
 

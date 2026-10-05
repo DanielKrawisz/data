@@ -11,6 +11,7 @@
 #include <data/arithmetic/negativity.hpp>
 #include <data/encoding/endian.hpp>
 #include <data/encoding/hex.hpp>
+#include <data/arithmetic.hpp>
 
 // some of this was originally taken from
 // https://kkimdev.github.io/posts/2018/06/15/IEEE-754-Floating-Point-Type-in-C++.html.
@@ -511,6 +512,38 @@ namespace data::math::def {
     template <std::floating_point X> struct inverse<times<X>, X> {
         nonzero<X> operator () (const nonzero<X> &a, const nonzero<X> &b) {
             return b / a;
+        }
+    };
+
+    template <std::floating_point X>
+    struct is_whole<X> {
+        constexpr bool operator () (const X &x) {
+            return std::isfinite (x) && x == std::floor (x);
+        }
+    };
+
+    template <std::floating_point X>
+    struct floor<X> {
+        constexpr X operator () (const X &x) {
+            return std::floor (x);
+        }
+    };
+
+    template <std::floating_point X>
+    struct ceiling<X> {
+        constexpr X operator () (const X &x) {
+            return std::ceil (x);
+        }
+    };
+
+    template <std::floating_point X>
+    struct round<X> {
+        constexpr X operator () (const X &x) {
+            auto floor = data::floor (x);
+            auto fractional_part = x - floor;
+            if (fractional_part > .5) return floor + 1;
+            if (fractional_part < .5) return floor;
+            return data::is_whole (floor / 2) ? floor : floor + 1;
         }
     };
     

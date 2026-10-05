@@ -33,7 +33,7 @@ namespace data {
         return pow (N {3}, 7);
     }
 
-    template <typename N, math::ring M>
+    template <typename N, math::Ring M>
     // TODO uncomment this later and make it work.
     requires //RingNumber<M> &&
     requires { pow<M, int>; }

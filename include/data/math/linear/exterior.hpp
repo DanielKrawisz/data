@@ -3,8 +3,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_LINEAR_EXTERIOR
-#define DATA_MATH_LINEAR_EXTERIOR
+#pragma once
 
 #include <data/tuple.hpp>
 #include <data/math/linear/matrix.hpp>
@@ -14,45 +13,45 @@
 namespace data::math {
 
     // the exterior algebra comprises scalars, vectors, asymmetric 2-tensors, etc.
-    template <ring X, size_t dim, size_t order> requires (order <= dim) struct exterior;
+    template <Ring X, size_t dim, size_t order> requires (order <= dim) struct exterior;
 
     // negate
-    template <ring X, size_t dim, size_t u>
+    template <Ring X, size_t dim, size_t u>
     exterior<X, dim, u> operator - (const exterior<X, dim, u> &);
 
     // scalar multiplication
-    template <ring X, size_t dim, size_t u>
+    template <Ring X, size_t dim, size_t u>
     exterior<X, dim, u> operator * (const exterior<X, dim, u> &, const X &);
 
     // addition
-    template <ring X, size_t dim, size_t u>
+    template <Ring X, size_t dim, size_t u>
     exterior<X, dim, u> operator + (const exterior<X, dim, u> &, const exterior<X, dim, u> &);
 
-    template <ring X, size_t dim, size_t u>
+    template <Ring X, size_t dim, size_t u>
     exterior<X, dim, u> operator - (const exterior<X, dim, u> &, const exterior<X, dim, u> &);
 
     // exterior product
-    template <ring X, size_t dim, size_t A, size_t B> requires (A + B <= dim)
+    template <Ring X, size_t dim, size_t A, size_t B> requires (A + B <= dim)
     exterior<X, dim, A + B> operator ^ (const exterior<X, dim, A> &, const exterior<X, dim, B> &);
 
     // Hodge star
-    template <ring X, size_t dim, size_t order>
+    template <Ring X, size_t dim, size_t order>
     requires requires (const X &x, const X &y) {
         {x * inner (x, y)};
     } exterior<X, dim, dim - order> operator * (const exterior<X, dim, order> &);
 
-    template <ring X, size_t dim, size_t order>
+    template <Ring X, size_t dim, size_t order>
     X contract (const exterior<X, dim, order> &, const exterior<X, dim, dim - order> &);
 
     // generate a matrix that projects onto the subspace defined by the exterior object.
     // the second exterior object is left unchanged.
-    template <field X, size_t dim, size_t order>
+    template <Field X, size_t dim, size_t order>
     matrix<X, dim, dim> projector (const exterior<X, dim, order> &a, const exterior<X, dim, dim - order> &b);
 
-    template <field X, size_t dim, size_t order>
+    template <Field X, size_t dim, size_t order>
     exterior<X, dim, order> antisymetrize (tensor<X, dim, order>);
 
-    template <ring X, size_t dim, size_t order>
+    template <Ring X, size_t dim, size_t order>
     requires requires (std::ostream &o, const X &x) {
         { o << x };
     } std::ostream &operator << (std::ostream &o, const exterior<X, dim, order> &x);
@@ -60,7 +59,7 @@ namespace data::math {
 
 namespace data::math::def {
     // this turns exterior objects into additive groups.
-    template <ring X, size_t dim, size_t order>
+    template <Ring X, size_t dim, size_t order>
     struct inverse<plus<exterior<X, dim, order>>, exterior<X, dim, order>> {
         exterior<X, dim, order> operator () (const exterior<X, dim, order> &a, const exterior<X, dim, order> &b) const {
             return b - a;
@@ -68,7 +67,7 @@ namespace data::math::def {
     };
 
     // this means that an inner product is automatically defined on exterior objects.
-    template <ring X, size_t dim, size_t order>
+    template <Ring X, size_t dim, size_t order>
     struct conjugate<exterior<X, dim, order>> {
         exterior<X, dim, dim - order> operator () (const exterior<X, dim, order> &x) const {
             return *x;
@@ -79,17 +78,17 @@ namespace data::math::def {
 namespace data::math {
 
     // TODO an exterior<x, dim, order> object should extend symmetric_tensor<X, dim + order - 1, order>.
-    template <ring X, size_t dim, size_t order> requires (order <= dim) struct symmetric_tensor;
+    template <Ring X, size_t dim, size_t order> requires (order <= dim) struct symmetric_tensor;
 
     // specialization for scalar type.
-    template <ring X, size_t dim> struct exterior<X, dim, 0> : array<X> {
+    template <Ring X, size_t dim> struct exterior<X, dim, 0> : array<X> {
         using array<X>::array;
         exterior (const array<X> &x) : array<X> {x} {}
         exterior (array<X> &&x): array<X> {x} {}
     };
 
     // specialization for vector type.
-    template <ring X, size_t dim> struct exterior<X, dim, 1> : array<X, dim> {
+    template <Ring X, size_t dim> struct exterior<X, dim, 1> : array<X, dim> {
         using array<X, dim>::array;
         exterior (const array<X, dim> &x) : array<X, dim> {x} {}
         exterior (array<X, dim> &&x): array<X, dim> {x} {}
@@ -100,7 +99,7 @@ namespace data::math {
         auto make_exterior_tuple (std::index_sequence<Is...>) ->
             std::tuple<exterior<X, dim - Is - 1, order - 1>...>;
 
-        template <ring X, size_t dim, size_t order> struct exterior_parent {
+        template <Ring X, size_t dim, size_t order> struct exterior_parent {
             using type = decltype (make_exterior_tuple<X, dim, order> (std::make_index_sequence<dim - order + 1> {}));
         };
 
@@ -115,7 +114,7 @@ namespace data::math {
         template <typename X> std::ostream &operator << (std::ostream &o, exterior_accessor<X> x);
     }
 
-    template <ring X, size_t dim, size_t order> requires (order <= dim)
+    template <Ring X, size_t dim, size_t order> requires (order <= dim)
     struct exterior : exterior_parent<X, dim, order>::type {
         using parent = exterior_parent<X, dim, order>::type;
         using parent::tuple;
@@ -149,7 +148,7 @@ namespace data::math {
 
     };
 
-    template <ring X, size_t dim, size_t order>
+    template <Ring X, size_t dim, size_t order>
     requires requires (std::ostream &o, const X &x) {
         { o << x };
     } std::ostream &operator << (std::ostream &o, const exterior<X, dim, order> &x) {
@@ -170,12 +169,12 @@ namespace data::math {
         }
     }
 
-    template <ring X, size_t dim, size_t order>
+    template <Ring X, size_t dim, size_t order>
     exterior<X, dim, order> inline operator - (const exterior<X, dim, order> &a, const exterior<X, dim, order> &b) {
         return a + -b;
     }
 
-    template <ring X, size_t dim, size_t order>
+    template <Ring X, size_t dim, size_t order>
     exterior<X, dim, order> operator - (const exterior<X, dim, order> &x) {
         if constexpr (order == 0) {
             return exterior<X, dim, order> {-x.Value};
@@ -236,7 +235,7 @@ namespace data::math {
         }
     }
 
-    template <ring X, size_t dim, size_t order> requires (order <= dim)
+    template <Ring X, size_t dim, size_t order> requires (order <= dim)
     template <bool is_const, typename val, typename ex>
     struct exterior<X, dim, order>::it {
         using value_type = val;
@@ -275,7 +274,7 @@ namespace data::math {
     };
 
     // scalar multiplication
-    template <ring X, size_t dim, size_t u>
+    template <Ring X, size_t dim, size_t u>
     exterior<X, dim, u> operator * (const exterior<X, dim, u> &a, const X &b) {
         exterior<X, dim, u> result;
         auto ai = a.begin ();
@@ -287,7 +286,7 @@ namespace data::math {
     }
 
     // addition
-    template <ring X, size_t dim, size_t u>
+    template <Ring X, size_t dim, size_t u>
     exterior<X, dim, u> operator + (const exterior<X, dim, u> &a, const exterior<X, dim, u> &b) {
         exterior<X, dim, u> result;
         auto ai = a.begin ();
@@ -314,35 +313,35 @@ namespace data::math {
     }
 
     // all arguments must be size_t.
-    template <ring X, size_t dim, size_t order> requires (order <= dim)
+    template <Ring X, size_t dim, size_t order> requires (order <= dim)
     template <typename ...sizes> requires (order == sizeof... (sizes))
     constexpr X inline exterior<X, dim, order>::operator [] (sizes... indices) const {
         return access_exterior<order> (*this, indices...);
     }
 
     // all arguments must be size_t.
-    template <ring X, size_t dim, size_t order> requires (order <= dim)
+    template <Ring X, size_t dim, size_t order> requires (order <= dim)
     template <typename ...sizes> requires (order == sizeof... (sizes))
     constexpr exterior_accessor<X> inline exterior<X, dim, order>::operator [] (sizes... indices) {
         return access_exterior<order> (*this, indices...);
     }
 
-    template <ring X, size_t dim, size_t order> requires (order <= dim)
+    template <Ring X, size_t dim, size_t order> requires (order <= dim)
     exterior<X, dim, order>::iterator inline exterior<X, dim, order>::begin () {
         return iterator {this};
     }
 
-    template <ring X, size_t dim, size_t order> requires (order <= dim)
+    template <Ring X, size_t dim, size_t order> requires (order <= dim)
     exterior<X, dim, order>::iterator inline exterior<X, dim, order>::end () {
         return iterator {};
     }
 
-    template <ring X, size_t dim, size_t order> requires (order <= dim)
+    template <Ring X, size_t dim, size_t order> requires (order <= dim)
     exterior<X, dim, order>::const_iterator inline exterior<X, dim, order>::begin () const {
         return const_iterator {this};
     }
 
-    template <ring X, size_t dim, size_t order> requires (order <= dim)
+    template <Ring X, size_t dim, size_t order> requires (order <= dim)
     exterior<X, dim, order>::const_iterator inline exterior<X, dim, order>::end () const {
         return const_iterator {};
     }
@@ -396,7 +395,7 @@ namespace data::math {
     }
 
 
-    template <ring X, size_t dim, size_t order> requires (order <= dim)
+    template <Ring X, size_t dim, size_t order> requires (order <= dim)
     template <bool is_const, typename val, typename ex>
     exterior<X, dim, order>::it<is_const, val, ex>::value_type inline
     &exterior<X, dim, order>::it<is_const, val, ex>::operator * () const {
@@ -404,13 +403,13 @@ namespace data::math {
         return exterior_get<order> (*Exterior, indices);
     }
 
-    template <ring X, size_t dim, size_t order>
+    template <Ring X, size_t dim, size_t order>
     X inline contract (const exterior<X, dim, order> &a, const exterior<X, dim, dim - order> &b) {
         return get_element (a ^ b, std::make_index_sequence<order> {});
     }
 
     // exterior product
-    template <ring X, size_t dim, size_t A, size_t B> requires (A + B <= dim)
+    template <Ring X, size_t dim, size_t A, size_t B> requires (A + B <= dim)
     exterior<X, dim, A + B> operator ^ (const exterior<X, dim, A> &a, const exterior<X, dim, B> &b) {
         if constexpr (A == 0) {
             return b * a[];
@@ -454,7 +453,7 @@ namespace data::math {
         return result;
     }
 
-    template <ring X, size_t dim, size_t order>
+    template <Ring X, size_t dim, size_t order>
     requires requires (const X &x, const X &y) {
         {x * inner (x, y)};
     } exterior<X, dim, dim - order> operator * (const exterior<X, dim, order> &x) {
@@ -543,5 +542,3 @@ namespace data::math {
         }
     }
 }
-
-#endif

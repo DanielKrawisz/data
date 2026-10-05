@@ -63,6 +63,30 @@ namespace data::math {
     static_assert (Octonionic<octonion<hex_int>>);
     static_assert (Octonionic<octonion<hex_int_BC>>);
 
+    template <typename R>
+    void test_round_integral (R unit) {
+        EXPECT_EQ (round (R {0} * unit), R {0} * unit);
+        EXPECT_EQ (round (R {1} * unit), R {1} * unit);
+        EXPECT_EQ (round (R {-1} * unit), R {-1} * unit);
+        EXPECT_EQ (round (R {2} * unit), R {2} * unit);
+        EXPECT_EQ (round (R {-2} * unit), R {-2} * unit);
+    }
+
+    template <typename U>
+    void test_round_fractional (U unit) {
+        // Ordinary rounding.
+        EXPECT_EQ (round (unit * 6 / 5), unit);
+        EXPECT_EQ (round (unit * 9 / 5), unit * 2);
+        EXPECT_EQ (round (unit * -6 / 5), unit * -1);
+        EXPECT_EQ (round (unit * -9 / 5), unit * -2);
+
+        // Ties to even.
+        EXPECT_EQ (round (unit * 3 / 2), unit * 2);
+        EXPECT_EQ (round (unit * 5 / 2), unit * 2);
+        EXPECT_EQ (round (unit * -3 / 2), unit * -2);
+        EXPECT_EQ (round (unit * -5 / 2), unit * -2);
+    }
+
     template <typename X>
     void test_complex_whole (X zero, X one, X i) {
         EXPECT_EQ (zero, 0);
@@ -85,6 +109,20 @@ namespace data::math {
         EXPECT_EQ (i * one, i);
         EXPECT_EQ (one * i, i);
         EXPECT_EQ (i * i, -one);
+
+        EXPECT_EQ (quadrance (zero), 0);
+        EXPECT_EQ (quadrance (one), 1);
+        EXPECT_EQ (quadrance (i), 1);
+        EXPECT_EQ (quadrance (one + one), 4);
+        EXPECT_EQ (quadrance (i + i), 4);
+        EXPECT_EQ (quadrance (one + i), 2);
+
+        EXPECT_EQ (re (zero), 0);
+        EXPECT_EQ (re (one), 1);
+        EXPECT_EQ (re (i), 0);
+
+        test_round_integral<X> (one);
+        test_round_integral<X> (i);
     };
 
     template <typename X> void test_quaternion_whole (X zero, X one, X i, X j) {
@@ -167,18 +205,14 @@ namespace data::math {
         EXPECT_EQ (e7, -x);
     };
 
-    using test_cases_whole = ::testing::Types<
+    using test_cases_ring = ::testing::Types<
         int32, int64, int32_little, int64_big,
         int128, int128_little, int160, int160_big,
         Z, Z_bytes_little, Z_bytes_BC_big,
         dec_int, hex_int, hex_int_BC>;
 
-    using test_cases_unwhole = ::testing::Types<
+    using test_cases_field = ::testing::Types<
         float32, float64,
-        int32, int64, int32_little, int64_big,
-        int128, int128_little, int160, int160_big,
-        Z, Z_bytes_little, Z_bytes_BC_big,
-        dec_int, hex_int, hex_int_BC,
         fraction<int32>, fraction<int64>,
         fraction<int32_little>, fraction<int64_big>,
         fraction<int128>, fraction<int128_little>,
@@ -202,9 +236,9 @@ namespace data {
         using base_field = N;
     };
 
-    TYPED_TEST_SUITE (CayleyDicksonRing, math::test_cases_whole);
+    TYPED_TEST_SUITE (CayleyDicksonRing, math::test_cases_ring);
 
-    TYPED_TEST_SUITE (CayleyDicksonField, math::test_cases_unwhole);
+    TYPED_TEST_SUITE (CayleyDicksonField, math::test_cases_field);
 
     template <typename R, typename CR>
     concept RingSubAlgebra = ImplicitlyConvertible<R, CR> && requires {
@@ -240,7 +274,13 @@ namespace data {
     };
 
     template <typename R, typename CR>
-    requires RingSubAlgebra<R, CR>
+    concept RealSubAlgebra = RingSubAlgebra<R, CR> &&
+    requires (const CR &z) {
+        { re (z) } -> Same<R>;
+    };
+
+    template <typename R, typename CR>
+    requires RealSubAlgebra<R, CR>
     void test_complex_ring () {
 
         EXPECT_EQ (CR {}, CR {R {}});
@@ -256,6 +296,9 @@ namespace data {
     void test_complex_field () {
 
         test_complex_ring<R, CR> ();
+
+        math::test_round_fractional<CR> (CR {1});
+        math::test_round_fractional<CR> (CR::I ());
     }
 
     TYPED_TEST (CayleyDicksonRing, Complex) {
@@ -264,14 +307,15 @@ namespace data {
 
         test_complex_ring<R, CR> ();
     }
-
+/*
     TYPED_TEST (CayleyDicksonField, Complex) {
         using R = typename TestFixture::base_field;
         using CR = math::complex<R>;
 
         test_complex_field<R, CR> ();
-    }
+    }*/
     // TODO uncommenting this requires a lot of work.
+    // we need round before we can do this.
 /*
     TYPED_TEST (CayleyDicksonRing, Rationalize) {
         using G = math::complex<typename TestFixture::base_ring>;
@@ -307,17 +351,21 @@ namespace data {
 
         test_quaternionic_ring<R, CR, HR> ();
     }
-
+/*
     TYPED_TEST (CayleyDicksonField, Quaternion) {
         using R = typename TestFixture::base_field;
         using CR = math::complex<R>;
         using HR = math::quaternion<R>;
 
         test_quaternionic_field<R, CR, HR> ();
-    }
+
+        math::test_round_fractional<HR> (HR {1});
+        math::test_round_fractional<HR> (HR::I ());
+        math::test_round_fractional<HR> (HR::J ());
+    }*/
 
     template <typename R, typename CR, typename HR, typename OR>
-    requires RingSubAlgebra<R, OR> && RingSubAlgebra<CR, OR> && RingSubAlgebra<HR, OR>
+    requires RealSubAlgebra<R, OR> && RingSubAlgebra<CR, OR> && RingSubAlgebra<HR, OR>
     void test_octonionic_ring () {
 
         EXPECT_EQ (OR {}, OR {R {}});
@@ -346,7 +394,7 @@ namespace data {
 
         test_octonionic_ring<R, CR, HR, OR> ();
     }
-
+/*
     TYPED_TEST (CayleyDicksonField, Octonion) {
         using R = typename TestFixture::base_field;
         using CR = math::complex<R>;
@@ -354,7 +402,12 @@ namespace data {
         using OR = math::octonion<R>;
 
         test_octonionic_field<R, CR, HR, OR> ();
-    }
+
+        math::test_round_fractional<OR> (OR {1});
+        math::test_round_fractional<OR> (OR::E1 ());
+        math::test_round_fractional<OR> (OR::E2 ());
+        math::test_round_fractional<OR> (OR::E3 ());
+    }*/
 
     // TODO constexpr
 

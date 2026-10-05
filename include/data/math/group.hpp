@@ -11,7 +11,7 @@
 namespace data::math {
     
     template <typename elem, typename op = def::plus<elem>>
-    concept group = std::default_initializable<elem> && requires () {
+    concept Group = std::default_initializable<elem> && requires () {
         { def::identity<op, elem> {} () } -> ImplicitlyConvertible<elem>;
     } && requires (const elem &a, const elem &b) {
         { op {} (a, b) } -> ImplicitlyConvertible<elem>;

@@ -18,8 +18,11 @@ namespace data::math {
     bool operator == (const cayley_dickson<nda> &, const cayley_dickson<nda> &);
 
     // we only have division if we are a field
-    template <typename nda> requires field<cayley_dickson<nda>>
-    cayley_dickson<nda> operator / (const cayley_dickson<nda> &, const nonzero<cayley_dickson<nda>> &);
+    template <Field nda>
+    cayley_dickson<nda> operator / (const cayley_dickson<nda> &, const cayley_dickson<nda> &);
+
+    template <Field nda>
+    cayley_dickson<nda> operator / (const cayley_dickson<nda> &, const nda &);
 
     template <cayley_dickson_algebra nda>
     struct cayley_dickson {
@@ -39,21 +42,30 @@ namespace data::math {
         cayley_dickson operator * () const;
         
         cayley_dickson operator + (const cayley_dickson &x) const;
+
+        cayley_dickson operator + (const nda &x) const;
         
         cayley_dickson operator - () const;
         
         cayley_dickson operator - (const cayley_dickson &x) const;
+
+        cayley_dickson operator - (const nda &x) const;
         
         cayley_dickson operator * (const cayley_dickson &x) const;
+
+        cayley_dickson operator * (const nda &x) const;
         
     };
 }
 
 namespace data::math::def {
 
+    // TODO this is kind of inefficient.
     template <typename nda>
     struct inner<cayley_dickson<nda>> {
-        auto operator () (const cayley_dickson<nda> &a, const cayley_dickson<nda> &b);
+        auto operator () (const cayley_dickson<nda> &a, const cayley_dickson<nda> &b) {
+            return re (a * *b);
+        }
     };
 
     template <cayley_dickson_algebra nda>
@@ -63,11 +75,28 @@ namespace data::math::def {
         }
     };
 
-    template <typename nda> requires Real<nda> || Complex<nda> || Quaternionic<nda>
-    struct inverse<times<cayley_dickson<nda>>, cayley_dickson<nda>> {
-        nonzero<cayley_dickson<nda>> operator () (const nonzero<cayley_dickson<nda>> &z) {
-            return nonzero<cayley_dickson<nda>> {~(z.Value) / data::quadrance (z.Value)};
+    template <typename X, typename Q>
+    auto scalar_divide(const X& x, const Q& q) {
+        if constexpr (requires {
+            x.Even;
+            x.Odd;
+        }) {
+            return X{
+                scalar_divide(x.Even, q),
+                scalar_divide(x.Odd, q)
+            };
+        } else {
+            return x / q;
         }
+    }
+
+    template <Field nda> requires Real<nda> || Complex<nda> || Quaternionic<nda>
+    struct inverse<times<cayley_dickson<nda>>, cayley_dickson<nda>> {
+        nonzero<cayley_dickson<nda>> operator () (const nonzero<cayley_dickson<nda>> &z); /*{
+            auto quad = data::quadrance (z.Value);
+            cayley_dickson<nda> inverted = *scalar_divide (z.Value, quad);
+            return nonzero<cayley_dickson<nda>> {inverted};
+        }*/
     };
 
     template <typename nda> struct ev<cayley_dickson<nda>> {
@@ -79,6 +108,13 @@ namespace data::math::def {
     template <typename nda> struct od<cayley_dickson<nda>> {
         nda operator () (const cayley_dickson<nda> &x) {
             return x.Odd;
+        }
+    };
+
+    template <typename nda>
+    struct quadrance<cayley_dickson<nda>> {
+        cayley_dickson<nda> operator () (const cayley_dickson<nda> &x) {
+            return inner<cayley_dickson<nda>> {} (x, x);
         }
     };
 }
@@ -119,9 +155,9 @@ namespace data::math {
         return {Even * x.Even - x.Odd * conjugate (Odd), conjugate (Even) * x.Odd + x.Even * Odd};
     }
 
-    template <cayley_dickson_algebra nda>
-    cayley_dickson<nda> inline operator / (const cayley_dickson<nda> &a, const nonzero<cayley_dickson<nda>> &b) {
-        return a * def::inverse<def::times<cayley_dickson<nda>>, cayley_dickson<nda>> {} (b).Value;
+    template <Field nda>
+    cayley_dickson<nda> inline operator / (const cayley_dickson<nda> &a, const cayley_dickson<nda> &b) {
+        return a * def::inverse<def::times<cayley_dickson<nda>>, cayley_dickson<nda>> {} (nonzero {b}).Value;
     }
 
     template <cayley_dickson_algebra nda>

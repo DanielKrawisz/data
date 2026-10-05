@@ -213,7 +213,7 @@ namespace data {
         using Q = math::fraction<num, den>;
 
         static_assert (!WholeNumber<Q>);
-        static_assert (math::field<Q>);
+        static_assert (math::Field<Q>);
         static_assert (RationalConstruction<num, den>);
         static_assert (RationalConstructible<Q>);
         static_assert (RationalBasic<Q>);

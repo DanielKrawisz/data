@@ -16,7 +16,7 @@
 namespace data::math::linear {
     
     // TODO should be able to use the function here rather than the type.
-    template <typename F, typename op = def::plus<F>> requires group<F, op> struct test_group {
+    template <typename F, typename op = def::plus<F>> requires Group<F, op> struct test_group {
         test_group () {}
     }; 
     
@@ -59,7 +59,7 @@ namespace data::math::linear {
         test_group<alternating_group<uint64 {8}>, def::times<alternating_group<uint64 {8}>>> {};
     }
     
-    template <field F> struct test_field {
+    template <Field F> struct test_field {
         test_field () {
 
             EXPECT_EQ (F {0} * F {0}, F {0});
@@ -88,7 +88,7 @@ namespace data::math::linear {
         test_field<prime_field<int64 {19}>> {};
     }
     
-    template <typename F, typename V> requires space<F, V> struct test_vector_space {
+    template <typename F, typename V> requires Space<F, V> struct test_vector_space {
         test_vector_space () {}
     }; 
     
@@ -96,7 +96,7 @@ namespace data::math::linear {
         test_inner_space () {}
     }; 
     
-    template <typename F, typename V> requires field<V> struct test_division_algebra : test_vector_space<F, V> {
+    template <typename F, typename V> requires Field<V> struct test_division_algebra : test_vector_space<F, V> {
         test_division_algebra () {}
     }; 
     

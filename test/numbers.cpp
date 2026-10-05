@@ -268,7 +268,7 @@ namespace data {
 
     // TODO integral domain should be uncommented.
     template <typename N> concept basic_number = WholeNumber<N> && //math::integral_domain<N> &&
-        proto_number<N> && basic_arithmetic<N> && !math::field<N> &&
+        proto_number<N> && basic_arithmetic<N> && !math::Field<N> &&
         requires (const N &a) {
             requires Same<decltype (abs (a)), decltype (quadrance (a))>;
             { math::re (a) } -> Same<N>;

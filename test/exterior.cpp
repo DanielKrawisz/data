@@ -15,15 +15,15 @@ namespace data::math {
     using Q41 = exterior<Q, 4, 1>;
     using Q50 = exterior<Q, 5, 0>;
 
-    static_assert (linear::space<Q, exterior<Q, 1, 0>>);
-    static_assert (linear::space<Q, exterior<Q, 1, 1>>);
-    static_assert (linear::space<Q, exterior<Q, 2, 0>>);
-    static_assert (linear::space<Q, exterior<Q, 2, 1>>);
-    static_assert (linear::space<Q, exterior<Q, 2, 2>>);
-    static_assert (linear::space<Q, exterior<Q, 3, 0>>);
-    static_assert (linear::space<Q, exterior<Q, 3, 1>>);
-    static_assert (linear::space<Q, Q32>);
-    static_assert (linear::space<Q, exterior<Q, 3, 3>>);
+    static_assert (linear::Space<Q, exterior<Q, 1, 0>>);
+    static_assert (linear::Space<Q, exterior<Q, 1, 1>>);
+    static_assert (linear::Space<Q, exterior<Q, 2, 0>>);
+    static_assert (linear::Space<Q, exterior<Q, 2, 1>>);
+    static_assert (linear::Space<Q, exterior<Q, 2, 2>>);
+    static_assert (linear::Space<Q, exterior<Q, 3, 0>>);
+    static_assert (linear::Space<Q, exterior<Q, 3, 1>>);
+    static_assert (linear::Space<Q, Q32>);
+    static_assert (linear::Space<Q, exterior<Q, 3, 3>>);
 
     static_assert (std::forward_iterator<decltype (std::declval<exterior<Q, 1, 0>> ().begin ())>);
     static_assert (std::forward_iterator<decltype (std::declval<exterior<Q, 1, 1>> ().begin ())>);

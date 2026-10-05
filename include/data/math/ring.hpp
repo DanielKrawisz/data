@@ -10,14 +10,14 @@
 namespace data::math {
 
     template <typename elem, typename plus = def::plus<elem>, typename times = def::times<elem>>
-    concept ring = group<elem, plus> && requires () {
+    concept Ring = Group<elem, plus> && requires () {
         { def::identity<times, elem> {} () } -> ImplicitlyConvertible<elem>;
     } && requires (const elem &a, elem &b) {
         { times {} (a, b) } -> ImplicitlyConvertible<elem>;
     };
 
     template <typename elem, typename plus = def::plus<elem>, typename times = def::times<elem>>
-    concept integral_domain = ring<elem, plus, times> &&
+    concept IntegralDomain = Ring<elem, plus, times> &&
     requires {
         elem {0};
         elem {1};

@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_LINEAR_MATRIX
-#define DATA_MATH_LINEAR_MATRIX
+#pragma once
 
 #include <data/transpose.hpp>
 #include <data/math/combinatorics.hpp>
@@ -11,34 +10,34 @@
 
 namespace data::math {
 
-    template <field X, size_t A> using vector = array<X, A>;
-    template <field X, size_t A, size_t B> using matrix = array<X, A, B>;
+    template <Field X, size_t A> using vector = array<X, A>;
+    template <Field X, size_t A, size_t B> using matrix = array<X, A, B>;
 
-    template <field X, size_t A, size_t B> constexpr X det (const matrix<X, A, B> &);
+    template <Field X, size_t A, size_t B> constexpr X det (const matrix<X, A, B> &);
 
-    template <field X, size_t A, size_t B> constexpr bool invertable (const matrix<X, A, B> &);
-    template <field X, size_t A> matrix<X, A, A> invert (const matrix<X, A, A> &);
-    template <field X, size_t A, size_t B> matrix<X, B, A> transpose (const matrix<X, A, B> &);
-    template <field X, size_t A> X tr (const matrix<X, A, A> &);
+    template <Field X, size_t A, size_t B> constexpr bool invertable (const matrix<X, A, B> &);
+    template <Field X, size_t A> matrix<X, A, A> invert (const matrix<X, A, A> &);
+    template <Field X, size_t A, size_t B> matrix<X, B, A> transpose (const matrix<X, A, B> &);
+    template <Field X, size_t A> X tr (const matrix<X, A, A> &);
 
-    template <field X, size_t A> matrix<X, A, A> identity ();
+    template <Field X, size_t A> matrix<X, A, A> identity ();
 
-    template<field X, size_t dim, size_t order>
+    template<Field X, size_t dim, size_t order>
     using tensor = typename seq_to_array_params<
             meta::repeat_value<dim, order>
         >::template apply<X>;
 
-    template <field X, size_t A, size_t B> constexpr bool inline invertable (const matrix<X, A, B> &x) {
+    template <Field X, size_t A, size_t B> constexpr bool inline invertable (const matrix<X, A, B> &x) {
         return det (x) != X {};
     }
 
-    template <field X, size_t A> X tr (const matrix<X, A, A> &x) {
+    template <Field X, size_t A> X tr (const matrix<X, A, A> &x) {
         X result {};
         for (size_t i = 0; i < A; i++) result += x[i, i];
         return result;
     }
 
-    template <field X, size_t A, size_t B> constexpr X inline det (const matrix<X, A, B> &m) {
+    template <Field X, size_t A, size_t B> constexpr X inline det (const matrix<X, A, B> &m) {
         if constexpr (A != B)
             return X {};
         else {
@@ -60,17 +59,17 @@ namespace data::math {
         }
     }
 
-    template <field X, size_t A> matrix<X, A, A> identity () {
+    template <Field X, size_t A> matrix<X, A, A> identity () {
         matrix<X, A, A> I {};
         for (int i = 0; i < A; i++) I[i, i] = X {1};
         return I;
     }
 
-    template <field X, size_t A, size_t B> matrix<X, B, A> inline transpose (const matrix<X, A, B> &x) {
+    template <Field X, size_t A, size_t B> matrix<X, B, A> inline transpose (const matrix<X, A, B> &x) {
         return data::transpose<> (x);
     }
 
-    template <field X, size_t N> matrix<X, N, N> invert (const matrix<X, N, N> &A) {
+    template <Field X, size_t N> matrix<X, N, N> invert (const matrix<X, N, N> &A) {
         matrix<X, N, N> I = identity<X, N> ();
 
         matrix<X, N, N> M = I;
@@ -91,5 +90,3 @@ namespace data::math {
     }
 
 }
-
-#endif

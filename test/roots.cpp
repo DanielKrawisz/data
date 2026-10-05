@@ -80,6 +80,32 @@ namespace data {
         EXPECT_FALSE (contains_8_n3);
         
     };
+
+    using natural_test_cases = ::testing::Types<
+        uint32, uint64, uint32_little, uint64_big,
+        uint128, uint128_little, uint160, uint160_big,
+        N, N_bytes_little,
+        dec_uint, hex_uint, base58_uint>;
+
+    using integer_test_cases = ::testing::Types<
+        int32, int64, int32_little, int64_big,
+        int128, int128_little, int160, int160_big,
+        Z, Z_bytes_little, Z_bytes_BC_big,
+        dec_int, hex_int, hex_int_BC>;
+
+    template <typename N>
+    struct NaturalSqrts : ::testing::Test {
+        using natural = N;
+    };
+
+    template <typename N>
+    struct IntegerSqrts : ::testing::Test {
+        using integer = N;
+    };
+
+    TYPED_TEST_SUITE (NaturalSqrts, integer_test_cases);
+
+    TYPED_TEST_SUITE (IntegerSqrts, natural_test_cases);
     
     TEST (Roots, Roots) {
 
@@ -88,7 +114,7 @@ namespace data {
         test_root_N<N_bytes_big> ();
         test_root_N<dec_uint> ();
         test_root_N<hex_uint> ();
-        //test_root_N<base58_uint> ();
+        test_root_N<base58_uint> ();
 
         test_root_Z<Z> ();
         test_root_Z<Z_bytes_little> ();
@@ -96,5 +122,9 @@ namespace data {
         test_root_Z<dec_int> ();
         test_root_Z<hex_int> ();
         test_root_Z<hex_int_BC> ();
+    }
+
+    TEST (Roots, Rational) {
+
     }
 }
