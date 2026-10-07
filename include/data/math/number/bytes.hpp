@@ -249,7 +249,7 @@ namespace data::encoding::hexidecimal {
                 // We need this optimization because we use division to convert from hex strings to N.
                 if (x.Value == 16) return division<integer<c, zz>, abs_type> {n >> 4, n & integer<c, zz> {4}};
                 
-                else return math::number::integer_divmod (n, x.Value);
+                else return math::number::divmod (n, x.Value);
             }
         };
         
@@ -408,7 +408,7 @@ namespace data::math::def {
     division<Z_bytes<r, word>, N_bytes<r, word>> inline
     divmod<Z_bytes<r, word>, N_bytes<r, word>>::operator ()
         (const Z_bytes<r, word> &a, const nonzero<N_bytes<r, word>> &b) {
-        return number::integer_natural_divmod (a, b.Value);
+        return number::divmod (a, b.Value);
     }
 
     template <endian r, std::unsigned_integral word>

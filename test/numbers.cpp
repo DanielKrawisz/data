@@ -282,7 +282,7 @@ namespace data {
 
     // TODO integral domain should be uncommented.
     template <typename N> concept BasicNumber = WholeNumber<N> &&
-        proto_number<N> && basic_arithmetic<N> && !math::Field<N>;
+        proto_number<N> && basic_arithmetic<N> && !math::Field<N> && MultiplicativeNumber<N>;
 
     template <typename ZZ, typename NN = ZZ> concept modable =
         requires (const ZZ &a, const NN &b) {
@@ -290,6 +290,7 @@ namespace data {
         } && requires (const ZZ &a, const math::nonzero<NN> &b) {
             { mod (a, b) } -> ImplicitlyConvertible<NN>;
             { negate_mod (a, b) } -> ImplicitlyConvertible<NN>;
+            { invert_mod (a, b) } -> ImplicitlyConvertible<maybe<NN>>;
         } && requires (const ZZ &a, const ZZ &b, const math::nonzero<NN> &c) {
             { plus_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
             { minus_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
@@ -1140,39 +1141,40 @@ namespace data {
         EXPECT_THROW ((pow (Z {1}, -Z {3})), math::negative_power);
     }
 
-    TYPED_TEST (Numbers, InvertMod) {
-        using Z = typename TestFixture::N;
-        using N = decltype (abs (N {0}));
+    // TODO we would like to make this work on Naturals.
+    TYPED_TEST (Integers, InvertMod) {
+        using Z = typename TestFixture::Z;
+        using N = decltype (abs (Z {0}));
         EXPECT_EQ (
-            (invert_mod (N {0}, math::nonzero {abs (N {2})})),
+            (invert_mod (Z {0}, math::nonzero {abs (Z {2})})),
             maybe<N> {});
 
         EXPECT_EQ (
-            (invert_mod (N {1}, math::nonzero {abs (N {2})})),
+            (invert_mod (Z {1}, math::nonzero {abs (Z {2})})),
             maybe<N> {N {1}});
 
         EXPECT_EQ (
-            (invert_mod (N {0}, math::nonzero {abs (N {5})})),
+            (invert_mod (Z {0}, math::nonzero {abs (Z {5})})),
             maybe<N> {}
         );
 
         EXPECT_EQ (
-            (invert_mod (N {2}, math::nonzero {abs (N {5})})),
+            (invert_mod (Z {2}, math::nonzero {abs (Z {5})})),
             maybe<N> {N {3}}
         );
 
         EXPECT_EQ (
-            (invert_mod (N {3}, math::nonzero {abs (N {5})})),
+            (invert_mod (Z {3}, math::nonzero {abs (Z {5})})),
             maybe<N> {N {2}}
         );
 
         EXPECT_EQ (
-            (invert_mod (N {4}, math::nonzero {abs (N {5})})),
+            (invert_mod (Z {4}, math::nonzero {abs (Z {5})})),
             maybe<N> {N {4}}
         );
 
         EXPECT_EQ (
-            (invert_mod (N {2}, math::nonzero {abs (N {4})})),
+            (invert_mod (Z {2}, math::nonzero {abs (Z {4})})),
             maybe<N> {}
         );
     }

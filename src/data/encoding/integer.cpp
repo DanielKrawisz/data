@@ -272,14 +272,6 @@ namespace data::encoding {
             return signed_decimal::write (Z_bytes_little {m} | Z_bytes_little {n});
         }
         
-        bool string::operator == (int64 x) const {
-            return *this == string {x};
-        }
-        
-        std::strong_ordering string::operator <=> (int64 x) const {
-            return *this <=> string {x};
-        }
-        
         string::operator double () const {
             return double (Z (*this));
         }

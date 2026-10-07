@@ -375,6 +375,12 @@ namespace data {
             { bit_width (n) } -> ImplicitlyConvertible<size_t>;
         };
 
+    template <typename X> concept MultiplicativeNumberUnsigned =
+        MultiplicativeNumber<X> && Unsigned<X>;
+
+    template <typename X> concept MultiplicativeNumberSigned =
+        MultiplicativeNumber<X> && Signed<X>;
+
     template <typename X> concept RingNumber =
         MultiplicativeNumber<X> &&
         requires (const X &n) {
@@ -640,6 +646,9 @@ namespace data {
         group_number_system<Z, N> &&
         ring_algebraic_signed<Z> && ring_algebraic_unsigned<N> &&
         ring_algebraic_to<Z, N>;
+
+    template <typename Z, typename N> concept ring_number_system =
+        group_number_system<Z, N> && ring_number_signed<Z> && ring_number_unsigned<N>;
 
     template <typename Z, typename N> concept ring_number_system_big =
         group_number_system<Z, N> && ring_number_signed_big<Z> && ring_number_unsigned_big<N>;

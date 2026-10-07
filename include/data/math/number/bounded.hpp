@@ -104,7 +104,7 @@ namespace data::math::def {
     template <endian r, size_t x, std::unsigned_integral word>
     constexpr division<uint<r, x, word>, uint<r, x, word>> inline divmod<uint<r, x, word>, uint<r, x, word>>::operator ()
         (const uint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
-        return number::natural_divmod (v, z.Value);
+        return number::divmod (v, z.Value);
     }
 
     template <endian r, size_t x, std::unsigned_integral word>
@@ -116,7 +116,7 @@ namespace data::math::def {
     template <endian r, size_t x, std::unsigned_integral word>
     constexpr division<uint<r, x, word>, uint<r, x, word>> inline divmod<sint<r, x, word>, uint<r, x, word>>::operator ()
         (const sint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
-        return number::natural_divmod (uint<r, x, word> (v), z.Value);
+        return number::divmod (uint<r, x, word> (v), z.Value);
     }
 
     template <bool a, endian r, size_t x, std::unsigned_integral word>
@@ -158,12 +158,12 @@ namespace data::math::def {
     }
 
     template <bool a, endian r, size_t x, std::unsigned_integral word>
-    constexpr maybe<bounded<a, r, x, word>> inline invert_mod<bounded<a, r, x, word>, bounded<a, r, x, word>>::operator () (
-        const bounded<a, r, x, word> &q,
-        const nonzero<bounded<a, r, x, word>> &mod) {
-        return maybe<bounded<a, r, x, word>> {math::number::natural_invert_mod (
-            bounded<a, r, x + 1, word> (x),
-            nonzero {bounded<a, r, x + 1, word> (mod.Value)})};
+    constexpr maybe<number::bounded<a, r, x, word>> inline invert_mod<number::bounded<a, r, x, word>, number::bounded<a, r, x, word>>::operator () (
+        const number::bounded<a, r, x, word> &q,
+        const nonzero<number::bounded<a, r, x, word>> &mod) {
+        return maybe<number::bounded<a, r, x, word>> (math::number::invert_mod<number::bounded<a, r, x + 1, word>> (
+            number::bounded<a, r, x + 1, word> (q),
+            nonzero {number::bounded<a, r, x + 1, word> (mod.Value)}));
     }
 }
 

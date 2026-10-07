@@ -26,6 +26,7 @@ namespace data::math::number {
         Z (const dec_int &u): Value {NTL::conv<NTL::ZZ> (u)} {}
         Z (const dec_uint &u): Value {NTL::conv<NTL::ZZ> (u)} {}
         template <negativity n, hex_case zz> Z (const hex::integer<n, zz> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
+        Z (const base58_uint &u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
         template <endian r, negativity c, std::unsigned_integral word>
         explicit Z (const Z_bytes<r, c, word> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
@@ -1013,6 +1014,10 @@ namespace data::math::def {
 
     maybe<N> inline invert_mod<Z, N>::operator () (const Z &a, const nonzero<N> &b) {
         return invert_mod<N> {} (data::mod (a, b), b);
+    }
+
+    maybe<base58_uint> inline invert_mod<base58_uint, base58_uint>::operator () (const base58_uint &a, const nonzero<base58_uint> &b) {
+        return maybe<base58_uint> (invert_mod<Z, N> {} (Z (a), nonzero {N (b.Value)}));
     }
 
 }

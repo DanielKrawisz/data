@@ -11,8 +11,7 @@
 
 namespace data::math::number {
 
-    // Generic division algorithm.
-    // assume both numbers are non-negative.
+    // Divide Dividend by Divisor assuming both numbers are positive.
     template <MultiplicativeNumber N>
     constexpr division<N> natural_divmod (const N &Dividend, const N &Divisor) {
 
@@ -56,8 +55,13 @@ namespace data::math::number {
         return result;
     }
 
-    template <MultiplicativeNumber Z, MultiplicativeNumber N>
-    constexpr division<Z, N> integer_natural_divmod (const Z &Dividend, const N &Divisor) {
+    template <MultiplicativeNumberUnsigned N>
+    constexpr division<N> divmod (const N &Dividend, const N &Divisor) {
+        return natural_divmod (Dividend, Divisor);
+    }
+
+    template <typename Z, typename N> requires MultiplicativeNumberSystem<Z, N>
+    constexpr division<Z, N> divmod (const Z &Dividend, const N &Divisor) {
         division<N> d {natural_divmod<N> (abs (Dividend), Divisor)};
 
         if (d.Remainder == 0) return {Dividend < 0 ? -Z (d.Quotient) : Z (d.Quotient), d.Remainder};
@@ -77,7 +81,7 @@ namespace data::math::number {
         PYTHON_2_FLOOR_DIV
     };
 
-    template <modulo_negative_divisor_convention m, MultiplicativeNumber Z>
+    template <modulo_negative_divisor_convention m, MultiplicativeNumberSigned Z>
     constexpr division<Z, decltype (abs (std::declval<Z> ()))> integer_divmod (const Z &Dividend, const Z &Divisor) {
         using N = decltype (abs (std::declval<Z> ()));
 
@@ -112,6 +116,11 @@ namespace data::math::number {
         } else throw exception {} << "Invalid modulo convention";
 
         return {Z (d.Quotient), d.Remainder};
+    }
+
+    template <MultiplicativeNumberSigned Z>
+    constexpr division<Z, decltype (abs (std::declval<Z> ()))> divmod (const Z &Dividend, const Z &Divisor) {
+        return integer_divmod<EUCLIDIAN_ALWAYS_POSITIVE> (Dividend, Divisor);
     }
 
 }

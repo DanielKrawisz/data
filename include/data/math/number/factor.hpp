@@ -46,7 +46,7 @@ namespace data::math::number {
             while (true) {
                 p = P.first ();
 
-                d = divmod (x, p);
+                d = divmod (x, p.Value);
 
                 // in this case, the number itself must be prime.
                 if (d.Quotient < p.Value) {

@@ -1025,17 +1025,17 @@ namespace data::encoding::decimal {
         string &operator /= (const string &);
         string &operator %= (const string &);
         
-        string operator + (uint64) const;
-        string operator - (uint64) const;
-        string operator * (uint64) const;
+        template <std::integral I> string operator + (I) const;
+        template <std::integral I> string operator - (I) const;
+        template <std::integral I> string operator * (I) const;
         
-        string &operator += (uint64);
-        string &operator -= (uint64);
-        string &operator *= (uint64);
+        template <std::integral I> string &operator += (I);
+        template <std::integral I> string &operator -= (I);
+        template <std::integral I> string &operator *= (I);
 
-        string operator | (uint64) const;
+        template <std::integral I> string operator | (I) const;
 
-        string &operator /= (uint64);
+        template <std::integral I> string &operator /= (I);
         
         explicit operator double () const;
         explicit operator uint64 () const;
@@ -1115,8 +1115,8 @@ namespace data::encoding::signed_decimal {
 
         string &operator /= (const string &);
         
-        bool operator == (int64) const;
-        std::strong_ordering operator <=> (int64) const;
+        template <std::integral I> bool operator == (I i) const;
+        template <std::integral I> std::strong_ordering operator <=> (I i) const;
         
         string operator / (int64) const;
         
@@ -1338,27 +1338,33 @@ namespace data::encoding::decimal {
         return *this = *this >> i;
     }
     
-    string inline string::operator + (uint64 x) const {
+    template <std::integral I>
+    string inline string::operator + (I x) const {
         return *this + string {x};
     }
     
-    string inline string::operator - (uint64 x) const {
+    template <std::integral I>
+    string inline string::operator - (I x) const {
         return *this - string {x};
     }
     
-    string inline string::operator * (uint64 x) const {
+    template <std::integral I>
+    string inline string::operator * (I x) const {
         return *this * string {x};
     }
     
-    string inline &string::operator += (uint64 x) {
+    template <std::integral I>
+    string inline &string::operator += (I x) {
         return *this += string {x};
     }
     
-    string inline &string::operator -= (uint64 x) {
+    template <std::integral I>
+    string inline &string::operator -= (I x) {
         return *this -= string {x};
     }
     
-    string inline &string::operator *= (uint64 x) {
+    template <std::integral I>
+    string inline &string::operator *= (I x) {
         return *this *= string {x};
     }
     
@@ -1580,6 +1586,16 @@ namespace data::encoding::signed_decimal {
 
     string inline operator * (const decimal::string &n, const string &x) {
         return string {n} * x;
+    }
+
+    template <std::integral I>
+    bool inline string::operator == (I x) const {
+        return *this == string {x};
+    }
+
+    template <std::integral I>
+    std::strong_ordering inline string::operator <=> (I x) const {
+        return *this <=> string {x};
     }
     
 }

@@ -33,7 +33,7 @@ namespace data::math::number::euclidian {
             return gcd == a * s + b * t;
         }
         
-        constexpr extended (Z a, Z b, N gcd, Z s, Z t) : GCD {gcd}, BezoutS {s}, BezoutT {s} {
+        constexpr extended (Z a, Z b, N gcd, Z s, Z t) : GCD {gcd}, BezoutS {s}, BezoutT {t} {
             if (!valid_proof (gcd, a, b, s, t)) throw invalid_proof {};
         }
         
@@ -62,7 +62,10 @@ namespace data::math::number::euclidian {
         // must provide prev.Div.Remainder > current.Div.Remainder.
         constexpr static extended loop (const sequence prev, const sequence current) {
             sequence next = prev / current;
-            if (next.Div.Remainder == 0) return extended {current.Div.Remainder, current.BezoutS, current.BezoutT};
+
+            if (next.Div.Remainder == 0)
+                return extended {current.Div.Remainder, current.BezoutS, current.BezoutT};
+
             return loop (current, next);
         }
         
@@ -80,24 +83,32 @@ namespace data::math::number::euclidian {
 }
 
 namespace data::math::number {
-    template <RingNumber Z, RingNumber N>
-    constexpr auto natural_invert_mod (const Z &x, const nonzero<N> &mod) ->
-        maybe<decltype (divmod (x, mod).Remainder)> {
+
+    template <RingNumber Z, RingNumber N = Z>
+    constexpr auto invert_mod (const Z &x, const nonzero<N> &mod) -> maybe<decltype (data::mod (x, mod))> {
+
         if (mod.Value == 0) throw division_by_zero {};
-        using remainder_type = decltype (integer_divmod<number::EUCLIDIAN_ALWAYS_POSITIVE> (x, mod.Value).Remainder);
-        auto proof = number::euclidian::extended<remainder_type, Z>::algorithm
-            (remainder_type (mod.Value), integer_divmod<number::EUCLIDIAN_ALWAYS_POSITIVE> (x, mod.Value).Remainder);
-        if (proof.GCD != 1) return {};
-        return integer_divmod<number::EUCLIDIAN_ALWAYS_POSITIVE> (proof.BezoutT, mod.Value).Remainder;
+        using result_type = decltype (data::mod (x, mod));
+
+        if (x == 0) return {};
+        auto proof = number::euclidian::extended<result_type, Z>::algorithm
+            (result_type (mod.Value), data::mod (x, mod));
+
+            if (proof.GCD != 1) return {};
+
+        // for some numbers, mods can be negative.
+        auto result = data::mod (proof.BezoutT, mod);
+        return is_negative (result) ? result_type (result + mod.Value) : result;
     }
 }
 
 // default definition for invert mod and GCD.
 namespace data::math::def {
+
     template <typename Z, typename N>
     struct invert_mod {
-        constexpr auto operator () (const Z &x, const nonzero<N> &mod) {
-            return number::natural_invert_mod<Z, N> (x, mod);
+        constexpr auto inline operator () (const Z &x, const nonzero<N> &mod) -> maybe<decltype (number::divmod (x, mod.Value).Remainder)> {
+            return number::invert_mod (x, mod);
         }
     };
 

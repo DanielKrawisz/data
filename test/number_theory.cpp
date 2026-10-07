@@ -65,8 +65,8 @@ namespace data {
         math::N_bytes<endian::little, unsigned short>,
         math::N_bytes<endian::little, unsigned int>,
         math::N_bytes<endian::little, unsigned long>,
-        math::N_bytes<endian::little, unsigned long long>/*,
-        dec_uint, hex_uint, base58_uint*/>;
+        math::N_bytes<endian::little, unsigned long long>,
+        dec_uint/*, hex_uint, base58_uint*/>;
 
     using integers = ::testing::Types<
         int64, int64_little, int64_big,
