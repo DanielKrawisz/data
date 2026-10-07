@@ -14,6 +14,7 @@ add_executable (
     modular.cpp                  # TODO: A condition is commented out.
     finite_field.cpp             # TODO: make typed test.
     exterior.cpp
+    numbers.cpp
 
     # These tests only require data_core for the components being tested.
     # other components may be used for the tests themselves.
@@ -68,7 +69,7 @@ add_executable (
     Z_bytes.cpp
     float.cpp
     NTL.cpp
-    numbers.cpp                  # TODO: We have some typed test suites, but we need more.
+    #numbers.cpp
     N.cpp
     Z.cpp
     bit_ops.cpp                  # TODO: Contains commented test cases
@@ -90,7 +91,7 @@ add_executable (
     Caylay_Dickson.cpp           # TODO: Uncomment and expand. constexpr
     sign.cpp                     # TODO: Contains commented test cases and should be a typed test
     abs.cpp                      # TODO: should be a typed test.
-    roots.cpp                    # TODO: should be a typed test.
+    roots.cpp                    # TODO: should be a typed test. Extend to rationals and prime fields.
     #modular.cpp                  # TODO: A condition is commented out.
     limits.cpp                   # TODO: cases are commented out.
     polynomial.cpp               # TODO: cases are commented out.
@@ -101,6 +102,7 @@ add_executable (
     #elliptic_curve.cpp
 
     #TODO there is nothing here that checks point.hpp and elliptic_curve.hpp
+    # geometry
 )
 
 target_link_libraries (unit_tests PRIVATE crypto numbers gtest_main gmock)

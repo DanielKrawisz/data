@@ -80,7 +80,7 @@ namespace data::math::number::euclidian {
 }
 
 namespace data::math::number {
-    template <ring_number_signed Z, RingNumber N>
+    template <RingNumber Z, RingNumber N>
     constexpr auto natural_invert_mod (const Z &x, const nonzero<N> &mod) ->
         maybe<decltype (divmod (x, mod).Remainder)> {
         if (mod.Value == 0) throw division_by_zero {};

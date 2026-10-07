@@ -5,7 +5,6 @@
 #pragma once
 
 #include <data/concepts.hpp>
-#include <data/arithmetic.hpp>
 #include <data/math/algebra.hpp>
 
 namespace data::math {

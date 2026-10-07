@@ -53,8 +53,8 @@ namespace data {
         math::Z_bytes<endian::little, unsigned short>,
         math::Z_bytes<endian::little, unsigned int>,
         math::Z_bytes<endian::little, unsigned long>,
-        math::Z_bytes<endian::little, unsigned long long>/*,
-        dec_uint, hex_uint, dec_int, hex_int, hex_int_BC*/>;
+        math::Z_bytes<endian::little, unsigned long long>,
+        dec_uint, hex_uint, dec_int/*, hex_int, hex_int_BC, base58_uint*/>;
 
     using naturals = ::testing::Types<
         uint64, uint64_little, uint64_big,
@@ -66,7 +66,7 @@ namespace data {
         math::N_bytes<endian::little, unsigned int>,
         math::N_bytes<endian::little, unsigned long>,
         math::N_bytes<endian::little, unsigned long long>/*,
-        dec_uint, hex_uint*/>;
+        dec_uint, hex_uint, base58_uint*/>;
 
     using integers = ::testing::Types<
         int64, int64_little, int64_big,
@@ -77,8 +77,8 @@ namespace data {
         math::Z_bytes<endian::little, unsigned short>,
         math::Z_bytes<endian::little, unsigned int>,
         math::Z_bytes<endian::little, unsigned long>,
-        math::Z_bytes<endian::little, unsigned long long>/*,
-        dec_int, hex_int, hex_int_BC*/>;
+        math::Z_bytes<endian::little, unsigned long long>,
+        dec_int/*, hex_int, hex_int_BC*/>;
 
     TYPED_TEST_SUITE (TheoryNumbers, numbers);
 
@@ -304,7 +304,7 @@ namespace data {
         EXPECT_FALSE (math::number::is_prime (source, rn, rounds));
 
         // generate random prime
-        math::number::prime<N> rp = math::number::generate_random_prime<N> (source, bits, rounds);
+        math::number::prime<N> rp = math::number::generate_random_prime<N> (source, bits, {.rounds = rounds});
 
         EXPECT_EQ (rp.Value, N {dec_int {"977795739113"}});
 
@@ -315,7 +315,7 @@ namespace data {
         EXPECT_EQ (np.Value, N {dec_int {"977795739127"}});
 
         // generate safe prime
-        math::number::prime<N> rp_safe = math::number::generate_random_prime<N> (source, bits, rounds, true);
+        math::number::prime<N> rp_safe = math::number::generate_random_prime<N> (source, bits, {.rounds = rounds, .safe = true});
 
         EXPECT_EQ (rp_safe.Value, N {dec_int {"888729816323"}});
 

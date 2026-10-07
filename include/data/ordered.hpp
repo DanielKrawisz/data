@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_ORDERED
-#define DATA_MATH_ORDERED
+#pragma once
 
 #include <type_traits>
 #include <algorithm>
@@ -20,6 +19,23 @@ namespace data {
     template <typename element>
     concept Prioritized = Copyable<element> && requires (const element &a, const element &b) {
         {a <= b} -> ImplicitlyConvertible<bool>;
+    };
+
+    template <typename N, typename M = N> concept Comparable =
+    requires (const N &n, const M &m) {
+        { n == m } -> Same<bool>;
+        { n != m } -> Same<bool>;
+        { n > m } -> Same<bool>;
+        { n < m } -> Same<bool>;
+        { n >= m } -> Same<bool>;
+        { n <= m } -> Same<bool>;
+        { m == n } -> Same<bool>;
+        { m != n } -> Same<bool>;
+        { m > n } -> Same<bool>;
+        { m < n } -> Same<bool>;
+        { m > n } -> Same<bool>;
+        { m <= n } -> Same<bool>;
+        { m >= n } -> Same<bool>;
     };
     
     template <typename X, typename Y> requires 
@@ -79,6 +95,4 @@ namespace data {
     
     
 }
-
-#endif
 

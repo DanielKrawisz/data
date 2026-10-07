@@ -346,10 +346,10 @@ namespace data {
         };
 
         template <bool a, endian r, size_t x, std::unsigned_integral word>
-        struct invert_mod<bounded<a, r, x, word>, uint<r, x, word>> {
-            constexpr maybe<uint<r, x, word>> operator () (
+        struct invert_mod<bounded<a, r, x, word>, bounded<a, r, x, word>> {
+            constexpr maybe<bounded<a, r, x, word>> operator () (
                 const bounded<a, r, x, word> &,
-                const nonzero<uint<r, x, word>> &);
+                const nonzero<bounded<a, r, x, word>> &);
         };
 
         template <endian r, size_t x, std::unsigned_integral word>
@@ -1239,6 +1239,12 @@ namespace data {
         (const number::Z_bytes<r, c, w> &z) const {
             if constexpr (!b || c == negativity::twos) return number::bounded<b, o, y, u> {z};
             return number::bounded<b, o, y, u> {math::convert<number::Z_bytes<r, negativity::twos, w>> (z)};
+        }
+
+        template <bool is_signed, endian r, size_t size, std::unsigned_integral word>
+        constexpr size_t size_in_base<number::bounded<is_signed, r, size, word>, 2>::operator () (const number::bounded<is_signed, r, size, word> &x) {
+            if constexpr (is_signed) return arithmetic::twos::bit_width (x.words ());
+            else return arithmetic::nones::bit_width (x.words ());
         }
     }
 

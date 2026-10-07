@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_BYTES_Z
-#define DATA_MATH_NUMBER_BYTES_Z
+#pragma once
 
 #include <data/math/number/bytes/bytes.hpp>
 #include <data/arithmetic/complementary.hpp>
@@ -963,6 +962,17 @@ namespace data::math::def {
         std::copy (input.words ().begin (), input.words ().end (), result.words ().begin ());
         return number::trim (result);
     }
+
+    template <endian r, std::unsigned_integral word>
+    size_t inline size_in_base<number::N_bytes<r, word>, 2>::operator () (const number::N_bytes<r, word> &x) {
+        return arithmetic::nones::bit_width (x.words ());
+    }
+
+    template <endian r, negativity c, std::unsigned_integral word>
+    size_t inline size_in_base<number::Z_bytes<r, c, word>, 2>::operator () (const number::Z_bytes<r, c, word> &x) {
+        if constexpr (c == negativity::twos) return arithmetic::twos::bit_width (x.words ());
+        else return arithmetic::BC::bit_width (x.words ());
+    }
 }
 
 // finally come functions that can be implemented in terms of the low
@@ -1779,5 +1789,3 @@ namespace data::math::number {
         return rr;
     }
 }
-
-#endif

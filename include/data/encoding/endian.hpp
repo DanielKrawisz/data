@@ -402,6 +402,14 @@ namespace data::math::def {
             return data::mod_2 (a.value ());
         }
     };
+
+    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+    struct size_in_base<boost::endian::endian_arithmetic<Order, T, n_bits, Align>, 2> {
+        constexpr size_t operator () (
+            boost::endian::endian_arithmetic<Order, T, n_bits, Align> a) {
+            return data::bit_width (a.value ());
+        }
+    };
 }
 
 namespace data {

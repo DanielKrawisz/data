@@ -15,8 +15,11 @@
 #include <algorithm>
 
 namespace data {
-    // we use a wrapper around GMP for natural numbers and integers.
+    // we use a wrapper around NTL for natural numbers and integers.
     // naturals are N, integers are Z.
+
+    using Z = math::number::Z;
+    using N = math::number::N;
     
     // N_bytes and Z_bytes are big numbers with a specific
     // representation. They can be big or little endian. 

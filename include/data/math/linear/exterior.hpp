@@ -23,6 +23,9 @@ namespace data::math {
     template <Ring X, size_t dim, size_t u>
     exterior<X, dim, u> operator * (const exterior<X, dim, u> &, const X &);
 
+    template <Ring X, size_t dim, size_t u>
+    exterior<X, dim, u> operator * (const X &, const exterior<X, dim, u> &);
+
     // addition
     template <Ring X, size_t dim, size_t u>
     exterior<X, dim, u> operator + (const exterior<X, dim, u> &, const exterior<X, dim, u> &);

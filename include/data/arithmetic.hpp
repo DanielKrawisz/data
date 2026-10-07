@@ -7,6 +7,7 @@
 #include <data/types.hpp>
 #include <data/maybe.hpp>
 #include <data/math/nonzero.hpp>
+#include <data/math/ring.hpp>
 #include <data/sign.hpp>
 #include <data/abs.hpp>
 #include <data/increment.hpp>
@@ -48,14 +49,6 @@ namespace data {
     template <typename A, typename ...C> requires Same<A, C...>
     constexpr auto LCM (const A &, const A &, C &&...x);
 
-    template <typename A> constexpr auto floor (const A &);
-    template <typename A> constexpr auto ceiling (const A &);
-    template <typename A> constexpr auto round (const A &);
-    template <typename A> constexpr auto is_whole (const A &);
-    template <typename A> constexpr auto numerator (const A &);
-    template <typename A> constexpr auto denominator (const A &);
-    template <typename A> constexpr auto frac (const A &);
-
     // modular arithmetic
     template <typename A, typename Mod = A> constexpr auto mod (const A &, const math::nonzero<Mod> &);
 
@@ -68,6 +61,15 @@ namespace data {
     template <typename A, typename Exp = A, typename Mod = Exp> constexpr auto pow_mod (const A &, const Exp &, const math::nonzero<Mod> &);
 
     template <typename A, typename Mod> constexpr auto invert_mod (const A &x, const math::nonzero<Mod> &n);
+
+    // functions on rational numbers.
+    template <typename A> constexpr auto floor (const A &);
+    template <typename A> constexpr auto ceiling (const A &);
+    template <typename A> constexpr auto round (const A &);
+    template <typename A> constexpr auto is_whole (const A &);
+    template <typename A> constexpr auto numerator (const A &);
+    template <typename A> constexpr auto denominator (const A &);
+    template <typename A> constexpr auto frac (const A &);
 
     // helper functions for computing pow mod and times mod.
     template <typename A, typename Mod = A> constexpr auto mul_2_mod (const A &, const math::nonzero<Mod> &);
@@ -105,7 +107,7 @@ namespace data {
     template <typename A, typename Mod = A> constexpr auto invert_mod (const A &, const math::nonzero<Mod> &);
 
     // count digits in a number.
-    template <typename A> size_t constexpr size_in_base_2 (const A &);
+    template <typename A> size_t constexpr bit_width (const A &);
 
     template <typename A> constexpr auto mul_2_pow (const A &, uint32 u);
     template <typename A> constexpr auto div_2_pow (const A &, uint32 u);
@@ -197,7 +199,7 @@ namespace data {
 
     template <typename A> concept proto_unsigned =
         proto_number<A> && Unsigned<A> && requires (const A &n) {
-            { size_in_base_2 (n) } -> Same<size_t>;
+            { bit_width (n) } -> Same<size_t>;
         };
 
     // now we have two types that go together as signed and unsigned versions of each other.
@@ -208,8 +210,8 @@ namespace data {
         } && requires (const N &a) {
             { abs (negate (a)) } -> Same<N>;
         } && requires (const N &a) {
-            { size_in_base_2 (a) } -> Same<size_t>;
-        } && comparable_to<Z, N>;
+            { bit_width (a) } -> Same<size_t>;
+        } && Comparable<Z, N>;
 
     template <typename Z, typename N> concept proto_integral_system =
         proto_system<Z, N> && ImplicitlyConvertible<Z, N> &&
@@ -370,6 +372,7 @@ namespace data {
         group_number<X> && ring_algebraic<X> &&
         requires (const X &n) {
             { mul_2 (n) } -> ImplicitlyConvertible<X>;
+            { bit_width (n) } -> ImplicitlyConvertible<size_t>;
         };
 
     template <typename X> concept RingNumber =
@@ -423,7 +426,7 @@ namespace data {
         group_algebraic_unsigned_to<X, Y> &&
         requires (const X &a) {
             { a * 1u } -> ImplicitlyConvertible<Y>;
-            //{ 1u * a } -> ImplicitlyConvertible<Y>;
+            { 1u * a } -> ImplicitlyConvertible<Y>;
         };
 
     template <typename X, typename Y>
@@ -652,9 +655,9 @@ namespace data {
         div_number<Z> && requires (const Z &a, const Z &b) {
             { a % abs (b) };
             { divmod (a, math::nonzero {abs (b)}) };
-        } && (Signed<Z> || Unsigned<Z>);
+        };
 
-    template <typename Z> concept Integer =
+    template <typename Z> concept Integer = math::IntegralDomain<Z> &&
         div_number<Z> && RingNumber<Z> && div_number_signed<Z>;
 
     template <typename Z> concept Natural =
@@ -714,7 +717,7 @@ namespace data {
             { math::numeric_limits<X>::min () } -> ImplicitlyConvertible<X>;
         };
 
-    template <typename A> concept SignedIntegral =
+    template <typename A> concept SignedIntegral = math::IntegralDomain<A> &&
         Integral<A> && div_number_signed<A> && proto_bit_signed<A>;
 
     template <typename A> concept UnsignedIntegral =
@@ -729,6 +732,10 @@ namespace data {
         } && requires (const N &n) {
             { negate (n) } -> ImplicitlyConvertible<N>;
         };
+
+    template <typename X> concept SignedNumber = SignedIntegral<X> || Integer<X>;
+    template <typename X> concept UnsignedNumber = UnsignedIntegral<X> || Natural<X>;
+    template <typename X> concept Number = SignedNumber<X> || UnsignedNumber<X>;
 }
 
 namespace data::math::def {
@@ -740,8 +747,6 @@ namespace data::math::def {
 
     template <typename A> struct square;
 
-    template <typename A, typename B = A> struct plus;
-    template <typename A, typename B = A> struct minus;
     template <typename A, typename B = A> struct GCD;
 
     template <typename A> struct bit_not;
@@ -750,9 +755,6 @@ namespace data::math::def {
     template <typename A, typename B = A> struct bit_xor;
     template <typename A> struct bit_shift_left;
     template <typename A> struct bit_shift_right;
-
-    template <typename A, typename B = A> struct times;
-    template <typename A, typename Exp = A> struct pow;
 
     template <typename A, typename B> struct times {
         constexpr auto operator () (const A &x, const B &y) const {
@@ -767,8 +769,6 @@ namespace data::math::def {
     template <typename A> struct denominator;
     template <typename A> struct frac;
     template <typename A> struct is_whole;
-
-    template <typename A, typename B = A> struct divide;
 
     template <typename A, typename Mod = A> struct mod;
     template <typename A, typename Mod = A> struct negate_mod;
@@ -814,6 +814,10 @@ namespace data {
 
     template <typename A> constexpr auto inline div_2_pow (const A &x, uint32 u) {
         return math::def::div_2_pow<A> {} (x, u);
+    }
+
+    template <typename A> constexpr size_t bit_width (const A &x) {
+        return math::def::size_in_base<A, 2> {} (x);
     }
 
     template <typename A> constexpr auto floor (const A &x) {
@@ -1046,7 +1050,8 @@ namespace data::math::def {
 
     template <std::signed_integral X> struct size_in_base<X, 2> {
         constexpr size_t operator () (X x) {
-            return std::bit_width (static_cast<std::make_signed_t<X>> (x)) + 1;
+            if (x < 0) return std::bit_width (static_cast<std::make_unsigned_t<X>> (~x)) + 1;
+            else return std::bit_width (static_cast<std::make_unsigned_t<X>> (x)) + 1;
         }
     };
 

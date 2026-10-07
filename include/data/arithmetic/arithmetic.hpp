@@ -250,7 +250,7 @@ namespace data::arithmetic {
         constexpr static const digit value = ~static_cast<digit> (get_limit<digit>::max_signed);
     };
 
-    template <typename X> using sign_bit_of = get_sign_bit<X>::value;
+    template <typename digit> constexpr static const digit sign_bit_of = get_sign_bit<digit>::value;
 
     template <typename digit> const digit max_unsigned = get_limit<digit>::max_unsigned;
     template <typename digit> const digit max_signed_twos = get_limit<digit>::max_signed;
@@ -354,6 +354,21 @@ namespace data::arithmetic::nones {
         return math::zero;
     }
 
+    template <range X>
+    requires std::unsigned_integral<digit<X>>
+    constexpr size_t inline bit_width (X x) {
+        constexpr const size_t word_bits = sizeof (decltype (*x.begin ())) * 8;
+        size_t width = size (x) * word_bits;
+        for (auto i = x.rbegin (); i != x.rend (); i++) {
+            width -= word_bits;
+            if (*i != 0) {
+                width += std::bit_width (*i); // note: this is only defined for unsigned integral types.
+                break;
+            }
+        }
+        return width;
+    }
+
 }
 
 namespace data::arithmetic::twos {
@@ -403,6 +418,29 @@ namespace data::arithmetic::twos {
         return true;
     }
 
+    template <range X>
+    requires std::unsigned_integral<digit<X>>
+    constexpr size_t inline bit_width (X x) {
+        constexpr const size_t word_bits = sizeof (decltype (*x.begin ())) * 8;
+        size_t width = size (x) * word_bits;
+        math::sign sign = twos::sign (x);
+        if (sign == math::zero) return 1;
+        bool negative = sign == math::negative;
+        for (auto i = x.rbegin (); i != x.rend (); i++) {
+            width -= word_bits;
+            if (!negative && *i != 0) {
+                width += std::bit_width (*i); // note: this is only defined for unsigned integral types.
+                break;
+            }
+
+            if (negative && *i != std::numeric_limits<digit<X>>::max ()) {
+                width += std::bit_width (static_cast<digit<X>> (~*i));
+                break;
+            }
+        }
+        return width + 1;
+    }
+
 }
 
 namespace data::arithmetic::BC {
@@ -443,9 +481,9 @@ namespace data::arithmetic::BC {
         // minimal zero.
         return (size (x) == 0) ||
             // numbers without an initial 00 or 80.
-            (x[-1] != 0 && x[-1] != get_sign_bit<digit<X>>::value) ||
+            (x[-1] != 0 && x[-1] != sign_bit_of<digit<X>>) ||
             // numbers that would be interpreted as having the wrong sign if they were shortened.
-            (size (x) > 1 && (x[-2] & get_sign_bit<digit<X>>::value));
+            (size (x) > 1 && (x[-2] & sign_bit_of<digit<X>>));
     }
 
     template <range X>
@@ -465,11 +503,11 @@ namespace data::arithmetic::BC {
         if (i == x.rend ()) return math::zero;
 
         // get the sign bit.
-        math::sign sign_bit = (*i & get_sign_bit<digit<X>>::value) ? math::negative : math::positive;
+        math::sign sign_bit = (*i & sign_bit_of<digit<X>>) ? math::negative : math::positive;
 
         // if there are digits other than the sign bit in the last byte,
         // then the number is non-zero.
-        if (*i & ~get_sign_bit<digit<X>>::value) return sign_bit;
+        if (*i & ~sign_bit_of<digit<X>>) return sign_bit;
 
         while (true) {
             i++;
@@ -481,6 +519,33 @@ namespace data::arithmetic::BC {
     template <range X>
     constexpr bool inline cast_to_bool (X x) {
         return !is_zero (x);
+    }
+
+    template <range X>
+    requires std::unsigned_integral<digit<X>>
+    constexpr size_t inline bit_width (X x) {
+        constexpr const size_t word_bits = sizeof (decltype (*x.begin ())) * 8;
+        size_t width = size (x) * word_bits;
+
+        math::sign sign = BC::sign (x);
+        if (sign == math::zero) return 1;
+
+        // we know there must be at least one digit since the number is not zero.
+        auto i = x.rbegin ();
+        digit<X> dig = *i & ~sign_bit_of<digit<X>>;
+
+        while (true) {
+            width -= word_bits;
+            if (dig != 0) {
+                width += std::bit_width (dig); // note: this is only defined for unsigned integral types.
+                break;
+            }
+
+            i++;
+            if (i == x.rend ()) break;
+            dig = *i;
+        }
+        return width + 1;
     }
 
 }

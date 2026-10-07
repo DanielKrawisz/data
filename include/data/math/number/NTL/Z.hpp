@@ -195,11 +195,11 @@ namespace data::math::def {
     };
 
     template <> struct invert_mod<N> {
-        N operator () (const N &, const nonzero<N> &);
+        maybe<N> operator () (const N &, const nonzero<N> &);
     };
 
     template <> struct invert_mod<Z, N> {
-        N operator () (const Z &, const nonzero<N> &);
+        maybe<N> operator () (const Z &, const nonzero<N> &);
     };
 
     template <> struct GCD<N, Z> {
@@ -253,6 +253,14 @@ namespace data::math::def {
 
     template <> struct convert<N, base58_uint> {
         N operator () (const base58_uint &) const;
+    };
+
+    template <> struct size_in_base<base58_uint, 2> {
+        size_t operator () (const base58_uint &);
+    };
+
+    template <> struct invert_mod<base58_uint, base58_uint> {
+        maybe<base58_uint> operator () (const base58_uint &, const nonzero<base58_uint> &);
     };
 /*
 
@@ -990,6 +998,23 @@ namespace data::math::def {
     N inline convert<N, base58_uint>::operator () (const base58_uint &n) const {
         return N (n);
     }
+
+    size_t inline size_in_base<N, 2>::operator () (const N &n) {
+        return NTL::NumBits (n.Value);
+    }
+
+    size_t inline size_in_base<Z, 2>::operator () (const Z &n) {
+        return NTL::bit_width (n.Value);
+    }
+
+    size_t inline size_in_base<base58_uint, 2>::operator () (const base58_uint &u) {
+        return data::bit_width (N (u));
+    }
+
+    maybe<N> inline invert_mod<Z, N>::operator () (const Z &a, const nonzero<N> &b) {
+        return invert_mod<N> {} (data::mod (a, b), b);
+    }
+
 }
 
 namespace data::encoding::decimal {

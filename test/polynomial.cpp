@@ -155,10 +155,12 @@ template <typename Z> void test_polynomial_division () {
 
     static_assert (requires (const Z &x, const poly &z) {
         { z / x } -> ImplicitlyConvertible<poly>;
+        { x / z } -> ImplicitlyConvertible<poly>;
     });
 
     static_assert (requires (const poly &z) {
         { z / 1 } -> ImplicitlyConvertible<poly>;
+        { 1 / z } -> ImplicitlyConvertible<poly>;
     });
 
     poly X = poly::var ();

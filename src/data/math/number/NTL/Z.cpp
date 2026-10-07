@@ -31,6 +31,12 @@ namespace data::math::def {
         if (sgn < 0) return math::negative;
         return math::zero;
     }
+
+    maybe<N> invert_mod<N>::operator () (const N &a, const nonzero<N> &b) {
+        N result;
+        if (NTL::InvModStatus (result.Value, a.Value, b.Value.Value)) return {};
+        return result;
+    }
 }
 
 namespace data::math::number {

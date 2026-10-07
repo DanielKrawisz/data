@@ -2397,6 +2397,21 @@ namespace data::math::def {
         else return to_lower (result);
     }
 
+    size_t inline size_in_base<dec_uint, 2>::operator () (const dec_uint &u) {
+        return data::bit_width (N_bytes_big (u));
+    }
+
+    size_t inline size_in_base<dec_int, 2>::operator () (const dec_int &i) {
+        return data::bit_width (Z_bytes_big (i));
+    }
+
+    template<negativity neg, hex_case zz>
+    size_t inline size_in_base<hex::integer<neg, zz>, 2>::operator () (const hex::integer<neg, zz> &h) {
+        if constexpr (neg == negativity::nones) return data::bit_width (N_bytes_big (h));
+        else if (neg == negativity::twos) return data::bit_width (Z_bytes_big (h));
+        else return data::bit_width (Z_bytes_BC_big (h));
+    }
+
 }
 
 namespace data::encoding::hexidecimal {

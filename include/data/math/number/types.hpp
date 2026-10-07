@@ -36,6 +36,18 @@ namespace data::math::number {
 namespace data {
     using Z = math::number::Z;
     using N = math::number::N;
+
+    using N_bytes_little = math::number::N_bytes<endian::little, byte>;
+
+    using N_bytes_big = math::number::N_bytes<endian::big, byte>;
+
+    using Z_bytes_little = math::number::Z_bytes<endian::little, negativity::twos, byte>;
+
+    using Z_bytes_big = math::number::Z_bytes<endian::big, negativity::twos, byte>;
+
+    using Z_bytes_BC_little = math::number::Z_bytes<endian::little, negativity::BC, byte>;
+
+    using Z_bytes_BC_big = math::number::Z_bytes<endian::big, negativity::BC, byte>;
 }
 
 namespace data::math {
@@ -1184,5 +1196,41 @@ namespace data::math::def {
 
     template <hex_case zz> struct convert<Z, hex::intBC<zz>> {
         Z operator () (const hex::intBC<zz> &) const;
+    };
+
+    template <bool is_signed, endian r, size_t size, std::unsigned_integral word>
+    struct size_in_base<number::bounded<is_signed, r, size, word>, 2> {
+        constexpr size_t operator () (const number::bounded<is_signed, r, size, word> &);
+    };
+
+    template <endian r, std::unsigned_integral word>
+    struct size_in_base<number::N_bytes<r, word>, 2> {
+        size_t operator () (const number::N_bytes<r, word> &);
+    };
+
+    template <endian r, negativity c, std::unsigned_integral word>
+    struct size_in_base<number::Z_bytes<r, c, word>, 2> {
+        size_t operator () (const number::Z_bytes<r, c, word> &);
+    };
+
+    template <> struct size_in_base<N, 2> {
+        size_t operator () (const N &);
+    };
+
+    template <> struct size_in_base<Z, 2> {
+        size_t operator () (const Z &);
+    };
+
+    template <> struct size_in_base<dec_uint, 2> {
+        size_t operator () (const dec_uint &);
+    };
+
+    template <> struct size_in_base<dec_int, 2> {
+        size_t operator () (const dec_int &);
+    };
+
+    template<negativity neg, hex_case zz>
+    struct size_in_base<hex::integer<neg, zz>, 2> {
+        size_t operator () (const hex::integer<neg, zz> &);
     };
 }

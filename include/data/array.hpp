@@ -73,6 +73,10 @@ namespace data {
     } constexpr array<X, sizes...> operator * (const array<X, sizes...> &, const X &);
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
+        { x * y } -> ImplicitlyConvertible<X>;
+    } constexpr array<X, sizes...> operator * (const X &, const array<X, sizes...> &);
+
+    template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
         { x / y } -> ImplicitlyConvertible<X>;
     } constexpr array<X, sizes...> operator / (const array<X, sizes...> &, const X &);
 

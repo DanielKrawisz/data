@@ -27,6 +27,15 @@ namespace data::math {
     template <Field nda, ImplicitlyConvertible<nda> NDA>
     cayley_dickson<nda> operator / (const cayley_dickson<nda> &, const NDA &);
 
+    template <cayley_dickson_algebra nda, ImplicitlyConvertible<nda> NDA>
+    cayley_dickson<nda> operator * (const NDA &, const cayley_dickson<nda>);
+
+    template <cayley_dickson_algebra nda, ImplicitlyConvertible<nda> NDA>
+    cayley_dickson<nda> operator - (const NDA &, const cayley_dickson<nda>);
+
+    template <cayley_dickson_algebra nda, ImplicitlyConvertible<nda> NDA>
+    cayley_dickson<nda> operator + (const NDA &, const cayley_dickson<nda>);
+
     template <cayley_dickson_algebra nda>
     struct cayley_dickson {
         

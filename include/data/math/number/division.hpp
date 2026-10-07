@@ -12,10 +12,12 @@
 namespace data::math::number {
 
     // Generic division algorithm.
+    // assume both numbers are non-negative.
     template <MultiplicativeNumber N>
     constexpr division<N> natural_divmod (const N &Dividend, const N &Divisor) {
 
         if (Divisor == 0) throw division_by_zero {};
+        if (Divisor > Dividend) return {0, Dividend};
         if (Divisor == 1) return {Dividend, 0u};
         if (Divisor == 2) return {div_2 (Dividend), mod_2 (Dividend)};
 
@@ -23,35 +25,22 @@ namespace data::math::number {
         N exp {Divisor};
 
         // initialization phase
-        // NOTE: should be able to use digits_base_2 here.
         {
-            uint64 digits_per_round {1};
+            size_t width_d = bit_width (Dividend);
+            size_t width_s = bit_width (exp);
 
-            // we increase exp by increasing powers of 2 until it is bigger than the divisor.
-            // NOTE: this step should not be necessary. There ought to be a function that
-            // tells us how many digits a number has.
-            while (exp <= Dividend) {
-                exp <<= digits_per_round;
-                pow <<= digits_per_round;
-                digits_per_round <<= 1;
-            }
-
-            // we change exp (either increase or decrease) by decreasing powers of 2 until
-            // it is the maximum power of 2 that is smaller than the divisor.
-            while (true) {
-                digits_per_round >>= 1;
-                if (digits_per_round == 0) break;
-                if (exp > Dividend) {
-                    exp >>= digits_per_round;
-                    pow >>= digits_per_round;
-                } else {
-                    exp <<= digits_per_round;
-                    pow <<= digits_per_round;
-                }
+            exp <<= (width_d - width_s);
+            pow <<= (width_d - width_s);
+            if (exp > Divisor) {
+                exp >>= 1;
+                pow >>= 1;
             }
         }
 
         // division phase
+        // at this point, pow is the largest power of two such
+        // that exp = Divisor * pow is smaller than Dividend.
+
         division<N> result {0, Dividend};
         while (pow > 0) {
             while (exp > result.Remainder) {

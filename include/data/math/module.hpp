@@ -10,16 +10,16 @@ namespace data::math {
     
     // note: the commented conditions need to be uncommented.
     template <
-        typename ring_elem, 
-        typename group_elem,
+        typename ring_elem, // corresponds to the scalar in a vector space
+        typename group_elem, // corresponds to the vector
         typename ring_plus = def::plus<ring_elem>,
         typename ring_times = def::times<ring_elem>,
         typename group_plus = def::plus<group_elem>>
     concept algebraic_module =
-        Ring<ring_elem, ring_plus, ring_times> && Group<group_elem, group_plus> /*&&
+        Ring<ring_elem, ring_plus, ring_times> && Group<group_elem, group_plus> &&
         requires (const group_elem &g, const ring_elem &r) {
-            { g * r } -> ImplicitlyConvertible<ring_elem>;
-            { r * g } -> ImplicitlyConvertible<ring_elem>;
-        }*/;
+            { g * r } -> ImplicitlyConvertible<group_elem>;
+            { r * g } -> ImplicitlyConvertible<group_elem>;
+        };
     
 }

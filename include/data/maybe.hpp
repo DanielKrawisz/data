@@ -30,6 +30,20 @@ namespace data {
             return &*(*this);
         }
 
+        // automatic conversions
+        template <typename Y> requires ImplicitlyConvertible<X, Y>
+        operator maybe<Y> () const {
+            if (!*this) return {};
+            return {Y (**this)};
+        }
+
+        // explicit conversions
+        template <typename Y> requires ExplicitlyConvertible<X, Y>
+        explicit operator maybe<Y> () const {
+            if (!*this) return {};
+            return {Y (**this)};
+        }
+
     };
 
     static_assert (Same<decltype (*std::declval<maybe<uint32>> ()), uint32 &>);

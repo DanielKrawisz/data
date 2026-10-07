@@ -158,14 +158,12 @@ namespace data::math::def {
     }
 
     template <bool a, endian r, size_t x, std::unsigned_integral word>
-    constexpr maybe<uint<r, x, word>> invert_mod<bounded<a, r, x, word>, uint<r, x, word>>::operator () (
+    constexpr maybe<bounded<a, r, x, word>> inline invert_mod<bounded<a, r, x, word>, bounded<a, r, x, word>>::operator () (
         const bounded<a, r, x, word> &q,
-        const nonzero<uint<r, x, word>> &mod) {
-        auto invt = math::number::natural_invert_mod (
+        const nonzero<bounded<a, r, x, word>> &mod) {
+        return maybe<bounded<a, r, x, word>> {math::number::natural_invert_mod (
             bounded<a, r, x + 1, word> (x),
-            nonzero {uint<r, x + 1, word> (mod.Value)});
-        if (!bool (invt)) return {};
-        return static_cast<uint<r, x, word>> (*invt);
+            nonzero {bounded<a, r, x + 1, word> (mod.Value)})};
     }
 }
 

@@ -119,17 +119,20 @@ namespace data {
     static_assert (ImplicitlyConvertible<uint128_big, int160_big>);
     static_assert (ImplicitlyConvertible<int128_big, int160_big>);
 
-    static_assert (comparable_to<N, Z>);
-    static_assert (comparable_to<N_bytes_little, Z_bytes_little>);
-    static_assert (comparable_to<Z_bytes_big, N_bytes_big>);
-    static_assert (comparable_to<math::N_bytes<endian::little, unsigned short>, math::Z_bytes<endian::little, unsigned short>>);
-    static_assert (comparable_to<math::Z_bytes<endian::big, unsigned short>, math::N_bytes<endian::big, unsigned short>>);
-    static_assert (comparable_to<math::N_bytes<endian::little, unsigned int>, math::Z_bytes<endian::little, unsigned int>>);
-    static_assert (comparable_to<math::Z_bytes<endian::big, unsigned int>, math::N_bytes<endian::big, unsigned int>>);
-    static_assert (comparable_to<uint256, int256>);
-    static_assert (comparable_to<int160, uint160>);
-    static_assert (comparable_to<uint64_little, int64_little>);
-    static_assert (comparable_to<int64_big, uint64_big>);
+    static_assert (Comparable<N, Z>);
+    static_assert (Comparable<N_bytes_little, Z_bytes_little>);
+    static_assert (Comparable<Z_bytes_big, N_bytes_big>);
+    static_assert (Comparable<math::N_bytes<endian::little, unsigned short>, math::Z_bytes<endian::little, unsigned short>>);
+    static_assert (Comparable<math::Z_bytes<endian::big, unsigned short>, math::N_bytes<endian::big, unsigned short>>);
+    static_assert (Comparable<math::N_bytes<endian::little, unsigned int>, math::Z_bytes<endian::little, unsigned int>>);
+    static_assert (Comparable<math::Z_bytes<endian::big, unsigned int>, math::N_bytes<endian::big, unsigned int>>);
+    static_assert (Comparable<uint256, int256>);
+    static_assert (Comparable<int160, uint160>);
+    static_assert (Comparable<uint64_little, int64_little>);
+    static_assert (Comparable<int64_big, uint64_big>);
+    static_assert (Comparable<N_bytes_little, N_bytes_big>);
+    static_assert (Comparable<Z_bytes_little, Z_bytes_big>);
+    static_assert (Comparable<N, N_bytes_little>);
     // TODO we could expect many more of these!
 
     // we can consistently define bit_and and bit_or on any number type
@@ -229,6 +232,16 @@ namespace data {
             { is_zero (a) } -> Same<bool>;
             { square (a) } -> ImplicitlyConvertible<NN>;
             { abs (a) };
+            { bit_width (a) };
+            { math::re (a) } -> Same<NN>;
+            { floor (a) } -> Same<NN>;
+            { ceiling (a) } -> Same<NN>;
+            { round (a) } -> Same<NN>;
+            { is_whole (a) } -> ImplicitlyConvertible<bool>;
+            { numerator (a) } -> ImplicitlyConvertible<NN>;
+            { denominator (a) } -> ImplicitlyConvertible<NN>;
+            { frac (a) } -> ImplicitlyConvertible<NN>;
+            { bit_width (a) } -> ImplicitlyConvertible<NN>;
         } && requires (const NN &a, const NN &b) {
             { a + b } -> ImplicitlyConvertible<NN>;
             { a - b } -> ImplicitlyConvertible<NN>;
@@ -238,6 +251,7 @@ namespace data {
             { minus (a, b) } -> ImplicitlyConvertible<NN>;
             { times (a, b) } -> ImplicitlyConvertible<NN>;
             { pow (a, b) } -> ImplicitlyConvertible<NN>;
+            { math::inner (a, b) } -> ImplicitlyConvertible<NN>;
         } && requires (NN &a, const NN &b) {
             { a += b } -> Same<NN &>;
             { a -= b } -> Same<NN &>;
@@ -267,20 +281,8 @@ namespace data {
         basic_arithmetic_big_unsigned<NN>;
 
     // TODO integral domain should be uncommented.
-    template <typename N> concept basic_number = WholeNumber<N> && //math::integral_domain<N> &&
-        proto_number<N> && basic_arithmetic<N> && !math::Field<N> &&
-        requires (const N &a) {
-            { math::re (a) } -> Same<N>;
-            { floor (a) } -> Same<N>;
-            { ceiling (a) } -> Same<N>;
-            { round (a) } -> Same<N>;
-            { is_whole (a) } -> ImplicitlyConvertible<bool>;
-            { numerator (a) } -> ImplicitlyConvertible<N>;
-            { denominator (a) } -> ImplicitlyConvertible<N>;
-            { frac (a) } -> ImplicitlyConvertible<N>;
-        } && requires (const N &a, const N &b) {
-            { math::inner (a, b) } -> ImplicitlyConvertible<N>;
-        };
+    template <typename N> concept BasicNumber = WholeNumber<N> &&
+        proto_number<N> && basic_arithmetic<N> && !math::Field<N>;
 
     template <typename ZZ, typename NN = ZZ> concept modable =
         requires (const ZZ &a, const NN &b) {
@@ -296,29 +298,29 @@ namespace data {
         };
 
     template <typename N> concept basic_number_big_unsigned =
-        basic_number<N> && basic_arithmetic_big_unsigned<N>;
+        BasicNumber<N> && basic_arithmetic_big_unsigned<N>;
 
     template <typename N> concept basic_number_big_signed =
-        basic_number<N> && basic_arithmetic_big_signed<N>;
+        BasicNumber<N> && basic_arithmetic_big_signed<N>;
 
     template <typename N> concept basic_number_big =
-        basic_number<N> && basic_arithmetic_big<N>;
+        BasicNumber<N> && basic_arithmetic_big<N>;
 
-    static_assert (basic_number<uint32>);
-    static_assert (basic_number<uint32_little>);
-    static_assert (basic_number<uint32_big>);
+    static_assert (BasicNumber<uint32>);
+    static_assert (BasicNumber<uint32_little>);
+    static_assert (BasicNumber<uint32_big>);
 
-    static_assert (basic_number<int32>);
-    static_assert (basic_number<int32_little>);
-    static_assert (basic_number<int32_big>);
+    static_assert (BasicNumber<int32>);
+    static_assert (BasicNumber<int32_little>);
+    static_assert (BasicNumber<int32_big>);
 
-    static_assert (basic_number<uint64>);
-    static_assert (basic_number<uint64_little>);
-    static_assert (basic_number<uint64_big>);
+    static_assert (BasicNumber<uint64>);
+    static_assert (BasicNumber<uint64_little>);
+    static_assert (BasicNumber<uint64_big>);
 
-    static_assert (basic_number<int64>);
-    static_assert (basic_number<int64_little>);
-    static_assert (basic_number<int64_big>);
+    static_assert (BasicNumber<int64>);
+    static_assert (BasicNumber<int64_little>);
+    static_assert (BasicNumber<int64_big>);
 
     static_assert (basic_number_big<uint128>);
     static_assert (basic_number_big_signed<int128>);
@@ -354,7 +356,7 @@ namespace data {
     // an unaccompanied_number works without having to know
     // about any corresponding signed or unsigned type.
     template <typename N> concept unaccompanied_number =
-        basic_number<N> && homo_modable<N> &&
+        BasicNumber<N> && homo_modable<N> &&
         requires (const N &a, const math::nonzero<N> &b) {
             { divmod (a, b) } -> Same<division<N>>;
         };
@@ -385,7 +387,7 @@ namespace data {
     static_assert (natural_number_big<base58_uint>);
 
     template <typename NN> concept complement_twos_number =
-        basic_number<NN> && bit_arithmetic<NN>;
+        BasicNumber<NN> && bit_arithmetic<NN>;
 
     // a number resembling a built-in number.
     template <typename NN> concept integral_number =
@@ -406,7 +408,7 @@ namespace data {
         fractionable<ZZ> &&
         IntegralSystem<ZZ, NN> &&
         integral_number<NN> && integral_number<ZZ> &&
-        comparable_to<NN, ZZ> && Unsigned<NN> && Signed<ZZ> &&
+        Comparable<NN, ZZ> && Unsigned<NN> && Signed<ZZ> &&
         bit_negate_arithmetic<NN> && bit_negate_arithmetic<ZZ> &&
         bit_algebraic_unsigned_to<ZZ, NN> &&
         ring_algebraic_unsigned_to<ZZ, NN>;
@@ -441,7 +443,7 @@ namespace data {
     template <typename N, typename Z> concept pure_number_system =
         NumberSystem<Z, N> &&
         fractionable<Z> &&
-        natural_number<N> && basic_number<Z> &&
+        natural_number<N> && BasicNumber<Z> &&
         Unsigned<N> && Signed<Z> &&
         math::hetero_abs_and_negate<N, Z> && modable<Z, N> &&
         ring_algebraic_signed_to<N, Z> &&
@@ -666,6 +668,14 @@ namespace data {
         EXPECT_EQ (decrement (Z {0}), Z {-1});
     }
 
+    TYPED_TEST (Naturals, BitWidth) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ (bit_width (N {0}), 0);
+        EXPECT_EQ (bit_width (N {1}), 1);
+        EXPECT_EQ (bit_width (N {2}), 2);
+        EXPECT_EQ (bit_width (N {3}), 2);
+    }
+
     // test suits for bit operations.
     TYPED_TEST (Numbers, BitAnd) {
         using Z = typename TestFixture::N;
@@ -788,8 +798,8 @@ namespace data {
     }
 
     using integers_BC = ::testing::Types<
-    Z_bytes_BC_little, Z_bytes_BC_big,
-    hex_int_BC>;
+        Z_bytes_BC_little, Z_bytes_BC_big,
+        hex_int_BC>;
 
     template <typename X> struct IntegersBC : ::testing::Test {
         using Z = X;
@@ -829,6 +839,32 @@ namespace data {
         EXPECT_EQ (-Z (4) ^ -Z (1), Z (5));
         EXPECT_EQ ((bit_xor (-Z (4), -Z (1))), Z (5));
         EXPECT_EQ (-Z (5) ^ Z (6), -Z (3));
+    }
+
+    TYPED_TEST (IntegersTwos, BitWidth) {
+        using Z = typename TestFixture::Z;
+        EXPECT_EQ (bit_width (Z {0}), 1);
+        EXPECT_EQ (bit_width (Z {1}), 2);
+        EXPECT_EQ (bit_width (Z {2}), 3);
+        EXPECT_EQ (bit_width (Z {3}), 3);
+        EXPECT_EQ (bit_width (Z {4}), 4);
+        EXPECT_EQ (bit_width (-Z {1}), 1);
+        EXPECT_EQ (bit_width (-Z {2}), 2);
+        EXPECT_EQ (bit_width (-Z {3}), 3);
+        EXPECT_EQ (bit_width (-Z {4}), 3);
+    }
+
+    TYPED_TEST (IntegersBC, BitWidth) {
+        using Z = typename TestFixture::Z;
+        EXPECT_EQ (bit_width (Z {0}), 1);
+        EXPECT_EQ (bit_width (Z {1}), 2);
+        EXPECT_EQ (bit_width (Z {2}), 3);
+        EXPECT_EQ (bit_width (Z {3}), 3);
+        EXPECT_EQ (bit_width (Z {4}), 4);
+        EXPECT_EQ (bit_width (-Z {1}), 2);
+        EXPECT_EQ (bit_width (-Z {2}), 3);
+        EXPECT_EQ (bit_width (-Z {3}), 3);
+        EXPECT_EQ (bit_width (-Z {4}), 4);
     }
 
     // for all numbers, positive left shift is the
@@ -1102,6 +1138,43 @@ namespace data {
     TYPED_TEST (Integers, Power) {
         using N = typename TestFixture::Z;
         EXPECT_THROW ((pow (Z {1}, -Z {3})), math::negative_power);
+    }
+
+    TYPED_TEST (Numbers, InvertMod) {
+        using Z = typename TestFixture::N;
+        using N = decltype (abs (N {0}));
+        EXPECT_EQ (
+            (invert_mod (N {0}, math::nonzero {abs (N {2})})),
+            maybe<N> {});
+
+        EXPECT_EQ (
+            (invert_mod (N {1}, math::nonzero {abs (N {2})})),
+            maybe<N> {N {1}});
+
+        EXPECT_EQ (
+            (invert_mod (N {0}, math::nonzero {abs (N {5})})),
+            maybe<N> {}
+        );
+
+        EXPECT_EQ (
+            (invert_mod (N {2}, math::nonzero {abs (N {5})})),
+            maybe<N> {N {3}}
+        );
+
+        EXPECT_EQ (
+            (invert_mod (N {3}, math::nonzero {abs (N {5})})),
+            maybe<N> {N {2}}
+        );
+
+        EXPECT_EQ (
+            (invert_mod (N {4}, math::nonzero {abs (N {5})})),
+            maybe<N> {N {4}}
+        );
+
+        EXPECT_EQ (
+            (invert_mod (N {2}, math::nonzero {abs (N {4})})),
+            maybe<N> {}
+        );
     }
 
 }

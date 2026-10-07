@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_BYTES_BYTES
-#define DATA_MATH_NUMBER_BYTES_BYTES
+#pragma once
 
 #include <data/arithmetic/negativity.hpp>
 
@@ -409,5 +408,3 @@ namespace data::encoding::integer {
     std::ostream &write (std::ostream &, const math::number::Z_bytes<r, c, word> &);
     
 }
-
-#endif
