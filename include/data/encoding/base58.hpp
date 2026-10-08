@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ENCODING_BASE58
-#define DATA_ENCODING_BASE58
+#pragma once
 
 #include <algorithm>
 
@@ -362,5 +361,3 @@ namespace data::math::number {
     }
 
 }
-
-#endif

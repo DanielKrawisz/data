@@ -410,6 +410,25 @@ namespace data::math::def {
             return data::bit_width (a.value ());
         }
     };
+
+    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align, std::integral B>
+    struct convert<boost::endian::endian_arithmetic<Order, T, n_bits, Align>, B> {
+        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (B x) {
+            if (x > std::numeric_limits<T>::max ()) throw exception {} << "too high";
+            if (x < std::numeric_limits<T>::min ()) throw exception {} << "too low";
+            return boost::endian::endian_arithmetic<Order, T, n_bits, Align> (static_cast<T> (x));
+        }
+    };
+
+    template <std::integral A, endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+    struct convert<A, boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr A operator () (boost::endian::endian_arithmetic<Order, T, n_bits, Align> y) {
+            T x = T (y);
+            if (x > std::numeric_limits<A>::max ()) throw exception {} << "too high";
+            if (x < std::numeric_limits<A>::min ()) throw exception {} << "too low";
+            return static_cast<A> (x);
+        }
+    };
 }
 
 namespace data {

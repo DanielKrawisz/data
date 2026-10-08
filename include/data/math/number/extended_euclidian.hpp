@@ -5,8 +5,10 @@
 #pragma once
 
 #include <data/valid.hpp>
+#include <data/abs.hpp>
 #include <data/math/number/division.hpp>
 #include <data/arithmetic.hpp>
+#include <data/math/number/bounded/bounded.hpp>
 #include <sstream>
 
 namespace data::math::number::euclidian {
@@ -84,17 +86,23 @@ namespace data::math::number::euclidian {
 
 namespace data::math::number {
 
+    // Z either needs to be signed or it needs to be an unsigned integral that can underflow below zero.
     template <RingNumber Z, RingNumber N = Z>
-    constexpr auto invert_mod (const Z &x, const nonzero<N> &mod) -> maybe<decltype (data::mod (x, mod))> {
+    constexpr auto inv_mod (const Z &x, const nonzero<N> &mod) -> maybe<decltype (data::mod (x, mod))> {
 
         if (mod.Value == 0) throw division_by_zero {};
+        if (mod.Value < 0) throw exception {} << "we don't know how to handle this case yet";
         using result_type = decltype (data::mod (x, mod));
 
+        // the euclid algorithm requires negative numbers. We can work with
+        // signed types for Z or with unsigned types that can underflow.
+        using input_type = std::conditional_t<Signed<Z> || UnsignedIntegral<Z>, Z, to_signed<Z>>;
+
         if (x == 0) return {};
-        auto proof = number::euclidian::extended<result_type, Z>::algorithm
+        auto proof = number::euclidian::extended<result_type, input_type>::algorithm
             (result_type (mod.Value), data::mod (x, mod));
 
-            if (proof.GCD != 1) return {};
+        if (proof.GCD != 1) return {};
 
         // for some numbers, mods can be negative.
         auto result = data::mod (proof.BezoutT, mod);
@@ -108,7 +116,20 @@ namespace data::math::def {
     template <typename Z, typename N>
     struct invert_mod {
         constexpr auto inline operator () (const Z &x, const nonzero<N> &mod) -> maybe<decltype (number::divmod (x, mod.Value).Remainder)> {
-            return number::invert_mod (x, mod);
+            // we have a problem here because we can underflow, and when that happens, we cannot correctly mod
+            // the result. We transform to a signed type that is bigger than this and then transform back.
+            if constexpr (UnsignedIntegral<Z>) {
+                constexpr size_t size = sizeof (Z);
+                using bigger =
+                    std::conditional_t<size == 1, int16,
+                    std::conditional_t<size == 2, int32,
+                    std::conditional_t<size == 4, int64,
+                        number::bounded<true, endian::little, size / 8 + 1, uint64>>>>;
+                using result_type = decltype (data::mod (x, mod));
+                auto result = number::inv_mod (math::convert<bigger> (x), nonzero {math::convert<bigger> (mod.Value)});
+                if (!result) return {};
+                return maybe<result_type> {data::math::convert<result_type> (*result)};
+            } else return number::inv_mod (x, mod);
         }
     };
 

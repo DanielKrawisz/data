@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_TOTIENT
-#define DATA_MATH_NUMBER_TOTIENT
+#pragma once
 
 #include <data/fold.hpp>
 #include <data/math/number/factor.hpp>
@@ -21,5 +20,3 @@ namespace data::math::number {
     }
 
 }
-
-#endif

@@ -60,6 +60,7 @@ namespace data {
     template <typename A, typename B, typename Mod> constexpr auto times_mod (const A &, const B &, const math::nonzero<Mod> &);
     template <typename A, typename Exp = A, typename Mod = Exp> constexpr auto pow_mod (const A &, const Exp &, const math::nonzero<Mod> &);
 
+    // result may not exist.
     template <typename A, typename Mod> constexpr auto invert_mod (const A &x, const math::nonzero<Mod> &n);
 
     // functions on rational numbers.
@@ -102,9 +103,6 @@ namespace data {
     template <typename A> constexpr A inline bit_shift (const A &x, int32 i) {
         return i < 0 ? bit_shift_right (x, static_cast<uint32> (-i)) : bit_shift_left (x, static_cast<uint32> (i));
     }
-
-    // may not exist
-    template <typename A, typename Mod = A> constexpr auto invert_mod (const A &, const math::nonzero<Mod> &);
 
     // count digits in a number.
     template <typename A> size_t constexpr bit_width (const A &);
@@ -1155,6 +1153,14 @@ namespace data::math::def {
     template <std::unsigned_integral X> struct mod_2<X> {
         constexpr X operator () (X x) {
             return bit_mod_2 (x);
+        }
+    };
+
+    template <std::integral A, std::integral B> struct convert<A, B> {
+        constexpr A operator () (B x) {
+            if (x > std::numeric_limits<A>::max ()) throw exception {} << "too high";
+            if (x < std::numeric_limits<A>::min ()) throw exception {} << "too low";
+            return static_cast<A> (x);
         }
     };
 }

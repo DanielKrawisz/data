@@ -19,7 +19,7 @@ namespace data::arithmetic {
     // Words is for iterating over digits that have an endian order.
     // Using Words, you will always iterate from least to most
     // significant digits. Reverse iteration will go from most to least.
-    template <endian o, typename digit> struct Words;
+    template <endian o, typename digit = byte> struct Words;
     
     template <typename digit> struct Words<endian::little, digit> {
         slice<digit> Data;

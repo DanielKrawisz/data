@@ -438,6 +438,8 @@ namespace data {
     static_assert (integral_number_system<uint256_little, int256_little>);
     static_assert (integral_number_system<uint512_little, int512_little>);
 
+    static_assert (UnsignedIntegral<math::number::bounded<false, (boost::endian::order)1, 5ul, unsigned short>>);
+
     // TODO need a basic arithmetic system to say
     // that the result of adding a signed and unsigned number
     // will be signed, etc.
@@ -1142,9 +1144,10 @@ namespace data {
     }
 
     // TODO we would like to make this work on Naturals.
-    TYPED_TEST (Integers, InvertMod) {
-        using Z = typename TestFixture::Z;
+    TYPED_TEST (Numbers, InvertMod) {
+        using Z = typename TestFixture::N;
         using N = decltype (abs (Z {0}));
+
         EXPECT_EQ (
             (invert_mod (Z {0}, math::nonzero {abs (Z {2})})),
             maybe<N> {});

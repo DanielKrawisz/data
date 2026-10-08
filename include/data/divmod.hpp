@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_DIVIDE
-#define DATA_DIVIDE
+#pragma once
 
 #include <data/math/nonzero.hpp>
 #include <data/abs.hpp>
@@ -105,5 +104,3 @@ namespace data {
         return division<X, Y> {X (Quotient), Y (Remainder)};
     }
 }
-
-#endif

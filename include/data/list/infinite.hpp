@@ -1,5 +1,4 @@
-#ifndef DATA_LIST_INFINITE_HPP
-#define DATA_LIST_INFINITE_HPP
+#pragma once
 
 #include <data/list.hpp>
 #include <data/data.hpp>
@@ -30,5 +29,3 @@ namespace data {
     };
 
 }
-
-#endif

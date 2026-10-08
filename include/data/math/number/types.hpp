@@ -1178,6 +1178,16 @@ namespace data::math::def {
         N operator () (const number::bounded<is_signed, r, size, word> &) const;
     };
 
+    template <bool is_signed, endian r, size_t size, std::unsigned_integral word, std::integral I>
+    struct convert<number::bounded<is_signed, r, size, word>, I> {
+        constexpr number::bounded<is_signed, r, size, word> operator () (const I &) const;
+    };
+
+    template <std::integral I, bool is_signed, endian r, size_t size, std::unsigned_integral word>
+    struct convert<I, number::bounded<is_signed, r, size, word>> {
+        constexpr I operator () (const number::bounded<is_signed, r, size, word> &) const;
+    };
+
     template <> struct convert<N, dec_uint> {
         N operator () (const dec_uint &) const;
     };
@@ -1196,6 +1206,17 @@ namespace data::math::def {
 
     template <hex_case zz> struct convert<Z, hex::intBC<zz>> {
         Z operator () (const hex::intBC<zz> &) const;
+    };
+
+    template <bool is_signed, endian r, size_t size, std::unsigned_integral word, endian o, std::integral T, std::size_t n_bits>
+    struct convert<boost::endian::endian_arithmetic<o, T, n_bits, boost::endian::align::no>, number::bounded<is_signed, r, size, word>> {
+        constexpr boost::endian::endian_arithmetic<o, T, n_bits, boost::endian::align::no>
+        operator () (const number::bounded<is_signed, r, size, word> &) const;
+    };
+
+    template <bool is_signed, endian r, size_t size, std::unsigned_integral word, endian o, std::integral T, std::size_t n_bits>
+    struct convert<number::bounded<is_signed, r, size, word>, boost::endian::endian_arithmetic<o, T, n_bits, boost::endian::align::no>> {
+        constexpr number::bounded<is_signed, r, size, word> operator () (const boost::endian::endian_arithmetic<o, T, n_bits, boost::endian::align::no> &) const;
     };
 
     template <bool is_signed, endian r, size_t size, std::unsigned_integral word>

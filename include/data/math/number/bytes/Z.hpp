@@ -1487,7 +1487,7 @@ namespace data::math::number {
     
     template <endian r, std::unsigned_integral word>
     N_bytes<r, word>::operator uint64 () const {
-        if (*this > N_bytes {std::numeric_limits<uint64>::max ()})
+        if (*this > N_bytes {numeric_limits<uint64>::max ()})
             throw exception {} << "value too big";
 
         endian_integral<false, endian::little, 8> xx {0};
@@ -1502,10 +1502,10 @@ namespace data::math::number {
     template <std::integral I>
     Z_bytes<r, negativity::twos, word>::operator I () const {
 
-        if (*this > std::numeric_limits<I>::max ())
+        if (*this > numeric_limits<I>::max ())
             throw std::invalid_argument {"value too big"};
 
-        if (*this < std::numeric_limits<I>::min ())
+        if (*this < numeric_limits<I>::min ())
             throw std::invalid_argument {"value too small"};
 
         if (this->size () == 0) return 0;
@@ -1529,10 +1529,10 @@ namespace data::math::number {
     template <std::integral I>
     inline Z_bytes<r, negativity::BC, word>::operator I () const {
 
-        if (*this > std::numeric_limits<I>::max ())
+        if (*this > numeric_limits<I>::max ())
             throw std::invalid_argument {"value too big"};
 
-        if (*this < std::numeric_limits<I>::min ())
+        if (*this < numeric_limits<I>::min ())
             throw std::invalid_argument {"value too small"};
 
         if (this->size () == 0) return 0;

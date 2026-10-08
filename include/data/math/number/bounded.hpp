@@ -156,15 +156,6 @@ namespace data::math::def {
             bounded<b, r, x * 2, word> (n),
             nonzero {uint<r, x * 2, word> (q.Value)}));
     }
-
-    template <bool a, endian r, size_t x, std::unsigned_integral word>
-    constexpr maybe<number::bounded<a, r, x, word>> inline invert_mod<number::bounded<a, r, x, word>, number::bounded<a, r, x, word>>::operator () (
-        const number::bounded<a, r, x, word> &q,
-        const nonzero<number::bounded<a, r, x, word>> &mod) {
-        return maybe<number::bounded<a, r, x, word>> (math::number::invert_mod<number::bounded<a, r, x + 1, word>> (
-            number::bounded<a, r, x + 1, word> (q),
-            nonzero {number::bounded<a, r, x + 1, word> (mod.Value)}));
-    }
 }
 
 namespace data::encoding::hexidecimal {

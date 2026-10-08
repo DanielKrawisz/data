@@ -345,13 +345,6 @@ namespace data {
                 const nonzero<uint<r, x, word>> &);
         };
 
-        template <bool a, endian r, size_t x, std::unsigned_integral word>
-        struct invert_mod<bounded<a, r, x, word>, bounded<a, r, x, word>> {
-            constexpr maybe<bounded<a, r, x, word>> operator () (
-                const bounded<a, r, x, word> &,
-                const nonzero<bounded<a, r, x, word>> &);
-        };
-
         template <endian r, size_t x, std::unsigned_integral word>
         struct div_2_pow<uint<r, x, word>> {
             constexpr uint<r, x, word> operator () (const uint<r, x, word> &, uint32 exp);
@@ -566,7 +559,7 @@ namespace data {
 
             // TODO we ought to be able to explicitly convert to
             // any built-in type.
-            explicit operator uint64 () const;
+            template <std::integral I> explicit operator I () const;
 
             // explicitly convert from a larger number.
             template <bool x, endian o, size_t u, std::unsigned_integral w>
@@ -613,7 +606,7 @@ namespace data {
             constexpr static bounded max ();
             constexpr static bounded min ();
 
-            explicit operator int64 () const;
+            template <std::integral I> explicit operator I () const;
 
             constexpr explicit bounded (const Z_bytes<r, negativity::twos, word> &z);
 
@@ -637,9 +630,9 @@ namespace data {
             requires (u * sizeof (w) >= size * sizeof (word))
             constexpr explicit bounded (const bounded<false, o, u, w> &);
 
-            template <class T, std::size_t n_bits>
+            template <endian o, class T, std::size_t n_bits>
             requires (n_bits / 8 <= size * sizeof (word)) && std::signed_integral<T>
-            constexpr bounded (const boost::endian::endian_arithmetic<r, T, n_bits, boost::endian::align::no> &);
+            constexpr bounded (const boost::endian::endian_arithmetic<o, T, n_bits, boost::endian::align::no> &);
 
         };
     }
@@ -1246,6 +1239,32 @@ namespace data {
             if constexpr (is_signed) return arithmetic::twos::bit_width (x.words ());
             else return arithmetic::nones::bit_width (x.words ());
         }
+
+        template <bool is_signed, endian r, size_t size, std::unsigned_integral word, endian o, std::integral T, std::size_t n_bits>
+        constexpr boost::endian::endian_arithmetic<o, T, n_bits, boost::endian::align::no> inline
+        convert<boost::endian::endian_arithmetic<o, T, n_bits, boost::endian::align::no>, number::bounded<is_signed, r, size, word>>::operator ()
+        (const number::bounded<is_signed, r, size, word> &x) const {
+            return T (x);
+        }
+
+        template <bool is_signed, endian r, size_t size, std::unsigned_integral word, endian o, std::integral T, std::size_t n_bits>
+        constexpr number::bounded<is_signed, r, size, word> inline
+        convert<number::bounded<is_signed, r, size, word>, boost::endian::endian_arithmetic<o, T, n_bits, boost::endian::align::no>>::operator ()
+        (const boost::endian::endian_arithmetic<o, T, n_bits, boost::endian::align::no> &x) const {
+            return T (x);
+        }
+
+        template <bool is_signed, endian r, size_t size, std::unsigned_integral word, std::integral I>
+        constexpr number::bounded<is_signed, r, size, word> inline
+        convert<number::bounded<is_signed, r, size, word>, I>::operator () (const I &u) const {
+            return number::bounded<is_signed, r, size, word> (u);
+        }
+
+        template <std::integral I, bool is_signed, endian r, size_t size, std::unsigned_integral word>
+        constexpr I inline convert<I, number::bounded<is_signed, r, size, word>>::operator ()
+        (const number::bounded<is_signed, r, size, word> &u) const {
+            return I (u);
+        }
     }
 
     namespace math::number {
@@ -1308,7 +1327,7 @@ namespace data {
                 if consteval {
                     auto b = this->words ().begin ();
                     for (int i = 0; i < indexes; i++) {
-                        *b = x & std::numeric_limits<word>::max ();
+                        *b = x & numeric_limits<word>::max ();
                         x >>= (sizeof (word) * 8);
                         b++;
                     }
@@ -1330,7 +1349,7 @@ namespace data {
                 auto w = this->words ();
                 auto i = w.begin ();
                 for (int n = 0; n < sizeof (I) / sizeof (word); n++) {
-                    *i = static_cast<word> (x & std::numeric_limits<word>::max ());
+                    *i = static_cast<word> (x & numeric_limits<word>::max ());
                     x >>= sizeof (word) * 8;
                     i++;
                 }
@@ -1346,7 +1365,7 @@ namespace data {
                 if consteval {
                     auto b = this->words ().begin ();
                     for (int i = 0; i < indexes; i++) {
-                        *b = x & std::numeric_limits<word>::max ();
+                        *b = x & numeric_limits<word>::max ();
                         x >>= (sizeof (word) * 8);
                         b++;
                     }
@@ -1363,7 +1382,7 @@ namespace data {
         template <std::signed_integral I>
         constexpr bounded<true, r, size, word>::bounded (I x) : oriented<r, word, size>
             {x < 0 ?
-                bytes_array<word, size>::filled (std::numeric_limits<word>::max ()) :
+                bytes_array<word, size>::filled (numeric_limits<word>::max ()) :
                 bytes_array<word, size>::filled (0x00)} {
 
             if constexpr (sizeof (I) <= sizeof (word)) {
@@ -1373,7 +1392,7 @@ namespace data {
                 if consteval {
                     auto b = this->words ().begin ();
                     for (int i = 0; i < indexes; i++) {
-                        *b = x & std::numeric_limits<word>::max ();
+                        *b = x & numeric_limits<word>::max ();
                         x >>= (sizeof (word) * 8);
                         b++;
                     }
@@ -1627,15 +1646,65 @@ namespace data {
         }
 
         template <endian r, size_t size, std::unsigned_integral word>
-        bounded<false, r, size, word>::operator uint64 () const {
-            if constexpr (!Same<word, byte>) throw unimplemented {"bounded operator uint64"};
-            uint64_little u {0};
-            if constexpr (size <= 8) {
-                std::copy (this->words ().begin (), this->words ().end (), u.begin ());
-            } else if (*this > std::numeric_limits<uint64>::max ())
-                throw data::exception {"Number is too big to cast to uint64"};
-            else std::copy (this->words ().begin (), this->words ().begin () + 8, u.begin ());
-            return uint64 (u);
+        template <std::integral I>
+        bounded<false, r, size, word>::operator I () const
+        {
+            if (*this > numeric_limits<I>::max ())
+                throw exception {} << "overflow, number too big to cast to built in type";
+
+            using U = std::make_unsigned_t<I>;
+
+            constexpr size_t bits = std::numeric_limits<U>::digits;
+
+            U result = 0;
+            size_t shift = 0;
+
+            constexpr size_t word_bits = numeric_limits<word>::digits;
+            for (word w : this->words ()) {
+                if (shift < bits)
+                    result |= static_cast<U> (w) << shift;
+
+                shift += word_bits;
+            }
+
+            return static_cast<I>(result);
+        }
+
+        template <endian r, size_t size, std::unsigned_integral word>
+        template <std::integral I>
+        bounded<true, r, size, word>::operator I () const
+        {
+            if (*this > numeric_limits<I>::max ())
+                throw exception {} << "overflow, number too big to cast to built in type";
+
+            if (*this < numeric_limits<I>::min ())
+                throw exception {} << "overflow, number too small to cast to built in type";
+
+            using U = std::make_unsigned_t<I>;
+
+            constexpr size_t bits = std::numeric_limits<U>::digits;
+            constexpr size_t word_bits = std::numeric_limits<word>::digits;
+
+            U result = 0;
+            size_t shift = 0;
+
+            for (word w : this->words ()) {
+                if (shift < bits)
+                    result |= static_cast<U> (w) << shift;
+
+                shift += word_bits;
+            }
+
+            if constexpr (std::is_unsigned_v<I>) {
+                return static_cast<I> (result);
+            } else {
+                if (*this < 0) {
+                    U magnitude = U {0} - result;
+                    return -static_cast<I> (magnitude);
+                }
+
+                return static_cast<I> (result);
+            }
         }
 
         template <endian r, size_t size, std::unsigned_integral word>
@@ -2166,17 +2235,18 @@ namespace data {
         }
 
         template <endian r, size_t size, std::unsigned_integral word>
-        template <class T, std::size_t n_bits>
+        template <endian o, class T, std::size_t n_bits>
         requires (n_bits / 8 <= size * sizeof (word)) && std::signed_integral<T>
-        constexpr bounded<true, r, size, word>::bounded (const boost::endian::endian_arithmetic<r, T, n_bits, boost::endian::align::no> &n): bounded {is_negative (T (n)) ? -1 : 0} {
+        constexpr bounded<true, r, size, word>::bounded (const boost::endian::endian_arithmetic<o, T, n_bits, boost::endian::align::no> &n): bounded {T (n)} {
 
             if (n == 0 || n == -1) return;
 
             if constexpr (sizeof (T) <= sizeof (word))
                 this->words ().begin () = static_cast<word> (T (n));
-            else if constexpr (sizeof (word) == 1)
-                std::copy (n.begin (), n.end (), this->words ().begin ());
-            else {
+            else if constexpr (sizeof (word) == 1) {
+                arithmetic::Words<o, const byte> w {slice<const byte> {n.data (), n_bits / 8}};
+                std::copy (w.begin (), w.end (), this->words ().begin ());
+            } else {
                 T src = T (n);
                 auto dst = this->words ().begin ();
 
