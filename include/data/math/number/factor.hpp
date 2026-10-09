@@ -50,7 +50,7 @@ namespace data::math::number {
 
                 // in this case, the number itself must be prime.
                 if (d.Quotient < p.Value) {
-                    p = prime<N> {x, prime<N>::certain};
+                    p = prime<N> {x, certain};
                     x = 1;
                     break;
                 }
@@ -80,6 +80,18 @@ namespace data::math::number {
         // update the sieve we were using in case we generated more primes with it.
         e = P.Eratosthenes;
         return factors;
+    }
+
+    template <WholeNumber N> inline factorization<N> operator * (const prime<N> &a, const prime<N> &b) {
+        return factorization {list<power<prime<N>, N>> {power<prime<N>, N> {a, 1}, power<prime<N>, N> {b, 1}}};
+    }
+
+    template <WholeNumber N> factorization<N>::operator N () const {
+        N n {1};
+        for (const power<prime<N>, N> &p : *this)
+            n *= data::pow (p.Base.Value, p.Exponent);
+
+        return n;
     }
 
 }

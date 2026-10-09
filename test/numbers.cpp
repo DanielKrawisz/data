@@ -1143,7 +1143,6 @@ namespace data {
         EXPECT_THROW ((pow (Z {1}, -Z {3})), math::negative_power);
     }
 
-    // TODO we would like to make this work on Naturals.
     TYPED_TEST (Numbers, InvertMod) {
         using Z = typename TestFixture::N;
         using N = decltype (abs (Z {0}));

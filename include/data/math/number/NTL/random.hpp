@@ -15,7 +15,7 @@ namespace data::math::number {
             static_cast<long (*) (const NTL::ZZ &, long)> (NTL::ProbPrime),
             n.Value,
             static_cast<long> (rounds)))
-            return prime<N> (n, prime<N>::probable);
+            return prime<N> (n, probable);
         else return prime<N> {};
     }
 
@@ -23,20 +23,20 @@ namespace data::math::number {
         if (params.safe) return prime<N> {N {NTL::random_function (
                 x, NTL::GenGermainPrime_ZZ,
                 static_cast<long> (bits) - 1u,
-                static_cast<long> (params.rounds))} * 2u + 1u, prime<N>::probable};
+                static_cast<long> (params.rounds))} * 2u + 1u, probable};
         else return prime<N> {N {NTL::random_function (
             x, NTL::GenPrime_ZZ,
             static_cast<long> (bits),
             static_cast<long> (params.rounds)
-        )}, prime<N>::probable};
+        )}, probable};
     }
 
     template <WholeNumber NN> prime<NN> inline is_prime (random::source &x, const NN &n, int rounds) {
-        return convert<NN> (is_prime<N> (x, convert<N> (n)));
+        return prime<NN> (is_prime<N> (x, convert<N> (n)));
     }
 
-    template <WholeNumber NN> prime<NN> inline generate_random_prime (random::source &x, uint32 bits, int rounds, bool safe) {
-        return convert<NN> (generate_random_prime<N> (x, bits, rounds, safe));
+    template <WholeNumber NN> prime<NN> inline generate_random_prime (random::source &x, uint32 bits, generate_prime_parameters p) {
+        return prime<NN> (generate_random_prime<N> (x, bits, p));
     }
 
 }

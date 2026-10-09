@@ -1158,6 +1158,16 @@ namespace data::math::def {
         N operator () (const number::N_bytes<r, word> &) const;
     };
 
+    template <endian r, std::unsigned_integral word, std::integral I>
+    struct convert<number::N_bytes<r, word>, I> {
+        number::N_bytes<r, word> operator () (const I &) const;
+    };
+
+    template <std::integral I, endian r, std::unsigned_integral word>
+    struct convert<I, number::N_bytes<r, word>> {
+        I operator () (const number::N_bytes<r, word> &) const;
+    };
+
     template <bool is_signed, endian r, size_t size, std::unsigned_integral word>
     struct convert<number::bounded<is_signed, r, size, word>, Z> {
         number::bounded<is_signed, r, size, word> operator () (const Z &) const;

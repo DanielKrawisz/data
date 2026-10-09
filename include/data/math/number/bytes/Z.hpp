@@ -43,8 +43,8 @@ namespace data::math::number {
 
         explicit operator double () const;
         
-        explicit operator uint64 () const;
-        explicit operator int64 () const;
+        template <std::integral I>
+        explicit operator I () const;
 
         // TODO we need this intstead of the above two operators.
         /*
@@ -973,6 +973,17 @@ namespace data::math::def {
         if constexpr (c == negativity::twos) return arithmetic::twos::bit_width (x.words ());
         else return arithmetic::BC::bit_width (x.words ());
     }
+
+
+    template <endian r, std::unsigned_integral word, std::integral I>
+    number::N_bytes<r, word> inline convert<number::N_bytes<r, word>, I>::operator () (const I &i) const {
+        return number::N_bytes<r, word> (i);
+    }
+
+    template <std::integral I, endian r, std::unsigned_integral word>
+    I inline convert<I, number::N_bytes<r, word>>::operator () (const number::N_bytes<r, word> &n) const {
+        return I (n);
+    }
 }
 
 // finally come functions that can be implemented in terms of the low
@@ -1485,17 +1496,17 @@ namespace data::math::number {
         return *this;
     }
     
-    template <endian r, std::unsigned_integral word>
-    N_bytes<r, word>::operator uint64 () const {
-        if (*this > N_bytes {numeric_limits<uint64>::max ()})
+    template <endian r, std::unsigned_integral word> template <std::integral I>
+    N_bytes<r, word>::operator I () const {
+        if (*this > numeric_limits<I>::max ())
             throw exception {} << "value too big";
 
-        endian_integral<false, endian::little, 8> xx {0};
-        std::copy (this->words ().begin (),
-            this->words ().begin () + std::min (static_cast<size_t> (8),
-            this->size ()), xx.begin ());
+        boost::endian::endian_arithmetic<endian::little, I, 8 * sizeof (I), boost::endian::align::no> xx {0};
 
-        return uint64 (xx);
+        std::copy (this->words ().begin (),
+            this->words ().begin () + std::min (sizeof (I), this->size ()), xx.begin ());
+
+        return I (xx);
     } 
     
     template <endian r, std::unsigned_integral word>

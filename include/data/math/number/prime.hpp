@@ -24,10 +24,10 @@ namespace data::math::number {
     template <WholeNumber N> factorization<N> operator * (factorization<N>, factorization<N>);
 
     // test primality with Miller-Rabin + trial division.
-    template <WholeNumber N> prime<N> is_prime (random::source &, const N &, int rounds);
+    template <WholeNumber N> prime<N> is_prime (random::source &, const N &, int rounds = 25);
 
     // a safe prime is of the form 2 p + 1 where p is also prime.
-    template <WholeNumber N> prime<N> is_safe (random::source &, const prime<N> &, int rounds);
+    template <WholeNumber N> prime<N> is_safe (random::source &, const prime<N> &, int rounds = 25);
 
     struct generate_prime_parameters {
         int rounds = 25;
@@ -42,14 +42,15 @@ namespace data::math::number {
 
     template <WholeNumber N> prime<N> next_prime (const N &, uint32 trials = 25);
 
+    enum likelihood {
+        certain,
+        probable,
+        impossible
+    };
+
     // A number that is known to be prime.
     template <WholeNumber N>
     struct prime : nonzero<N> {
-        enum likelihood {
-            certain,
-            probable,
-            impossible
-        };
 
         likelihood Likelihood;
 
@@ -63,11 +64,26 @@ namespace data::math::number {
             return valid ();
         }
 
+        // automatic conversions
+        template <WholeNumber M> requires ImplicitlyConvertible<N, M>
+        operator prime<M> () const {
+            if (!*this) return {};
+            return prime<M> {M (this->Value), Likelihood};
+        }
+
+        // explicit conversions
+        template <WholeNumber M> requires ExplicitlyConvertible<N, M>
+        explicit operator prime<M> () const {
+            if (!*this) return {};
+            return prime<M> {M (this->Value), Likelihood};
+        }
+
     private:
         prime (N p, likelihood l) : nonzero<N> {p}, Likelihood {l} {}
 
         friend struct eratosthenes<N>;
         friend struct AKS<N>;
+        template <WholeNumber M> friend struct prime;
         friend factorization<N> factorize<N> (nonzero<N>, eratosthenes<N> &);
         friend prime<N> is_prime<N> (random::source &, const N &, int rounds);
         friend prime<N> generate_random_prime<N> (random::source &, uint32 digits, generate_prime_parameters);
