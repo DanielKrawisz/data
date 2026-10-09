@@ -69,6 +69,7 @@ namespace data::math::number {
     constexpr modular<mod, X> operator ^ (const modular<mod, X> &, const X &);
     
     template <auto mod, mod_base X> struct modular {
+        constexpr static const decltype (mod) Modulus = mod;
         X Value;
 
         template <typename... P>
