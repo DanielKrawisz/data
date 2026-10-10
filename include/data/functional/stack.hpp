@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_FUNCTIONAL_STACK
-#define DATA_FUNCTIONAL_STACK
+#pragma once
 
 // a stack is the most basic functional data structure. 
 
@@ -171,5 +170,3 @@ namespace data::functional {
     }
 
 }
-
-#endif

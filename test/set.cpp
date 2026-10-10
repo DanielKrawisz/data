@@ -4,7 +4,8 @@
 
 #include <data/set.hpp>
 #include <data/numbers.hpp>
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 namespace data {
 
@@ -58,6 +59,12 @@ namespace data {
         set<const string> bx;
         set<const Z> cx;
         set<const N> dx;
+    }
+
+    TEST (Set, Conversions) {
+        set<uint32> set_uint {1, 2, 3};
+        set<N> set_N {1, 2, 3};
+        EXPECT_EQ (set_N, (set<N> (set_uint)));
     }
 
     // TODO a lot more tests are needed here.

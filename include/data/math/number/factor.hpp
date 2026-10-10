@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_FACTOR
-#define DATA_MATH_NUMBER_FACTOR
+#pragma once
 
 #include <data/list.hpp>
 #include <data/math/number/division.hpp>
@@ -47,11 +46,11 @@ namespace data::math::number {
             while (true) {
                 p = P.first ();
 
-                d = divmod (x, p.Prime);
+                d = divmod (x, p.Value);
 
                 // in this case, the number itself must be prime.
-                if (d.Quotient < p.Prime.Value) {
-                    p = prime<N> {x, prime<N>::certain};
+                if (d.Quotient < p.Value) {
+                    p = prime<N> {x, certain};
                     x = 1;
                     break;
                 }
@@ -68,7 +67,7 @@ namespace data::math::number {
             power<prime<N>, N> factor {p, 1};
 
             while (true) {
-                division<N> d = math::number::natural_divmod (x, factor.Base.Prime.Value);
+                division<N> d = math::number::natural_divmod (x, factor.Base.Value);
                 if (d.Remainder != 0) break;
                 factor.Exponent++;
                 x = d.Quotient;
@@ -83,7 +82,17 @@ namespace data::math::number {
         return factors;
     }
 
-}
+    template <WholeNumber N> inline factorization<N> operator * (const prime<N> &a, const prime<N> &b) {
+        return factorization {list<power<prime<N>, N>> {power<prime<N>, N> {a, 1}, power<prime<N>, N> {b, 1}}};
+    }
 
-#endif
+    template <WholeNumber N> factorization<N>::operator N () const {
+        N n {1};
+        for (const power<prime<N>, N> &p : *this)
+            n *= data::pow (p.Base.Value, p.Exponent);
+
+        return n;
+    }
+
+}
 

@@ -2,12 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_HALVES
-#define DATA_HALVES
+#pragma once
 
 #include <type_traits>
 #include <concepts>
-#include <data/encoding/endian.hpp>
 
 namespace data::encoding {
     template <std::size_t S> struct int_by_size;
@@ -152,5 +150,3 @@ namespace data {
     };
     
 }
-
-#endif

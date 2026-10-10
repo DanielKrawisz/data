@@ -2,20 +2,21 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_DIVISION
-#define DATA_MATH_NUMBER_DIVISION
+#pragma once
 
 #include <data/increment.hpp>
 #include <data/arithmetic.hpp>
+
 #include <data/exception.hpp>
 
 namespace data::math::number {
 
-    // Generic division algorithm.
+    // Divide Dividend by Divisor assuming both numbers are positive.
     template <MultiplicativeNumber N>
     constexpr division<N> natural_divmod (const N &Dividend, const N &Divisor) {
 
         if (Divisor == 0) throw division_by_zero {};
+        if (Divisor > Dividend) return {0, Dividend};
         if (Divisor == 1) return {Dividend, 0u};
         if (Divisor == 2) return {div_2 (Dividend), mod_2 (Dividend)};
 
@@ -23,35 +24,22 @@ namespace data::math::number {
         N exp {Divisor};
 
         // initialization phase
-        // NOTE: should be able to use digits_base_2 here.
         {
-            uint64 digits_per_round {1};
+            size_t width_d = bit_width (Dividend);
+            size_t width_s = bit_width (exp);
 
-            // we increase exp by increasing powers of 2 until it is bigger than the divisor.
-            // NOTE: this step should not be necessary. There ought to be a function that
-            // tells us how many digits a number has.
-            while (exp <= Dividend) {
-                exp <<= digits_per_round;
-                pow <<= digits_per_round;
-                digits_per_round <<= 1;
-            }
-
-            // we change exp (either increase or decrease) by decreasing powers of 2 until
-            // it is the maximum power of 2 that is smaller than the divisor.
-            while (true) {
-                digits_per_round >>= 1;
-                if (digits_per_round == 0) break;
-                if (exp > Dividend) {
-                    exp >>= digits_per_round;
-                    pow >>= digits_per_round;
-                } else {
-                    exp <<= digits_per_round;
-                    pow <<= digits_per_round;
-                }
+            exp <<= (width_d - width_s);
+            pow <<= (width_d - width_s);
+            if (exp > Divisor) {
+                exp >>= 1;
+                pow >>= 1;
             }
         }
 
         // division phase
+        // at this point, pow is the largest power of two such
+        // that exp = Divisor * pow is smaller than Dividend.
+
         division<N> result {0, Dividend};
         while (pow > 0) {
             while (exp > result.Remainder) {
@@ -67,8 +55,13 @@ namespace data::math::number {
         return result;
     }
 
-    template <MultiplicativeNumber Z, MultiplicativeNumber N>
-    constexpr division<Z, N> integer_natural_divmod (const Z &Dividend, const N &Divisor) {
+    template <MultiplicativeNumberUnsigned N>
+    constexpr division<N> divmod (const N &Dividend, const N &Divisor) {
+        return natural_divmod (Dividend, Divisor);
+    }
+
+    template <typename Z, typename N> requires MultiplicativeNumberSystem<Z, N>
+    constexpr division<Z, N> divmod (const Z &Dividend, const N &Divisor) {
         division<N> d {natural_divmod<N> (abs (Dividend), Divisor)};
 
         if (d.Remainder == 0) return {Dividend < 0 ? -Z (d.Quotient) : Z (d.Quotient), d.Remainder};
@@ -88,7 +81,7 @@ namespace data::math::number {
         PYTHON_2_FLOOR_DIV
     };
 
-    template <modulo_negative_divisor_convention m, MultiplicativeNumber Z>
+    template <modulo_negative_divisor_convention m, MultiplicativeNumberSigned Z>
     constexpr division<Z, decltype (abs (std::declval<Z> ()))> integer_divmod (const Z &Dividend, const Z &Divisor) {
         using N = decltype (abs (std::declval<Z> ()));
 
@@ -125,6 +118,9 @@ namespace data::math::number {
         return {Z (d.Quotient), d.Remainder};
     }
 
-}
+    template <MultiplicativeNumberSigned Z>
+    constexpr division<Z, decltype (abs (std::declval<Z> ()))> divmod (const Z &Dividend, const Z &Divisor) {
+        return integer_divmod<EUCLIDIAN_ALWAYS_POSITIVE> (Dividend, Divisor);
+    }
 
-#endif
+}

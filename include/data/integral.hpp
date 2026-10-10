@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_INTEGRAL
-#define DATA_MATH_INTEGRAL
+#pragma once
 
 // numbers of either endian of any size up to 64 bits using boost.
 #include <data/encoding/endian.hpp>
@@ -12,7 +11,6 @@
 
 // bounded size numbers of any size (bigger than 64 bit)
 #include <data/math/number/bounded.hpp>
-#include <data/math/number/bytes.hpp>
 
 #include <data/exception.hpp>
 
@@ -146,6 +144,4 @@ namespace data {
     static_assert (IntegralSystem<int256_little, uint256_little>);
     static_assert (IntegralSystem<int512_little, uint512_little>);
 }
-
-#endif
 

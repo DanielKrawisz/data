@@ -31,6 +31,7 @@ DEALINGS IN THE SOFTWARE.
 
 #include "core.h"
 #include <stdexcept>
+
 #include <data/exception.hpp>
 
 namespace utf8 {

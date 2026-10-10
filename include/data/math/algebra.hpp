@@ -2,17 +2,21 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_ALGEBRA
-#define DATA_MATH_ALGEBRA
+#pragma once
 
 #include <data/math/nonzero.hpp>
-#include <data/arithmetic.hpp>
 
 // TODO make functions for identity and inverse in data::math
 
 // TODO we can enable these types to take functions as parameters
 
 namespace data::math::def {
+
+    template <typename A, typename B = A> struct plus;
+    template <typename A, typename B = A> struct minus;
+    template <typename A, typename B = A> struct times;
+    template <typename A, typename Exp = A> struct pow;
+    template <typename A, typename B = A> struct divide;
 
     template <typename F, typename x> struct identity;
     template <typename F, typename x> struct inverse;
@@ -49,5 +53,3 @@ namespace data::math::def {
     };
     
 }
-
-#endif

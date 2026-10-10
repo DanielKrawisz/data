@@ -1,3 +1,5 @@
+
+
 # everything except crypto and net.
 add_library (data INTERFACE)
 add_library (Data::data ALIAS data)
@@ -10,23 +12,9 @@ add_library (Data::core ALIAS core)
 add_library (string STATIC)
 add_library (Data::string ALIAS string)
 
-# hash functions, including cryptographic
-add_library (hash STATIC)
-add_library (Data::hash ALIAS hash)
-
 # numbers, like it says
 add_library (numbers STATIC)
 add_library (Data::numbers ALIAS numbers)
-
-# networking
-add_library (net STATIC)
-add_library (Data::net ALIAS net)
-
-add_library (crypto STATIC)
-add_library (Data::crypto ALIAS crypto)
-
-add_library (io STATIC)
-add_library (Data::io ALIAS io)
 
 set_target_properties (string PROPERTIES
   OUTPUT_NAME "data_string"
@@ -34,22 +22,6 @@ set_target_properties (string PROPERTIES
 
 set_target_properties (numbers PROPERTIES
   OUTPUT_NAME "data_numbers"
-)
-
-set_target_properties (hash PROPERTIES
-  OUTPUT_NAME "data_hash"
-)
-
-set_target_properties (net PROPERTIES
-  OUTPUT_NAME "data_net"
-)
-
-set_target_properties (crypto PROPERTIES
-  OUTPUT_NAME "data_crypto"
-)
-
-set_target_properties (io PROPERTIES
-  OUTPUT_NAME "data_io"
 )
 
 target_include_directories (
@@ -83,11 +55,14 @@ target_link_libraries (
   PUBLIC
 
   Data::core
-  Boost::boost
-  nlohmann_json::nlohmann_json
   ctre
-  Boost::log_setup
-  Boost::log
+)
+
+target_sources (numbers PRIVATE
+  ../NTL/Z.cpp
+  ../NTL/random.cpp
+  math/number/NTL/Z.cpp
+  math/number/NTL/GMP.cpp
 )
 
 target_sources (
@@ -95,10 +70,6 @@ target_sources (
 
   PRIVATE
 
-  math/number/gmp/N.cpp
-  math/number/gmp/mpq.cpp
-  math/number/gmp/aks.cpp
-  math/number/gmp/sqrt.cpp
   encoding/base58.cpp
   encoding/integer.cpp
 
@@ -113,11 +84,14 @@ target_link_libraries (
   PUBLIC
 
   Data::string
-  Boost::boost
+  ctre
+  PkgConfig::NTL
+
+  PRIVATE
+
   GMP::GMP
   rotella
   gmpxx
-  ctre
 )
 
 target_link_libraries (
@@ -127,122 +101,6 @@ target_link_libraries (
 
   Data::numbers
 
-)
-
-target_sources (
-  hash
-
-  PRIVATE
-
-  ../sv/utiltime.cpp
-  ../sv/fs.cpp
-  ../sv/crypto/chacha20.cpp
-  ../sv/crypto/hmac_sha512.cpp
-  ../sv/crypto/ripemd160.cpp
-  ../sv/crypto/sha1.cpp
-  ../sv/crypto/sha256.cpp
-  ../sv/crypto/sha512.cpp
-  ../sv/support/cleanse.cpp
-)
-
-target_compile_features (hash PUBLIC cxx_std_23)
-set_target_properties (hash PROPERTIES CXX_EXTENSIONS ON)
-
-target_link_libraries (
-  hash
-
-  PUBLIC
-
-  Data::string
-  OpenSSL::SSL
-  OpenSSL::Crypto
-  PkgConfig::cryptopp
-
-)
-
-target_sources (
-  net
-
-  PRIVATE
-
-  # this is first because it takes a really long time.
-  net/email.cpp
-
-  net/URL.cpp
-
-  async.cpp
-  net/beast/http.cpp
-  net/HTTP.cpp
-  net/REST.cpp
-  net/JSON.cpp
-  net/TCP.cpp
-  #net/websocket.cpp
-  net/HTTP_client.cpp
-  net/HTTP_server.cpp
-  
-  tools/rate_limiter.cpp
-)
-
-target_compile_features (net PUBLIC cxx_std_23)
-set_target_properties (net PROPERTIES CXX_EXTENSIONS ON)
-
-target_link_libraries (
-  net
-
-  PUBLIC
-
-  Data::string
-  Boost::chrono
-  Boost::thread
-  taocpp::pegtl
-  OpenSSL::SSL
-  OpenSSL::Crypto
-)
-
-target_sources (
-  crypto
-
-  PRIVATE
-
-  crypto/secret_share.cpp
-  crypto/block.cpp
-)
-
-target_compile_features (crypto PUBLIC cxx_std_23)
-set_target_properties (crypto PROPERTIES CXX_EXTENSIONS ON)
-
-target_link_libraries (
-  crypto
-
-  PUBLIC
-
-  Data::hash
-  Data::data
-)
-
-target_sources (
-  io
-
-  PRIVATE
-
-  #io/run.cpp
-  io/wait_for_enter.cpp
-  io/log.cpp
-  io/arg_parser.cpp
-  io/random.cpp
-)
-
-target_compile_features (io PUBLIC cxx_std_23)
-set_target_properties (io PROPERTIES CXX_EXTENSIONS ON)
-
-target_link_libraries (
-  io
-
-  PUBLIC
-
-  Data::crypto
-  Boost::log_setup
-  Boost::log
 )
 
 configure_file (
@@ -261,7 +119,7 @@ install (
 )
 
 install (
-  TARGETS data crypto net numbers hash io string core nlohmann_json rotella
+  TARGETS data numbers string core rotella
   EXPORT DataTargets
   ARCHIVE
 )
@@ -301,7 +159,7 @@ install (FILES
 
 set (CPACK_PACKAGE_VENDOR "Daniel Krawisz")
 set (CPACK_PACKAGE_CONTACT "email@example.com")
-set (CPACK_PACKAGE_DESCRIPTION "WhatsOnChain API")
+set (CPACK_PACKAGE_DESCRIPTION "functional data structures")
 include (CPack)
 
 include(GNUInstallDirs)

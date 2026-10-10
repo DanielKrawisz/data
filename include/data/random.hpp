@@ -5,7 +5,6 @@
 #ifndef DATA_RANDOM
 #define DATA_RANDOM
 
-#include <cryptopp/rng.h>
 #include <data/iterable.hpp>
 #include <data/bytes.hpp>
 #include <data/size.hpp>

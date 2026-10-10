@@ -4,6 +4,8 @@
 
 #include <data/concepts.hpp>
 #include <data/numbers.hpp>
+#include <data/math/fraction.hpp>
+
 #include "gtest/gtest.h"
 
 namespace data {
@@ -13,14 +15,14 @@ namespace data {
 
     // TODO make sure the functions we use are all defined!
     template <typename N> concept can_use_string_literals = requires () {
-            { N {"0"} };
-            { N {"9007199254740992"} };
+            { N::read ("0") };
+            { N::read ("9007199254740992") };
         };
 
     template <typename N> concept has_string_constructor = requires (const std::string &x) {
-            { N {x} };
+            { N::read (x) };
         } && requires (const data::string &x) {
-            { N {x} };
+            { N::read (x) };
         };
 
     template <typename N> concept has_bytes_constructor = requires (slice<const byte> x) {
@@ -117,17 +119,20 @@ namespace data {
     static_assert (ImplicitlyConvertible<uint128_big, int160_big>);
     static_assert (ImplicitlyConvertible<int128_big, int160_big>);
 
-    static_assert (comparable_to<N, Z>);
-    static_assert (comparable_to<N_bytes_little, Z_bytes_little>);
-    static_assert (comparable_to<Z_bytes_big, N_bytes_big>);
-    static_assert (comparable_to<math::N_bytes<endian::little, unsigned short>, math::Z_bytes<endian::little, unsigned short>>);
-    static_assert (comparable_to<math::Z_bytes<endian::big, unsigned short>, math::N_bytes<endian::big, unsigned short>>);
-    static_assert (comparable_to<math::N_bytes<endian::little, unsigned int>, math::Z_bytes<endian::little, unsigned int>>);
-    static_assert (comparable_to<math::Z_bytes<endian::big, unsigned int>, math::N_bytes<endian::big, unsigned int>>);
-    static_assert (comparable_to<uint256, int256>);
-    static_assert (comparable_to<int160, uint160>);
-    static_assert (comparable_to<uint64_little, int64_little>);
-    static_assert (comparable_to<int64_big, uint64_big>);
+    static_assert (Comparable<N, Z>);
+    static_assert (Comparable<N_bytes_little, Z_bytes_little>);
+    static_assert (Comparable<Z_bytes_big, N_bytes_big>);
+    static_assert (Comparable<math::N_bytes<endian::little, unsigned short>, math::Z_bytes<endian::little, unsigned short>>);
+    static_assert (Comparable<math::Z_bytes<endian::big, unsigned short>, math::N_bytes<endian::big, unsigned short>>);
+    static_assert (Comparable<math::N_bytes<endian::little, unsigned int>, math::Z_bytes<endian::little, unsigned int>>);
+    static_assert (Comparable<math::Z_bytes<endian::big, unsigned int>, math::N_bytes<endian::big, unsigned int>>);
+    static_assert (Comparable<uint256, int256>);
+    static_assert (Comparable<int160, uint160>);
+    static_assert (Comparable<uint64_little, int64_little>);
+    static_assert (Comparable<int64_big, uint64_big>);
+    static_assert (Comparable<N_bytes_little, N_bytes_big>);
+    static_assert (Comparable<Z_bytes_little, Z_bytes_big>);
+    static_assert (Comparable<N, N_bytes_little>);
     // TODO we could expect many more of these!
 
     // we can consistently define bit_and and bit_or on any number type
@@ -219,8 +224,6 @@ namespace data {
     static_assert (bit_arithmetic_big_unsigned<hex_uint>);
     static_assert (bit_arithmetic_big_unsigned<base58_uint>);
 
-    static_assert (!proto_bit_number<hex_int_BC>);
-
     template <typename NN> concept basic_arithmetic =
         requires (const NN &a) {
             { sign (a) };
@@ -228,6 +231,17 @@ namespace data {
             { is_negative (a) } -> Same<bool>;
             { is_zero (a) } -> Same<bool>;
             { square (a) } -> ImplicitlyConvertible<NN>;
+            { abs (a) };
+            { bit_width (a) };
+            { math::re (a) } -> Same<NN>;
+            { floor (a) } -> Same<NN>;
+            { ceiling (a) } -> Same<NN>;
+            { round (a) } -> Same<NN>;
+            { is_whole (a) } -> ImplicitlyConvertible<bool>;
+            { numerator (a) } -> ImplicitlyConvertible<NN>;
+            { denominator (a) } -> ImplicitlyConvertible<NN>;
+            { frac (a) } -> ImplicitlyConvertible<NN>;
+            { bit_width (a) } -> ImplicitlyConvertible<NN>;
         } && requires (const NN &a, const NN &b) {
             { a + b } -> ImplicitlyConvertible<NN>;
             { a - b } -> ImplicitlyConvertible<NN>;
@@ -237,6 +251,7 @@ namespace data {
             { minus (a, b) } -> ImplicitlyConvertible<NN>;
             { times (a, b) } -> ImplicitlyConvertible<NN>;
             { pow (a, b) } -> ImplicitlyConvertible<NN>;
+            { math::inner (a, b) } -> ImplicitlyConvertible<NN>;
         } && requires (NN &a, const NN &b) {
             { a += b } -> Same<NN &>;
             { a -= b } -> Same<NN &>;
@@ -265,39 +280,48 @@ namespace data {
         basic_arithmetic_big_signed<NN> &&
         basic_arithmetic_big_unsigned<NN>;
 
-    template <typename N> concept basic_number =
-        proto_number<N> && basic_arithmetic<N> &&
-        requires (const N &a) {
-            requires Same<decltype (abs (a)), decltype (quadrance (a))>;
-            { math::re (a) } -> Same<N>;
-        } && requires (const N &a, const N &b) {
-            { math::inner (a, b) } -> ImplicitlyConvertible<N>;
+    // TODO integral domain should be uncommented.
+    template <typename N> concept BasicNumber = WholeNumber<N> &&
+        proto_number<N> && basic_arithmetic<N> && !math::Field<N> && MultiplicativeNumber<N>;
+
+    template <typename ZZ, typename NN = ZZ> concept modable =
+        requires (const ZZ &a, const NN &b) {
+            { a % b } -> ImplicitlyConvertible<NN>;
+        } && requires (const ZZ &a, const math::nonzero<NN> &b) {
+            { mod (a, b) } -> ImplicitlyConvertible<NN>;
+            { negate_mod (a, b) } -> ImplicitlyConvertible<NN>;
+            { invert_mod (a, b) } -> ImplicitlyConvertible<maybe<NN>>;
+        } && requires (const ZZ &a, const ZZ &b, const math::nonzero<NN> &c) {
+            { plus_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
+            { minus_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
+            { times_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
+            { pow_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
         };
 
     template <typename N> concept basic_number_big_unsigned =
-        basic_number<N> && basic_arithmetic_big_unsigned<N>;
+        BasicNumber<N> && basic_arithmetic_big_unsigned<N>;
 
     template <typename N> concept basic_number_big_signed =
-        basic_number<N> && basic_arithmetic_big_signed<N>;
+        BasicNumber<N> && basic_arithmetic_big_signed<N>;
 
     template <typename N> concept basic_number_big =
-        basic_number<N> && basic_arithmetic_big<N>;
+        BasicNumber<N> && basic_arithmetic_big<N>;
 
-    static_assert (basic_number<uint32>);
-    static_assert (basic_number<uint32_little>);
-    static_assert (basic_number<uint32_big>);
+    static_assert (BasicNumber<uint32>);
+    static_assert (BasicNumber<uint32_little>);
+    static_assert (BasicNumber<uint32_big>);
 
-    static_assert (basic_number<int32>);
-    static_assert (basic_number<int32_little>);
-    static_assert (basic_number<int32_big>);
+    static_assert (BasicNumber<int32>);
+    static_assert (BasicNumber<int32_little>);
+    static_assert (BasicNumber<int32_big>);
 
-    static_assert (basic_number<uint64>);
-    static_assert (basic_number<uint64_little>);
-    static_assert (basic_number<uint64_big>);
+    static_assert (BasicNumber<uint64>);
+    static_assert (BasicNumber<uint64_little>);
+    static_assert (BasicNumber<uint64_big>);
 
-    static_assert (basic_number<int64>);
-    static_assert (basic_number<int64_little>);
-    static_assert (basic_number<int64_big>);
+    static_assert (BasicNumber<int64>);
+    static_assert (BasicNumber<int64_little>);
+    static_assert (BasicNumber<int64_big>);
 
     static_assert (basic_number_big<uint128>);
     static_assert (basic_number_big_signed<int128>);
@@ -322,25 +346,9 @@ namespace data {
     static_assert (basic_number_big<hex_int>);
     static_assert (basic_number_big<hex_int_BC>);
 
-    // a number does not necessarily have mod operations because
-    // it may require an unsigned version of that number.
-    template <typename ZZ, typename NN = ZZ> concept modable =
-        requires (const ZZ &a, const NN &b) {
-            { a % b } -> ImplicitlyConvertible<NN>;
-        } && requires (const ZZ &a, const math::nonzero<NN> &b) {
-            { mod (a, b) } -> ImplicitlyConvertible<NN>;
-            { negate_mod (a, b) } -> ImplicitlyConvertible<NN>;
-        } && requires (const ZZ &a, const ZZ &b, const math::nonzero<NN> &c) {
-            { plus_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
-            { minus_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
-            { times_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
-            { pow_mod (a, b, c) } -> ImplicitlyConvertible<NN>;
-        };
-
-    // numbers that are homo modable are
+    // numbers that are homo modable (can be modded with itself) are
     //   * built-in-like numbers
     //   * natural numbers.
-
     template <typename NN> concept homo_modable =
         modable<NN> && requires (NN &a, const NN &b) {
             { a %= b } -> Same<NN &>;
@@ -349,7 +357,7 @@ namespace data {
     // an unaccompanied_number works without having to know
     // about any corresponding signed or unsigned type.
     template <typename N> concept unaccompanied_number =
-        basic_number<N> && homo_modable<N> &&
+        BasicNumber<N> && homo_modable<N> &&
         requires (const N &a, const math::nonzero<N> &b) {
             { divmod (a, b) } -> Same<division<N>>;
         };
@@ -380,7 +388,7 @@ namespace data {
     static_assert (natural_number_big<base58_uint>);
 
     template <typename NN> concept complement_twos_number =
-        basic_number<NN> && bit_arithmetic<NN>;
+        BasicNumber<NN> && bit_arithmetic<NN>;
 
     // a number resembling a built-in number.
     template <typename NN> concept integral_number =
@@ -388,14 +396,20 @@ namespace data {
         math::homo_abs_and_negate<NN> && homo_modable<NN> &&
         bit_negate_arithmetic<NN>;
 
+    template <typename Z> concept fractionable =
+        requires (const Z &z, const Z &n) {
+            { math::over (z, z) };
+        };
+
     // for number types that resemble built in types, we enforce
     // the non-intuitive rule that when you add signed and unsigned
     // versions together, you get the unsigned version.
     // TODO need to say how divide works.
     template <typename NN, typename ZZ> concept integral_number_system =
+        fractionable<ZZ> &&
         IntegralSystem<ZZ, NN> &&
         integral_number<NN> && integral_number<ZZ> &&
-        comparable_to<NN, ZZ> && Unsigned<NN> && Signed<ZZ> &&
+        Comparable<NN, ZZ> && Unsigned<NN> && Signed<ZZ> &&
         bit_negate_arithmetic<NN> && bit_negate_arithmetic<ZZ> &&
         bit_algebraic_unsigned_to<ZZ, NN> &&
         ring_algebraic_unsigned_to<ZZ, NN>;
@@ -424,11 +438,15 @@ namespace data {
     static_assert (integral_number_system<uint256_little, int256_little>);
     static_assert (integral_number_system<uint512_little, int512_little>);
 
+    static_assert (UnsignedIntegral<math::number::bounded<false, (boost::endian::order)1, 5ul, unsigned short>>);
+
     // TODO need a basic arithmetic system to say
     // that the result of adding a signed and unsigned number
     // will be signed, etc.
     template <typename N, typename Z> concept pure_number_system =
-        natural_number<N> && basic_number<Z> &&
+        NumberSystem<Z, N> &&
+        fractionable<Z> &&
+        natural_number<N> && BasicNumber<Z> &&
         Unsigned<N> && Signed<Z> &&
         math::hetero_abs_and_negate<N, Z> && modable<Z, N> &&
         ring_algebraic_signed_to<N, Z> &&
@@ -502,132 +520,665 @@ namespace data {
     static_assert (number_theory_number<int128>);
     static_assert (number_theory_number<uint128>);
 
-    template <typename N>
-    void test_default_is_zero () {
+    // next we have typed test suites. We have several sets of numbers
+    // that we use. The first contains all number types.
+    template <typename X> struct Numbers : ::testing::Test {
+        using N = X;
+    };
+
+    using numbers = ::testing::Types<
+        uint32, int32, int32_little, uint32_little, int32_big, uint32_big,
+        uint64, int64, int64_little, uint64_little, int64_big, uint64_big,
+        uint80, int80, int80_little, uint80_little, int80_big, uint80_big,
+        uint128, int128, int128_little, uint128_little, int128_big, uint128_big,
+        uint160, int160, int160_little, uint160_little, int160_big, uint160_big,
+        uint224, int224, int224_little, uint224_little, int224_big, uint224_big,
+        uint256, int256, int256_little, uint256_little, int256_big, uint256_big,
+        uint384, int384, int384_little, uint384_little, int384_big, uint384_big,
+        uint512, int512, int512_little, uint512_little, int512_big, uint512_big,
+        N, Z, N_bytes_little, N_bytes_big, Z_bytes_little, Z_bytes_big,
+        Z_bytes_BC_little, Z_bytes_BC_big,
+        dec_uint, dec_int, hex_uint, hex_int, hex_int_BC, base58_uint>;
+
+    TYPED_TEST_SUITE (Numbers, numbers);
+
+    TYPED_TEST (Numbers, DefaultIsZero) {
+        using N = typename TestFixture::N;
         EXPECT_EQ (N {}, N {0});
+        EXPECT_EQ (N {}, 0);
     }
 
-    TEST (Numbers, DefaultIsZero) {
-
-        test_default_is_zero<N> ();
-        test_default_is_zero<Z> ();
-        test_default_is_zero<N_bytes_little> ();
-        test_default_is_zero<N_bytes_big> ();
-        test_default_is_zero<Z_bytes_little> ();
-        test_default_is_zero<Z_bytes_big> ();
-        test_default_is_zero<Z_bytes_BC_little> ();
-        test_default_is_zero<Z_bytes_BC_big> ();
-        test_default_is_zero<uint128> ();
-        test_default_is_zero<int128> ();
-        test_default_is_zero<dec_int> ();
-        test_default_is_zero<dec_uint> ();
-        test_default_is_zero<hex_int> ();
-        test_default_is_zero<hex_uint> ();
-        test_default_is_zero<hex_int_BC> ();
-        test_default_is_zero<base58_uint> ();
-
+    TYPED_TEST (Numbers, Abs) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ (abs (N {0}), N {0});
+        EXPECT_EQ (abs (N {1}), N {1});
+        EXPECT_EQ (abs (N {2}), N {2});
+        EXPECT_EQ (abs (N {5}), N {5});
     }
 
-    template <typename N>
-    void test_natural_decrement_zero_is_zero () {
+    TYPED_TEST (Numbers, Square) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ (square (N {0}), N {0});
+        EXPECT_EQ (square (N {1}), N {1});
+        EXPECT_EQ (square (N {2}), N {4});
+        EXPECT_EQ (square (N {5}), N {25});
+
+        EXPECT_EQ (quadrance (N {0}), N {0});
+        EXPECT_EQ (quadrance (N {1}), N {1});
+        EXPECT_EQ (quadrance (N {2}), N {4});
+        EXPECT_EQ (quadrance (N {5}), N {25});
+    }
+
+    TYPED_TEST (Numbers, ReIm) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ (math::re (N {1}), N {1});
+        EXPECT_EQ (math::im (N {1}), N {0});
+        EXPECT_EQ (math::conjugate (N {1}), N {1});
+    }
+
+    TYPED_TEST (Numbers, Multiply) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ (N {0} * N {0}, N {0});
+        EXPECT_EQ (N {0} * N {1}, N {0});
+        EXPECT_EQ (N {1} * N {0}, N {0});
+        EXPECT_EQ (N {0} * N {2}, N {0});
+        EXPECT_EQ (N {2} * N {0}, N {0});
+        EXPECT_EQ (N {1} * N {1}, N {1});
+        EXPECT_EQ (N {1} * N {2}, N {2});
+        EXPECT_EQ (N {2} * N {1}, N {2});
+    }
+
+    TYPED_TEST (Numbers, IncrementIsOne) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ (increment (N {}), N {1});
+    }
+
+    TYPED_TEST (Numbers, DecrementOneIsZero) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ (decrement (N {1}), N {0});
+    }
+
+    // signed vs unsigned numbers differ in how
+    // decrement works.
+    template <typename X> struct Integers : ::testing::Test {
+        using Z = X;
+    };
+
+    using integers = ::testing::Types<
+        int32, int32_little, int32_big,
+        int64, int64_little, int64_big,
+        int80, int80_little, int80_big,
+        int128, int128_little, int128_big,
+        int160, int160_little, int160_big,
+        int224, int224_little, int224_big,
+        int256, int256_little, int256_big,
+        int384, int384_little, int384_big,
+        int512, int512_little, int512_big,
+        Z, Z_bytes_little, Z_bytes_big,
+        Z_bytes_BC_little, Z_bytes_BC_big,
+        dec_int, hex_int, hex_int_BC>;
+
+    TYPED_TEST_SUITE (Integers, integers);
+
+    TYPED_TEST (Integers, Abs) {
+        using N = typename TestFixture::Z;
+        EXPECT_EQ (abs (-N {0}), N {0});
+        EXPECT_EQ (abs (-N {1}), N {1});
+        EXPECT_EQ (abs (-N {2}), N {2});
+        EXPECT_EQ (abs (-N {5}), N {5});
+    }
+
+    TYPED_TEST (Integers, Square) {
+        using N = typename TestFixture::Z;
+        EXPECT_EQ (square (-N {0}), N {0});
+        EXPECT_EQ (square (-N {1}), N {1});
+        EXPECT_EQ (square (-N {2}), N {4});
+        EXPECT_EQ (square (-N {5}), N {25});
+
+        EXPECT_EQ (quadrance (-N {0}), N {0});
+        EXPECT_EQ (quadrance (-N {1}), N {1});
+        EXPECT_EQ (quadrance (-N {2}), N {4});
+        EXPECT_EQ (quadrance (-N {5}), N {25});
+    }
+
+    using naturals = ::testing::Types<
+        uint32, uint32_little, uint32_big,
+        uint64, uint64_little, uint64_big,
+        uint80, uint80_little, uint80_big,
+        uint128, uint128_little, uint128_big,
+        uint160, uint160_little, uint160_big,
+        uint224, uint224_little, uint224_big,
+        uint256, uint256_little, uint256_big,
+        uint384, uint384_little, uint384_big,
+        uint512, uint512_little, uint512_big,
+        N, N_bytes_little, N_bytes_big, dec_uint, hex_uint, base58_uint>;
+
+    template <typename X> struct Naturals : ::testing::Test {
+        using N = X;
+    };
+
+    TYPED_TEST_SUITE (Naturals, naturals);
+
+    TYPED_TEST_SUITE (Integers, integers);
+
+    TYPED_TEST (Naturals, DecrementZeroIsZero) {
+        using N = typename TestFixture::N;
         EXPECT_EQ (decrement (N {0}), N {0});
     }
 
-    TEST (Numbers, DecrementZeroIsZero) {
-
-        test_natural_decrement_zero_is_zero<N> ();
-        test_natural_decrement_zero_is_zero<N_bytes_little> ();
-        test_natural_decrement_zero_is_zero<N_bytes_big> ();
-        test_natural_decrement_zero_is_zero<dec_uint> ();
-        test_natural_decrement_zero_is_zero<hex_uint> ();
-        test_natural_decrement_zero_is_zero<base58_uint> ();
-
+    TYPED_TEST (Integers, DecrementZeroIsNegOne) {
+        using Z = typename TestFixture::Z;
+        EXPECT_EQ (decrement (Z {0}), Z {-1});
     }
 
-    template <typename Z, typename N = Z>
-    void test_throw_on_division_by_zero () {
+    TYPED_TEST (Naturals, BitWidth) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ (bit_width (N {0}), 0);
+        EXPECT_EQ (bit_width (N {1}), 1);
+        EXPECT_EQ (bit_width (N {2}), 2);
+        EXPECT_EQ (bit_width (N {3}), 2);
+    }
+
+    // test suits for bit operations.
+    TYPED_TEST (Numbers, BitAnd) {
+        using Z = typename TestFixture::N;
+        EXPECT_EQ (Z (0) & Z (0), Z (0));
+        EXPECT_EQ (Z (1) & Z (1), Z (1));
+        EXPECT_EQ (Z (5) & Z (2), Z (0));
+        EXPECT_EQ (Z (6) & Z (3), Z (2));
+        EXPECT_EQ (Z (0x00f0) & Z (0x000f), Z (0));
+        EXPECT_EQ (Z (0x00aa) & Z (0x00cc), Z (0x0088));
+        EXPECT_EQ (Z (0x001234) & Z (0x000ff0), Z (0x000230));
+        EXPECT_EQ ((bit_and (Z (0x001234), Z (0x000ff0))), Z (0x000230));
+    }
+
+    TYPED_TEST (Numbers, BitOr) {
+        using Z = typename TestFixture::N;
+        EXPECT_EQ (Z (0) | Z (0), Z (0));
+        EXPECT_EQ (Z (1) | Z (1), Z (1));
+        EXPECT_EQ (Z (5) | Z (2), Z (7));
+        EXPECT_EQ (Z (6) | Z (3), Z (7));
+        EXPECT_EQ (Z (4) | Z (1), Z (5));
+
+        EXPECT_EQ (Z (0x00f0) | Z (0x000f), Z (0x00ff));
+        EXPECT_EQ (Z (0x00aa) | Z (0x00cc), Z (0x00ee));
+        EXPECT_EQ (Z (0x001234) | Z (0x000ff0), Z (0x001ff4));
+        EXPECT_EQ ((bit_or (Z (0x001234), Z (0x000ff0))), Z (0x001ff4));
+    }
+
+    TYPED_TEST (Numbers, BitXor) {
+        using Z = typename TestFixture::N;
+        EXPECT_EQ (Z (0) ^ Z (0), Z (0));
+        EXPECT_EQ (Z (1) ^ Z (1), Z (0));
+        EXPECT_EQ ((bit_xor (Z (1), Z (1))), Z (0));
+        EXPECT_EQ (Z (5) ^ Z (2), Z (7));
+        EXPECT_EQ (Z (6) ^ Z (3), Z (5));
+        EXPECT_EQ (Z (0x00f0) ^ Z (0x000f), Z (0x00ff));
+        EXPECT_EQ (Z (0x00aa) ^ Z (0x00cc), Z (0x0066));
+        EXPECT_EQ (Z (0x001234) ^ Z (0x000ff0), Z (0x001dc4));
+    }
+
+    TYPED_TEST (Numbers, TrivialFunctions) {
+        using Z = typename TestFixture::N;
+        EXPECT_EQ (math::re (Z (0)), Z (0));
+        EXPECT_EQ (round (Z (0)), Z (0));
+        EXPECT_EQ (floor (Z (0)), Z (0));
+        EXPECT_EQ (ceiling (Z (0)), Z (0));
+        EXPECT_EQ (numerator (Z (0)), Z (0));
+        EXPECT_TRUE (is_whole (Z (0)));
+        EXPECT_EQ (denominator (Z (0)), Z (1));
+
+        EXPECT_EQ (math::re (Z (1)), Z (1));
+        EXPECT_EQ (round (Z (1)), Z (1));
+        EXPECT_EQ (floor (Z (1)), Z (1));
+        EXPECT_EQ (ceiling (Z (1)), Z (1));
+        EXPECT_EQ (numerator (Z (1)), Z (1));
+        EXPECT_TRUE (is_whole (Z (1)));
+        EXPECT_EQ (denominator (Z (1)), Z (1));
+    }
+
+    template <typename X> struct IntegersTwos : ::testing::Test {
+        using Z = X;
+    };
+
+    using integers_twos = ::testing::Types<
+        int32, int32_little, int32_big,
+        int64, int64_little, int64_big,
+        int80, int80_little, int80_big,
+        int128, int128_little, int128_big,
+        int160, int160_little, int160_big,
+        int224, int224_little, int224_big,
+        int256, int256_little, int256_big,
+        int384, int384_little, int384_big,
+        int512, int512_little, int512_big,
+        Z, Z_bytes_little, Z_bytes_big,
+        dec_int, hex_int>;
+
+    TYPED_TEST_SUITE (IntegersTwos, integers_twos);
+
+    TYPED_TEST (IntegersTwos, BitAnd) {
+        using Z = typename TestFixture::Z;
+        EXPECT_EQ (-Z (1) & -Z (1), -Z (1));
+        EXPECT_EQ (-Z (1) & Z (0), Z (0));
+        EXPECT_EQ (-Z (2) & Z (1), Z (0));
+        EXPECT_EQ (-Z (2) & Z (2), Z (2));
+        EXPECT_EQ (-Z (5) & Z (3), Z (3));
+        EXPECT_EQ (Z (6) & -Z (3), Z (4));
+        EXPECT_EQ (-Z (6) & -Z (3), -Z (8));
+        EXPECT_EQ (-Z (5) & Z (3), Z (3));
+    }
+
+    TYPED_TEST (IntegersTwos, BitOr) {
+        using Z = typename TestFixture::Z;
+        EXPECT_EQ (-Z (1) | -Z (1), -Z (1));
+        EXPECT_EQ (-Z (1) | Z (0), -Z (1));
+        EXPECT_EQ (-Z (2) | Z (1), -Z (1));
+        EXPECT_EQ (-Z (2) | Z (2), -Z (2));
+        EXPECT_EQ (-Z (5) | Z (2), -Z (5));
+        EXPECT_EQ (Z (6) | -Z (3), -Z (1));
+        EXPECT_EQ (-Z (4) | -Z (1), -Z (1));
+        EXPECT_EQ (-Z (5) | Z (3), -Z (5));
+    }
+
+    TYPED_TEST (IntegersTwos, BitXor) {
+        using Z = typename TestFixture::Z;
+        EXPECT_EQ (-Z (1) ^ -Z (1), Z (0));
+        EXPECT_EQ (-Z (1) ^ Z (0), -Z (1));
+        EXPECT_EQ (-Z (2) ^ Z (1), -Z (1));
+        EXPECT_EQ (-Z (2) ^ Z (2), -Z (4));
+        EXPECT_EQ (-Z (5) ^ Z (2), -Z (7));
+        EXPECT_EQ (Z (6) ^ -Z (3), -Z (5));
+        EXPECT_EQ (-Z (4) ^ -Z (1), Z (3));
+        EXPECT_EQ (-Z (5) ^ Z (6), -Z (3));
+    }
+
+    TYPED_TEST (IntegersTwos, BitNegate) {
+        using Z = typename TestFixture::Z;
+        EXPECT_EQ (~Z (0), -Z (1));
+        EXPECT_EQ (~Z (-1), Z (0));
+        EXPECT_EQ (~Z (1), -Z (2));
+        EXPECT_EQ (~Z (-2), Z (1));
+    }
+
+    using integers_BC = ::testing::Types<
+        Z_bytes_BC_little, Z_bytes_BC_big,
+        hex_int_BC>;
+
+    template <typename X> struct IntegersBC : ::testing::Test {
+        using Z = X;
+    };
+
+    TYPED_TEST_SUITE (IntegersBC, integers_BC);
+
+    TYPED_TEST (IntegersBC, BitAnd) {
+        using Z = typename TestFixture::Z;
+        EXPECT_EQ (-Z (1) & -Z (1), -Z (1));
+        EXPECT_EQ (-Z (1) & Z (0), Z (0));
+        EXPECT_EQ (-Z (5) & Z (3), Z (1));
+        EXPECT_EQ (Z (6) & -Z (3), Z (2));
+        EXPECT_EQ (-Z (6) & -Z (3), -Z (2));
+    }
+
+    TYPED_TEST (IntegersBC, BitOr) {
+        using Z = typename TestFixture::Z;
+        EXPECT_EQ (-Z (1) | -Z (1), -Z (1));
+        EXPECT_EQ (-Z (1) | Z (0), -Z (1));
+        EXPECT_EQ (-Z (5) | Z (2), -Z (7));
+        EXPECT_EQ (Z (6) | -Z (3), -Z (7));
+        EXPECT_EQ (-Z (4) | -Z (1), -Z (5));
+        EXPECT_EQ (bit_or (-Z (4), -Z (1)), -Z (5));
+    }
+
+    TYPED_TEST (IntegersBC, BitXor) {
+        using Z = typename TestFixture::Z;
+        EXPECT_TRUE (is_positive_zero (-Z (1) ^ -Z (1)));
+        EXPECT_EQ (-Z (1) ^ Z (0), -Z (1));
+        EXPECT_EQ (-Z (2) ^ Z (1), -Z (3));
+        EXPECT_EQ ((bit_xor (-Z (2), Z (1))), -Z (3));
+        EXPECT_TRUE (is_negative_zero (-Z (2) ^ Z (2)));
+        EXPECT_TRUE (is_negative_zero (bit_xor (-Z (2), Z (2))));
+        EXPECT_EQ (-Z (5) ^ Z (2), -Z (7));
+        EXPECT_EQ (Z (6) ^ -Z (3), -Z (5));
+        EXPECT_EQ (-Z (4) ^ -Z (1), Z (5));
+        EXPECT_EQ ((bit_xor (-Z (4), -Z (1))), Z (5));
+        EXPECT_EQ (-Z (5) ^ Z (6), -Z (3));
+    }
+
+    TYPED_TEST (IntegersTwos, BitWidth) {
+        using Z = typename TestFixture::Z;
+        EXPECT_EQ (bit_width (Z {0}), 1);
+        EXPECT_EQ (bit_width (Z {1}), 2);
+        EXPECT_EQ (bit_width (Z {2}), 3);
+        EXPECT_EQ (bit_width (Z {3}), 3);
+        EXPECT_EQ (bit_width (Z {4}), 4);
+        EXPECT_EQ (bit_width (-Z {1}), 1);
+        EXPECT_EQ (bit_width (-Z {2}), 2);
+        EXPECT_EQ (bit_width (-Z {3}), 3);
+        EXPECT_EQ (bit_width (-Z {4}), 3);
+    }
+
+    TYPED_TEST (IntegersBC, BitWidth) {
+        using Z = typename TestFixture::Z;
+        EXPECT_EQ (bit_width (Z {0}), 1);
+        EXPECT_EQ (bit_width (Z {1}), 2);
+        EXPECT_EQ (bit_width (Z {2}), 3);
+        EXPECT_EQ (bit_width (Z {3}), 3);
+        EXPECT_EQ (bit_width (Z {4}), 4);
+        EXPECT_EQ (bit_width (-Z {1}), 2);
+        EXPECT_EQ (bit_width (-Z {2}), 3);
+        EXPECT_EQ (bit_width (-Z {3}), 3);
+        EXPECT_EQ (bit_width (-Z {4}), 4);
+    }
+
+    // for all numbers, positive left shift is the
+    // same as multiplication by powers of 2.
+    TYPED_TEST (Numbers, LeftShift) {
+        using N = typename TestFixture::N;
+        N test_val_1 {1};
+        EXPECT_EQ (test_val_1 << 0, 1);
+        EXPECT_EQ (mul_2_pow (test_val_1, 0), 1);
+        EXPECT_EQ (test_val_1 << 1, mul_2_pow (test_val_1, 1));
+        EXPECT_EQ (test_val_1 << 2, mul_2_pow (test_val_1, 2));
+        EXPECT_EQ (test_val_1 << 3, mul_2_pow (test_val_1, 3));
+        EXPECT_EQ (test_val_1 << 5, mul_2_pow (test_val_1, 5));
+        EXPECT_EQ (test_val_1 << 8, mul_2_pow (test_val_1, 8));
+        EXPECT_EQ (test_val_1 << 13, mul_2_pow (test_val_1, 13));
+        N test_val_2 {1025973};
+        EXPECT_EQ (test_val_2 << 0, mul_2_pow (test_val_2, 0));
+        EXPECT_EQ (test_val_2 << 1, mul_2_pow (test_val_2, 1));
+        EXPECT_EQ (test_val_2 << 2, mul_2_pow (test_val_2, 2));
+        EXPECT_EQ (test_val_2 << 3, mul_2_pow (test_val_2, 3));
+        EXPECT_EQ (test_val_2 << 5, mul_2_pow (test_val_2, 5));
+        EXPECT_EQ (test_val_2 << 8, mul_2_pow (test_val_2, 8));
+        EXPECT_EQ (test_val_2 << 13, mul_2_pow (test_val_2, 13));
+    }
+
+    // for all numbers, positive right shift is the
+    // same as division by powers of 2.
+    TYPED_TEST (Numbers, RightShift) {
+        using N = typename TestFixture::N;
+        N test_val_1 {10000000};
+        EXPECT_EQ (test_val_1 >> 0, div_2_pow (test_val_1, 0));
+        EXPECT_EQ (test_val_1 >> 1, div_2_pow (test_val_1, 1));
+        EXPECT_EQ (test_val_1 >> 2, div_2_pow (test_val_1, 2));
+        EXPECT_EQ (test_val_1 >> 3, div_2_pow (test_val_1, 3));
+        EXPECT_EQ (test_val_1 >> 5, div_2_pow (test_val_1, 5));
+        EXPECT_EQ (test_val_1 >> 8, div_2_pow (test_val_1, 8));
+        EXPECT_EQ (test_val_1 >> 13, div_2_pow (test_val_1, 13));
+        N test_val_2 {1025973000};
+        EXPECT_EQ (test_val_2 >> 0, div_2_pow (test_val_2, 0));
+        EXPECT_EQ (test_val_2 >> 1, div_2_pow (test_val_2, 1));
+        EXPECT_EQ (test_val_2 >> 2, div_2_pow (test_val_2, 2));
+        EXPECT_EQ (test_val_2 >> 3, div_2_pow (test_val_2, 3));
+        EXPECT_EQ (test_val_2 >> 5, div_2_pow (test_val_2, 5));
+        EXPECT_EQ (test_val_2 >> 8, div_2_pow (test_val_2, 8));
+        EXPECT_EQ (test_val_2 >> 13, div_2_pow (test_val_2, 13));
+    }
+
+    // negative left shift, for numbers that can be negative,
+    // is also equal to multiplication by two.
+    TYPED_TEST (Integers, LeftShift) {
+        using N = typename TestFixture::Z;
+        N test_val_1 {-1};
+        EXPECT_EQ (test_val_1 << 0, mul_2_pow (test_val_1, 0));
+        EXPECT_EQ (test_val_1 << 1, mul_2_pow (test_val_1, 1));
+        EXPECT_EQ (test_val_1 << 2, mul_2_pow (test_val_1, 2));
+        EXPECT_EQ (test_val_1 << 3, mul_2_pow (test_val_1, 3));
+        EXPECT_EQ (test_val_1 << 5, mul_2_pow (test_val_1, 5));
+        EXPECT_EQ (test_val_1 << 8, mul_2_pow (test_val_1, 8));
+        EXPECT_EQ (test_val_1 << 13, mul_2_pow (test_val_1, 13));
+        N test_val_2 {-1025973};
+        EXPECT_EQ (test_val_2 << 0, mul_2_pow (test_val_2, 0));
+        EXPECT_EQ (test_val_2 << 1, mul_2_pow (test_val_2, 1));
+        EXPECT_EQ (test_val_2 << 2, mul_2_pow (test_val_2, 2));
+        EXPECT_EQ (test_val_2 << 3, mul_2_pow (test_val_2, 3));
+        EXPECT_EQ (test_val_2 << 5, mul_2_pow (test_val_2, 5));
+        EXPECT_EQ (test_val_2 << 8, mul_2_pow (test_val_2, 8));
+        EXPECT_EQ (test_val_2 << 13, mul_2_pow (test_val_2, 13));
+    }
+
+    // this is a special category of numbers for which
+    // negative right shift is equal to division by
+    // powers of two. This happens for two reasons: for
+    // BC numbers, that is the definition of right shift,
+    // and for the rest we define shifts as operating as
+    // if the numbers are infinite two's complement and
+    // modulos are not allowed to be negative, and that
+    // how it works out.
+    using integers_right_shift_is_div_2 = ::testing::Types<
+        Z, Z_bytes_little, Z_bytes_big, dec_int, hex_int,
+        Z_bytes_BC_little, Z_bytes_BC_big,
+        hex_int_BC>;
+
+    template <typename X> struct IntegersRightShiftIsNegTwos : ::testing::Test {
+        using Z = X;
+    };
+
+    TYPED_TEST_SUITE (IntegersRightShiftIsNegTwos, integers_right_shift_is_div_2);
+
+    TYPED_TEST (IntegersRightShiftIsNegTwos, RightShift) {
+        using Z = typename TestFixture::Z;
+
+        EXPECT_EQ (Z {-1} >> 1, div_2_pow (Z {-1}, 1));
+
+        Z test_val_1 {-1000000};
+        EXPECT_EQ (test_val_1 >> 0, div_2_pow (test_val_1, 0));
+        EXPECT_EQ (test_val_1 >> 1, div_2_pow (test_val_1, 1));
+        EXPECT_EQ (test_val_1 >> 2, div_2_pow (test_val_1, 2));
+        EXPECT_EQ (test_val_1 >> 3, div_2_pow (test_val_1, 3));
+        EXPECT_EQ (test_val_1 >> 5, div_2_pow (test_val_1, 5));
+        EXPECT_EQ (test_val_1 >> 8, div_2_pow (test_val_1, 8));
+        EXPECT_EQ (test_val_1 >> 13, div_2_pow (test_val_1, 13));
+
+        Z test_val_2 {-1025973000};
+        EXPECT_EQ (test_val_2 >> 0, div_2_pow (test_val_2, 0));
+        EXPECT_EQ (test_val_2 >> 1, div_2_pow (test_val_2, 1));
+        EXPECT_EQ (test_val_2 >> 2, div_2_pow (test_val_2, 2));
+        EXPECT_EQ (test_val_2 >> 3, div_2_pow (test_val_2, 3));
+        EXPECT_EQ (test_val_2 >> 5, div_2_pow (test_val_2, 5));
+        EXPECT_EQ (test_val_2 >> 8, div_2_pow (test_val_2, 8));
+        EXPECT_EQ (test_val_2 >> 13, div_2_pow (test_val_2, 13));
+    }
+
+    // these are the numbers for which negative right
+    // shift is not the same as divisision by powers of 2.
+    using integers_signed = ::testing::Types<
+        int32, int32_little, int32_big,
+        int64, int64_little, int64_big,
+        int80, int80_little, int80_big,
+        int128, int128_little, int128_big,
+        int160, int160_little, int160_big,
+        int224, int224_little, int224_big,
+        int256, int256_little, int256_big,
+        int384, int384_little, int384_big,
+        int512, int512_little, int512_big>;
+
+    template <typename X> struct IntegersSigned : ::testing::Test {
+        using Z = X;
+    };
+
+    TYPED_TEST_SUITE (IntegersSigned, integers_signed);
+
+    TYPED_TEST (IntegersSigned, RightShift) {
+        using N = typename TestFixture::Z;
+
+        N test_val_1 {-1000000};
+        EXPECT_EQ (test_val_1 >> 0, ~div_2_pow (~test_val_1, 0));
+        EXPECT_EQ (test_val_1 >> 1, ~div_2_pow (~test_val_1, 1));
+        EXPECT_EQ (test_val_1 >> 2, ~div_2_pow (~test_val_1, 2));
+        EXPECT_EQ (test_val_1 >> 3, ~div_2_pow (~test_val_1, 3));
+        EXPECT_EQ (test_val_1 >> 5, ~div_2_pow (~test_val_1, 5));
+        EXPECT_EQ (test_val_1 >> 8, ~div_2_pow (~test_val_1, 8));
+        EXPECT_EQ (test_val_1 >> 13, ~div_2_pow (~test_val_1, 13));
+
+        N test_val_2 {-1025973000};
+        EXPECT_EQ (test_val_2 >> 0, ~div_2_pow (~test_val_2, 0));
+        EXPECT_EQ (test_val_2 >> 1, ~div_2_pow (~test_val_2, 1));
+        EXPECT_EQ (test_val_2 >> 2, ~div_2_pow (~test_val_2, 2));
+        EXPECT_EQ (test_val_2 >> 3, ~div_2_pow (~test_val_2, 3));
+        EXPECT_EQ (test_val_2 >> 5, ~div_2_pow (~test_val_2, 5));
+        EXPECT_EQ (test_val_2 >> 8, ~div_2_pow (~test_val_2, 8));
+        EXPECT_EQ (test_val_2 >> 13, ~div_2_pow (~test_val_2, 13));
+    }
+
+    // numbers that are allowed to have negative modulos.
+    using integers_neg_mod = ::testing::Types<
+        int32, int32_little, int32_big,
+        int64, int64_little, int64_big,
+        int80, int80_little, int80_big,
+        int128, int128_little, int128_big,
+        int160, int160_little, int160_big,
+        int224, int224_little, int224_big,
+        int256, int256_little, int256_big,
+        int384, int384_little, int384_big,
+        int512, int512_little, int512_big,
+        Z_bytes_BC_little, Z_bytes_BC_big,
+        hex_int_BC>;
+
+    template <typename X> struct IntegersNegMod : ::testing::Test {
+        using Z = X;
+    };
+
+    TYPED_TEST_SUITE (IntegersNegMod, integers_neg_mod);
+
+    // numbers that are require to have positive modulos
+    using integers_pos_mod = ::testing::Types<
+        Z, Z_bytes_little, Z_bytes_big,
+        dec_int, hex_int>;
+
+    template <typename X> struct IntegersPosMod : ::testing::Test {
+        using Z = X;
+    };
+
+    TYPED_TEST_SUITE (IntegersPosMod, integers_pos_mod);
+
+    // big numbers are numbers that are not built-in and not boost::endian::arithmetic.
+    // (they're all bigger than those numbers.)
+    template <typename X> struct BigNumbers : ::testing::Test {
+        using N = X;
+    };
+
+    using big_numbers = ::testing::Types<
+        uint80, int80, int80_little, uint80_little, int80_big, uint80_big,
+        uint128, int128, int128_little, uint128_little, int128_big, uint128_big,
+        uint160, int160, int160_little, uint160_little, int160_big, uint160_big,
+        uint224, int224, int224_little, uint224_little, int224_big, uint224_big,
+        uint256, int256, int256_little, uint256_little, int256_big, uint256_big,
+        uint384, int384, int384_little, uint384_little, int384_big, uint384_big,
+        uint512, int512, int512_little, uint512_little, int512_big, uint512_big,
+        N, Z, N_bytes_little, N_bytes_big, Z_bytes_little, Z_bytes_big,
+        Z_bytes_BC_little, Z_bytes_BC_big,
+        dec_uint, dec_int, hex_uint, hex_int, hex_int_BC, base58_uint>;
+
+    TYPED_TEST_SUITE (BigNumbers, big_numbers);
+
+    TYPED_TEST (BigNumbers, DivisionByZero) {
+        using Z = typename TestFixture::N;
         EXPECT_THROW (Z {1} / Z {0}, math::division_by_zero);
-        EXPECT_THROW (Z {1} % N {0}, math::division_by_zero);
     }
 
-    TEST (Numbers, ThrowOnDivisionByZero) {
-
-        test_throw_on_division_by_zero<Z, N> ();
-        test_throw_on_division_by_zero<N, N> ();
-        test_throw_on_division_by_zero<Z_bytes_little, N_bytes_little> ();
-        test_throw_on_division_by_zero<Z_bytes_big, N_bytes_big> ();
-        test_throw_on_division_by_zero<N_bytes_little, N_bytes_little> ();
-        test_throw_on_division_by_zero<N_bytes_big, N_bytes_big> ();
-        test_throw_on_division_by_zero<Z_bytes_BC_little> ();
-        test_throw_on_division_by_zero<Z_bytes_BC_big> ();
-        test_throw_on_division_by_zero<dec_uint> ();
-        test_throw_on_division_by_zero<hex_uint> ();
-        test_throw_on_division_by_zero<hex_int> ();
-        test_throw_on_division_by_zero<base58_uint> ();
-
+    TYPED_TEST (Numbers, DivisionByZero) {
+        using Z = typename TestFixture::N;
+        EXPECT_THROW (divide (Z {1}, math::nonzero {Z {0}}), math::division_by_zero);
     }
 
-    template <typename X>
-    void test_literal_comparisons () {
-        EXPECT_EQ (X {6} == 6, true);
-        EXPECT_EQ (X {6} != 6, false);
-        EXPECT_EQ (X {6} <  6, false);
-        EXPECT_EQ (X {6} <= 6, true);
-        EXPECT_EQ (X {6} >  6, false);
-        EXPECT_EQ (X {6} >= 6, true);
-
-        EXPECT_EQ (X {5} == 6, false);
-        EXPECT_EQ (X {5} != 6, true);
-        EXPECT_EQ (X {5} <  6, true);
-        EXPECT_EQ (X {5} <= 6, true);
-        EXPECT_EQ (X {5} >  6, false);
-        EXPECT_EQ (X {5} >= 6, false);
+    TYPED_TEST (BigNumbers, ModByZero) {
+        using N = typename TestFixture::N;
+        EXPECT_THROW (N {1} % abs (N {0}), math::division_by_zero);
     }
 
-    template <typename X, typename Y>
-    void test_pair_comparisons () {
-        EXPECT_EQ (X {6} == Y{6}, true);
-        EXPECT_EQ (X {6} != Y{6}, false);
-        EXPECT_EQ (X {6} <  Y{6}, false);
-        EXPECT_EQ (X {6} <= Y{6}, true);
-        EXPECT_EQ (X {6} >  Y{6}, false);
-        EXPECT_EQ (X {6} >= Y{6}, true);
-
-        EXPECT_EQ (X {5} == Y{6}, false);
-        EXPECT_EQ (X {5} != Y{6}, true);
-        EXPECT_EQ (X {5} <  Y{6}, true);
-        EXPECT_EQ (X {5} <= Y{6}, true);
-        EXPECT_EQ (X {5} >  Y{6}, false);
-        EXPECT_EQ (X {5} >= Y{6}, false);
-
-        EXPECT_EQ (X {7} == Y{6}, false);
-        EXPECT_EQ (X {7} != Y{6}, true);
-        EXPECT_EQ (X {7} <  Y{6}, false);
-        EXPECT_EQ (X {7} <= Y{6}, false);
-        EXPECT_EQ (X {7} >  Y{6}, true);
-        EXPECT_EQ (X {7} >= Y{6}, true);
+    TYPED_TEST (Numbers, ModByZero) {
+        using N = typename TestFixture::N;
+        EXPECT_THROW ((mod (N {1}, math::nonzero {abs (N {0})})), math::division_by_zero);
     }
 
-    template <typename... Types>
-    void run_comparison_tests() {
-        // Literal comparisons
-        (test_literal_comparisons<Types>(), ...);
-
-        // Pairwise comparisons (all combinations)
-        ([]<typename X, typename... Ys>() {
-            (test_pair_comparisons<X, Ys>(), ...);
-        }.template operator()<Types, Types...>(), ...);
+    TYPED_TEST (Numbers, DivMod) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ ((divmod (Z {0}, math::nonzero {Z {1}})), (division {Z (0), abs (Z (0))}));
+        EXPECT_EQ ((divmod (Z {1}, math::nonzero {Z {1}})), (division {Z (1), abs (Z (0))}));
+        EXPECT_EQ ((divmod (Z {1}, math::nonzero {Z {2}})), (division {Z (0), abs (Z (1))}));
+        EXPECT_EQ ((divmod (Z {10}, math::nonzero {Z {3}})), (division {Z (3), abs (Z (1))}));
     }
-/*
-    TEST (Numbers, Comparisons) {
-        run_comparison_tests<Z_bytes_BC_big, uint256, N, N_bytes_little, N_bytes_big,
-            uint160_little, uint160_big, uint160, uint256_little, uint256_big,
-            Z, Z_bytes_little, Z_bytes_big, Z_bytes_BC_little> ();
-    }*/
 
-    // TODO Need a decrement test for other kinds of numbers.
+    TYPED_TEST (Integers, DivMod) {
+        using N = typename TestFixture::Z;
+        EXPECT_EQ ((divmod (Z {0}, math::nonzero {Z {-1}})), (division {Z (0), abs (Z (0))}));
+        EXPECT_EQ ((divmod (Z {1}, math::nonzero {Z {-1}})), (division {Z (-1), abs (Z (0))}));
+    }
 
-    // TODO need a test to ensure that ^ means power for
-    // the bitcoin numbers but not the other types.
+    TYPED_TEST (IntegersNegMod, DivMod) {
+        using Z = typename TestFixture::Z;
+        EXPECT_EQ ((divmod (Z {1}, math::nonzero {Z {-2}})), (division {Z (0), abs (Z (-1))}));
+        EXPECT_EQ ((divmod (Z {-10}, math::nonzero {Z {3}})), (division {Z (-3), Z (-1)}));
+        EXPECT_EQ ((divmod (Z {-10}, math::nonzero {Z {-3}})), (division {Z (3), Z (-1)}));
+    }
+
+    TYPED_TEST (IntegersPosMod, DivMod) {
+        using Z = typename TestFixture::Z;
+        EXPECT_EQ ((divmod (Z {1}, math::nonzero {Z {-2}})), (division {Z (0), abs (Z (1))}));
+        EXPECT_EQ ((divmod (Z {-10}, math::nonzero {Z {3}})), (division {Z (-4), abs (Z (2))}));
+        EXPECT_EQ ((divmod (Z {-10}, math::nonzero {Z {-3}})), (division {Z (4), abs (Z (2))}));
+    }
+
+    TYPED_TEST (Naturals, Mod) {
+        using N = typename TestFixture::N;
+        EXPECT_EQ (N {23} % N {5}, N {3});
+        EXPECT_EQ ((mod (N {23}, math::nonzero {N {5}})), N {3});
+    }
+
+    TYPED_TEST (IntegersPosMod, Mod) {
+        using N = typename TestFixture::Z;
+        EXPECT_EQ (N {23} % abs (N {5}), abs (N {3}));
+        EXPECT_EQ ((mod (N {23}, math::nonzero {abs (N {5})})), abs (N {3}));
+    }
+
+    TYPED_TEST (IntegersNegMod, Mod) {
+        using N = typename TestFixture::Z;
+        EXPECT_EQ (N {23} % N {5}, N {3});
+        EXPECT_EQ ((mod (N {23}, math::nonzero {N {5}})), N {3});
+    }
+
+    TYPED_TEST (Integers, Power) {
+        using N = typename TestFixture::Z;
+        EXPECT_THROW ((pow (Z {1}, -Z {3})), math::negative_power);
+    }
+
+    TYPED_TEST (Numbers, InvertMod) {
+        using Z = typename TestFixture::N;
+        using N = decltype (abs (Z {0}));
+
+        EXPECT_EQ (
+            (invert_mod (Z {0}, math::nonzero {abs (Z {2})})),
+            maybe<N> {});
+
+        EXPECT_EQ (
+            (invert_mod (Z {1}, math::nonzero {abs (Z {2})})),
+            maybe<N> {N {1}});
+
+        EXPECT_EQ (
+            (invert_mod (Z {0}, math::nonzero {abs (Z {5})})),
+            maybe<N> {}
+        );
+
+        EXPECT_EQ (
+            (invert_mod (Z {2}, math::nonzero {abs (Z {5})})),
+            maybe<N> {N {3}}
+        );
+
+        EXPECT_EQ (
+            (invert_mod (Z {3}, math::nonzero {abs (Z {5})})),
+            maybe<N> {N {2}}
+        );
+
+        EXPECT_EQ (
+            (invert_mod (Z {4}, math::nonzero {abs (Z {5})})),
+            maybe<N> {N {4}}
+        );
+
+        EXPECT_EQ (
+            (invert_mod (Z {2}, math::nonzero {abs (Z {4})})),
+            maybe<N> {}
+        );
+    }
 
 }

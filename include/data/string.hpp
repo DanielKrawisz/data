@@ -2,13 +2,15 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_STRING
-#define DATA_STRING
+#pragma once
 
 #include <data/stack.hpp>
 #include <data/bytes.hpp>
 
 namespace data {
+
+    // functions of string:
+    //   * easily convertible to bytes
 
     // the only difference between data::string and std::string is that
     // data::string prints with "" around it.
@@ -121,5 +123,3 @@ namespace data {
     }
 
 }
-
-#endif

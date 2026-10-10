@@ -3,10 +3,6 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <iterator>
-#include <vector>
-#include <string>
-
 #include <data/encoding/hex.hpp>
 #include <data/bytes.hpp>
 
@@ -18,7 +14,7 @@ namespace data::encoding::hex {
         bytes b (x.size () / 2);
 
         try {
-            decode (x.end (), x.begin (), b.begin ());
+            decode (x.begin (), x.end (), b.begin ());
         } catch (invalid) {
             return {};
         }
@@ -28,12 +24,12 @@ namespace data::encoding::hex {
 
     void write_hex (string &output, byte_slice sourceBytes, letter_case q) {
         output.resize (sourceBytes.size ());
-        if (q == letter_case::upper) boost::algorithm::hex (sourceBytes.begin (), sourceBytes.end (), output.begin ());
-        else boost::algorithm::hex_lower (sourceBytes.begin (), sourceBytes.end (), output.begin ());
+        encode (sourceBytes.begin (), sourceBytes.end (), output.begin (), q);
     }
     
     string write (byte_slice sourceBytes, endian::order r, letter_case q) {
         if (r == endian::big) return write (sourceBytes, q);
+
         bytes reversed (sourceBytes.size ());
         std::copy (sourceBytes.rbegin (), sourceBytes.rend (), reversed.begin ());
         return write (reversed, q);
@@ -41,7 +37,7 @@ namespace data::encoding::hex {
     
     fixed<8> write (uint64 x, letter_case q) {
         fixed<8> output;
-        write_hex (output, byte_slice {uint64_big {x}.data(), sizeof (uint64)}, q);
+        write_hex (output, byte_slice {uint64_big {x}.data (), sizeof (uint64)}, q);
         return output;
     }
     

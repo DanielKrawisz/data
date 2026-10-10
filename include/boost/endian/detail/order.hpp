@@ -1,5 +1,4 @@
-#ifndef BOOST_ENDIAN_DETAIL_ORDER_HPP_INCLUDED
-#define BOOST_ENDIAN_DETAIL_ORDER_HPP_INCLUDED
+#pragma once
 
 // Copyright 2019 Peter Dimov
 //
@@ -52,5 +51,3 @@ enum class order
 } // namespace boost
 
 #undef BOOST_ENDIAN_NATIVE_ORDER_INITIALIZER
-
-#endif  // BOOST_ENDIAN_DETAIL_ORDER_HPP_INCLUDED

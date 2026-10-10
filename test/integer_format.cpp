@@ -2,8 +2,9 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "gtest/gtest.h"
 #include <data/numbers.hpp>
+
+#include <gtest/gtest.h>
 
 namespace data::encoding {
 
@@ -53,7 +54,11 @@ namespace data::encoding {
         EXPECT_EQ (encoding::decimal::write (N_bytes_big {1}), std::string {"1"});
         EXPECT_EQ (encoding::decimal::write (N_bytes_big {11}), std::string {"11"});
         EXPECT_EQ (encoding::decimal::write (N_bytes_big {23}), std::string {"23"});
-        EXPECT_EQ (encoding::decimal::write (N_bytes_big::read ("5704566599993321")), std::string {"5704566599993321"});
+
+        auto t4_read = N_bytes_big::read ("5704566599993321");
+        auto t4_write = encoding::decimal::write (t4_read);
+
+        EXPECT_EQ (t4_write, std::string {"5704566599993321"});
         EXPECT_EQ (encoding::decimal::write
             (N_bytes_big::read ("57045489000484922397266599993321")),
                 std::string {"57045489000484922397266599993321"});
@@ -65,7 +70,7 @@ namespace data::encoding {
         EXPECT_EQ (encoding::decimal::write
             (N_bytes_little::read ("57045489000484922397266599993321")),
                 std::string {"57045489000484922397266599993321"});
-        
+
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N_bytes_big {1}), std::string {"0x01"});
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N_bytes_little {1}), std::string {"0x01"});
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (N_bytes_big {23}), std::string {"0x17"});

@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_NORM
-#define DATA_NORM
+#pragma once
 
 #include <data/abs.hpp>
 
@@ -48,5 +47,3 @@ namespace data::math::def {
     };
 
 }
-
-#endif

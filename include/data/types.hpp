@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_TYPES
-#define DATA_TYPES
+#pragma once
 
 #include <vector>
 #include <array>
@@ -70,5 +69,3 @@ namespace data {
     template <typename X> using unconst = std::remove_const_t<X>;
 
 }
-
-#endif

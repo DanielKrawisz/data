@@ -2,17 +2,17 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <iterator>
-#include "data/remove.hpp"
+#include <data/remove.hpp>
 // TODO Right now numbers provides N and Z as well as Z_bytes and N_bytes
 // we don't like this because N has a dependency and Z_bytes does not.
 // We need a way to get Z_bytes without including N and Z.
-#include "data/numbers.hpp"
-#include "data/string.hpp"
-#include "data/replace.hpp"
-#include "data/lift.hpp"
-#include "data/iterable.hpp"
-#include "gtest/gtest.h"
+#include <data/numbers.hpp>
+#include <data/string.hpp>
+#include <data/replace.hpp>
+#include <data/lift.hpp>
+#include <data/iterable.hpp>
+
+#include <gtest/gtest.h>
 
 namespace data {
 
@@ -189,12 +189,12 @@ namespace data {
         for (const int &x : t) (void) x;
     }
 
-    void accept_stack_of_string_views (stack<string_view>) {}
+    void accept_stack_of_Zs (stack<Z>) {}
 
     TEST (LinkedStack, Convert) {
-        stack<string> test {"1", "2", "3", "4"};
+        stack<uint32> test {1, 2, 3, 4};
 
-        accept_stack_of_string_views (test);
+        accept_stack_of_Zs (test);
 
         stack<N> numbers {1u, 2u, 3u, 4u};
 

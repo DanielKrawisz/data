@@ -113,7 +113,7 @@ namespace data::math::number {
     eratosthenes<N> eratosthenes<N>::step () const {
         heap q = Sieve;
         if (test_next_prime (Next, q))
-            return {Primes >> prime<N> {Next, prime<N>::certain}, Next + 1u, insert_prime (q, Next)};
+            return {Primes >> prime<N> {Next, certain}, Next + 1u, insert_prime (q, Next)};
         else return {Primes, Next + 1u, q};
     }
 

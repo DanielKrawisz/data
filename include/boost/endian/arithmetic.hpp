@@ -18,8 +18,7 @@
 //  partial specialization to correctly extend the sign when cover integer size
 //  differs from endian representation size.
 
-#ifndef BOOST_ENDIAN_ARITHMETIC_HPP
-#define BOOST_ENDIAN_ARITHMETIC_HPP
+#pragma once
 
 #if defined(_MSC_VER)
 # pragma warning(push)
@@ -460,5 +459,3 @@ public:
 #if defined(_MSC_VER)
 # pragma warning(pop)
 #endif
-
-#endif // BOOST_ENDIAN_ARITHMETIC_HPP

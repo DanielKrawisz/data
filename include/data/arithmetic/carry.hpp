@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_OVERFLOW
-#define DATA_OVERFLOW
+#pragma once
 
 #include <data/types.hpp>
 #include <data/arithmetic/halves.hpp>
@@ -217,5 +216,3 @@ namespace data::arithmetic {
     }
 
 }
-
-#endif

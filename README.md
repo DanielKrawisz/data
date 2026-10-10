@@ -1,11 +1,12 @@
 # data
 
-Tools and high-level programming constructs in c++. 
+Tools and high-level programming constructs in c++, including 
+functional data structures, higher-order functions, big numbers, and mathematics. 
 
 See [the standard](doc/standard.md) for all supported features and how to use them. 
 The standard will be gradually improved as we work toward a beta version.
 
-Current version is 0.0.34 alpha.
+Current version is 0.1 beta.
 
 ## Features 
 
@@ -36,27 +37,12 @@ Current version is 0.0.34 alpha.
     * hex
     * base58
     * base64
-  * cryptography 
-    * AES
-    * SHA
-    * RIPEMD160
-    * NIST_DRBG 
-  * networking in a functional style with coroutines.
-    * URLs
-    * TCP
-    * HTTP
-    * Websockets
     
 # Dependencies
   * Boost 1.86
   * GMP
-  * PEGTL
-  * Crypto++ https://github.com/weidai11/cryptopp 
-  * OpenSSL
-  * Rotella's implementation of AKS. (included)
   * compile-time-regular-expressions https://github.com/hanickadot/compile-time-regular-expressions (included)
-  * nlohmann/json (included)
-  * Google test
+  * Google test (only for tests)
 
 # Requirements
   * GCC v13+
@@ -68,9 +54,55 @@ Current version is 0.0.34 alpha.
 
 # Build instructions
 
-  * `cmale -B build -S .`
+  * `_PATH="$HOME/local/ntl/lib/pkgconfig" cmake -S . -B build     -G Ninja     -DCMAKE_CXX_COMPILER=/opt/gcc-16.2/bin/g++ -DCMAKE_BUILD_TYPE=Release -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_CXX_FLAGS=-fdiagnostics-color=always`
   * `cmake --build build`
   * `cmake --install build`
+  
+# Examples
+
+## Basic Utils
+
+### Logical types
+
+### Infinite Limits
+
+## Functional Programming 
+
+### Functional Data Structures 
+
+### Higher-Order Functions 
+
+## Combinatorics
+
+### Figurate Numbers
+
+### Permutations
+
+### Iterating over Permutations, subsets, etc
+
+## Linear Algebra
+
+### constexpr arrays
+
+## Numbers 
+
+### Fixed-width Integral types
+
+### N and Z
+
+### N_bytes and Z_bytes
+
+### String number types
+
+## Algebra
+
+### Rational 
+
+### Modular
+
+### Cayley Dickson 
+
+### Polynomials
 
 # For version 1:
 
@@ -78,7 +110,7 @@ This library is an alpha product. This is what is planned for version 1.
   * functional RB map algorithms
     * remove
     * merge
-    * interction
+    * intersection
     * complements
   * list works more like Mathematica's List. 
     * inner
@@ -96,15 +128,3 @@ This library is an alpha product. This is what is planned for version 1.
     * Projective space
     * Hyperbolic space
     * infinite classes of compact Lie Groups (no exceptionals for now)
-  * Async: golang style channel
-  * crypto
-    * Better definitions of cryptographic algorithms, like hash functions, MACs, and block ciphers. 
-    * More block cipher modes
-    * Stream ciphers, including block cyphers as stream ciphers.
-    * Elliptic curves (SEC and other standard curves)
-    * Rabin, ElGamal, and RSA signatures. 
-  * networking
-    * websockets
-    * run external programs
-    * thread safe (multithreaded async lock)
-  * separate crypto and networking into separate libraries. 

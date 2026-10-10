@@ -5,15 +5,17 @@
 #include <data/encoding/integer.hpp>
 #include <data/encoding/hex.hpp>
 #include <data/math/number/bytes.hpp>
+#ifdef BIGNUM_GMP
 #include <data/math/number/gmp/Z.hpp>
-// ideally we would get rid of this.
-#include <data/math/number/gmp/mpz.hpp>
+#else
+#include <data/math/number/NTL/Z.hpp>
+#endif
 #include <data/encoding/digits.hpp>
 #include <data/numbers.hpp>
 #include <data/math/number/division.hpp>
 #include <data/encoding/read.hpp>
+
 #include <data/exception.hpp>
-#include <algorithm>
 
 namespace data::encoding {
     
@@ -156,19 +158,13 @@ namespace data::encoding {
         }
         
         string operator / (const string &m, const string &x) {
+            if (x == 0) throw math::division_by_zero {};
             return decimal::write (math::number::natural_divmod (N {m}, N {x}).Quotient);
         }
         
         string operator % (const string &m, const string &x) {
+            if (x == 0) throw math::division_by_zero {};
             return decimal::write (math::number::natural_divmod (N {m}, N {x}).Remainder);
-        }
-        
-        bool string::operator == (uint64 x) const {
-            return *this == string {x};
-        }
-        
-        std::strong_ordering string::operator <=> (uint64 x) const {
-            return *this <=> string {x};
         }
         
         string::operator double () const {
@@ -176,7 +172,7 @@ namespace data::encoding {
         }
         
         string string::read (string_view x) {
-            return decimal::write (N {x});
+            return decimal::write (N::read (x));
         }
     
         signed_decimal::string operator - (const string &x) {
@@ -276,16 +272,7 @@ namespace data::encoding {
             return signed_decimal::write (Z_bytes_little {m} | Z_bytes_little {n});
         }
         
-        bool string::operator == (int64 x) const {
-            return *this == string {x};
-        }
-        
-        std::strong_ordering string::operator <=> (int64 x) const {
-            return *this <=> string {x};
-        }
-        
         string::operator double () const {
-            // TODO we need a different way of doing this.
             return double (Z (*this));
         }
     
@@ -304,6 +291,10 @@ namespace data::encoding {
         
         string string::read (string_view x) {
             return signed_decimal::write (Z::read (x));
+        }
+
+        string operator ^ (const string &a, const string &b) {
+            return signed_decimal::write (Z (a) ^ Z (b));
         }
     
     }

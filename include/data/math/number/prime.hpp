@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_PRIME
-#define DATA_MATH_NUMBER_PRIME
+#pragma once
 
 #include <data/arithmetic.hpp>
 #include <data/random.hpp>
@@ -24,53 +23,81 @@ namespace data::math::number {
     template <WholeNumber N> factorization<N> operator * (const prime<N> &, const prime<N> &);
     template <WholeNumber N> factorization<N> operator * (factorization<N>, factorization<N>);
 
-    // test primality with Miller-Rabin + trial division. (This will rely on cryptopp or GMP)
-    template <WholeNumber N> prime<N> is_prime (random::source &, const N &, int rounds);
+    // test primality with Miller-Rabin + trial division.
+    template <WholeNumber N> prime<N> is_prime (random::source &, const N &, int rounds = 25);
 
-    // Slower than Miller-Rabin but with 100% chance of success.
-    template <WholeNumber N> prime<N> generate_Maurer (random::source &);
+    // a safe prime is of the form 2 p + 1 where p is also prime.
+    template <WholeNumber N> prime<N> is_safe (random::source &, const prime<N> &, int rounds = 25);
+
+    struct generate_prime_parameters {
+        int rounds = 25;
+        bool safe = false;
+    };
+
+    // use miller rabin + trial division, fails with a vanishingly small probability
+    template <WholeNumber N> prime<N> generate_random_prime (random::source &, uint32 digits, generate_prime_parameters = {});
+
+    // use Maurer’s algorithm. Slower but 100% chance of success.
+    template <WholeNumber N> prime<N> generate_Maurer (random::source &, uint32 digits, int rounds);
+
+    template <WholeNumber N> prime<N> next_prime (const N &, uint32 trials = 25);
+
+    enum likelihood {
+        certain,
+        probable,
+        impossible
+    };
 
     // A number that is known to be prime.
-    // So far eratosthenes is the only way
-    // to construct this type.
     template <WholeNumber N>
     struct prime : nonzero<N> {
-        enum likelihood {
-            certain,
-            probable,
-            impossible
-        };
 
-        nonzero<N> Prime;
         likelihood Likelihood;
 
         bool valid () const {
             return Likelihood != impossible;
         }
 
-        prime () : Prime {0}, Likelihood {impossible} {}
+        prime () : nonzero<N> {0}, Likelihood {impossible} {}
 
-        bool operator == (const prime &p) const {
-            return Prime == p.Prime;
+        operator bool () const {
+            return valid ();
+        }
+
+        // automatic conversions
+        template <WholeNumber M> requires ImplicitlyConvertible<N, M>
+        operator prime<M> () const {
+            if (!*this) return {};
+            return prime<M> {M (this->Value), Likelihood};
+        }
+
+        // explicit conversions
+        template <WholeNumber M> requires ExplicitlyConvertible<N, M>
+        explicit operator prime<M> () const {
+            if (!*this) return {};
+            return prime<M> {M (this->Value), Likelihood};
         }
 
     private:
-        prime (N p, likelihood l) : Prime {p}, Likelihood {l} {}
+        prime (N p, likelihood l) : nonzero<N> {p}, Likelihood {l} {}
 
         friend struct eratosthenes<N>;
         friend struct AKS<N>;
+        template <WholeNumber M> friend struct prime;
         friend factorization<N> factorize<N> (nonzero<N>, eratosthenes<N> &);
         friend prime<N> is_prime<N> (random::source &, const N &, int rounds);
-        friend prime<N> generate_Maurer<N> (random::source &);
+        friend prime<N> generate_random_prime<N> (random::source &, uint32 digits, generate_prime_parameters);
+        friend prime<N> generate_Maurer<N> (random::source &, uint32 digits, int rounds);
+        friend prime<N> next_prime<N> (const N &, uint32 trials);
     };
 
     template <WholeNumber N>
     std::ostream inline &operator << (std::ostream &o, const prime<N> &p) {
-        return o << "prime {" << p.Prime << "}";
+        return o << "prime {" << p.Value << "}";
+    }
+
+    template <WholeNumber N> prime<N> inline is_safe (random::source &e, const prime<N> &p, int rounds) {
+        return is_prime<N> (e, (p.Value - 1u) / 2u, rounds);
     }
 
 }
-
-#endif
-
-
