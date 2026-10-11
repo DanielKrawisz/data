@@ -297,7 +297,7 @@ namespace data {
         const size_t bits = 40;
         const int rounds = 100;
 
-        N rn = math::number::generate_random<N> (source, bits);
+        N rn = math::number::generate_random_by_digits<N> (source, bits);
 
         EXPECT_EQ (rn, N {dec_int {"1086328581678"}});
 
