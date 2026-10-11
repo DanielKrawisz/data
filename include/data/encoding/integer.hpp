@@ -907,6 +907,7 @@ namespace data::math::def {
     };
 
     template <negativity c, hex_case z, negativity n, hex_case zz>
+    requires Unsame<hex::integer<c, z>, hex::integer<n, zz>>
     struct convert<hex::integer<c, z>, hex::integer<n, zz>> {
         hex::integer<c, z> operator () (const hex::integer<n, zz> &) const;
     };
@@ -2403,6 +2404,7 @@ namespace data::math::def {
     }
 
     template <negativity c, hex_case z, negativity n, hex_case zz>
+    requires Unsame<hex::integer<c, z>, hex::integer<n, zz>>
     hex::integer<c, z> convert<hex::integer<c, z>, hex::integer<n, zz>>::operator () (const hex::integer<n, zz> &i) const {
         hex::integer<c, zz> result;
 

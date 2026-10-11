@@ -1156,6 +1156,12 @@ namespace data::math::def {
         }
     };
 
+    template <typename A> struct convert<A, A> {
+        constexpr const A &operator () (const A &x) {
+            return x;
+        }
+    };
+
     template <std::integral A, std::integral B> struct convert<A, B> {
         constexpr A operator () (B x) {
             if (x > std::numeric_limits<A>::max ()) throw exception {} << "too high";

@@ -6,6 +6,10 @@
 
 #include <data/arithmetic.hpp>
 #include <data/math/ring.hpp>
+#include <data/math/number/bounded/bounded.hpp>
+
+// NOTE: these functions would be better if we didn't use >> but
+// instead accessed each number digit by digit.
 
 namespace data::math {
 
@@ -42,10 +46,10 @@ namespace data::math {
         return binary_accumulate<A, A, B> {&plus<A, A>, &mul_2<A>} (A {0}, x, y);
     }
 
-    template <typename A, group_number B>
-    constexpr A inline binary_accumulate_pow (const A &x, const B &y) {
+    template <typename Base, group_number Exp>
+    constexpr Base inline binary_accumulate_pow (const Base &x, const Exp &y) {
         if (y < 0) throw negative_power {};
-        return binary_accumulate<A, A, B> {&times<A, A>, &square<A>} (A {1}, x, y);
+        return binary_accumulate<Base, Base, Exp> {&times<Base, Base>, &square<Base>} (Base {1}, x, y);
     }
 
     template <typename A, group_number B, group_number Mod>
@@ -69,24 +73,24 @@ namespace data::math {
         }} (Mod {0}, x, y);
     }
 
-    template <typename A, group_number B, group_number Mod>
-    constexpr auto inline binary_accumulate_pow_mod (const A &x, const B &y, const nonzero<Mod> &z) -> decltype (abs (z.Value)) {
+    template <typename Base, group_number Exp, group_number Mod>
+    constexpr Mod inline binary_accumulate_pow_mod (const Base &x, const Exp &y, const nonzero<Mod> &z) {
         if (z.Value < 0) throw negative_power {};
         if (y < 0) throw negative_power {};
-        return binary_accumulate<Mod, A, B> {[z] (const Mod &a, const A &b) {
-            return data::times_mod<Mod, A, Mod> (a, b, z);
-        }, [z] (const A &a) {
-            return static_cast<A> (data::square_mod<A, Mod> (a, z));
+        return binary_accumulate<Mod, Base, Exp> {[z] (const Mod &a, const Base &b) {
+            return data::times_mod<Mod, Base, Mod> (a, b, z);
+        }, [z] (const Base &a) {
+            return static_cast<Base> (data::square_mod<Base, Mod> (a, z));
         }} (Mod {1}, x, y);
     }
 
-    template <typename A, group_number B, group_number_unsigned Mod>
-    constexpr auto inline binary_accumulate_pow_mod (const A &x, const B &y, const nonzero<Mod> &z) -> decltype (abs (z.Value)) {
+    template <typename Base, group_number Exp, group_number_unsigned Mod>
+    constexpr Mod inline binary_accumulate_pow_mod (const Base &x, const Exp &y, const nonzero<Mod> &z) {
         if (y < 0) throw negative_power {};
-        return binary_accumulate<Mod, A, B> {[z] (const Mod &a, const A &b) {
-            return times_mod<Mod, A, Mod> (a, b, z);
-        }, [z] (const A &a) {
-            return static_cast<A> (square_mod<A, Mod> (a, z));
+        return binary_accumulate<Mod, Base, Exp> {[z] (const Mod &a, const Base &b) {
+            return times_mod<Mod, Base, Mod> (a, b, z);
+        }, [z] (const Base &a) {
+            return static_cast<Base> (square_mod<Base, Mod> (a, z));
         }} (Mod {1}, x, y);
     }
 }
@@ -101,9 +105,36 @@ namespace data::math::def {
         }
     };
 
-    template <typename A, group_number Exp, group_number Mod> struct pow_mod<A, Exp, Mod> {
-        constexpr auto operator () (const A &x, const Exp &y, const nonzero<Mod> &z) -> decltype (data::abs (z.Value)) {
-            return math::binary_accumulate_pow_mod (x, y, z);
+    template <typename X> using accumulate_inner =
+        std::conditional_t<!Integral<X>, X,
+            std::conditional_t<SignedIntegral<X>,
+                std::conditional_t<sizeof (X) == 1, int16,
+                std::conditional_t<sizeof (X) == 2, int32,
+                std::conditional_t<sizeof (X) == 4, int64,
+                number::bounded<true, endian::little, (sizeof (X) + 7) * 2 / 8, uint64>>>
+                >,
+                std::conditional_t<sizeof (X) == 1, uint16,
+                std::conditional_t<sizeof (X) == 2, uint32,
+                std::conditional_t<sizeof (X) == 4, uint64,
+                number::bounded<false, endian::little, (sizeof (X) + 7) * 2 / 8, uint64>>>
+                >>>;
+
+    // default pow_mod
+    template <typename Base, group_number Exp, group_number Mod> struct pow_mod<Base, Exp, Mod> {
+        constexpr Mod operator () (const Base &x, const Exp &y, const nonzero<Mod> &z) {
+
+            // we have a problem here because we can overflow, and when that happens, we cannot correctly mod
+            // the result. We transform to a type that is bigger than this and then transform back.
+
+            using innerBase = accumulate_inner<Base>;
+            using innerExp = accumulate_inner<Exp>;
+            using innerMod = accumulate_inner<Mod>;
+
+            return math::convert<Mod> (
+                math::binary_accumulate_pow_mod (
+                    math::convert<innerBase> (x),
+                    math::convert<innerExp> (y),
+                    math::nonzero {math::convert<innerMod> (z.Value)}));
         }
     };
 

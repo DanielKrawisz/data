@@ -8,7 +8,6 @@
 #include <data/arithmetic.hpp>
 #include <data/encoding/hex.hpp>
 #include <data/encoding/endian.hpp>
-#include <data/math/power.hpp>
 
 // Basic number types.
 namespace data::math::number {

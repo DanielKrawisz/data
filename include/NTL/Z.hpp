@@ -79,6 +79,8 @@ namespace NTL {
         data::negativity neg = data::negativity::twos
     );
 
+    ZZ pow_mod (const ZZ &base, const ZZ &exp, const ZZ &mod);
+
     size_t inline bit_width (const ZZ &x) {
         if (sign (x) >= 0) return NumBits (x) + 1;
         return NumBits (abs (x) - 1) + 1;

@@ -598,6 +598,12 @@ namespace data {
         EXPECT_EQ (decrement (N {1}), N {0});
     }
 
+    TYPED_TEST (Numbers, Odd) {
+        using N = typename TestFixture::N;
+        EXPECT_TRUE (odd (N {987654321}));
+        EXPECT_FALSE (even (N {987654321}));
+    }
+
     // signed vs unsigned numbers differ in how
     // decrement works.
     template <typename X> struct Integers : ::testing::Test {

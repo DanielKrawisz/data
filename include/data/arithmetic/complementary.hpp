@@ -171,11 +171,11 @@ namespace data::arithmetic {
         if (a.size () >= b.size ()) {
             const size_t size_diff = a.size () - b.size ();
             if constexpr (r == endian::little) {
-                for (int i = 0; i < b.size (); i++) a[i + 0] &= b[i];
-                for (int i = 0; i < size_diff; i++) a[i + size_diff] = 0;
+                for (int i = 0; i < b.size (); i++) a[i] &= b[i];
+                for (int i = 0; i < size_diff; i++) a[i + b.size ()] = 0;
             } else {
+                for (int i = 0; i < size_diff; i++) a[i] = 0;
                 for (int i = 0; i < b.size (); i++) a[i + size_diff] &= b[i];
-                for (int i = 0; i < size_diff; i++) a[i + 0] = 0;
             }
             return a;
         }

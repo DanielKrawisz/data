@@ -803,6 +803,7 @@ namespace data::math::def {
     // convert between any two types of N_bytes
     template <endian ToEndian, std::unsigned_integral ToWord,
         endian FromEndian, std::unsigned_integral FromWord>
+    requires Unsame<number::N_bytes<ToEndian, ToWord>, number::N_bytes<FromEndian, FromWord>>
     number::N_bytes<ToEndian, ToWord>
     convert<number::N_bytes<ToEndian, ToWord>, number::N_bytes<FromEndian, FromWord>>::operator ()
     (const number::N_bytes<FromEndian, FromWord> &from) const {
@@ -870,6 +871,7 @@ namespace data::math::def {
     // convert between any two types of Z_bytes
     template <endian ToEndian, negativity ToNeg, std::unsigned_integral ToWord,
         endian FromEndian, negativity FromNeg, std::unsigned_integral FromWord>
+    requires Unsame<number::Z_bytes<ToEndian, ToNeg, ToWord>, number::Z_bytes<FromEndian, FromNeg, FromWord>>
     number::Z_bytes<ToEndian, ToNeg, ToWord>
     convert<number::Z_bytes<ToEndian, ToNeg, ToWord>, number::Z_bytes<FromEndian, FromNeg, FromWord>>::operator ()
         (const number::Z_bytes<FromEndian, FromNeg, FromWord> &from) const {
@@ -1173,9 +1175,7 @@ namespace data::math::number {
 
     template <endian r, std::unsigned_integral word>
     N_bytes<r, word> inline operator & (const N_bytes<r, word> &a, const N_bytes<r, word> &b) {
-        N_bytes<r, word> result {std::move (arithmetic::trim<r, negativity::nones, word> (arithmetic::bit_and<r, negativity::nones, word> (a, b)))};
-        result.trim ();
-        return result;
+        return N_bytes<r, word> (std::move (arithmetic::trim<r, negativity::nones, word> (arithmetic::bit_and<r, negativity::nones, word> (a, b))));
     }
 
     template <endian r, negativity neg, std::unsigned_integral word>

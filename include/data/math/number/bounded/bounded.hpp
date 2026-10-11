@@ -337,14 +337,6 @@ namespace data {
                 const nonzero<uint<r, x, word>> &);
         };
 
-        template <bool a, bool b, endian r, size_t x, std::unsigned_integral word>
-        struct pow_mod<bounded<a, r, x, word>, bounded<b, r, x, word>, uint<r, x, word>> {
-            constexpr uint<r, x, word> operator () (
-                const bounded<a, r, x, word> &,
-                const bounded<b, r, x, word> &,
-                const nonzero<uint<r, x, word>> &);
-        };
-
         template <endian r, size_t x, std::unsigned_integral word>
         struct div_2_pow<uint<r, x, word>> {
             constexpr uint<r, x, word> operator () (const uint<r, x, word> &, uint32 exp);
@@ -1659,7 +1651,7 @@ namespace data {
             U result = 0;
             size_t shift = 0;
 
-            constexpr size_t word_bits = numeric_limits<word>::digits;
+            constexpr size_t word_bits = std::numeric_limits<word>::digits;
             for (word w : this->words ()) {
                 if (shift < bits)
                     result |= static_cast<U> (w) << shift;

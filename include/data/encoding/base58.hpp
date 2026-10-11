@@ -80,9 +80,9 @@ namespace data::encoding::base58 {
     string operator | (const string &, const string &);
     string operator ^ (const string &, const string &);
 
-    string operator + (const string &, uint64 x);
-    string operator - (const string &, uint64 x);
-    string operator * (const string &, uint64 x);
+    template <std::integral I> string operator + (const string &, I x);
+    template <std::integral I> string operator - (const string &, I x);
+    template <std::integral I> string operator * (const string &, I x);
 
     string operator / (const string &, const string &);
     string operator % (const string &, const string &);
@@ -101,9 +101,9 @@ namespace data::encoding::base58 {
         string &operator &= (const string &);
         string &operator ^= (const string &);
 
-        string &operator += (uint64);
-        string &operator -= (uint64);
-        string &operator *= (uint64);
+        template <std::integral I> string &operator += (I);
+        template <std::integral I> string &operator -= (I);
+        template <std::integral I> string &operator *= (I);
 
         string &operator += (const string &);
         string &operator -= (const string &);
@@ -275,16 +275,34 @@ namespace data::encoding::base58 {
         return string {x} <=> b;
     }
 
-    string inline operator + (const string &n, uint64 x) {
+    template <std::integral I>
+    string inline operator + (const string &n, I x) {
         return n + string {x};
     }
 
-    string inline operator - (const string &n, uint64 x) {
+    template <std::integral I>
+    string inline &string::operator += (I x) {
+        return *this += string {x};
+    }
+
+    template <std::integral I>
+    string inline operator - (const string &n, I x) {
         return n - string {x};
     }
 
-    string inline operator * (const string &n, uint64 x) {
+    template <std::integral I>
+    string inline &string::operator -= (I x) {
+        return *this -= string {x};
+    }
+
+    template <std::integral I>
+    string inline operator * (const string &n, I x) {
         return n * string {x};
+    }
+
+    template <std::integral I>
+    string inline &string::operator *= (I x) {
+        return *this *= string {x};
     }
 
     string inline operator ++ (string &m, int) {

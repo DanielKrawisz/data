@@ -7,6 +7,7 @@
 #include <type_traits>
 #include <iterator>
 #include <data/math/number/bounded/bounded.hpp>
+#include <data/math/power.hpp>
 #include <data/float.hpp>
 #include <data/math/number/extended_euclidian.hpp>
 #include <data/encoding/integer.hpp>
@@ -144,17 +145,6 @@ namespace data::math::def {
             bounded<a, r, x + 1, word> (m),
             bounded<b, r, x + 1, word> (n),
             nonzero {uint<r, x + 1, word> (q.Value)}));
-    }
-
-    template <bool a, bool b, endian r, size_t x, std::unsigned_integral word>
-    constexpr uint<r, x, word> inline pow_mod<bounded<a, r, x, word>, bounded<b, r, x, word>, uint<r, x, word>>::operator () (
-        const bounded<a, r, x, word> &m,
-        const bounded<b, r, x, word> &n,
-        const nonzero<uint<r, x, word>> &q) {
-        return uint<r, x, word> (binary_accumulate_pow_mod (
-            bounded<a, r, x * 2, word> (m),
-            bounded<b, r, x * 2, word> (n),
-            nonzero {uint<r, x * 2, word> (q.Value)}));
     }
 }
 

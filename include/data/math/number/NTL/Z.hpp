@@ -849,14 +849,14 @@ namespace data::math::def {
     template <group_number Exp>
     N inline pow_mod<N, Exp, N>::operator () (const N &x, const Exp &y, const nonzero<N> &z) {
         if constexpr (Same<Exp, Z> || Same<Exp, N>)
-            return N (NTL::PowerMod (x.Value, y.Value, z.Value.Value));
+            return N (NTL::pow_mod (x.Value, y.Value, z.Value.Value));
         else return math::binary_accumulate_pow_mod (x, y, z);
     }
 
     template <group_number Exp>
     N inline pow_mod<Z, Exp, N>::operator () (const Z &x, const Exp &y, const nonzero<N> &z) {
         if constexpr (Same<Exp, Z> || Same<Exp, N>)
-            return N (NTL::PowerMod (x.Value, y.Value, z.Value.Value));
+            return N (NTL::pow_mod (x.Value, y.Value, z.Value.Value));
         else return math::binary_accumulate_pow_mod (x, y, z);
     }
 
