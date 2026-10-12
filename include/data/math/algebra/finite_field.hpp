@@ -25,14 +25,16 @@ namespace data::math {
         using number::modular<P, N>::modular;
         constexpr prime_field (const number::modular<P, N> &n): number::modular<P, N> {n} {}
         constexpr prime_field (number::modular<P, N> &&n): number::modular<P, N> {n} {}
+
+        constexpr prime_field inverse () const;
     
         constexpr prime_field operator + (const prime_field &) const;
         constexpr prime_field operator - (const prime_field &) const;
         constexpr prime_field operator * (const prime_field &) const;
         constexpr prime_field operator / (const prime_field &) const;
-        constexpr prime_field operator ~ () const;
-        
-        constexpr prime_field inverse () const;
+        constexpr prime_field operator ~ () const {
+            return inverse ();
+        }
         
     };
 

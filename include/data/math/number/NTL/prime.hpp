@@ -27,7 +27,7 @@ namespace data::math::number {
 
     template struct AKS<N>;
 
-    template <WholeNumber X> struct AKS {
+    template <Number X> struct AKS {
         prime<X> is_prime (const X &n) {
             if (AKS<N>::is_prime (convert<N> (abs (n))))
                 return prime<X> {n, certain};
@@ -39,7 +39,7 @@ namespace data::math::number {
         return prime<N> {N (NTL::NextPrime (n.Value, trials)), probable};
     }
 
-    template <WholeNumber NN> prime<NN> inline next_prime (const NN &n) {
+    template <Number NN> prime<NN> inline next_prime (const NN &n) {
         return convert<NN> (next_prime (convert<N> (n)));
     }
 }

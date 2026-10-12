@@ -11,7 +11,7 @@
 
 namespace data::math::number {
 
-    template <WholeNumber N> struct factorization : list<power<prime<N>, N>> {
+    template <Number N> struct factorization : list<power<prime<N>, N>> {
         using list<power<prime<N>, N>>::list;
         factorization (list<power<prime<N>, N>> &&x): list<power<prime<N>, N>> {x} {}
 
@@ -26,7 +26,7 @@ namespace data::math::number {
         operator N () const;
     };
 
-    template <WholeNumber N> factorization<N> factorize (nonzero<N> n, eratosthenes<N> &e) {
+    template <Number N> factorization<N> factorize (nonzero<N> n, eratosthenes<N> &e) {
 
         factorization<N> factors {};
 
@@ -82,11 +82,11 @@ namespace data::math::number {
         return factors;
     }
 
-    template <WholeNumber N> inline factorization<N> operator * (const prime<N> &a, const prime<N> &b) {
+    template <Number N> inline factorization<N> operator * (const prime<N> &a, const prime<N> &b) {
         return factorization {list<power<prime<N>, N>> {power<prime<N>, N> {a, 1}, power<prime<N>, N> {b, 1}}};
     }
 
-    template <WholeNumber N> factorization<N>::operator N () const {
+    template <Number N> factorization<N>::operator N () const {
         N n {1};
         for (const power<prime<N>, N> &p : *this)
             n *= data::pow (p.Base.Value, p.Exponent);

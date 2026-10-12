@@ -31,11 +31,11 @@ namespace data::math::number {
         )}, probable};
     }
 
-    template <WholeNumber NN> prime<NN> inline is_prime (random::source &x, const NN &n, int rounds) {
+    template <Number NN> prime<NN> inline is_prime (random::source &x, const NN &n, int rounds) {
         return prime<NN> (is_prime<N> (x, convert<N> (n)));
     }
 
-    template <WholeNumber NN> prime<NN> inline generate_random_prime (random::source &x, uint32 bits, generate_prime_parameters p) {
+    template <Number NN> prime<NN> inline generate_random_prime (random::source &x, uint32 bits, generate_prime_parameters p) {
         return prime<NN> (generate_random_prime<N> (x, bits, p));
     }
 
