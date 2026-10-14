@@ -37,6 +37,7 @@ namespace data::math::def {
         if (NTL::InvModStatus (result.Value, a.Value, b.Value.Value)) return {};
         return result;
     }
+
 }
 
 namespace data::math::number {

@@ -17,7 +17,7 @@
 
 namespace data::math::number {
 
-    template <endian r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, Word word>
     constexpr bounded<false, r, size, word>::bounded (string_view x) {
 
         if consteval {
@@ -39,7 +39,7 @@ namespace data::math::number {
         }
     }
 
-    template <endian r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, Word word>
     constexpr bounded<true, r, size, word>::bounded (string_view x) {
         if consteval {
             if (encoding::signed_decimal::valid (x)) {
@@ -74,17 +74,17 @@ namespace data::math::number {
         }
     }
     
-    template <endian r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, Word word>
     inline bounded<false, r, size, word>::operator double () const {
         return import_float<double> (slice<const word> (*this), r, endian::native, negativity::nones);
     }
     
-    template <endian r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, Word word>
     inline bounded<true, r, size, word>::operator double () const {
         return import_float<double> (slice<const word> (*this), r, endian::native, negativity::twos);
     }
 
-    template <endian r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, Word word>
     std::istream &operator >> (std::istream &i, bounded<true, r, size, word> &z) {
         encoding::integer::string x;
         i >> x;
@@ -92,7 +92,7 @@ namespace data::math::number {
         return i;
     }
 
-    template <endian r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, Word word>
     std::istream &operator >> (std::istream &i, bounded<false, r, size, word> &n) {
         encoding::natural::string x;
         i >> x;
@@ -102,32 +102,32 @@ namespace data::math::number {
 }
 
 namespace data::math::def {
-    template <endian r, size_t x, std::unsigned_integral word>
+    template <endian r, size_t x, Word word>
     constexpr division<uint<r, x, word>, uint<r, x, word>> inline divmod<uint<r, x, word>, uint<r, x, word>>::operator ()
         (const uint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
         return number::divmod (v, z.Value);
     }
 
-    template <endian r, size_t x, std::unsigned_integral word>
+    template <endian r, size_t x, Word word>
     constexpr division<sint<r, x, word>, sint<r, x, word>> inline divmod<sint<r, x, word>, sint<r, x, word>>::operator ()
         (const sint<r, x, word> &v, const nonzero<sint<r, x, word>> &z) {
         return number::integer_divmod<number::TRUNCATE_TOWARD_ZERO> (v, z.Value);
     }
 
-    template <endian r, size_t x, std::unsigned_integral word>
+    template <endian r, size_t x, Word word>
     constexpr division<uint<r, x, word>, uint<r, x, word>> inline divmod<sint<r, x, word>, uint<r, x, word>>::operator ()
         (const sint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
         return number::divmod (uint<r, x, word> (v), z.Value);
     }
 
-    template <bool a, endian r, size_t x, std::unsigned_integral word>
+    template <bool a, endian r, size_t x, Word word>
     constexpr uint<r, x, word> square_mod<bounded<a, r, x, word>, uint<r, x, word>>::operator () (
         const bounded<a, r, x, word> &m,
         const nonzero<uint<r, x, word>> &q) {
         return times_mod<bounded<a, r, x, word>, bounded<a, r, x, word>, uint<r, x, word>> {} (m, m, q);
     }
 
-    template <bool a, bool b, endian r, size_t x, std::unsigned_integral word>
+    template <bool a, bool b, endian r, size_t x, Word word>
     constexpr uint<r, x, word> inline plus_mod<bounded<a, r, x, word>, bounded<b, r, x, word>, uint<r, x, word>>::operator () (
         const bounded<a, r, x, word> &m,
         const bounded<b, r, x, word> &n,
@@ -136,7 +136,7 @@ namespace data::math::def {
             bounded<b, r, x + 1, word> (n)) % uint<r, x + 1, word> (q.Value));
     }
 
-    template <bool a, bool b, endian r, size_t x, std::unsigned_integral word>
+    template <bool a, bool b, endian r, size_t x, Word word>
     constexpr uint<r, x, word> inline times_mod<bounded<a, r, x, word>, bounded<b, r, x, word>, uint<r, x, word>>::operator () (
         const bounded<a, r, x, word> &m,
         const bounded<b, r, x, word> &n,
@@ -146,17 +146,45 @@ namespace data::math::def {
             bounded<b, r, x + 1, word> (n),
             nonzero {uint<r, x + 1, word> (q.Value)}));
     }
+
+    template <bool is_signed, endian to_r, size_t to_size, Word to_word, endian from_r, negativity neg, Word from_word>
+    number::bounded<is_signed, to_r, to_size, to_word> inline
+    convert<number::bounded<is_signed, to_r, to_size, to_word>, number::Z_bytes<from_r, neg, from_word>>::operator ()
+    (const number::Z_bytes<from_r, neg, from_word> &x) const {
+        return number::bounded<is_signed, to_r, to_size, to_word> (x);
+    }
+
+    template <bool is_signed, endian to_r, size_t size, Word to_word, endian from_r, Word from_word>
+    number::bounded<is_signed, to_r, size, to_word> inline
+    convert<number::bounded<is_signed, to_r, size, to_word>, number::N_bytes<from_r, from_word>>::operator ()
+    (const number::N_bytes<from_r, from_word> &x) const {
+        return number::bounded<is_signed, to_r, size, to_word> (x);
+    }
+
+    template <endian to_r, negativity neg, Word to_word, bool is_signed, endian from_r, size_t size, Word from_word>
+    number::Z_bytes<to_r, neg, to_word> inline
+    convert<number::Z_bytes<to_r, neg, to_word>, number::bounded<is_signed, from_r, size, from_word>>::operator ()
+    (const number::bounded<is_signed, from_r, size, from_word> &x) const {
+        return number::Z_bytes<to_r, neg, to_word> (x);
+    }
+
+    template <endian to_r, Word to_word, bool is_signed, endian from_r, size_t size, Word from_word>
+    number::N_bytes<to_r, to_word> inline
+    convert<number::N_bytes<to_r, to_word>, number::bounded<is_signed, from_r, size, from_word>>::operator ()
+    (const number::bounded<is_signed, from_r, size, from_word> &x) const {
+        return number::N_bytes<to_r, to_word> (x);
+    }
 }
 
 namespace data::encoding::hexidecimal {
 
-    template <endian::order r, std::unsigned_integral word, size_t x>
+    template <endian::order r, Word word, size_t x>
     std::ostream &write (std::ostream &o, const oriented<r, word, x> &z, hex_case q) {
         o << "0x";
         return encoding::hex::write (o, z.words ().reverse (), q);
     }
 
-    template <hex_case cx, endian::order r, std::unsigned_integral word, size_t x>
+    template <hex_case cx, endian::order r, Word word, size_t x>
     string<cx> write (const oriented<r, word, x> &z) {
         std::stringstream ss;
         write (ss, z, cx);

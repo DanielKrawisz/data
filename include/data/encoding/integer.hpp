@@ -29,16 +29,16 @@ namespace data::encoding {
         constexpr bool nonzero (string_view s);
         constexpr uint32 digits (string_view s);
         
-        template <endian::order r, std::unsigned_integral word>
+        template <endian::order r, Word word>
         maybe<N_bytes<r, word>> read (string_view s);
 
         template <std::unsigned_integral I>
         std::ostream &write (std::ostream &, I);
         
-        template <endian::order r, std::unsigned_integral word>
+        template <endian::order r, Word word>
         std::ostream &write (std::ostream &, const N_bytes<r, word> &);
 
-        template <endian::order r, size_t x, std::unsigned_integral word>
+        template <endian::order r, size_t x, Word word>
         std::ostream &write (std::ostream &o, const math::uint<r, x, word> &);
         
         // a decimal string inherets from string but is
@@ -48,10 +48,10 @@ namespace data::encoding {
         template <std::unsigned_integral I>
         string write (I);
         
-        template <endian::order r, std::unsigned_integral word>
+        template <endian::order r, Word word>
         string write (const N_bytes<r, word> &);
 
-        template <endian::order r, size_t x, std::unsigned_integral word>
+        template <endian::order r, size_t x, Word word>
         string write (const math::uint<r, x, word> &);
         
     }
@@ -69,13 +69,13 @@ namespace data::encoding {
         template <std::signed_integral I>
         std::ostream &write (std::ostream &, I);
 
-        template <endian::order r, std::unsigned_integral word>
+        template <endian::order r, Word word>
         std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, negativity::twos, word> &);
 
-        template <endian::order r, std::unsigned_integral word>
+        template <endian::order r, Word word>
         std::ostream &write (std::ostream &o, const math::number::Z_bytes<r, negativity::BC, word> &);
 
-        template <endian::order r, size_t x, std::unsigned_integral word>
+        template <endian::order r, size_t x, Word word>
         std::ostream &write (std::ostream &o, const math::sint<r, x, word> &);
 
         // a signed decimal string inherets from string but is
@@ -85,10 +85,10 @@ namespace data::encoding {
         template <std::signed_integral I>
         string write (I);
 
-        template <endian::order r, negativity c, std::unsigned_integral word>
+        template <endian::order r, negativity c, Word word>
         string write (const math::number::Z_bytes<r, c, word> &);
 
-        template <endian::order r, size_t x, std::unsigned_integral word>
+        template <endian::order r, size_t x, Word word>
         string write (const math::sint<r, x, word> &);
         
     }
@@ -108,10 +108,10 @@ namespace data::encoding {
 
         constexpr hex::letter_case read_case (string_view s);
 
-        template <endian::order r, std::unsigned_integral word>
+        template <endian::order r, Word word>
         maybe<oriented<r, word>> read (string_view s);
 
-        template <endian::order r, std::unsigned_integral word>
+        template <endian::order r, Word word>
         std::ostream &write (std::ostream &o, const oriented<r, word> &d, hex::letter_case q);
 
         template <hex::letter_case cx> struct string : data::string {
@@ -125,7 +125,7 @@ namespace data::encoding {
         template <negativity c, hex::letter_case cx, std::integral I>
         string<cx> write (I);
 
-        template <hex::letter_case cx, endian::order r, std::unsigned_integral word>
+        template <hex::letter_case cx, endian::order r, Word word>
         string<cx> write (const oriented<r, word> &z);
 
         template <negativity c, hex::letter_case cx>
@@ -147,10 +147,10 @@ namespace data::encoding {
         // a big number that supports standard numerical operations.
         template <negativity, hex::letter_case cx> struct integer;
 
-        template <hex_case zz, endian::order r, std::unsigned_integral word>
+        template <hex_case zz, endian::order r, Word word>
         integer<negativity::nones, zz> write (const math::number::N_bytes<r, word> &);
 
-        template <hex_case zz, endian::order r, negativity n, std::unsigned_integral word>
+        template <hex_case zz, endian::order r, negativity n, Word word>
         integer<n, zz> write (const math::number::Z_bytes<r, n, word> &);
         
     }
@@ -166,7 +166,7 @@ namespace data::encoding {
         constexpr bool nonzero (string_view s);
         constexpr uint32 digits (string_view s);
         
-        template <endian::order r, std::unsigned_integral word> maybe<N_bytes<r, word>> read (string_view s);
+        template <endian::order r, Word word> maybe<N_bytes<r, word>> read (string_view s);
         
     }
     
@@ -185,7 +185,7 @@ namespace data::encoding {
         constexpr bool nonzero (string_view s);
         constexpr uint32 digits (string_view s);
         
-        template <endian::order r, negativity c, std::unsigned_integral word>
+        template <endian::order r, negativity c, Word word>
         maybe<math::number::Z_bytes<r, c, word>> read (string_view s);
         
     }
@@ -1056,12 +1056,12 @@ namespace data::encoding::decimal {
         return o << std::dec << x;
     }
 
-    template <endian::order r, size_t x, std::unsigned_integral word>
+    template <endian::order r, size_t x, Word word>
     std::ostream inline &write (std::ostream &o, const math::uint<r, x, word> &n) {
         return write (o, N_bytes<r, word> (n));
     }
 
-    template <endian::order r, size_t x, std::unsigned_integral word>
+    template <endian::order r, size_t x, Word word>
     string inline write (const math::uint<r, x, word> &n) {
         std::stringstream ss;
         write (ss, n);
@@ -1149,32 +1149,32 @@ namespace data::encoding::signed_decimal {
         return o << std::dec << x;
     }
     
-    template <endian::order r, std::unsigned_integral word>
+    template <endian::order r, Word word>
     std::ostream &write (std::ostream &w, const math::number::Z_bytes<r, negativity::twos, word> &z) {
         if (data::is_negative (z)) w << "-";
         return decimal::write (w, data::abs (z));
     }
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian::order r, Word word>
     std::ostream &write (std::ostream &w, const math::number::Z_bytes<r, negativity::BC, word> &z) {
         if (is_zero (z)) return w << "0";
         if (is_negative (z)) w << "-";
         return decimal::write (w, N_bytes<r, word>::read (abs (z)));
     }
     
-    template <endian::order r, negativity n, std::unsigned_integral word>
+    template <endian::order r, negativity n, Word word>
     string inline write (const math::number::Z_bytes<r, n, word> &z) {
         std::stringstream ss;
         write (ss, z);
         return string {ss.str ()};
     }
 
-    template <endian::order r, size_t x, std::unsigned_integral word>
+    template <endian::order r, size_t x, Word word>
     std::ostream inline &write (std::ostream &o, const math::sint<r, x, word> &z) {
         return write (o, math::number::Z_bytes<r, negativity::twos, word> (z));
     }
 
-    template <endian::order r, size_t x, std::unsigned_integral word>
+    template <endian::order r, size_t x, Word word>
     string inline write (const math::sint<r, x, word> &n) {
         std::stringstream ss;
         write (ss, n);
@@ -1639,7 +1639,7 @@ namespace data::encoding::hexidecimal {
         else throw std::invalid_argument("Invalid hex digit");
     }
     
-    template <endian::order r, std::unsigned_integral word>
+    template <endian::order r, Word word>
     maybe<oriented<r, word>> read (string_view s) {
         if (!valid (s)) return {};
 
@@ -1663,13 +1663,13 @@ namespace data::encoding::hexidecimal {
         return n;
     }
     
-    template <endian::order r, std::unsigned_integral word>
+    template <endian::order r, Word word>
     std::ostream inline &write (std::ostream &o, const oriented<r, word> &d, hex::letter_case q) {
         o << "0x";
         return encoding::hex::write (o, d.words ().reverse (), q);
     }
     
-    template <hex::letter_case cx, endian::order r, std::unsigned_integral word>
+    template <hex::letter_case cx, endian::order r, Word word>
     string<cx> write (const oriented<r, word> &z) {
         std::stringstream ss;
         write (ss, z, cx);
@@ -2068,7 +2068,7 @@ namespace data::encoding::integer {
         return negative (s) ? natural::digits (s.substr (1, s.size () - 1)) : natural::digits (s);
     }
     
-    template <endian::order r, negativity c, std::unsigned_integral word>
+    template <endian::order r, negativity c, Word word>
     maybe<math::number::Z_bytes<r, c, word>> read (string_view s) {
 
         if (!valid (s)) return {};

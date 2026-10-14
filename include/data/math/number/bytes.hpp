@@ -20,7 +20,7 @@
 
 namespace data::math::number {
 
-    template <endian r, std::unsigned_integral word>
+    template <endian r, Word word>
     N_bytes<r, word> inline N_bytes<r, word>::read (string_view x) {
         if (!encoding::natural::valid (x))
             throw exception {} << "invalid number string A " << x;
@@ -36,7 +36,7 @@ namespace data::math::number {
         throw exception {} << "invalid number string B " << x;
     }
 
-    template <endian r, std::unsigned_integral word>
+    template <endian r, Word word>
     Z_bytes<r, negativity::twos, word> inline Z_bytes<r, negativity::twos, word>::read (string_view x) {
 
         if (!encoding::integer::valid (x))
@@ -48,28 +48,28 @@ namespace data::math::number {
         return convert<Z_bytes<r, negativity::twos, word>> (Z::read (x));
     }
 
-    template <endian r, std::unsigned_integral word>
+    template <endian r, Word word>
     Z_bytes<r, negativity::BC, word> inline Z_bytes<r, negativity::BC, word>::read (string_view x) {
         if (!encoding::integer::valid (x)) throw exception {} << "invalid number string \"" << x << "\"";
         if (encoding::hexidecimal::valid (x)) return *encoding::integer::read<r, negativity::BC, word> (x);
         return Z::read (x).operator Z_bytes<r, negativity::BC, word> ();
     }
 
-    template <endian r, std::unsigned_integral word>
+    template <endian r, Word word>
     std::ostream inline &operator << (std::ostream &o, const N_bytes<r, word> &n) {
         if (o.flags () & std::ios::hex) return encoding::hexidecimal::write (o, n);
         else if (o.flags () & std::ios::dec) return encoding::decimal::write (o, N (n));
         return o;
     }
 
-    template <endian r, negativity c, std::unsigned_integral word>
+    template <endian r, negativity c, Word word>
     std::ostream inline &operator << (std::ostream &o, const Z_bytes<r, c, word> &n) {
         if (o.flags () & std::ios::hex) return encoding::hexidecimal::write (o, n);
         if (o.flags () & std::ios::dec) return encoding::signed_decimal::write (o, Z (n));
         return o;
     }
 
-    template <endian r, std::unsigned_integral word>
+    template <endian r, Word word>
     std::istream &operator >> (std::istream &i, N_bytes<r, word> &n) {
         encoding::natural::string x;
         i >> x;
@@ -81,7 +81,7 @@ namespace data::math::number {
         return i;
     }
     
-    template <endian r, negativity c, std::unsigned_integral word>
+    template <endian r, negativity c, Word word>
     std::istream &operator >> (std::istream &i, Z_bytes<r, c, word> &n) {
         encoding::integer::string x;
         i >> x;
@@ -93,17 +93,17 @@ namespace data::math::number {
         return i;
     }
     
-    template <endian r, std::unsigned_integral word> inline
+    template <endian r, Word word> inline
     N_bytes<r, word>::operator double () const {
         return import_float<double> (slice<const word> (*this), r, endian::native, negativity::nones);
     }
     
-    template <endian r, std::unsigned_integral word> inline
+    template <endian r, Word word> inline
     Z_bytes<r, negativity::twos, word>::operator double () const {
         return import_float<double> (slice<const word> (*this), r, endian::native, negativity::twos);
     }
     
-    template <endian r, std::unsigned_integral word> inline
+    template <endian r, Word word> inline
     Z_bytes<r, negativity::BC, word>::operator double () const {
         return import_float<double> (slice<const word> (*this), r, endian::native, negativity::BC);
     }
@@ -112,13 +112,13 @@ namespace data::math::number {
 
 namespace data::encoding::decimal {
     
-    template <endian::order r, std::unsigned_integral word>
+    template <endian::order r, Word word>
     maybe<N_bytes<r, word>> inline read (string_view s) {
         if (!valid (s)) return {};
         return {read_base<N_bytes<r, word>> (s, 10, digit)};
     }
 
-    template <endian::order r, std::unsigned_integral word>
+    template <endian::order r, Word word>
     string write (const math::N_bytes<r, word> &n) {
         std::string x = write_base (n, characters ());
         return x == "" ? string {"0"} : string {x};
@@ -127,7 +127,7 @@ namespace data::encoding::decimal {
 
 namespace data::encoding::signed_decimal {
     
-    template <endian::order r, negativity n, std::unsigned_integral word>
+    template <endian::order r, negativity n, Word word>
     maybe<math::number::Z_bytes<r, n, word>> read (string_view s) {
         if (!valid (s)) return {};
         bool negative = s[0] == '-';
@@ -141,7 +141,7 @@ namespace data::encoding::signed_decimal {
 
 namespace data::encoding::natural {
     
-    template <endian::order r, std::unsigned_integral word>
+    template <endian::order r, Word word>
     maybe<math::N_bytes<r, word>> inline read (string_view s) {
         if (!valid (s)) return {};
 
@@ -173,14 +173,14 @@ namespace data::encoding::hexidecimal {
                 math::number::Z_bytes<endian::big, neg, byte>> (x), i));
     }
 
-    template <hex_case zz, endian::order r, std::unsigned_integral word>
+    template <hex_case zz, endian::order r, Word word>
     integer<negativity::nones, zz> write (const math::number::N_bytes<r, word> &z) {
         std::stringstream ss;
         write (ss, static_cast<const oriented<r, word> &> (z), zz);
         return integer<negativity::nones, zz> {ss.str ()};
     }
 
-    template <hex_case zz, endian::order r, negativity n, std::unsigned_integral word>
+    template <hex_case zz, endian::order r, negativity n, Word word>
     integer<n, zz> write (const math::number::Z_bytes<r, n, word> &z) {
         std::stringstream ss;
         write (ss, static_cast<const oriented<r, word> &> (z), zz);
@@ -316,25 +316,25 @@ namespace data::encoding::hexidecimal {
 
 namespace data::encoding::integer {
     
-    template <endian::order r, negativity c, std::unsigned_integral word>
+    template <endian::order r, negativity c, Word word>
     std::ostream inline &write (std::ostream &o, const math::number::Z_bytes<r, c, word> &z) {
         if (sign (z) == negative) o << "-";
         return decimal::write (o, abs (z));
     }
     
-    template <endian::order r, negativity c, std::unsigned_integral word>
+    template <endian::order r, negativity c, Word word>
     string inline write (const math::number::Z_bytes<r, c, word> &z) {
         std::stringstream ss;
         write (ss, z);
         return ss.str ();
     }
     
-    template <endian::order r, std::unsigned_integral word>
+    template <endian::order r, Word word>
     std::ostream inline &write (std::ostream &o, const math::number::N_bytes<r, word> &z) {
         return decimal::write (o, z);
     }
     
-    template <endian::order r, std::unsigned_integral word>
+    template <endian::order r, Word word>
     string inline write (const math::number::N_bytes<r, word> &z) {
         std::stringstream ss;
         write (ss, z);
@@ -397,28 +397,28 @@ namespace data::math::def {
         return division<hex::intBC<zz>, unsigned int> {hex::intBC<zz> {quotient}, static_cast<unsigned int> (uint64 (remainder))};
     }
 
-    template <endian r, std::unsigned_integral word>
+    template <endian r, Word word>
     division<N_bytes<r, word>, N_bytes<r, word>> inline
     divmod<N_bytes<r, word>, N_bytes<r, word>>::operator ()
         (const N_bytes<r, word> &a, const nonzero<N_bytes<r, word>> &b) {
         return number::natural_divmod (a, b.Value);
     }
 
-    template <endian r, std::unsigned_integral word>
+    template <endian r, Word word>
     division<Z_bytes<r, word>, N_bytes<r, word>> inline
     divmod<Z_bytes<r, word>, N_bytes<r, word>>::operator ()
         (const Z_bytes<r, word> &a, const nonzero<N_bytes<r, word>> &b) {
         return number::divmod (a, b.Value);
     }
 
-    template <endian r, std::unsigned_integral word>
+    template <endian r, Word word>
     division<Z_bytes<r, word>, N_bytes<r, word>> inline
     divmod<Z_bytes<r, word>, Z_bytes<r, word>>::operator ()
         (const Z_bytes<r, word> &a, const nonzero<Z_bytes<r, word>> &b) {
         return number::integer_divmod<number::EUCLIDIAN_ALWAYS_POSITIVE> (a, b.Value);
     }
 
-    template <endian r, std::unsigned_integral word>
+    template <endian r, Word word>
     division<Z_bytes_BC<r, word>, Z_bytes_BC<r, word>> inline
     divmod<Z_bytes_BC<r, word>, Z_bytes_BC<r, word>>::operator ()
         (const Z_bytes_BC<r, word> &a, const nonzero<Z_bytes_BC<r, word>> &b) {
@@ -472,17 +472,17 @@ namespace data::math::def {
             encoding::hexidecimal::write<zz> (d.Remainder)};
     }
 
-    template <endian r, negativity c, std::unsigned_integral word>
+    template <endian r, negativity c, Word word>
     number::Z_bytes<r, c, word> inline convert<number::Z_bytes<r, c, word>, Z>::operator () (const Z &z) const {
         return z.operator number::Z_bytes<r, c, word> ();
     }
 
-    template <endian r, std::unsigned_integral word>
+    template <endian r, Word word>
     number::N_bytes<r, word> inline convert<number::N_bytes<r, word>, N>::operator () (const N &n) const {
         return n.operator number::N_bytes<r, word> ();
     }
 
-    template <endian r, std::unsigned_integral word>
+    template <endian r, Word word>
     N inline convert<N, number::N_bytes<r, word>>::operator () (const number::N_bytes<r, word> &n) const {
         return N (n);
     }

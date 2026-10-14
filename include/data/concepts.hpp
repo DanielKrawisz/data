@@ -112,6 +112,8 @@ namespace data {
     template <typename Type, typename Argument>
     concept implicitly_constructible_from = is_implicitly_constructible<Type, Argument>::value;
 
+    template <typename word> concept Word = std::unsigned_integral<word>;
+
     template <typename Type> concept member_function_pointer = std::is_member_function_pointer_v<Type>;
 
     template <typename Type> struct is_effectively_const : std::false_type {};
@@ -126,6 +128,7 @@ namespace data {
     template <typename Type> struct is_effectively_const<Type *const> : std::true_type {};
 
     // any type beginning with const and any reference or rvalue reference.
+    // (references are inherently const, even if the value they reference is not const)
     template <typename Type> concept Const = is_effectively_const_v<Type>;
 
     template <typename X> using unref = std::remove_reference_t<X>;
