@@ -121,7 +121,7 @@ namespace data::arithmetic {
 
     // amount should be less than the number of digits base 2 in the word.
     // We should iterate from little to big endian.
-    template <typename sen, typename ita, std::input_iterator itb, std::unsigned_integral word>
+    template <typename sen, typename ita, std::input_iterator itb, Word word>
     requires std::output_iterator<ita, word> && std::sentinel_for<sen, itb>
     constexpr std::enable_if_t<has_twice<word>::value, void>
     shift_left (ita &i, sen z, itb b, uint16 amount, word fill) {
@@ -139,7 +139,7 @@ namespace data::arithmetic {
 
     // amount should be less than the number of digits base 2 in the word.
     // We should iterate from big to little endian.
-    template <typename sen, typename ita, std::input_iterator itb, std::unsigned_integral word>
+    template <typename sen, typename ita, std::input_iterator itb, Word word>
     requires std::output_iterator<ita, word> && std::sentinel_for<sen, itb>
     constexpr std::enable_if_t<has_twice<word>::value, void>
     shift_right (ita &i, sen z, itb b, uint16 amount, word fill) {
@@ -158,15 +158,15 @@ namespace data::arithmetic {
 
     // amount should be less than the number of digits base 2 in the word.
     // We should iterate from little to big endian.
-    template <typename sen, typename ita, std::input_iterator itb, std::unsigned_integral word>
+    template <typename sen, typename ita, std::input_iterator itb, Word word>
     requires std::output_iterator<ita, word> && std::sentinel_for<sen, itb>
     constexpr std::enable_if_t<!has_twice<word>::value, void>
     shift_left (ita &i, sen z, itb b, uint16 amount, word fill) {
-        constexpr static const uint16 digits = sizeof (word) * 8;
+        constexpr static const uint16 digits = sizeof (word) * CHAR_BIT;
         word prev = fill >> (digits - amount);
 
         while (b != z) {
-            *i = prev + (*b << amount);
+            *i = static_cast<word> ((static_cast<uint32> (*b) << amount) | prev);
             prev = *b >> (digits - amount);
             i++;
             b++;
@@ -175,22 +175,22 @@ namespace data::arithmetic {
 
     // amount should be less than the number of digits base 2 in the word.
     // We should iterate from big to little endian.
-    template <typename sen, typename ita, std::input_iterator itb, std::unsigned_integral word>
+    template <typename sen, typename ita, std::input_iterator itb, Word word>
     requires std::output_iterator<ita, word> && std::sentinel_for<sen, itb>
     constexpr std::enable_if_t<!has_twice<word>::value, void>
     shift_right (ita &i, sen z, itb b, uint16 amount, word fill) {
-        constexpr static const uint16 digits = sizeof (word) * 8;
+        constexpr static const uint16 digits = sizeof (word) * CHAR_BIT;
         word prev = fill << (digits - amount);
 
         while (b != z) {
-            *i = prev + (*b >> amount);
+            *i = static_cast<word> ((static_cast<uint32> (*b) >> amount) | prev);
             prev = *b << (digits - amount);
             i++;
             b++;
         }
     }
 
-    template <std::unsigned_integral word, typename it, typename sen>
+    template <Word word, typename it, typename sen>
     requires std::output_iterator<it, word> && std::sentinel_for<sen, it>
     constexpr void bit_shift_left (it i, sen z, uint32 x, bool fill) {
         size_t words = x / (8 * sizeof (decltype (*i)));
@@ -206,7 +206,7 @@ namespace data::arithmetic {
         }
     }
 
-    template <std::unsigned_integral word, typename it, typename sen>
+    template <Word word, typename it, typename sen>
     requires std::output_iterator<it, word> && std::sentinel_for<sen, it>
     constexpr void bit_shift_right (it i, sen z, uint32 x, bool fill) {
         size_t words = x / (8 * sizeof (decltype (*i)));

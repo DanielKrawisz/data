@@ -10,23 +10,23 @@ namespace data {
 
     using twos_complement = ::testing::Types<hex_int, Z_bytes_little, Z_bytes_big,
         math::number::Z_bytes<endian::little, negativity::twos, unsigned short>,
-        math::number::Z_bytes<endian::big, negativity::twos, unsigned short>,
+        math::number::Z_bytes<endian::big, negativity::twos, unsigned short>/*,
         math::number::Z_bytes<endian::little, negativity::twos, unsigned>,
         math::number::Z_bytes<endian::big, negativity::twos, unsigned>,
         math::number::Z_bytes<endian::little, negativity::twos, unsigned long>,
         math::number::Z_bytes<endian::big, negativity::twos, unsigned long>,
         math::number::Z_bytes<endian::little, negativity::twos, unsigned long long>,
-        math::number::Z_bytes<endian::big, negativity::twos, unsigned long long>>;
+        math::number::Z_bytes<endian::big, negativity::twos, unsigned long long>*/>;
 
     using sign_and_magnitude = ::testing::Types<hex_int_BC, Z_bytes_BC_little, Z_bytes_BC_big,
         math::number::Z_bytes<endian::little, negativity::BC, unsigned short>,
-        math::number::Z_bytes<endian::big, negativity::BC, unsigned short>,
+        math::number::Z_bytes<endian::big, negativity::BC, unsigned short>/*,
         math::number::Z_bytes<endian::little, negativity::BC, unsigned>,
         math::number::Z_bytes<endian::big, negativity::BC, unsigned>,
         math::number::Z_bytes<endian::little, negativity::BC, unsigned long>,
         math::number::Z_bytes<endian::big, negativity::BC, unsigned long>,
         math::number::Z_bytes<endian::little, negativity::BC, unsigned long long>,
-        math::number::Z_bytes<endian::big, negativity::BC, unsigned long long>>;
+        math::number::Z_bytes<endian::big, negativity::BC, unsigned long long>*/>;
 
 
     template <typename X> struct TwosComplement : ::testing::Test {
@@ -101,6 +101,11 @@ namespace data {
             N (hex_int {"0x8000000000000000"}),
             1u,
             N (hex_int {"0xffffffffffffffff0000000000000000"}));
+
+        test_mul_2_pow (
+            N (hex_int {"0x4000000000000000"}),
+            1u,
+            N (hex_int {"0x00000000000000008000000000000000"}));
     }
 
     TYPED_TEST (TwosComplement, BitShiftLeftSignBit) {

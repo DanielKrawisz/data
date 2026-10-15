@@ -1,6 +1,6 @@
 
 
-# everything except crypto and net.
+# everything
 add_library (data INTERFACE)
 add_library (Data::data ALIAS data)
 
@@ -93,6 +93,9 @@ target_link_libraries (
   rotella
   gmpxx
 )
+
+# uncomment the following line to print the stack trace
+# target_link_libraries(numbers PRIVATE stdc++exp)
 
 target_link_libraries (
   data

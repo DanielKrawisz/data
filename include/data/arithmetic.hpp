@@ -1124,14 +1124,15 @@ namespace data::math::def {
 
     template <typename A, typename Mod> struct square_mod {
         constexpr auto operator () (const A &x, const nonzero<Mod> &n) const {
-            return data::mod (data::square (x), n);
+            return x >= 0 && x < n.Value ? data::mod (data::square (x), n):
+                data::mod (data::square (data::mod (x, n)), n);
         }
     };
 
     // note: should have a special case for integral that uses twice.
     template <typename A, typename B, typename Mod> struct times_mod {
-        constexpr auto operator () (A a, B b, nonzero<Mod> n) {
-            return data::mod (a * b, n);
+        constexpr auto operator () (const A &a, const B &b, nonzero<Mod> n) {
+            return data::mod (data::mod (a, n) * data::mod (b, n), n);
         }
     };
 

@@ -40,6 +40,8 @@ namespace data::math::number {
 
         explicit N_bytes (string_view x): N_bytes {read (x)} {}
         explicit N_bytes (slice<const word> x): N_bytes {read (x)} {}
+        template <hex_case zz> explicit N_bytes (const hex::uint<zz> &);
+        explicit N_bytes (const dec_uint &u): N_bytes {read (u)} {}
 
         explicit operator double () const;
         
@@ -73,6 +75,10 @@ namespace data::math::number {
         explicit Z_bytes (string_view x) : Z_bytes {read (x)} {}
 
         explicit Z_bytes (slice<const word> x): Z_bytes {read (x)} {}
+
+        template <hex_case zz> explicit Z_bytes (const hex::int2<zz> &);
+        explicit Z_bytes (const dec_uint &u): Z_bytes {read (u)} {}
+        explicit Z_bytes (const dec_int &u): Z_bytes {read (u)} {}
 
         // TODO get rid of this and replace with a constructor.
         operator Z_bytes<r, negativity::BC, word> () const;
@@ -112,6 +118,10 @@ namespace data::math::number {
         static Z_bytes read (slice<const word> x);
         explicit Z_bytes (string_view x): Z_bytes {read (x)} {}
         explicit Z_bytes (slice<const word> x): Z_bytes {read (x)} {}
+
+        template <hex_case zz> explicit Z_bytes (const hex::intBC<zz> &);
+        explicit Z_bytes (const dec_uint &u): Z_bytes {read (u)} {}
+        explicit Z_bytes (const dec_int &u): Z_bytes {read (u)} {}
 
         // we need this constructor because the compiler gets confused
         // with the bool constructor when we try to use string literals.
@@ -1675,13 +1685,13 @@ namespace data::math::number {
     N_bytes<r, word> inline operator << (const N_bytes<r, word> &x, int i) {
         return trim (i < 0 ?
             shift_right (trim (x), static_cast<uint32> (-i)) :
-            shift_left (trim (x), (i + 7) / 8, static_cast<uint32> (i)));
+            shift_left (trim (x), (i + (sizeof (word) * CHAR_BIT) - 1) / (sizeof (word) * CHAR_BIT), static_cast<uint32> (i)));
     }
 
     template <endian r, Word word>
     N_bytes<r, word> inline operator >> (const N_bytes<r, word> &x, int i) {
         return trim (i < 0 ?
-            shift_left (trim (x), (-i + 7) / 8, static_cast<uint32> (-i)) :
+            shift_left (trim (x), (-i + (sizeof (word) * CHAR_BIT) - 1) / (sizeof (word) * CHAR_BIT), static_cast<uint32> (-i)) :
             shift_right (trim (x), static_cast<uint32> (i)));
     }
     
@@ -1795,5 +1805,20 @@ namespace data::math::number {
     reader<word> inline &operator >> (reader<word> &rr, Z_bytes<r, c, word> &n) {
         rr.read (n.data (), n.size ());
         return rr;
+    }
+
+    template <endian r, Word word> template <hex_case zz> inline N_bytes<r, word>::N_bytes (const hex::uint<zz> &u) {
+        *this = math::number::N_bytes<r, word>::zero ((u.size () / 2 - 1 + sizeof (word) - 1) / sizeof (word));
+        encoding::hex::decode (u.begin () + 2, u.end (), this->words ().rbegin ());
+    }
+
+    template <endian r, Word word> template <hex_case zz> inline Z_bytes<r, negativity::twos, word>::Z_bytes (const hex::int2<zz> &u) {
+        *this = math::number::Z_bytes<r, negativity::twos, word>::zero ((u.size () / 2 - 1 + sizeof (word) - 1) / sizeof (word));
+        encoding::hex::decode (u.begin () + 2, u.end (), this->words ().rbegin ());
+    }
+
+    template <endian r, Word word> template <hex_case zz> inline Z_bytes<r, negativity::BC, word>::Z_bytes (const hex::intBC<zz> &u) {
+        *this = math::number::Z_bytes<r, negativity::BC, word>::zero ((u.size () / 2 - 1 + sizeof (word) - 1) / sizeof (word));
+        encoding::hex::decode (u.begin () + 2, u.end (), this->words ().rbegin ());
     }
 }

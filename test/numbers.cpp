@@ -1156,10 +1156,82 @@ namespace data {
         EXPECT_THROW ((pow (Z {1}, -Z {3})), math::negative_power);
     }
 
+    TYPED_TEST (Numbers, NegateMod) {
+        using Z = typename TestFixture::N;
+        using N = decltype (abs (Z {0}));
+
+        EXPECT_EQ (negate_mod (N {0}, math::nonzero {N {65537}}), N {0});
+
+        EXPECT_EQ (negate_mod (N {1}, math::nonzero {N {65537}}), N {65536});
+
+        EXPECT_EQ (negate_mod (N {40000}, math::nonzero {N {65537}}), N {25537});
+
+        EXPECT_EQ (negate_mod (N {65536}, math::nonzero {N {65537}}), N {1});
+    }
+
+    TYPED_TEST (Integers, NegateMod) {
+        using Z = typename TestFixture::Z;
+        using N = decltype (abs (Z {0}));
+
+        EXPECT_EQ (negate_mod (Z {-1}, math::nonzero {N {65537}}), N {1});
+
+        EXPECT_EQ (negate_mod (Z {-40000}, math::nonzero {N {65537}}), N {40000});
+
+        EXPECT_EQ (negate_mod (Z {-65536}, math::nonzero {N {65537}}), N {65536});
+    }
+
+    TYPED_TEST (Numbers, PlusMod) {
+        using Z = typename TestFixture::N;
+        using N = decltype (abs (Z {0}));
+
+        EXPECT_EQ ((plus_mod (N {0}, N {0}, math::nonzero {N {65537}})), N {0});
+
+        EXPECT_EQ ((plus_mod (N {40000}, N {40000}, math::nonzero {N {65537}})), N {14463});
+
+        EXPECT_EQ ((plus_mod (N {65536}, N {65536}, math::nonzero {N {65537}})), N {65535});
+
+        EXPECT_EQ ((plus_mod (N {70000}, N {80000}, math::nonzero {N {100003}})), N {49997});
+    }
+
+    TYPED_TEST (Integers, PlusMod) {
+        using Z = typename TestFixture::Z;
+        using N = decltype (abs (Z {0}));
+
+        EXPECT_EQ ((plus_mod (Z {-40000}, Z {40000}, math::nonzero {N {65537}})), N {0});
+
+        EXPECT_EQ ((plus_mod (Z {-1}, Z {-1}, math::nonzero {N {65537}})), N {65535});
+    }
+
     TYPED_TEST (Numbers, Mul2) {
         using Z = typename TestFixture::N;
 
         EXPECT_EQ ((mul_2 (N {0xe1fc})), N {0x1c3f8});
+    }
+
+    TYPED_TEST (Numbers, Mul2Mod) {
+        using Z = typename TestFixture::N;
+        using N = decltype (abs (Z {0}));
+
+        EXPECT_EQ ((mul_2_mod (N {0}, math::nonzero {N {65537}})), N {0});
+
+        EXPECT_EQ ((mul_2_mod (N {40000}, math::nonzero {N {65537}})), N {14463});
+
+        EXPECT_EQ ((mul_2_mod (N {65536}, math::nonzero {N {65537}})), N {65535});
+
+        EXPECT_EQ ((mul_2_mod (N {70000}, math::nonzero {N {100003}})), N {39997});
+
+        EXPECT_EQ (mul_2_mod (Z {0xe1fc}, math::nonzero {N {0x10001}}), N {0xc3f7});
+
+        EXPECT_EQ (mul_2_mod (Z {0x70fe}, math::nonzero {N {0x10001}}), N {0xe1fc});
+    }
+
+    TYPED_TEST (Integers, Mul2Mod) {
+        using Z = typename TestFixture::Z;
+        using N = decltype (abs (Z {0}));
+
+        EXPECT_EQ ((mul_2_mod (Z {-40000}, math::nonzero {N {65537}})), N {51074});
+
+        EXPECT_EQ ((mul_2_mod (Z {-1}, math::nonzero {N {65537}})), N {65535});
     }
 
     template <typename Z, typename N> void test_times_mod (const Z &left, const Z &right, const N &mod, const N &expected) {

@@ -9,7 +9,7 @@
 
 namespace data::math::number {
     // generate a random natural number with a given number of digits (exactly).
-    template <Natural N> N generate_random_by_digits (random::source &oo, uint32 bits) {
+    template <Number N> N generate_random_by_digits (random::source &oo, uint32 bits) {
         if (bits == 0) return N {};
 
         size_t num_bytes = (bits + 7) / 8;
@@ -26,7 +26,7 @@ namespace data::math::number {
         return convert<N> (nb);
     }
 
-    template <Natural N> N generate_random_by_max_digits (random::source &oo, uint32 bits) {
+    template <Number N> N generate_random_by_max_digits (random::source &oo, uint32 bits) {
         if (bits == 0) return N {};
 
         size_t num_bytes = (bits + 7) / 8;
@@ -40,7 +40,7 @@ namespace data::math::number {
         return convert<N> (nb);
     }
 
-    template <Natural N> N generate_random_below (random::source &oo, N modulus) {
+    template <Number N> N generate_random_below (random::source &oo, N modulus) {
         if (modulus == 0) throw exception {} << "invalid modulus";
 
         auto width = bit_width (modulus);
@@ -49,5 +49,9 @@ namespace data::math::number {
             N rand = generate_random_by_max_digits<N> (oo, width);
             if (rand < modulus) return rand;
         }
+    }
+
+    template <Number N> N inline generate_random_in_range (random::source &oo, N min, N sup) {
+        return generate_random_below (oo, sup - min) + min;
     }
 }

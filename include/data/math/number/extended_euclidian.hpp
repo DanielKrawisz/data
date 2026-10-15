@@ -93,6 +93,7 @@ namespace data::math::number {
 
         if (mod.Value == 0) throw division_by_zero {};
         if (mod.Value < 0) throw exception {} << "we don't know how to handle this case yet";
+
         using result_type = decltype (data::mod (x, mod));
 
         // the euclid algorithm requires negative numbers. We can work with

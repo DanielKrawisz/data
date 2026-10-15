@@ -109,7 +109,7 @@ namespace data::math::def {
         }
     };
 
-    template <typename X> using accumulate_inner =
+    template <typename X> using doubled =
         std::conditional_t<!Integral<X>, X,
             std::conditional_t<SignedIntegral<X>,
                 std::conditional_t<sizeof (X) == 1, int16,
@@ -123,16 +123,15 @@ namespace data::math::def {
                 number::bounded<false, endian::little, (sizeof (X) + 7) * 2 / 8, uint64>>>
                 >>>;
 
-    // default pow_mod
     template <typename Base, group_number Exp, group_number Mod> struct pow_mod<Base, Exp, Mod> {
         constexpr Mod operator () (const Base &x, const Exp &y, const nonzero<Mod> &z) {
 
             // we have a problem here because we can overflow, and when that happens, we cannot correctly mod
             // the result. We transform to a type that is bigger than this and then transform back.
 
-            using innerBase = accumulate_inner<Base>;
-            using innerExp = accumulate_inner<Exp>;
-            using innerMod = accumulate_inner<Mod>;
+            using innerBase = doubled<Base>;
+            using innerExp = doubled<Exp>;
+            using innerMod = doubled<Mod>;
 
             return math::convert<Mod> (
                 math::binary_accumulate_pow_mod (
@@ -142,16 +141,15 @@ namespace data::math::def {
         }
     };
 
-    // default times mod
     template <typename Base, group_number Exp, group_number Mod> struct times_mod<Base, Exp, Mod> {
         constexpr Mod operator () (const Base &x, const Exp &y, const nonzero<Mod> &z) {
 
             // we have a problem here because we can overflow, and when that happens, we cannot correctly mod
             // the result. We transform to a type that is bigger than this and then transform back.
 
-            using innerBase = accumulate_inner<Base>;
-            using innerExp = accumulate_inner<Exp>;
-            using innerMod = accumulate_inner<Mod>;
+            using innerBase = doubled<Base>;
+            using innerExp = doubled<Exp>;
+            using innerMod = doubled<Mod>;
 
             return math::convert<Mod> (
                 math::binary_accumulate_times_mod (
