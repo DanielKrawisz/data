@@ -67,6 +67,7 @@ add_executable (
     bounded.cpp                  # TODO: should be typed test, has commented sections
     N_bytes.cpp
     Z_bytes.cpp
+    unbounded_sequences.cpp
     float.cpp
     NTL.cpp
     #numbers.cpp
