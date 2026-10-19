@@ -44,20 +44,22 @@ namespace data::math {
         if (z.Value == 0) throw division_by_zero {};
         if (y < 0) return -binary_accumulate_times_mod (x, -y, z);
         return binary_accumulate<Mod, A, B> {[z] (const Mod &a, const A &b) -> A {
-            return plus_mod<Mod, A, Mod> (a, b, z);
+            // we don't use plus_mod here in order to avoid expanding the numbers a second time.'
+            return mod (plus (a, b), z);
         }, [z] (const A &a) {
-            return mul_2_mod<A, Mod> (a, z);
+            return mod<A, Mod> (mul_2 (a), z);
         }} (Mod {0}, x, y);
     }
 
     template <typename Base, group_number Exp, group_number_unsigned Mod>
     constexpr Mod inline binary_accumulate_times_mod (const Base &x, const Exp &y, const nonzero<Mod> &z) {
         if (y < 0) return negate_mod (binary_accumulate_times_mod (x, negate_mod (y, z), z), z);
-        return binary_accumulate<Mod, Base, Exp> {[z] (const Mod &a, const Base &b) -> Mod {
-            return plus_mod<Mod, Base, Mod> (a, b, z);
-        }, [z] (const Base &a) {
-            return mul_2_mod<Base, Mod> (a, z);
-        }} (Mod {0}, x, y);
+        return binary_accumulate<Mod, Mod, Mod> {[z] (const Mod &a, const Mod &b) -> Mod {
+            // we don't use plus_mod here in order to avoid expanding the numbers a second time. '
+            return mod (plus (a, b), z);
+        }, [z] (const Mod &a) {
+            return mod (mul_2 (a), z);
+        }} (Mod {0}, mod (x, z), mod (y, z));
     }
 
 }

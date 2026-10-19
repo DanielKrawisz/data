@@ -12,6 +12,7 @@
 #include <data/arithmetic/negativity.hpp>
 #include <data/math/number/bounded/bounded.hpp>
 #include <data/math/number/bytes/Z.hpp>
+#include <data/math/mod.hpp>
 
 #include <data/string.hpp>
 

@@ -26,9 +26,10 @@ namespace data::math {
         if (z.Value < 0) throw negative_power {};
         if (y < 0) throw negative_power {};
         return binary_accumulate<Mod, Base, Exp> {[z] (const Mod &a, const Base &b) -> Mod {
-            return data::times_mod<Mod, Base, Mod> (a, b, z);
+            // we don't use times mod here in order to avoid expanding the numbers a second time. '
+            return mod (times (a, b), z);
         }, [z] (const Base &a) {
-            return static_cast<Base> (data::square_mod<Base, Mod> (a, z));
+            return static_cast<Base> (mod<Base, Mod> (square (a), z));
         }} (Mod {1}, x, y);
     }
 
@@ -36,9 +37,9 @@ namespace data::math {
     constexpr Mod inline binary_accumulate_pow_mod (const Base &x, const Exp &y, const nonzero<Mod> &z) {
         if (y < 0) throw negative_power {};
         return binary_accumulate<Mod, Base, Exp> {[z] (const Mod &a, const Base &b) {
-            return times_mod<Mod, Base, Mod> (a, b, z);
+            return mod (times (a, b), z);
         }, [z] (const Base &a) {
-            return static_cast<Base> (square_mod<Base, Mod> (a, z));
+            return static_cast<Base> (mod<Base, Mod> (square (a), z));
         }} (Mod {1}, x, y);
     }
 

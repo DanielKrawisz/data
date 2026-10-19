@@ -8,6 +8,53 @@
 
 namespace data::math::def {
 
+    template <std::integral X> struct mod<X> {
+        constexpr auto operator () (const X &x, const nonzero<X> &n) const {
+            if (n.Value == 0) throw math::division_by_zero {};
+            X result = x % n.Value;
+            return result < 0 ? result + n.Value : result;
+        }
+    };
+
+    template <MultiplicativeNumber A, MultiplicativeNumber B> struct mod<A, B> {
+        constexpr B operator () (const A &a, const nonzero<B> &b) const {
+            if (b.Value == 0) throw math::division_by_zero {};
+            if (a >= 0 && a < b.Value) return B (a);
+            auto result = divmod<A, B> {} (a, b).Remainder;
+            return result < 0 ? B (result + b.Value) : result;
+        }
+    };
+
+    template <typename A, typename Mod> struct negate_mod {
+        constexpr auto operator () (const A &x, const nonzero<Mod> &n) const {
+            return x == 0 ? Mod (0):
+                x > 0 && x < n.Value ?
+                // We need to cast to A here because of the endian arithmetic numbers.
+                // We should be able to get rid of that. TODO
+                Mod (n.Value - x):
+                Mod (n.Value - data::mod (x, n));
+        }
+    };
+
+    template <typename A, typename B, typename Mod> struct plus_mod {
+        constexpr auto operator () (const A &x, const B &y, const math::nonzero<Mod> &z) const {
+            return data::mod (data::plus (data::mod (x, z), data::mod (y, z)), z);
+        }
+    };
+
+    template <typename A, typename B, typename Mod> struct minus_mod {
+        constexpr auto operator () (const A &x, const B &y, const nonzero<Mod> &z) const {
+            return data::mod (data::minus (data::mod (x, z), data::mod (y, z)), z);
+        }
+    };
+
+    template <typename A, typename Mod> struct mul_2_mod {
+        constexpr auto operator () (const A &x, const nonzero<Mod> &n) const {
+            return data::mod (data::mul_2 (data::mod (x, n)), n);
+        }
+    };
+
+    // double the size of the numbers in case of overflows.
     template <typename X> using doubled =
         std::conditional_t<!Integral<X>, X,
             std::conditional_t<SignedIntegral<X>,
@@ -22,7 +69,6 @@ namespace data::math::def {
                 number::bounded<false, endian::little, (sizeof (X) + 7) * 2 / 8, uint64>>>
                 >>>;
 
-    // default square mod
     template <typename Base, group_number Mod> struct square_mod<Base, Mod> {
         constexpr Mod operator () (const Base &x, const nonzero<Mod> &z) {
 
@@ -54,6 +100,7 @@ namespace data::math::def {
                     math::convert<innerBase> (x),
                     math::convert<innerExp> (y),
                     math::nonzero {math::convert<innerMod> (z.Value)}));
+
         }
     };
 
