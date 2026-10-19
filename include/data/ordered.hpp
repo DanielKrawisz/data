@@ -80,19 +80,39 @@ namespace data {
         return a > b;
     }
 
-    template <Ordered X> constexpr const X inline &max (const X &a, const X &b) {
-        return std::max (a, b);
-    }
+    template <Ordered X> constexpr const X &max (const X &a, const X &b);
 
-    template <Ordered X> constexpr const X inline &min (const X &a, const X &b) {
-        return std::max (a, b);
-    }
+    template <Ordered X> constexpr const X &min (const X &a, const X &b);
 
     // asks whether min <= num && max >= num
     template <typename A> constexpr A inline within (const A &num, const A &min, const A &max) {
         return greater_equal (num, min) && less_equal (num, max);
     }
     
-    
+}
+
+namespace data::math::def {
+    template <Ordered X> struct min {
+        const X &operator () (const X &a, const X &b) {
+            return std::min (a, b);
+        }
+    };
+
+    template <Ordered X> struct max {
+        const X &operator () (const X &a, const X &b) {
+            return std::max (a, b);
+        }
+    };
+}
+
+namespace data {
+
+    template <Ordered X> constexpr const X inline &max (const X &a, const X &b) {
+        return math::def::max<X> {} (a, b);
+    }
+
+    template <Ordered X> constexpr const X inline &min (const X &a, const X &b) {
+        return math::def::min<X> {} (a, b);
+    }
 }
 

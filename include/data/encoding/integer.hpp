@@ -2460,6 +2460,16 @@ namespace data::math::def {
         else return data::bit_width (Z_bytes_BC_big (h));
     }
 
+    template <negativity neg, hex_case zz>
+    const hex::integer<neg, zz> inline &min<hex::integer<neg, zz>>::operator () (const hex::integer<neg, zz> &a, const hex::integer<neg, zz> &b) const {
+        return a < b ? a : b;
+    }
+
+    template <negativity neg, hex_case zz>
+    const hex::integer<neg, zz> inline &max<hex::integer<neg, zz>>::operator () (const hex::integer<neg, zz> &a, const hex::integer<neg, zz> &b) const {
+        return a > b ? a : b;
+    }
+
 }
 
 namespace data::encoding::hexidecimal {

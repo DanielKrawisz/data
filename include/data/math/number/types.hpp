@@ -1334,6 +1334,36 @@ namespace data::math::def {
         N operator () (const N &n);
     };
 
+    template <endian r, Word word>
+    struct min<number::N_bytes<r, word>> {
+        const number::N_bytes<r, word> &operator () (const number::N_bytes<r, word> &, const number::N_bytes<r, word> &) const;
+    };
+
+    template <endian r, Word word>
+    struct max<number::N_bytes<r, word>> {
+        const number::N_bytes<r, word> &operator () (const number::N_bytes<r, word> &, const number::N_bytes<r, word> &) const;
+    };
+
+    template <endian r, negativity neg, Word word>
+    struct min<number::Z_bytes<r, neg, word>> {
+        const number::Z_bytes<r, neg, word> &operator () (const number::Z_bytes<r, neg, word> &, const number::Z_bytes<r, neg, word> &) const;
+    };
+
+    template <endian r, negativity neg, Word word>
+    struct max<number::Z_bytes<r, neg, word>> {
+        const number::Z_bytes<r, neg, word> &operator () (const number::Z_bytes<r, neg, word> &, const number::Z_bytes<r, neg, word> &) const;
+    };
+
+    template <negativity neg, hex_case zz>
+    struct min<hex::integer<neg, zz>> {
+        const hex::integer<neg, zz> &operator () (const hex::integer<neg, zz> &, const hex::integer<neg, zz> &) const;
+    };
+
+    template <negativity neg, hex_case zz>
+    struct max<hex::integer<neg, zz>> {
+        const hex::integer<neg, zz> &operator () (const hex::integer<neg, zz> &, const hex::integer<neg, zz> &) const;
+    };
+
     template <> struct times<Z> {
         Z operator () (const Z &a, const Z &b);
         nonzero<Z> operator () (const nonzero<Z> &a, const nonzero<Z> &b);

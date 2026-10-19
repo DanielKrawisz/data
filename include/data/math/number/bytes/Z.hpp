@@ -993,6 +993,26 @@ namespace data::math::def {
     I inline convert<I, number::N_bytes<r, word>>::operator () (const number::N_bytes<r, word> &n) const {
         return I (n);
     }
+
+    template <endian r, Word word>
+    const number::N_bytes<r, word> inline &min<number::N_bytes<r, word>>::operator () (const number::N_bytes<r, word> &a, const number::N_bytes<r, word> &b) const {
+        return a < b ? a : b;
+    }
+
+    template <endian r, Word word>
+    const number::N_bytes<r, word> inline &max<number::N_bytes<r, word>>::operator () (const number::N_bytes<r, word> &a, const number::N_bytes<r, word> &b) const {
+        return a > b ? a : b;
+    }
+
+    template <endian r, negativity neg, Word word>
+    const number::Z_bytes<r, neg, word> inline &min<number::Z_bytes<r, neg, word>>::operator () (const number::Z_bytes<r, neg, word> &a, const number::Z_bytes<r, neg, word> &b) const {
+        return a < b ? a : b;
+    }
+
+    template <endian r, negativity neg, Word word>
+    const number::Z_bytes<r, neg, word> inline &max<number::Z_bytes<r, neg, word>>::operator () (const number::Z_bytes<r, neg, word> &a, const number::Z_bytes<r, neg, word> &b) const {
+        return a > b ? a : b;
+    }
 }
 
 // finally come functions that can be implemented in terms of the low

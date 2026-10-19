@@ -319,11 +319,34 @@ namespace data {
     };
     
     template <typename Z> requires requires (const Z &a, const Z &b) {
-        { std::min (a, b) } -> std::convertible_to<Z>;
-        { std::max (a, b) } -> std::convertible_to<Z>;
+        { min (a, b) } -> ImplicitlyConvertible<Z>;
+        { max (a, b) } -> ImplicitlyConvertible<Z>;
     } struct test_min_max {
         test_min_max () {
-            // TODO
+            auto one = Z {1};
+            auto big_one = math::number::extend (one, one.size () * 2);
+            auto zero = Z {};
+            auto negative_zero = Z {-1} & Z {-2};
+            auto negative_one = Z {-1};
+            auto big_negative_one = math::number::extend (negative_one, negative_one.size () * 2);
+
+            EXPECT_EQ ((min (one, negative_one)), negative_one);
+            EXPECT_EQ ((max (one, negative_one)), one);
+
+            EXPECT_EQ ((min (negative_one, one)), negative_one);
+            EXPECT_EQ ((max (negative_one, one)), one);
+
+            EXPECT_EQ ((min (big_one, negative_one)), negative_one);
+            EXPECT_EQ ((max (big_one, negative_one)), one);
+
+            EXPECT_EQ ((min (negative_one, big_one)), negative_one);
+            EXPECT_EQ ((max (negative_one, big_one)), one);
+
+            EXPECT_TRUE (identical (min (one, big_one), big_one));
+            EXPECT_TRUE (identical (min (big_one, one), one));
+
+            EXPECT_TRUE (identical (max (one, big_one), big_one));
+            EXPECT_TRUE (identical (max (big_one, one), one));
         }
     };
 
