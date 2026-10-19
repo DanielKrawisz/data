@@ -5,11 +5,7 @@
 #include <data/encoding/integer.hpp>
 #include <data/encoding/hex.hpp>
 #include <data/math/number/bytes.hpp>
-#ifdef BIGNUM_GMP
-#include <data/math/number/gmp/Z.hpp>
-#else
 #include <data/math/number/NTL/Z.hpp>
-#endif
 #include <data/encoding/digits.hpp>
 #include <data/numbers.hpp>
 #include <data/math/number/division.hpp>
@@ -295,6 +291,32 @@ namespace data::encoding {
 
         string operator ^ (const string &a, const string &b) {
             return signed_decimal::write (Z (a) ^ Z (b));
+        }
+
+        std::strong_ordering operator <=> (const decimal::string &left, const string &right) {
+            if (!left.valid ()) throw exception {} << "invalid decimal string: " << left;
+            if (!right.valid ()) throw exception {} << "invalid signed decimal string: " << right;
+            if (is_negative (right)) return std::strong_ordering::greater;
+            return decimal::N_compare (left, right);
+        }
+
+        std::strong_ordering operator <=> (const string &left, const decimal::string &right) {
+            if (!left.valid ()) throw exception {} << "invalid signed decimal string: " << left;
+            if (!right.valid ()) throw exception {} << "invalid decimal string: " << right;
+            if (is_negative (left)) return std::strong_ordering::less;
+            return decimal::N_compare (left, right);
+        }
+
+        string operator - (const decimal::string &m, const string &n) {
+            if (!m.valid ()) throw exception {} << "invalid decimal string: " << m;
+            if (!n.valid ()) throw exception {} << "invalid signed decimal string: " << n;
+            return signed_decimal::write (Z::read (m) - Z::read (n));
+        }
+
+        string operator + (const decimal::string &m, const string &n) {
+            if (!m.valid ()) throw exception {} << "invalid decimal string: " << m;
+            if (!n.valid ()) throw exception {} << "invalid signed decimal string: " << n;
+            return signed_decimal::write (Z::read (m) + Z::read (n));
         }
     
     }

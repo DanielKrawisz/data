@@ -32,10 +32,68 @@ namespace data::math::def {
         return math::zero;
     }
 
-    maybe<N> invert_mod<N>::operator () (const N &a, const nonzero<N> &b) {
+    maybe<N> invert_mod<N>::operator () (const N &a, const nonzero<N> &mod) {
+        if (mod.Value == 1) return {};
         N result;
-        if (NTL::InvModStatus (result.Value, a.Value, b.Value.Value)) return {};
+        if (NTL::InvModStatus (result.Value,
+            a >= mod.Value ? a.Value % mod.Value.Value : a.Value, mod.Value.Value)) return {};
         return result;
+    }
+
+    maybe<N> invert_mod<Z, N>::operator () (const Z &a, const nonzero<N> &mod) {
+        if (mod.Value == 1) return {};
+        N result;
+        if (NTL::InvModStatus (result.Value,
+            a < 0 || a >= mod.Value ? a.Value % mod.Value.Value : a.Value, mod.Value.Value)) return {};
+        return result;
+    }
+
+    N times_mod<N>::operator () (const N &a, const N &b, const nonzero<N> &mod) {
+        if (mod.Value == 1) return 0;
+        return N (NTL::MulMod (
+            a < 0 || a >= mod.Value ? a.Value % mod.Value.Value : a.Value,
+            b < 0 || b >= mod.Value ? b.Value % mod.Value.Value : b.Value,
+            mod.Value.Value));
+    }
+
+    N times_mod<Z, Z, N>::operator () (const Z &a, const Z &b, const nonzero<N> &mod) {
+        if (mod.Value == 1) return 0;
+        return N (NTL::MulMod (
+            a < 0 || a >= mod.Value ? a.Value % mod.Value.Value : a.Value,
+            b < 0 || b >= mod.Value ? b.Value % mod.Value.Value : b.Value,
+            mod.Value.Value));
+    }
+
+    N plus_mod<N>::operator () (const N &a, const N &b, const nonzero<N> &mod) {
+        if (mod.Value == 1) return 0;
+        return N (NTL::AddMod (
+            a < 0 || a >= mod.Value ? a.Value % mod.Value.Value : a.Value,
+            b < 0 || b >= mod.Value ? b.Value % mod.Value.Value : b.Value,
+            mod.Value.Value));
+    }
+
+    N plus_mod<Z, Z, N>::operator () (const Z &a, const Z &b, const nonzero<N> &mod) {
+        if (mod.Value == 1) return 0;
+        return N (NTL::AddMod (
+            a < 0 || a >= mod.Value ? a.Value % mod.Value.Value : a.Value,
+            b < 0 || b >= mod.Value ? b.Value % mod.Value.Value : b.Value,
+            mod.Value.Value));
+    }
+
+    N minus_mod<N>::operator () (const N &a, const N &b, const nonzero<N> &mod) {
+        if (mod.Value == 1) return 0;
+        return N (NTL::SubMod (
+            a < 0 || a >= mod.Value ? a.Value % mod.Value.Value : a.Value,
+            b < 0 || b >= mod.Value ? b.Value % mod.Value.Value : b.Value,
+            mod.Value.Value));
+    }
+
+    N minus_mod<Z, Z, N>::operator () (const Z &a, const Z &b, const nonzero<N> &mod) {
+        if (mod.Value == 1) return 0;
+        return N (NTL::SubMod (
+            a < 0 || a >= mod.Value ? a.Value % mod.Value.Value : a.Value,
+            b < 0 || b >= mod.Value ? b.Value % mod.Value.Value : b.Value,
+            mod.Value.Value));
     }
 
 }

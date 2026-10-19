@@ -897,6 +897,10 @@ namespace data {
         EXPECT_EQ (test_val_2 << 5, mul_2_pow (test_val_2, 5));
         EXPECT_EQ (test_val_2 << 8, mul_2_pow (test_val_2, 8));
         EXPECT_EQ (test_val_2 << 13, mul_2_pow (test_val_2, 13));
+
+
+        EXPECT_EQ (N {0x70fe} << 1, N {0xe1fc});
+
     }
 
     // for all numbers, positive right shift is the
@@ -1126,27 +1130,54 @@ namespace data {
         EXPECT_EQ ((divmod (Z {-10}, math::nonzero {Z {-3}})), (division {Z (4), abs (Z (2))}));
     }
 
-    TYPED_TEST (Naturals, Mod) {
-        using N = typename TestFixture::N;
-        EXPECT_EQ (N {23} % N {5}, N {3});
-        EXPECT_EQ ((mod (N {23}, math::nonzero {N {5}})), N {3});
+    TYPED_TEST (Numbers, Mod) {
+        using Z = typename TestFixture::N;
+        using N = decltype (abs (Z {0}));
+
+        EXPECT_EQ (Z {23} % N {5}, N {3});
+        EXPECT_EQ ((mod (Z {23}, math::nonzero {N {5}})), N {3});
+        EXPECT_EQ ((mod (Z {0x01c3fa}, math::nonzero {N {0x010001}})), N {0xc3f9});
+        EXPECT_EQ ((mod (Z {0xc782}, math::nonzero {N {0x010001}})), N {0xc782});
     }
 
-    TYPED_TEST (IntegersPosMod, Mod) {
-        using N = typename TestFixture::Z;
-        EXPECT_EQ (N {23} % abs (N {5}), abs (N {3}));
-        EXPECT_EQ ((mod (N {23}, math::nonzero {abs (N {5})})), abs (N {3}));
-    }
+    // note: it should be possible to use a signed
+    // modulus with a signed number, but we don't do that yet.
+    TYPED_TEST (Integers, Mod) {
+        using Z = typename TestFixture::Z;
+        using N = decltype (abs (Z {0}));
 
-    TYPED_TEST (IntegersNegMod, Mod) {
-        using N = typename TestFixture::Z;
-        EXPECT_EQ (N {23} % N {5}, N {3});
-        EXPECT_EQ ((mod (N {23}, math::nonzero {N {5}})), N {3});
+        EXPECT_EQ ((mod (Z {-1}, math::nonzero {N {5}})), N {4});
+        EXPECT_EQ ((mod (Z {-1}, math::nonzero {N {6}})), N {5});
+        EXPECT_EQ ((mod (Z {-1}, math::nonzero {N {7}})), N {6});
     }
 
     TYPED_TEST (Integers, Power) {
         using N = typename TestFixture::Z;
         EXPECT_THROW ((pow (Z {1}, -Z {3})), math::negative_power);
+    }
+
+    TYPED_TEST (Numbers, Mul2) {
+        using Z = typename TestFixture::N;
+
+        EXPECT_EQ ((mul_2 (N {0xe1fc})), N {0x1c3f8});
+    }
+
+    template <typename Z, typename N> void test_times_mod (const Z &left, const Z &right, const N &mod, const N &expected) {
+        N result = times_mod (left, right, math::nonzero {mod});
+        EXPECT_EQ (result, expected) << "expected " << left << " * " << right << " % " << mod << " -> " << expected << " but got " << result;
+    }
+
+    TYPED_TEST (Numbers, TimesMod) {
+        using Z = typename TestFixture::N;
+        using N = decltype (abs (Z {0}));
+
+        EXPECT_EQ ((times_mod (Z {40000}, Z {40000}, math::nonzero {N {65537}})), N {45219});
+
+        EXPECT_EQ ((times_mod (Z {50000}, Z {50000}, math::nonzero {N {65537}})), N {25598});
+
+        EXPECT_EQ ((times_mod (Z {65536}, Z {65536}, math::nonzero {N {65537}})), N {1});
+
+        EXPECT_EQ ((times_mod (Z {70000}, Z {80000}, math::nonzero {N {100003}})), N {32006});
     }
 
     TYPED_TEST (Numbers, InvertMod) {
@@ -1155,11 +1186,15 @@ namespace data {
 
         EXPECT_EQ (
             (invert_mod (Z {0}, math::nonzero {abs (Z {2})})),
-            maybe<N> {});
+                   maybe<N> {});
 
         EXPECT_EQ (
             (invert_mod (Z {1}, math::nonzero {abs (Z {2})})),
-            maybe<N> {N {1}});
+                   maybe<N> {N {1}});
+
+        EXPECT_EQ (
+            (invert_mod (Z {2}, math::nonzero {abs (Z {2})})),
+                   maybe<N> {});
 
         EXPECT_EQ (
             (invert_mod (Z {0}, math::nonzero {abs (Z {5})})),
@@ -1185,6 +1220,13 @@ namespace data {
             (invert_mod (Z {2}, math::nonzero {abs (Z {4})})),
             maybe<N> {}
         );
+    }
+
+    TYPED_TEST (Integers, InvertMod) {
+        using Z = typename TestFixture::Z;
+        using N = decltype (abs (Z {0}));
+
+        EXPECT_EQ ((invert_mod (Z {-1}, math::nonzero {abs (Z {2})})), maybe<N> {N {1}});
     }
 
 }

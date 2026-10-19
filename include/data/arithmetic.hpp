@@ -1087,23 +1087,26 @@ namespace data::math::def {
     template <std::integral X> struct mod<X> {
         constexpr auto operator () (const X &x, const nonzero<X> &n) const {
             if (n.Value == 0) throw math::division_by_zero {};
-            return static_cast<X> (x % n.Value);
+            X result = x % n.Value;
+            return result < 0 ? result + n.Value : result;
         }
     };
 
     template <typename A, typename Mod> struct negate_mod {
         constexpr auto operator () (const A &x, const nonzero<Mod> &n) const {
-            return x >= 0 && x < n.Value ?
-            // We need to cast to A here because of the endian arithmetic numbers.
-            // We should be able to get rid of that. TODO
-            data::mod (A (n.Value - x), n):
-            data::mod (A (n.Value - data::mod (x, n)), n);
+            return x == 0 ? Mod (0):
+                x > 0 && x < n.Value ?
+                // We need to cast to A here because of the endian arithmetic numbers.
+                // We should be able to get rid of that. TODO
+                Mod (n.Value - x):
+                Mod (n.Value - data::mod (x, n));
         }
     };
 
     template <typename A, typename Mod> struct mul_2_mod {
         constexpr auto operator () (const A &x, const nonzero<Mod> &n) const {
-            return data::mod (data::mul_2 (x), n);
+            return x >= 0 && x < n.Value ? data::mod (data::mul_2 (x), n):
+                data::mod (data::mul_2 (data::mod (x, n)), n);
         }
     };
 
@@ -1266,7 +1269,8 @@ namespace data::math::def {
     template <MultiplicativeNumber A, MultiplicativeNumber B> struct mod<A, B> {
         constexpr auto operator () (const A &a, const nonzero<B> &b) const {
             if (b.Value == 0) throw math::division_by_zero {};
-            return divmod<A, B> {} (a, b).Remainder;
+            auto result = divmod<A, B> {} (a, b).Remainder;
+            return result < 0 ? result + b.Value : result;
         }
     };
 

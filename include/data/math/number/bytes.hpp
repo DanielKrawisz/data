@@ -186,20 +186,6 @@ namespace data::encoding::hexidecimal {
         write (ss, static_cast<const oriented<r, word> &> (z), zz);
         return integer<n, zz> {ss.str ()};
     }
-
-    template <negativity n, hex::letter_case cx>
-    template <endian::order e> inline complemented_string<n, cx>::operator math::number::Z_bytes<e, n, byte> () const {
-        auto result = math::number::Z_bytes<e, n, byte>::zero (this->size () / 2 - 1);
-        hex::decode (this->begin () + 2, this->end (), result.words ().rbegin ());
-        return result;
-    }
-
-    template <hex::letter_case cx>
-    template <endian::order e> inline complemented_string<negativity::nones, cx>::operator math::number::N_bytes<e, byte> () const {
-        auto result = math::number::N_bytes<e, byte>::zero (this->size () / 2 - 1);
-        hex::decode (this->begin () + 2, this->end (), result.words ().rbegin ());
-        return result;
-    }
     
     namespace {
         template <endian::order r, negativity c> struct get_bytes_type {
@@ -529,4 +515,5 @@ namespace data::math::def {
     dec_int inline convert<dec_int, hex::integer<neg, zz>>::operator () (const hex::integer<neg, zz> &x) const {
         return encoding::signed_decimal::write ((number::Z_bytes<endian::little, negativity::twos, byte> (x)));
     }
+
 }

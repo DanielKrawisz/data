@@ -992,6 +992,16 @@ namespace data::math::def {
         return N (n);
     }
 
+    template <endian r, Word word>
+    number::N_bytes<r, word> inline convert<number::N_bytes<r, word>, Z>::operator () (const Z &z) const {
+        return N_bytes<r, word> (N (z));
+    }
+
+    template <endian r, Word word>
+    Z inline convert<Z, number::N_bytes<r, word>>::operator () (const number::N_bytes<r, word> &z) const {
+        return Z (z);
+    }
+
     size_t inline size_in_base<N, 2>::operator () (const N &n) {
         return NTL::NumBits (n.Value);
     }
@@ -1002,10 +1012,6 @@ namespace data::math::def {
 
     size_t inline size_in_base<base58_uint, 2>::operator () (const base58_uint &u) {
         return data::bit_width (N (u));
-    }
-
-    maybe<N> inline invert_mod<Z, N>::operator () (const Z &a, const nonzero<N> &b) {
-        return invert_mod<N> {} (data::mod (a, b), b);
     }
 
     maybe<base58_uint> inline invert_mod<base58_uint, base58_uint>::operator () (const base58_uint &a, const nonzero<base58_uint> &b) {

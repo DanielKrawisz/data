@@ -140,8 +140,8 @@ namespace data::encoding::decimal {
 namespace data::encoding::signed_decimal {
     constexpr bool valid (string_view s);
 
-    template <endian::order r, negativity n, Word word = byte>
-    maybe<math::number::Z_bytes<r, n, word>> read (string_view);
+    template <endian::order r, negativity neg, Word word = byte>
+    maybe<math::number::Z_bytes<r, neg, word>> read (string_view);
 
     struct string;
 
@@ -155,11 +155,11 @@ namespace data::encoding::signed_decimal {
     template <endian::order r, size_t x, Word word>
     string write (const math::sint<r, x, word> &);
 
-    template <endian::order r, negativity n, Word word>
-    string write (const math::number::Z_bytes<r, n, word> &);
+    template <endian::order r, negativity neg, Word word>
+    string write (const math::number::Z_bytes<r, neg, word> &);
 
-    template <endian::order r, negativity n, Word word>
-    std::ostream inline &write (std::ostream &o, const math::number::Z_bytes<r, n, word> &);
+    template <endian::order r, negativity neg, Word word>
+    std::ostream inline &write (std::ostream &o, const math::number::Z_bytes<r, neg, word> &);
 
 }
 
@@ -176,8 +176,8 @@ namespace data::encoding::hexidecimal {
     template <hex_case zz, endian::order r, Word word>
     integer<negativity::nones, zz> write (const math::number::N_bytes<r, word> &);
 
-    template <hex_case zz, endian::order r, negativity n, Word word>
-    integer<n, zz> write (const math::number::Z_bytes<r, n, word> &);
+    template <hex_case zz, endian::order r, negativity neg, Word word>
+    integer<neg, zz> write (const math::number::Z_bytes<r, neg, word> &);
 
     template <hex_case zz> integer<negativity::nones, zz> write (const N &);
     template <hex_case zz, negativity n = negativity::twos> integer<n, zz> write (const Z &);
@@ -208,11 +208,11 @@ namespace data::encoding::natural {
 
 namespace data::encoding::integer {
 
-    template <endian::order r, negativity c, Word word>
-    maybe<math::number::Z_bytes<r, c, word>> read (string_view s);
+    template <endian::order r, negativity neg, Word word>
+    maybe<math::number::Z_bytes<r, neg, word>> read (string_view s);
 
-    template <endian::order r, negativity c, Word word>
-    std::ostream &write (std::ostream &, const math::number::Z_bytes<r, c, word> &);
+    template <endian::order r, negativity neg, Word word>
+    std::ostream &write (std::ostream &, const math::number::Z_bytes<r, neg, word> &);
 
 }
 
@@ -228,26 +228,26 @@ namespace data::math::number {
     template <endian r, Word word>
     std::ostream &operator << (std::ostream &o, const N_bytes<r, word> &n);
 
-    template <endian r, negativity c, Word word>
-    std::ostream &operator << (std::ostream &o, const Z_bytes<r, c, word> &n);
+    template <endian r, negativity neg, Word word>
+    std::ostream &operator << (std::ostream &o, const Z_bytes<r, neg, word> &n);
 
     template <endian r, Word word>
     std::istream &operator >> (std::istream &o, N_bytes<r, word> &n);
 
-    template <endian r, negativity c, Word word>
-    std::istream &operator >> (std::istream &o, Z_bytes<r, c, word> &n);
+    template <endian r, negativity neg, Word word>
+    std::istream &operator >> (std::istream &o, Z_bytes<r, neg, word> &n);
 
     template <endian r, Word word>
     writer<word> &operator << (writer<word> &o, const N_bytes<r, word> &n);
 
-    template <endian r, negativity c, Word word>
-    writer<word> &operator << (writer<word> &o, const Z_bytes<r, c, word> &n);
+    template <endian r, negativity neg, Word word>
+    writer<word> &operator << (writer<word> &o, const Z_bytes<r, neg, word> &n);
 
     template <endian r, Word word>
     reader<word> &operator >> (reader<word> &o, N_bytes<r, word> &n);
 
-    template <endian r, negativity c, Word word>
-    reader<word> &operator >> (reader<word> &o, Z_bytes<r, c, word> &n);
+    template <endian r, negativity neg, Word word>
+    reader<word> &operator >> (reader<word> &o, Z_bytes<r, neg, word> &n);
 
     template <data::endian r, size_t x, Word word>
     std::ostream &operator << (std::ostream &s, const uint<r, x, word> &n);
@@ -298,36 +298,36 @@ namespace data::math::number {
     template <endian r, Word word>
     N_bytes<r, word> &operator ++ (N_bytes<r, word> &);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> &operator ++ (Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> &operator ++ (Z_bytes<r, neg, word> &);
 
     template <endian r, Word word>
     N_bytes<r, word> &operator -- (N_bytes<r, word> &);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> &operator -- (Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> &operator -- (Z_bytes<r, neg, word> &);
 
     // post-increment and decrement
     template <endian r, Word word>
     N_bytes<r, word> operator ++ (N_bytes<r, word> &, int);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> operator ++ (Z_bytes<r, c, word> &, int);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> operator ++ (Z_bytes<r, neg, word> &, int);
 
     template <endian r, Word word>
     N_bytes<r, word> operator -- (N_bytes<r, word> &, int);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> operator -- (Z_bytes<r, c, word> &, int);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> operator -- (Z_bytes<r, neg, word> &, int);
 
-    template <endian r, negativity c, Word word>
-    struct increment<Z_bytes<r, c, word>> {
-        Z_bytes<r, c, word> operator () (const Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    struct increment<Z_bytes<r, neg, word>> {
+        Z_bytes<r, neg, word> operator () (const Z_bytes<r, neg, word> &);
     };
 
-    template <endian r, negativity c, Word word>
-    struct decrement<Z_bytes<r, c, word>> {
-        Z_bytes<r, c, word> operator () (const Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    struct decrement<Z_bytes<r, neg, word>> {
+        Z_bytes<r, neg, word> operator () (const Z_bytes<r, neg, word> &);
     };
 
     template <endian r, Word word> struct increment<N_bytes<r, word>> {
@@ -388,27 +388,27 @@ namespace data::math::number {
     template <endian r, Word word>
     size_t minimal_size (const N_bytes<r, word> &);
 
-    template <endian r, negativity c, Word word>
-    size_t minimal_size (const Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    size_t minimal_size (const Z_bytes<r, neg, word> &);
 
     template <endian r, Word word>
     N_bytes<r, word> extend (const N_bytes<r, word> &, size_t);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> extend (const Z_bytes<r, c, word> &, size_t);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> extend (const Z_bytes<r, neg, word> &, size_t);
 
     template <endian r, Word word>
     N_bytes<r, word> trim (const N_bytes<r, word> &);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> trim (const Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> trim (const Z_bytes<r, neg, word> &);
 }
 
 namespace data::hex {
     template <hex_case zz> using uint = encoding::hexidecimal::integer<negativity::nones, zz>;
     template <hex_case zz> using int2 = encoding::hexidecimal::integer<negativity::twos, zz>;
     template <hex_case zz> using intBC = encoding::hexidecimal::integer<negativity::BC, zz>;
-    template <negativity c, hex_case zz> using integer = encoding::hexidecimal::integer<c, zz>;
+    template <negativity neg, hex_case zz> using integer = encoding::hexidecimal::integer<neg, zz>;
 }
 
 namespace data {
@@ -452,8 +452,8 @@ namespace data {
     template <endian a, negativity nb, endian c, negativity nd, Word word>
     bool identical (const math::number::Z_bytes<a, nb, word> &, const math::number::Z_bytes<c, nd, word> &);
 
-    template<negativity a, hex_case b, negativity c, hex_case d>
-    bool identical (const hex::integer<a, b> &, const hex::integer<c, d> &);
+    template<negativity negl, hex_case b, negativity negr, hex_case d>
+    bool identical (const hex::integer<negl, b> &, const hex::integer<negr, d> &);
 
     template <bool u, endian e, size_t size, Word word>
     struct twice<math::number::bounded<u, e, size, word>> {
@@ -479,11 +479,11 @@ namespace data::math::number {
     template <endian r, Word word>
     bool operator == (const N_bytes<r, word> &, const N_bytes<r, word> &);
 
-    template <endian r, negativity c, Word word>
-    bool operator == (const Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    bool operator == (const Z_bytes<r, neg, word> &, const Z_bytes<r, neg, word> &);
 
-    template <endian r, negativity cl, negativity cr, Word word>
-    bool operator == (const Z_bytes<r, cl, word> &, const Z_bytes<r, cr, word> &);
+    template <endian r, negativity negl, negativity negr, Word word>
+    bool operator == (const Z_bytes<r, negl, word> &, const Z_bytes<r, negr, word> &);
 
     template <endian r, Word word>
     std::weak_ordering operator <=> (const N_bytes<r, word> &, const N_bytes<r, word> &);
@@ -523,11 +523,11 @@ namespace data::math::number {
     template <endian r, size_t size, Word word>
     std::strong_ordering operator <=> (const N &, const uint<r, size, word> &);
 
-    template <endian r, negativity c, Word word>
-    bool operator == (const Z &, const Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    bool operator == (const Z &, const Z_bytes<r, neg, word> &);
 
-    template <endian r, negativity c, Word word>
-    std::strong_ordering operator <=> (const Z &, const Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    std::strong_ordering operator <=> (const Z &, const Z_bytes<r, neg, word> &);
 
     template <endian r, Word word>
     bool operator == (const N &, const N_bytes<r, word> &);
@@ -572,14 +572,14 @@ namespace data::math::number {
     template <endian r, Word word>
     bool operator == (const N_bytes<r, word> &, uint64);
 
-    template <endian r, negativity c, Word word>
-    bool operator == (const Z_bytes<r, c, word> &, int64);
+    template <endian r, negativity neg, Word word>
+    bool operator == (const Z_bytes<r, neg, word> &, int64);
 
     template <endian r, Word word>
     std::weak_ordering operator <=> (const N_bytes<r, word> &, uint64);
 
-    template <endian r, negativity c, Word word>
-    std::weak_ordering operator <=> (const Z_bytes<r, c, word> &, int64);
+    template <endian r, negativity neg, Word word>
+    std::weak_ordering operator <=> (const Z_bytes<r, neg, word> &, int64);
 
     template <bool u, endian r, size_t size, Word word, std::integral I>
     constexpr bool operator == (const bounded<u, r, size, word> &, I);
@@ -827,23 +827,23 @@ namespace data::math::number {
     template <endian r, Word word>
     N_bytes<r, word> operator >> (const N_bytes<r, word> &, int);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> operator << (const Z_bytes<r, c, word> &, int);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> operator << (const Z_bytes<r, neg, word> &, int);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> operator >> (const Z_bytes<r, c, word> &, int);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> operator >> (const Z_bytes<r, neg, word> &, int);
 
     template <endian r, Word word>
     N_bytes<r, word> &operator <<= (N_bytes<r, word> &, int64);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> &operator <<= (Z_bytes<r, c, word> &, int64);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> &operator <<= (Z_bytes<r, neg, word> &, int64);
 
     template <endian r, Word word>
     N_bytes<r, word> &operator >>= (N_bytes<r, word> &, int64);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> &operator >>= (Z_bytes<r, c, word> &, int64);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> &operator >>= (Z_bytes<r, neg, word> &, int64);
 
     // logical (only for Bitcoin style numbers)
     template <endian r, Word word>
@@ -1019,32 +1019,32 @@ namespace data::math::number {
     template <endian r, Word word>
     N_bytes<r, word> operator * (const N_bytes<r, word> &, const N_bytes<r, word> &);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> operator + (const Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> operator + (const Z_bytes<r, neg, word> &, const Z_bytes<r, neg, word> &);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> operator - (const Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> operator - (const Z_bytes<r, neg, word> &, const Z_bytes<r, neg, word> &);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> operator * (const Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> operator * (const Z_bytes<r, neg, word> &, const Z_bytes<r, neg, word> &);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> operator + (const Z_bytes<r, c, word> &, const N_bytes<r, word> &);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> operator + (const Z_bytes<r, neg, word> &, const N_bytes<r, word> &);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> operator - (const Z_bytes<r, c, word> &, const N_bytes<r, word> &);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> operator - (const Z_bytes<r, neg, word> &, const N_bytes<r, word> &);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> operator + (const N_bytes<r, word> &, const Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> operator + (const N_bytes<r, word> &, const Z_bytes<r, neg, word> &);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> operator - (const N_bytes<r, word> &, const Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> operator - (const N_bytes<r, word> &, const Z_bytes<r, neg, word> &);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> operator * (const Z_bytes<r, c, word> &, const N_bytes<r, word> &);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> operator * (const Z_bytes<r, neg, word> &, const N_bytes<r, word> &);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> operator * (const N_bytes<r, word> &, const Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> operator * (const N_bytes<r, word> &, const Z_bytes<r, neg, word> &);
 
     template <endian r, Word word, std::unsigned_integral I>
     N_bytes<r, word> operator + (const N_bytes<r, word> &, I);
@@ -1103,8 +1103,8 @@ namespace data::math::number {
     template <endian r, Word word>
     N_bytes<r, word> &operator += (N_bytes<r, word> &, const N_bytes<r, word> &);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> &operator += (Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> &operator += (Z_bytes<r, neg, word> &, const Z_bytes<r, neg, word> &);
 
     template <endian r, Word word>
     math::Z_bytes<r, word> &operator += (math::Z_bytes<r, word> &, const N_bytes<r, word> &);
@@ -1112,8 +1112,8 @@ namespace data::math::number {
     template <endian r, Word word>
     N_bytes<r, word> &operator -= (N_bytes<r, word> &, const N_bytes<r, word> &);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> &operator -= (Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> &operator -= (Z_bytes<r, neg, word> &, const Z_bytes<r, neg, word> &);
 
     template <endian r, Word word>
     math::Z_bytes<r, word> &operator -= (math::Z_bytes<r, word> &, const N_bytes<r, word> &);
@@ -1124,17 +1124,17 @@ namespace data::math::number {
     template <endian r, Word word>
     N_bytes<r, word> &operator -= (N_bytes<r, word> &, uint64);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> &operator += (Z_bytes<r, c, word> &, int64);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> &operator += (Z_bytes<r, neg, word> &, int64);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> &operator -= (Z_bytes<r, c, word> &, int64);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> &operator -= (Z_bytes<r, neg, word> &, int64);
 
     template <endian r, Word word>
     N_bytes<r, word> &operator *= (N_bytes<r, word> &, const N_bytes<r, word> &);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> &operator *= (Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> &operator *= (Z_bytes<r, neg, word> &, const Z_bytes<r, neg, word> &);
 
     template <endian r, Word word>
     math::Z_bytes<r, word> &operator *= (math::Z_bytes<r, word> &, const N_bytes<r, word> &);
@@ -1142,8 +1142,8 @@ namespace data::math::number {
     template <endian r, Word word>
     N_bytes<r, word> &operator *= (N_bytes<r, word> &, uint64);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> &operator *= (Z_bytes<r, c, word> &, int64);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> &operator *= (Z_bytes<r, neg, word> &, int64);
 
     // plus
     template <bool u, endian r, size_t size, Word word>
@@ -1260,26 +1260,26 @@ namespace data::math::number {
     template <endian r, Word word>
     N_bytes<r, word> operator / (const N_bytes<r, word> &, const N_bytes<r, word> &);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> operator / (const Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> operator / (const Z_bytes<r, neg, word> &, const Z_bytes<r, neg, word> &);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> operator / (const N_bytes<r, word> &, const Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> operator / (const N_bytes<r, word> &, const Z_bytes<r, neg, word> &);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> operator / (const Z_bytes<r, c, word> &, const N_bytes<r, word> &);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> operator / (const Z_bytes<r, neg, word> &, const N_bytes<r, word> &);
 
     template <endian r, Word word>
     N_bytes<r, word> operator / (const N_bytes<r, word> &, uint64);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> operator / (const Z_bytes<r, c, word> &, int64);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> operator / (const Z_bytes<r, neg, word> &, int64);
 
     template <endian r, Word word>
     N_bytes<r, word> operator % (const N_bytes<r, word> &, const N_bytes<r, word> &);
 
-    template <endian r, negativity c, Word word>
-    N_bytes<r, word> operator % (const Z_bytes<r, c, word> &, const N_bytes<r, word> &);
+    template <endian r, negativity neg, Word word>
+    N_bytes<r, word> operator % (const Z_bytes<r, neg, word> &, const N_bytes<r, word> &);
 
     template <endian r, Word word>
     N_bytes<r, word> operator % (
@@ -1295,26 +1295,26 @@ namespace data::math::number {
     template <endian r, Word word>
     uint64 operator % (const N_bytes<r, word> &, uint64);
 
-    template <endian r, negativity c, Word word>
-    uint64 operator % (const Z_bytes<r, c, word> &, uint64);
+    template <endian r, negativity neg, Word word>
+    uint64 operator % (const Z_bytes<r, neg, word> &, uint64);
 
     template <endian r, Word word>
     N_bytes<r, word> &operator /= (N_bytes<r, word> &, const N_bytes<r, word> &);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> &operator /= (Z_bytes<r, c, word> &, const Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> &operator /= (Z_bytes<r, neg, word> &, const Z_bytes<r, neg, word> &);
 
     template <endian r, Word word>
     N_bytes<r, word> &operator /= (N_bytes<r, word> &, uint64);
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> &operator /= (Z_bytes<r, c, word> &, int64);
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> &operator /= (Z_bytes<r, neg, word> &, int64);
 
     template <endian r, Word word>
     N_bytes<r, word> &operator %= (N_bytes<r, word> &, const N_bytes<r, word> &);
 
-    template <endian r, negativity c, Word word>
-    N_bytes<r, word> &operator %= (Z_bytes<r, c, word> &, const N_bytes<r, word> &);
+    template <endian r, negativity neg, Word word>
+    N_bytes<r, word> &operator %= (Z_bytes<r, neg, word> &, const N_bytes<r, word> &);
 
     template <endian r, Word word>
     Z_bytes<r, negativity::BC, word> &operator %=
@@ -1463,14 +1463,14 @@ namespace data::math::def {
         boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (const Z &) const;
     };
 
-    template <endian r, negativity c, Word word>
-    struct convert<number::Z_bytes<r, c, word>, Z> {
-        number::Z_bytes<r, c, word> operator () (const Z &) const;
+    template <endian r, negativity neg, Word word>
+    struct convert<number::Z_bytes<r, neg, word>, Z> {
+        number::Z_bytes<r, neg, word> operator () (const Z &) const;
     };
 
-    template <endian r, negativity c, Word word>
-    struct convert<Z, number::Z_bytes<r, c, word>> {
-        Z operator () (const number::Z_bytes<r, c, word> &) const;
+    template <endian r, negativity neg, Word word>
+    struct convert<Z, number::Z_bytes<r, neg, word>> {
+        Z operator () (const number::Z_bytes<r, neg, word> &) const;
     };
 
     template <endian r, Word word>
@@ -1481,6 +1481,16 @@ namespace data::math::def {
     template <endian r, Word word>
     struct convert<N, number::N_bytes<r, word>> {
         N operator () (const number::N_bytes<r, word> &) const;
+    };
+
+    template <endian r, Word word>
+    struct convert<number::N_bytes<r, word>, Z> {
+        number::N_bytes<r, word> operator () (const Z &) const;
+    };
+
+    template <endian r, Word word>
+    struct convert<Z, number::N_bytes<r, word>> {
+        Z operator () (const number::N_bytes<r, word> &) const;
     };
 
     template <endian r, Word word, std::integral I>
@@ -1533,6 +1543,10 @@ namespace data::math::def {
         Z operator () (const hex::intBC<zz> &) const;
     };
 
+    template <> struct convert<dec_uint, dec_int> {
+        dec_uint operator () (const dec_int &) const;
+    };
+
     template <bool is_signed, endian r, size_t size, Word word, endian o, std::integral T, std::size_t n_bits>
     struct convert<boost::endian::endian_arithmetic<o, T, n_bits, boost::endian::align::no>, number::bounded<is_signed, r, size, word>> {
         constexpr boost::endian::endian_arithmetic<o, T, n_bits, boost::endian::align::no>
@@ -1562,6 +1576,11 @@ namespace data::math::def {
     template <endian ToEndian, negativity ToNeg, Word ToWord, endian FromEndian, Word FromWord>
     struct convert<number::Z_bytes<ToEndian, ToNeg, ToWord>, number::N_bytes<FromEndian, FromWord>> {
         number::Z_bytes<ToEndian, ToNeg, ToWord> operator () (const number::N_bytes<FromEndian, FromWord> &from) const;
+    };
+
+    template <endian ToEndian, negativity FromNeg, Word ToWord, endian FromEndian, Word FromWord>
+    struct convert<number::N_bytes<ToEndian, ToWord>, number::Z_bytes<FromEndian, FromNeg, FromWord>> {
+        number::N_bytes<ToEndian, ToWord> operator () (const number::Z_bytes<FromEndian, FromNeg, FromWord> &from) const;
     };
 
     template <bool is_signed, endian to_r, size_t to_size, Word to_word, endian from_r, negativity neg, Word from_word>
@@ -1599,9 +1618,9 @@ namespace data::math::def {
         size_t operator () (const number::N_bytes<r, word> &);
     };
 
-    template <endian r, negativity c, Word word>
-    struct size_in_base<number::Z_bytes<r, c, word>, 2> {
-        size_t operator () (const number::Z_bytes<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    struct size_in_base<number::Z_bytes<r, neg, word>, 2> {
+        size_t operator () (const number::Z_bytes<r, neg, word> &);
     };
 
     template <> struct size_in_base<N, 2> {
@@ -1625,8 +1644,8 @@ namespace data::math::def {
         size_t operator () (const hex::integer<neg, zz> &);
     };
 
-    template <endian r, negativity c, Word word = byte>
-    using Zb = number::Z_bytes<r, c, word>;
+    template <endian r, negativity neg, Word word = byte>
+    using Zb = number::Z_bytes<r, neg, word>;
 
     template <endian r, Word word>
     struct is_zero<N_bytes<r, word>> {
@@ -1744,9 +1763,9 @@ namespace data::math::def {
         math::sign operator () (const N_bytes<r, word> &);
     };
 
-    template <endian r, negativity c, Word word>
-    struct sign<Zb<r, c, word>> {
-        math::sign operator () (const Zb<r, c, word> &);
+    template <endian r, negativity neg, Word word>
+    struct sign<Zb<r, neg, word>> {
+        math::sign operator () (const Zb<r, neg, word> &);
     };
 
     template <endian r, Word word>

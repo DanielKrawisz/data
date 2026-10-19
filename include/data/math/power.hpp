@@ -33,6 +33,8 @@ namespace data::math {
             function<A (const A &)> d): C {c}, D {d} {}
 
         constexpr N operator () (N so_far, A x2n, B p) {
+            // TODO this algorithm can be made a lot faster by not using odd and div_2 but
+            // instead providing an accessor to each digit without altering the number.
             if (p == 0) return so_far;
             return operator () (odd (p) ? C (so_far, x2n) : so_far, D (x2n), div_2 (p));
         }
@@ -63,13 +65,15 @@ namespace data::math {
         }} (Mod {0}, x, y);
     }
 
-    template <typename A, group_number B, group_number_unsigned Mod>
-    constexpr A inline binary_accumulate_times_mod (const A &x, const B &y, const nonzero<Mod> &z) {
-        if (y < 0) return -binary_accumulate_times_mod (x, -y, z);
-        return binary_accumulate<Mod, A, B> {[z] (const A &a, const A &b) -> A {
-            return plus_mod<A, A, Mod> (a, b, z);
-        }, [z] (const A &a) {
-            return mul_2_mod<A, Mod> (a, z);
+    template <typename Base, group_number Exp, group_number_unsigned Mod>
+    constexpr Mod inline binary_accumulate_times_mod (const Base &x, const Exp &y, const nonzero<Mod> &z) {
+        if (y < 0) return negate_mod (binary_accumulate_times_mod (x, negate_mod (y, z), z), z);
+        return binary_accumulate<Mod, Base, Exp> {[z] (const Mod &a, const Base &b) -> Mod {
+            return plus_mod<Mod, Base, Mod> (a, b, z);
+        }, [z] (const Base &a) {
+            //return mul_2_mod<Base, Mod> (a, z);
+            auto result = mul_2_mod<Base, Mod> (a, z);
+            return result;
         }} (Mod {0}, x, y);
     }
 
@@ -77,7 +81,7 @@ namespace data::math {
     constexpr Mod inline binary_accumulate_pow_mod (const Base &x, const Exp &y, const nonzero<Mod> &z) {
         if (z.Value < 0) throw negative_power {};
         if (y < 0) throw negative_power {};
-        return binary_accumulate<Mod, Base, Exp> {[z] (const Mod &a, const Base &b) {
+        return binary_accumulate<Mod, Base, Exp> {[z] (const Mod &a, const Base &b) -> Mod {
             return data::times_mod<Mod, Base, Mod> (a, b, z);
         }, [z] (const Base &a) {
             return static_cast<Base> (data::square_mod<Base, Mod> (a, z));
@@ -132,6 +136,25 @@ namespace data::math::def {
 
             return math::convert<Mod> (
                 math::binary_accumulate_pow_mod (
+                    math::convert<innerBase> (x),
+                    math::convert<innerExp> (y),
+                    math::nonzero {math::convert<innerMod> (z.Value)}));
+        }
+    };
+
+    // default times mod
+    template <typename Base, group_number Exp, group_number Mod> struct times_mod<Base, Exp, Mod> {
+        constexpr Mod operator () (const Base &x, const Exp &y, const nonzero<Mod> &z) {
+
+            // we have a problem here because we can overflow, and when that happens, we cannot correctly mod
+            // the result. We transform to a type that is bigger than this and then transform back.
+
+            using innerBase = accumulate_inner<Base>;
+            using innerExp = accumulate_inner<Exp>;
+            using innerMod = accumulate_inner<Mod>;
+
+            return math::convert<Mod> (
+                math::binary_accumulate_times_mod (
                     math::convert<innerBase> (x),
                     math::convert<innerExp> (y),
                     math::nonzero {math::convert<innerMod> (z.Value)}));

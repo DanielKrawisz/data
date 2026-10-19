@@ -15,8 +15,6 @@
 
 #include <data/string.hpp>
 
-#include <iostream>
-
 namespace data::encoding {
     
     namespace decimal {
@@ -147,10 +145,10 @@ namespace data::encoding {
         // a big number that supports standard numerical operations.
         template <negativity, hex::letter_case cx> struct integer;
 
-        template <hex_case zz, endian::order r, Word word>
+        template <endian::order r, Word word, hex_case zz>
         integer<negativity::nones, zz> write (const math::number::N_bytes<r, word> &);
 
-        template <hex_case zz, endian::order r, negativity n, Word word>
+        template <endian::order r, negativity n, Word word, hex_case zz>
         integer<n, zz> write (const math::number::Z_bytes<r, n, word> &);
         
     }
@@ -955,8 +953,8 @@ namespace data::math::number {
         hex::integer<c, zz> operator () (const hex::integer<c, zz> &);
     };
 
-    template <hex_case cx> 
-    bool sign_bit_set (const hex::intBC<cx> &);
+    template <negativity neg, hex_case zz>
+    bool sign_bit_set (const hex::integer<neg, zz> &x);
     
     template <hex_case cx> 
     bool is_minimal (const hex::uint<cx> &);
@@ -1039,7 +1037,17 @@ namespace data::encoding::decimal {
         template <std::integral I> string &operator /= (I);
         
         explicit operator double () const;
-        explicit operator uint64 () const;
+
+        template <std::integral I> explicit operator I () const {
+            if (!this->valid ()) throw exception {} << "invalid decimal string " << *this;
+            I result {};
+            auto [ptr, ec] = std::from_chars (this->data (), this->data () + this->size (), result, 10);
+
+            if (ec != std::errc {} || ptr != this->data () + this->size ())
+                throw exception {} << "decimal string " << *this << " out of range for built in type of size " << sizeof (I);
+
+                return result;
+        }
     };
     
     signed_decimal::string operator - (const string &);
@@ -1134,7 +1142,17 @@ namespace data::encoding::signed_decimal {
         string &operator /= (int64);
         
         explicit operator double () const;
-        explicit operator int64 () const;
+
+        template <std::integral I> explicit operator I () const {
+            if (!this->valid ()) throw exception {} << "invalid signed decimal string " << *this;
+            I result {};
+            auto [ptr, ec] = std::from_chars (this->data (), this->data () + this->size (), result, 10);
+
+            if (ec != std::errc {} || ptr != this->data () + this->size ())
+                throw exception {} << "decimal string " << *this << " out of range for built in type of size " << sizeof (I);
+
+                return result;
+        }
     };
 
     template <std::signed_integral I>
@@ -1161,7 +1179,7 @@ namespace data::encoding::signed_decimal {
         if (is_negative (z)) w << "-";
         return decimal::write (w, N_bytes<r, word>::read (abs (z)));
     }
-    
+
     template <endian::order r, negativity n, Word word>
     string inline write (const math::number::Z_bytes<r, n, word> &z) {
         std::stringstream ss;
@@ -1192,7 +1210,6 @@ namespace data::encoding::hexidecimal {
 
         // TODO move into convert function.
         explicit operator integer<negativity (-int (n) + 5), cx> () const;
-        template <endian::order e> explicit operator math::number::Z_bytes<e, n, byte> () const;
 
         static integer<n, cx> zero (size_t size = 0, bool negative = false);
 
@@ -1208,10 +1225,8 @@ namespace data::encoding::hexidecimal {
         using string<cx>::string;
 
         // TODO move into convert function.
-        explicit operator integer<negativity::twos, cx> () const;
-        explicit operator integer<negativity::BC, cx> () const;
-
-        template <endian::order e> explicit operator math::number::N_bytes<e, byte> () const;
+        operator integer<negativity::twos, cx> () const;
+        operator integer<negativity::BC, cx> () const;
 
         data::hex::uint<cx> &operator += (uint64);
         data::hex::uint<cx> &operator -= (uint64);
@@ -1228,6 +1243,7 @@ namespace data::encoding::hexidecimal {
         template <std::integral I> integer (I x): integer {read (hexidecimal::write<c, cx> (x))} {}
 
         using complemented_string<c, cx>::complemented_string;
+        explicit operator integer<negativity::nones, cx> () const;
 
         // try to read either a hex string or a dec string.
         static integer read (string_view);
@@ -1278,6 +1294,20 @@ namespace data::encoding::hexidecimal {
     template <negativity c, hex::letter_case zz>
     inline integer<c, zz>::operator bool () const {
         return !is_zero (*this);
+    }
+
+    template <endian::order r, negativity n, Word word, hex_case zz>
+    integer<n, zz> inline write (const math::number::Z_bytes<r, n, word> &z) {
+        std::stringstream ss;
+        write<zz> (ss, z);
+        return integer<n, zz> {ss.str ()};
+    }
+
+    template <endian::order r, Word word, hex_case zz>
+    integer<negativity::nones, zz> inline write (const math::number::N_bytes<r, word> &z) {
+        std::stringstream ss;
+        write<zz> (ss, z);
+        return integer<negativity::nones, zz> {ss.str ()};
     }
     
 }
@@ -2403,16 +2433,16 @@ namespace data::math::def {
         return bit_mod_2_positive_mod (x);
     }
 
-    template <negativity c, hex_case z, negativity n, hex_case zz>
-    requires Unsame<hex::integer<c, z>, hex::integer<n, zz>>
+    template <negativity c, hex_case z, negativity n, hex_case zz> requires Unsame<hex::integer<c, z>, hex::integer<n, zz>>
     hex::integer<c, z> convert<hex::integer<c, z>, hex::integer<n, zz>>::operator () (const hex::integer<n, zz> &i) const {
-        hex::integer<c, zz> result;
-
-        if constexpr (c == n) result = i;
-        else result = static_cast<const encoding::hexidecimal::complemented_string<n, zz> &> (i).operator hex::integer<c, zz> ();
-
-        if constexpr (z == hex_case::upper) return to_upper (result);
-        else return to_lower (result);
+        if constexpr (c == n) {
+            if constexpr (z == hex_case::upper) return to_upper (i);
+            else return to_lower (i);
+        } else if constexpr (n == negativity::nones)
+            return encoding::hexidecimal::write<z> (math::convert<math::number::Z_bytes<endian::big, c>> (N_bytes_big (i)));
+        else if constexpr (c == negativity::nones)
+            return encoding::hexidecimal::write<z> (math::convert<N_bytes_big> (math::number::Z_bytes<endian::big, n> (i)));
+        else return encoding::hexidecimal::write<z> (math::convert<math::number::Z_bytes<endian::big, c>> (math::number::Z_bytes<endian::big, n> (i)));
     }
 
     size_t inline size_in_base<dec_uint, 2>::operator () (const dec_uint &u) {
@@ -2590,14 +2620,14 @@ namespace data::encoding::hexidecimal {
     template <hex::letter_case cx>
     inline complemented_string<negativity::nones, cx>::operator integer<negativity::twos, cx> () const {
         return is_negative<negativity::twos, cx> (*this) ?
-            integer<negativity::twos, cx> (extend<negativity::nones, cx> (*this, this->size () + 2)):
+            integer<negativity::twos, cx> (static_cast<string<cx>> (extend<negativity::nones, cx> (*this, this->size () + 2))):
             integer<negativity::twos, cx> (static_cast<string<cx>> (*this));
     }
 
     template <hex::letter_case cx>
     inline complemented_string<negativity::nones, cx>::operator integer<negativity::BC, cx> () const {
         return is_negative<negativity::BC, cx> (*this) ?
-            integer<negativity::BC, cx> (extend<negativity::nones, cx> (*this, this->size () + 2)):
+            integer<negativity::BC, cx> (static_cast<string<cx>> (extend<negativity::nones, cx> (*this, this->size () + 2))):
             integer<negativity::BC, cx> (static_cast<string<cx>> (*this));
     }
 
@@ -3328,6 +3358,32 @@ namespace data::encoding::hexidecimal {
     integer<c, zz> inline operator * (const integer<c, zz> &a, const integer<c, zz> &b) {
         return math::number::trim (multiply<c, zz> {} (math::number::trim (a), math::number::trim (b)));
     }
+
+    template <hex::letter_case cx>
+    integer<negativity::twos, cx> inline operator + (const integer<negativity::nones, cx> &n, const integer<negativity::twos, cx> &x) {
+        return write<cx> (N_bytes_big (n) + Z_bytes_big (x));
+    }
+
+    template <hex::letter_case cx>
+    integer<negativity::twos, cx> inline operator - (const integer<negativity::nones, cx> &n, const integer<negativity::twos, cx> &x) {
+        return write<cx> (N_bytes_big (n) - Z_bytes_big (x));
+    }
+
+    template <negativity c, hex::letter_case cx>
+    integer<c, cx>::operator integer<negativity::nones, cx> () const {
+        // if negative, throw
+        if (is_negative (*this)) throw exception {} << "cannot cast negative number " << *this << " to unsigned type.";
+
+        if constexpr (c == negativity::BC) {
+            if (is_negative_zero (*this)) return integer<negativity::nones, cx> {};
+        }
+
+        integer<negativity::nones, cx> result;
+        result = math::number::extend (result, this->size ());
+
+        std::copy (this->begin () + 2, this->end (), result.begin () + 2);
+        return result;
+    }
     
 }
 
@@ -3414,8 +3470,9 @@ namespace data::math::def {
 }
 
 namespace data::math::number {
-    template <hex_case zz>
-    bool inline sign_bit_set (const hex::intBC<zz> &x) {
+    template <negativity neg, hex_case zz>
+    bool inline sign_bit_set (const hex::integer<neg, zz> &x) {
+        if constexpr (neg == negativity::nones) return false;
         return x.size () > 2 && encoding::hexidecimal::digit (x[2]) > 7;
     }
     

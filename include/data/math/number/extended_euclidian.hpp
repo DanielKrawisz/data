@@ -88,6 +88,7 @@ namespace data::math::number {
 
     // Z either needs to be signed or it needs to be an unsigned integral that can underflow below zero.
     template <RingNumber Z, RingNumber N = Z>
+    requires Signed<Z> || Unsigned<N>
     constexpr auto inv_mod (const Z &x, const nonzero<N> &mod) -> maybe<decltype (data::mod (x, mod))> {
 
         if (mod.Value == 0) throw division_by_zero {};
@@ -98,9 +99,14 @@ namespace data::math::number {
         // signed types for Z or with unsigned types that can underflow.
         using input_type = std::conditional_t<Signed<Z> || UnsignedIntegral<Z>, Z, to_signed<Z>>;
 
-        if (x == 0) return {};
+        // mod is guaranteed to return a value greater than -mod and less than mod.
+        auto y = data::mod (x, mod);
+        if (y == 0) return {};
+
+        // certain number types can return negative moduli, so we ensure it's positive.
+        if (y < 0) y += mod.Value;
         auto proof = number::euclidian::extended<result_type, input_type>::algorithm
-            (result_type (mod.Value), data::mod (x, mod));
+            (result_type (mod.Value), y);
 
         if (proof.GCD != 1) return {};
 
