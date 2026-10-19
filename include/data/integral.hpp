@@ -11,6 +11,7 @@
 
 // bounded size numbers of any size (bigger than 64 bit)
 #include <data/math/number/bounded.hpp>
+#include <data/math/mod.hpp>
 
 #include <data/exception.hpp>
 

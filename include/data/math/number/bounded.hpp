@@ -73,16 +73,6 @@ namespace data::math::number {
             else throw exception {} << "invalid integer string \"" << x << "\"";
         }
     }
-    
-    template <endian r, size_t size, Word word>
-    inline bounded<false, r, size, word>::operator double () const {
-        return import_float<double> (slice<const word> (*this), r, endian::native, negativity::nones);
-    }
-    
-    template <endian r, size_t size, Word word>
-    inline bounded<true, r, size, word>::operator double () const {
-        return import_float<double> (slice<const word> (*this), r, endian::native, negativity::twos);
-    }
 
     template <endian r, size_t size, Word word>
     std::istream &operator >> (std::istream &i, bounded<true, r, size, word> &z) {

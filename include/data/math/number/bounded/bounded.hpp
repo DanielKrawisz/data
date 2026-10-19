@@ -5,6 +5,7 @@
 #pragma once
 
 #include <data/math/number/types.hpp>
+#include <data/float.hpp>
 
 #include <data/exception.hpp>
 
@@ -329,11 +330,11 @@ namespace data {
             template <endian o, negativity neg, Word w>
             explicit operator Z_bytes<o, neg, w> () const;
 
-            explicit operator double () const;
+            constexpr explicit operator double () const;
 
             // TODO we ought to be able to explicitly convert to
             // any built-in type.
-            template <std::integral I> explicit operator I () const;
+            template <std::integral I> constexpr explicit operator I () const;
 
             // explicitly convert from a larger number.
             template <bool x, endian o, size_t u, Word w>
@@ -375,12 +376,12 @@ namespace data {
 
             explicit bounded (slice<word, size>);
 
-            explicit operator double () const;
+            constexpr explicit operator double () const;
+
+            template <std::integral I> constexpr explicit operator I () const;
 
             constexpr static bounded max ();
             constexpr static bounded min ();
-
-            template <std::integral I> explicit operator I () const;
 
             template <endian o, negativity neg, Word w>
             constexpr explicit bounded (const Z_bytes<o, neg, w> &z);
@@ -810,6 +811,16 @@ namespace data {
         template <endian r, size_t x, Word word, std::unsigned_integral I>
         constexpr uint<r, x, word> inline operator / (const sint<r, x, word> &n, I u) {
             return n / uint<r, x, word> (u);
+        }
+
+        template <endian r, size_t size, Word word>
+        constexpr inline bounded<false, r, size, word>::operator double () const {
+            return import_float<double> (slice<const word> (*this), r, endian::native, negativity::nones);
+        }
+
+        template <endian r, size_t size, Word word>
+        constexpr inline bounded<true, r, size, word>::operator double () const {
+            return import_float<double> (slice<const word> (*this), r, endian::native, negativity::twos);
         }
 
     }
@@ -1403,9 +1414,8 @@ namespace data {
 
         }
 
-        template <endian r, size_t size, Word word>
-        template <std::integral I>
-        bounded<false, r, size, word>::operator I () const
+        template <endian r, size_t size, Word word> template <std::integral I>
+        constexpr bounded<false, r, size, word>::operator I () const
         {
             if (*this > numeric_limits<I>::max ())
                 throw exception {} << "overflow, number too big to cast to built in type";
@@ -1428,9 +1438,8 @@ namespace data {
             return static_cast<I>(result);
         }
 
-        template <endian r, size_t size, Word word>
-        template <std::integral I>
-        bounded<true, r, size, word>::operator I () const
+        template <endian r, size_t size, Word word> template <std::integral I>
+        constexpr bounded<true, r, size, word>::operator I () const
         {
             if (*this > numeric_limits<I>::max ())
                 throw exception {} << "overflow, number too big to cast to built in type";

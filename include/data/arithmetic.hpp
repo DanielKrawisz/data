@@ -49,6 +49,15 @@ namespace data {
     template <typename A, typename ...C> requires Same<A, C...>
     constexpr auto LCM (const A &, const A &, C &&...x);
 
+    // functions on rational numbers.
+    template <typename A> constexpr auto floor (const A &);
+    template <typename A> constexpr auto ceiling (const A &);
+    template <typename A> constexpr auto round (const A &);
+    template <typename A> constexpr auto is_whole (const A &);
+    template <typename A> constexpr auto numerator (const A &);
+    template <typename A> constexpr auto denominator (const A &);
+    template <typename A> constexpr auto frac (const A &);
+
     // modular arithmetic
     template <typename A, typename Mod = A> constexpr auto mod (const A &, const math::nonzero<Mod> &);
 
@@ -63,15 +72,6 @@ namespace data {
     // result may not exist.
     template <typename A, typename Mod> constexpr auto invert_mod (const A &x, const math::nonzero<Mod> &n);
 
-    // functions on rational numbers.
-    template <typename A> constexpr auto floor (const A &);
-    template <typename A> constexpr auto ceiling (const A &);
-    template <typename A> constexpr auto round (const A &);
-    template <typename A> constexpr auto is_whole (const A &);
-    template <typename A> constexpr auto numerator (const A &);
-    template <typename A> constexpr auto denominator (const A &);
-    template <typename A> constexpr auto frac (const A &);
-
     // helper functions for computing pow mod and times mod.
     template <typename A, typename Mod = A> constexpr auto mul_2_mod (const A &, const math::nonzero<Mod> &);
     template <typename A, typename Mod = A> constexpr auto square_mod (const A &, const math::nonzero<Mod> &);
@@ -79,6 +79,17 @@ namespace data {
     template <typename A> constexpr auto mod_2 (const A &);
     template <typename A> constexpr auto mul_2 (const A &);
     template <typename A> constexpr auto div_2 (const A &);
+
+    template <typename A> constexpr auto mul_2_pow (const A &, uint32 u);
+    template <typename A> constexpr auto div_2_pow (const A &, uint32 u);
+
+    template <typename A> constexpr auto mul_2 (const A &x) {
+        return mul_2_pow (x, 1);
+    }
+
+    template <typename A> constexpr auto div_2 (const A &x) {
+        return div_2_pow (x, 1);
+    }
 
     template <typename A> constexpr bool inline even (const A &x) {
         return mod_2 (x) == 0;
@@ -106,17 +117,6 @@ namespace data {
 
     // count digits in a number.
     template <typename A> size_t constexpr bit_width (const A &);
-
-    template <typename A> constexpr auto mul_2_pow (const A &, uint32 u);
-    template <typename A> constexpr auto div_2_pow (const A &, uint32 u);
-
-    template <typename A> constexpr auto mul_2 (const A &x) {
-        return mul_2_pow (x, 1);
-    }
-
-    template <typename A> constexpr auto div_2 (const A &x) {
-        return div_2_pow (x, 1);
-    }
 
     // We use two different concepts for numbers, one more
     // alligend with c++ standards and the other more closely
@@ -1119,20 +1119,6 @@ namespace data::math::def {
     template <typename A, typename B, typename Mod> struct minus_mod {
         constexpr auto operator () (const A &x, const B &y, const nonzero<Mod> &n) const {
             return data::mod (data::minus (x, y), n);
-        }
-    };
-
-    template <typename A, typename Mod> struct square_mod {
-        constexpr auto operator () (const A &x, const nonzero<Mod> &n) const {
-            return x >= 0 && x < n.Value ? data::mod (data::square (x), n):
-                data::mod (data::square (data::mod (x, n)), n);
-        }
-    };
-
-    // note: should have a special case for integral that uses twice.
-    template <typename A, typename B, typename Mod> struct times_mod {
-        constexpr auto operator () (const A &a, const B &b, nonzero<Mod> n) {
-            return data::mod (data::mod (a, n) * data::mod (b, n), n);
         }
     };
 

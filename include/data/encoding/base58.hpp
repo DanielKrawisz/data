@@ -129,7 +129,7 @@ namespace data::encoding::base58 {
 
         static string read (string_view);
 
-        explicit operator uint64 () const;
+        template <std::integral I> explicit operator I () const;
 
         friend string operator ""_b58 (const char*, size_t);
         friend string operator ""_b58 (unsigned long long int);
@@ -355,6 +355,12 @@ namespace data::encoding::base58 {
 
     string inline &string::operator %= (const string &y) {
         return *this = *this % y;
+    }
+
+    template <std::integral I> string::operator I () const {
+        if (!this->valid ()) throw invalid {*this, "convert to built in"};
+        if (*this > std::numeric_limits<I>::max ()) throw exception {} << "base 58 string out of range for number of size " << sizeof (I);
+        return *decode<I> (*this);
     }
 
 }
