@@ -1225,6 +1225,17 @@ namespace data {
         EXPECT_EQ (mul_2_mod (Z {0x70fe}, math::nonzero {N {0x10001}}), N {0xe1fc});
     }
 
+    TYPED_TEST (Numbers, SquareMod) {
+        using Z = typename TestFixture::N;
+        using N = decltype (abs (Z {0}));
+
+        EXPECT_EQ ((square_mod (Z {76260}, math::nonzero {N {111193}})), N {82507});
+        EXPECT_EQ ((square_mod (Z {39363}, math::nonzero {N {111193}})), N {82507});
+        EXPECT_EQ ((square_mod (Z {71830}, math::nonzero {N {111193}})), N {82507});
+        EXPECT_EQ ((square_mod (Z {34933}, math::nonzero {N {111193}})), N {82507});
+
+    }
+
     TYPED_TEST (Integers, Mul2Mod) {
         using Z = typename TestFixture::Z;
         using N = decltype (abs (Z {0}));
