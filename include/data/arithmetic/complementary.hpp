@@ -439,7 +439,7 @@ namespace data::arithmetic {
         if constexpr (c == negativity::nones) {
             std::copy (w.rbegin (), w.rend (), words<r> (z).rbegin () + new_size - size (w));
         } else if constexpr (c == negativity::twos) {
-            word extend_digit = twos::is_negative (w) ? std::numeric_limits<word>::max () : 0;
+            word extend_digit = is_negative<negativity::twos> (w) ? std::numeric_limits<word>::max () : 0;
 
             auto i = words<r> (z).rbegin ();
             for (int n = 0; n < new_size - size (w); n++) {
@@ -527,8 +527,8 @@ namespace data::arithmetic::twos {
         auto wa = words<r> (a);
         auto wb = words<r> (b);
 
-        bool na = is_negative (wa);
-        bool nb = is_negative (wb);
+        bool na = is_negative<negativity::twos> (wa);
+        bool nb = is_negative<negativity::twos> (wb);
 
         // TODO it should be possible to compare negative numbers
         // without negating them.
@@ -595,8 +595,8 @@ namespace data::arithmetic::BC {
         auto wa = words<r> (a);
         auto wb = words<r> (b);
 
-        math::sign na = sign (wa);
-        math::sign nb = sign (wb);
+        math::sign na = sign<negativity::BC> (wa);
+        math::sign nb = sign<negativity::BC> (wb);
 
         if (na == math::zero) switch (nb) {
             case math::positive: return std::weak_ordering::less;
@@ -685,9 +685,9 @@ namespace data::arithmetic::BC {
         auto wa = words<r> (a);
         auto wb = words<r> (b);
 
-        bool an = is_negative (wa);
+        bool an = is_negative<negativity::BC> (wa);
         {
-            bool bn = is_negative (wb);
+            bool bn = is_negative<negativity::BC> (wb);
             if (!an && !bn) {
                 bytestring<word> c (std::max (a.size (), b.size ()), 9);
                 auto wc = words<r> (c);
@@ -723,6 +723,6 @@ namespace data::arithmetic::BC {
 
         arithmetic::times (wc, wa, wb);
 
-        return is_negative (words<r> (a)) == is_negative (words<r> (b)) ? cs : negate<r, word> (cs);
+        return is_negative<negativity::BC> (words<r> (a)) == is_negative<negativity::BC> (words<r> (b)) ? cs : negate<r, word> (cs);
     }
 }

@@ -1184,13 +1184,17 @@ namespace data {
         using Z = typename TestFixture::N;
         using N = decltype (abs (Z {0}));
 
-        EXPECT_EQ ((plus_mod (N {0}, N {0}, math::nonzero {N {65537}})), N {0});
+        EXPECT_EQ ((plus_mod (Z {0}, Z {0}, math::nonzero {N {65537}})), N {0});
 
-        EXPECT_EQ ((plus_mod (N {40000}, N {40000}, math::nonzero {N {65537}})), N {14463});
+        EXPECT_EQ ((plus_mod (Z {40000}, Z {40000}, math::nonzero {N {65537}})), N {14463});
 
-        EXPECT_EQ ((plus_mod (N {65536}, N {65536}, math::nonzero {N {65537}})), N {65535});
+        EXPECT_EQ ((plus_mod (Z {65536}, Z {65536}, math::nonzero {N {65537}})), N {65535});
 
-        EXPECT_EQ ((plus_mod (N {70000}, N {80000}, math::nonzero {N {100003}})), N {49997});
+        EXPECT_EQ ((plus_mod (Z {70000}, Z {80000}, math::nonzero {N {100003}})), N {49997});
+    }
+
+    TYPED_TEST (Numbers, PlusModInt32Overflow) {
+        using N = typename TestFixture::N;
     }
 
     TYPED_TEST (Integers, PlusMod) {

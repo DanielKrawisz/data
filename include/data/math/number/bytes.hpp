@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <data/math/number/bytes.hpp>
+#include <data/math/number/bytes/Z.hpp>
 #include <data/encoding/integer.hpp>
 
 // TODO we would like to remove this include eventually.
@@ -509,11 +509,6 @@ namespace data::math::def {
         return {
             encoding::signed_decimal::write (d.Quotient),
             encoding::decimal::write (d.Remainder)};
-    }
-
-    template <negativity neg, hex_case zz>
-    dec_int inline convert<dec_int, hex::integer<neg, zz>>::operator () (const hex::integer<neg, zz> &x) const {
-        return encoding::signed_decimal::write ((number::Z_bytes<endian::little, negativity::twos, byte> (x)));
     }
 
 }

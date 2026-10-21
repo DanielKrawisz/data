@@ -2197,7 +2197,7 @@ namespace data::math::def {
     math::sign inline sign<dec_uint>::operator () (const dec_uint &n) {
         if (!encoding::decimal::valid (n))
             throw exception {} << "invalid decimal string: " << n;
-        return encoding::decimal::nonzero (n) ? math::positive : math::zero;
+        return encoding::decimal::nonzero (n) ? positive : zero;
     }
 
     math::sign inline sign<dec_int>::operator () (const dec_int &n) {
@@ -2208,21 +2208,21 @@ namespace data::math::def {
     math::sign inline sign<hex::uint<cx>>::operator () (const hex::uint<cx> &x) {
         if (!x.valid ())
             throw exception {} << "invalid hexidecimal string: " << x;
-        return data::is_zero (x) ? math::zero : math::positive;
+        return data::is_zero (x) ? zero : positive;
     }
 
     template <hex_case cx>
     math::sign inline sign<hex::int2<cx>>::operator () (const hex::int2<cx> &x) {
         if (!x.valid ())
             throw exception {} << "invalid hexidecimal string: " << x;
-        return data::is_negative (x) ? math::negative : data::is_zero (x) ? math::zero : math::positive;
+        return data::is_negative (x) ? negative : data::is_zero (x) ? zero : positive;
     }
 
     template <hex_case cx>
     math::sign inline sign<hex::intBC<cx>>::operator () (const hex::intBC<cx> &x) {
         if (!x.valid ())
             throw exception {} << "invalid hexidecimal string: " << x;
-        return data::is_zero (x) ? math::zero : math::number::sign_bit_set (x) ? math::negative : math::positive;
+        return data::is_zero (x) ? math::zero : number::sign_bit_set (x) ? negative : positive;
     }
     
     bool inline is_zero<dec_uint>::operator () (const dec_uint &n) {
@@ -2440,10 +2440,10 @@ namespace data::math::def {
             if constexpr (z == hex_case::upper) return to_upper (i);
             else return to_lower (i);
         } else if constexpr (n == negativity::nones)
-            return encoding::hexidecimal::write<z> (math::convert<math::number::Z_bytes<endian::big, c>> (N_bytes_big (i)));
+            return encoding::hexidecimal::write<z> (math::convert<number::Z_bytes<endian::big, c>> (N_bytes_big (i)));
         else if constexpr (c == negativity::nones)
-            return encoding::hexidecimal::write<z> (math::convert<N_bytes_big> (math::number::Z_bytes<endian::big, n> (i)));
-        else return encoding::hexidecimal::write<z> (math::convert<math::number::Z_bytes<endian::big, c>> (math::number::Z_bytes<endian::big, n> (i)));
+            return encoding::hexidecimal::write<z> (math::convert<N_bytes_big> (number::Z_bytes<endian::big, n> (i)));
+        else return encoding::hexidecimal::write<z> (math::convert<number::Z_bytes<endian::big, c>> (number::Z_bytes<endian::big, n> (i)));
     }
 
     size_t inline size_in_base<dec_uint, 2>::operator () (const dec_uint &u) {
@@ -2469,6 +2469,18 @@ namespace data::math::def {
     template <negativity neg, hex_case zz>
     const hex::integer<neg, zz> inline &max<hex::integer<neg, zz>>::operator () (const hex::integer<neg, zz> &a, const hex::integer<neg, zz> &b) const {
         return a > b ? a : b;
+    }
+
+    template <negativity neg, hex_case zz>
+    bool inline digit<hex::integer<neg, zz>>::operator () (const hex::integer<neg, zz> &n, int32 i) const {
+        if constexpr (neg == negativity::nones) return data::digit (N_bytes_little (n), i);
+        else return data::digit (number::Z_bytes<endian::little, neg> (n), i);
+    }
+
+    template <negativity neg, hex_case zz>
+    dec_int inline convert<dec_int, hex::integer<neg, zz>>::operator () (const hex::integer<neg, zz> &u) const {
+        if constexpr (neg == negativity::nones) return encoding::signed_decimal::write (math::number::Z_bytes<endian::little, negativity::twos> (u));
+        else return encoding::signed_decimal::write (math::number::Z_bytes<endian::little, neg> (u));
     }
 
 }

@@ -24,10 +24,16 @@ namespace data::math {
             function<A (const A &)> d): C {c}, D {d} {}
 
         constexpr N operator () (N so_far, A x2n, B p) {
-            // TODO this algorithm can be made a lot faster by not using odd and div_2 but
-            // instead providing an accessor to each digit without altering the number.
-            if (p == 0) return so_far;
-            return operator () (odd (p) ? C (so_far, x2n) : so_far, D (x2n), div_2 (p));
+
+            int32 i = 0;
+            size_t width = bit_width (p);
+            while (i < width) {
+                if (digit (p, i)) so_far = C (so_far, x2n);
+                x2n = D (x2n);
+                i++;
+            }
+
+            return so_far;
         }
     };
 

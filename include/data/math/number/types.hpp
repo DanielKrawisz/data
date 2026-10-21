@@ -1756,7 +1756,6 @@ namespace data::math::def {
         (const nonzero<Zb<r, neg, word>> &a, const nonzero<Zb<r, neg, word>> &b);
     };
 
-
     template <endian r, negativity neg, Word word>
     struct inverse<plus<Zb<r, neg, word>>, Zb<r, neg, word>> {
         Zb<r, neg, word> operator () (const Zb<r, neg, word> &a, const Zb<r, neg, word> &b) {
@@ -1863,6 +1862,34 @@ namespace data::math::def {
     template <endian r, Word word>
     struct bit_and<math::Z_bytes_BC<r, word>> {
         math::Z_bytes_BC<r, word> operator () (const math::Z_bytes_BC<r, word> &a, const math::Z_bytes_BC<r, word> &b);
+    };
+
+    template <bool is_signed, endian r, size_t size, Word word>
+    struct digit<number::bounded<is_signed, r, size, word>> {
+        constexpr size_t operator () (const number::bounded<is_signed, r, size, word> &, int32 i);
+    };
+
+    template <endian r, Word word>
+    struct digit<N_bytes<r, word>> {
+        bool operator () (const N_bytes<r, word> &, int32);
+    };
+
+    template <endian r, negativity neg, Word word>
+    struct digit<number::Z_bytes<r, neg, word>> {
+        bool operator () (const number::Z_bytes<r, neg, word> &, int32 i);
+    };
+
+    template <negativity neg, hex_case zz>
+    struct digit<hex::integer<neg, zz>> {
+        bool operator () (const hex::integer<neg, zz> &, int32 i) const;
+    };
+
+    template <> struct digit<dec_uint> {
+        size_t operator () (const dec_uint &, int32 i);
+    };
+
+    template <> struct digit<dec_int> {
+        size_t operator () (const dec_int &, int32 i);
     };
 
 }

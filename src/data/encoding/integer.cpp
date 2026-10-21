@@ -461,5 +461,13 @@ namespace data::math::def {
         return division<dec_int, unsigned int> {x < 0 || y.Value < 0 ? -d.Quotient: dec_int {d.Quotient}, d.Remainder};
     }
 
+    size_t digit<dec_uint>::operator () (const dec_uint &u, int32 i) {
+        return data::digit (N (u), i);
+    }
+
+    size_t digit<dec_int>::operator () (const dec_int &u, int32 i) {
+        return data::digit (Z (u), i);
+    }
+
 }
 

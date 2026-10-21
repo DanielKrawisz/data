@@ -329,6 +329,101 @@ namespace data::arithmetic {
         }
     }
 
+    template <negativity neg, range X>
+    constexpr math::sign inline sign (X x) {
+        if constexpr (neg == negativity::nones) {
+            for (auto i = x.rbegin (); i != x.rend (); i++) if (*i != 0) return math::positive;
+            return math::zero;
+        } else if constexpr (neg == negativity::twos) {
+            auto i = x.rbegin ();
+            if (i == x.rend ()) return math::zero;
+            if (*i & get_sign_bit<digit<X>>::value) return math::negative;
+            while (i != x.rend ()) {
+                if (*i != 0) return math::positive;
+                i++;
+            }
+            return math::zero;
+        } else if constexpr (neg == negativity::BC) {
+            // an empty number is zero.
+            auto i = x.rbegin ();
+            if (i == x.rend ()) return math::zero;
+
+            // get the sign bit.
+            math::sign sign_bit = (*i & sign_bit_of<digit<X>>) ? math::negative : math::positive;
+
+            // if there are digits other than the sign bit in the last byte,
+            // then the number is non-zero.
+            if (*i & ~sign_bit_of<digit<X>>) return sign_bit;
+
+            while (true) {
+                i++;
+                if (i == x.rend ()) return math::zero;
+                if (*i != 0) return sign_bit;
+            }
+        }
+    }
+
+    namespace BC {
+        template <range X>
+        constexpr bool is_zero (X x) {
+            auto i = x.rbegin ();
+            auto e = x.rend ();
+            if (i == e) return true;
+            if (*i != 0 && *i != get_sign_bit<digit<X>>::value) return false;
+            while (true) {
+                i++;
+                if (i == e) return true;
+                if (*i != 0) return false;
+            }
+        }
+
+        template <range X>
+        constexpr bool is_negative_zero (X x) {
+            auto i = x.rbegin ();
+            auto e = x.rend ();
+            if (i == e) return false;
+            if (*i != get_sign_bit<digit<X>>::value) return false;
+            while (true) {
+                i++;
+                if (i == e) return true;
+                if (*i != 0) return false;
+            }
+        }
+
+        template <range X>
+        constexpr bool inline is_positive_zero (X x) {
+            return arithmetic::is_zero (x);
+        }
+    }
+
+    template <negativity neg, range X>
+    constexpr bool inline is_negative (X x) {
+        if constexpr (neg == negativity::nones) {
+            return false;
+        } else if constexpr (neg == negativity::twos) {
+            return sign_bit (x);
+        } else if constexpr (neg == negativity::BC) {
+            return sign_bit (x) && !BC::is_negative_zero (x);
+        }
+    }
+
+    template <negativity neg, range X>
+    constexpr bool inline get_digit (X x, int32 i) {
+        if (i < 0) return false;
+        constexpr size_t digit_size = sizeof (*x.begin ()) * CHAR_BIT;
+        size_t range_size = size (x);
+
+        if constexpr (neg == negativity::nones) {
+            if (i >= range_size * digit_size) return false;
+        } else if constexpr (neg == negativity::twos) {
+            if (i >= range_size * digit_size) return is_negative<neg> (x);
+        } else if constexpr (neg == negativity::BC) {
+            if (i >= range_size * digit_size || i == range_size * digit_size - 1) return false;
+        }
+
+        return (*(x.begin () + (i / digit_size)) >> (i % digit_size)) & 1;
+    }
+
 }
 
 namespace data::arithmetic::nones {
@@ -344,18 +439,7 @@ namespace data::arithmetic::nones {
     }
 
     template <range X>
-    constexpr bool inline is_negative (X x) {
-        return false;
-    }
-
-    template <range X>
-    constexpr math::sign inline sign (X x) {
-        for (auto i = x.rbegin (); i != x.rend (); i++) if (*i != 0) return math::positive;
-        return math::zero;
-    }
-
-    template <range X>
-    requires std::unsigned_integral<digit<X>>
+    requires Word<digit<X>>
     constexpr size_t inline bit_width (X x) {
         constexpr const size_t word_bits = sizeof (decltype (*x.begin ())) * 8;
         size_t width = size (x) * word_bits;
@@ -395,23 +479,6 @@ namespace data::arithmetic::twos {
     }
 
     template <range X>
-    constexpr bool inline is_negative (X x) {
-        return sign_bit (x);
-    }
-
-    template <range X>
-    constexpr math::sign sign (X x) {
-        auto i = x.rbegin ();
-        if (i == x.rend ()) return math::zero;
-        if (*i & get_sign_bit<digit<X>>::value) return math::negative;
-        while (i != x.rend ()) {
-            if (*i != 0) return math::positive;
-            i++;
-        }
-        return math::zero;
-    }
-
-    template <range X>
     constexpr bool inline is_negative_one (const X x) {
         if (size (x) == 0) return false;
         for (const auto &d : x) if (d != max_unsigned<digit<X>>) return false;
@@ -423,9 +490,9 @@ namespace data::arithmetic::twos {
     constexpr size_t inline bit_width (X x) {
         constexpr const size_t word_bits = sizeof (decltype (*x.begin ())) * 8;
         size_t width = size (x) * word_bits;
-        math::sign sign = twos::sign (x);
-        if (sign == math::zero) return 1;
-        bool negative = sign == math::negative;
+        math::sign sgn = sign<negativity::twos> (x);
+        if (sgn == math::zero) return 1;
+        bool negative = sgn == math::negative;
         for (auto i = x.rbegin (); i != x.rend (); i++) {
             width -= word_bits;
             if (!negative && *i != 0) {
@@ -446,37 +513,6 @@ namespace data::arithmetic::twos {
 namespace data::arithmetic::BC {
 
     template <range X>
-    constexpr bool is_zero (X x) {
-        auto i = x.rbegin ();
-        auto e = x.rend ();
-        if (i == e) return true;
-        if (*i != 0 && *i != get_sign_bit<digit<X>>::value) return false;
-        while (true) {
-            i++;
-            if (i == e) return true;
-            if (*i != 0) return false;
-        }
-    }
-
-    template <range X>
-    constexpr bool is_negative_zero (X x) {
-        auto i = x.rbegin ();
-        auto e = x.rend ();
-        if (i == e) return false;
-        if (*i != get_sign_bit<digit<X>>::value) return false;
-        while (true) {
-            i++;
-            if (i == e) return true;
-            if (*i != 0) return false;
-        }
-    }
-
-    template <range X>
-    constexpr bool inline is_positive_zero (X x) {
-        return arithmetic::is_zero (x);
-    }
-
-    template <range X>
     constexpr bool is_minimal (X x) {
         // minimal zero.
         return (size (x) == 0) ||
@@ -492,43 +528,18 @@ namespace data::arithmetic::BC {
     }
 
     template <range X>
-    constexpr bool inline is_negative (X x) {
-        return sign_bit (x) && !is_negative_zero (x);
-    }
-
-    template <range X>
-    constexpr math::sign sign (X x) {
-        // an empty number is zero.
-        auto i = x.rbegin ();
-        if (i == x.rend ()) return math::zero;
-
-        // get the sign bit.
-        math::sign sign_bit = (*i & sign_bit_of<digit<X>>) ? math::negative : math::positive;
-
-        // if there are digits other than the sign bit in the last byte,
-        // then the number is non-zero.
-        if (*i & ~sign_bit_of<digit<X>>) return sign_bit;
-
-        while (true) {
-            i++;
-            if (i == x.rend ()) return math::zero;
-            if (*i != 0) return sign_bit;
-        }
-    }
-
-    template <range X>
     constexpr bool inline cast_to_bool (X x) {
         return !is_zero (x);
     }
 
     template <range X>
-    requires std::unsigned_integral<digit<X>>
+    requires Word<digit<X>>
     constexpr size_t inline bit_width (X x) {
         constexpr const size_t word_bits = sizeof (decltype (*x.begin ())) * 8;
         size_t width = size (x) * word_bits;
 
-        math::sign sign = BC::sign (x);
-        if (sign == math::zero) return 1;
+        math::sign sgn = sign<negativity::BC> (x);
+        if (sgn == math::zero) return 1;
 
         // we know there must be at least one digit since the number is not zero.
         auto i = x.rbegin ();
@@ -570,16 +581,8 @@ namespace data::arithmetic {
             return arithmetic::compare (ai, a.rend (), b.rbegin ());
         } else {
 
-            math::sign sga;
-            math::sign sgb;
-
-            if constexpr (c == negativity::twos) {
-                sga = twos::sign (a);
-                sgb = twos::sign (b);
-            } else if constexpr (c == negativity::BC) {
-                sga = BC::sign (a);
-                sgb = BC::sign (b);
-            } else throw exception {} << "it shouldn't be possible to get here.";
+            math::sign sga = sign<c> (a);
+            math::sign sgb = sign<c> (b);
 
             if (sga != sgb) {
                 if (sga == math::negative) return std::strong_ordering::less;
@@ -592,8 +595,8 @@ namespace data::arithmetic {
 
             if (sga == math::zero) return std::strong_ordering::equal;
 
-            auto za = size (a);
-            auto zb = size (b);
+            auto za = size<c> (a);
+            auto zb = size<c> (b);
 
             X *greater;
             X *lesser;

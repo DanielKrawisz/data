@@ -924,12 +924,12 @@ namespace data {
 
         template <endian r, size_t x, Word word>
         constexpr math::sign inline sign<uint<r, x, word>>::operator () (const uint<r, x, word> &z) {
-            return arithmetic::nones::sign (z.words ());
+            return arithmetic::sign<negativity::nones> (z.words ());
         }
 
         template <endian r, size_t x, Word word>
         constexpr math::sign inline sign<sint<r, x, word>>::operator () (const sint<r, x, word> &z) {
-            return arithmetic::twos::sign (z.words ());
+            return arithmetic::sign<negativity::twos> (z.words ());
         }
 
         template <endian r, size_t x, Word word>
@@ -1031,6 +1031,11 @@ namespace data {
         constexpr I inline convert<I, number::bounded<is_signed, r, size, word>>::operator ()
         (const number::bounded<is_signed, r, size, word> &u) const {
             return I (u);
+        }
+
+        template <bool is_signed, endian r, size_t size, Word word>
+        constexpr size_t inline digit<number::bounded<is_signed, r, size, word>>::operator () (const number::bounded<is_signed, r, size, word> &u, int32 i) {
+            return arithmetic::get_digit<is_signed ? negativity::twos: negativity::nones> (u.words (), i);
         }
     }
 

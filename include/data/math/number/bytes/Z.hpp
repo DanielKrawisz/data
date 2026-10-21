@@ -596,13 +596,12 @@ namespace data::math::def {
 
     template <endian r, Word word>
     math::sign inline sign<N_bytes<r, word>>::operator () (const N_bytes<r, word> &x) {
-        return arithmetic::nones::sign (x.words ());
+        return arithmetic::sign<negativity::nones> (x.words ());
     }
 
     template <endian r, negativity c, Word word>
     math::sign inline sign<Zb<r, c, word>>::operator () (const Zb<r, c, word> &x) {
-        if constexpr (c == negativity::twos) return arithmetic::twos::sign (x.words ());
-        if constexpr (c == negativity::BC) return arithmetic::BC::sign (x.words ());
+        return arithmetic::sign<c> (x.words ());
     }
 
     template <endian r, Word word>
@@ -1012,6 +1011,16 @@ namespace data::math::def {
     template <endian r, negativity neg, Word word>
     const number::Z_bytes<r, neg, word> inline &max<number::Z_bytes<r, neg, word>>::operator () (const number::Z_bytes<r, neg, word> &a, const number::Z_bytes<r, neg, word> &b) const {
         return a > b ? a : b;
+    }
+
+    template <endian r, Word word>
+    bool inline digit<N_bytes<r, word>>::operator () (const N_bytes<r, word> &n, int32 i) {
+        return arithmetic::get_digit<negativity::nones> (n.words (), i);
+    }
+
+    template <endian r, negativity neg, Word word>
+    bool inline digit<number::Z_bytes<r, neg, word>>::operator () (const number::Z_bytes<r, neg, word> &n, int32 i) {
+        return arithmetic::get_digit<neg> (n.words (), i);
     }
 }
 

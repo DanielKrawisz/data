@@ -116,7 +116,10 @@ namespace data {
     }
 
     // count digits in a number.
-    template <typename A> size_t constexpr bit_width (const A &);
+    template <typename A> constexpr size_t bit_width (const A &);
+
+    // get the ith base 2 digit of a number.
+    template <typename A> constexpr bool digit (const A &, int32 i);
 
     // We use two different concepts for numbers, one more
     // alligend with c++ standards and the other more closely
@@ -347,6 +350,8 @@ namespace data {
             { abs (n) };
             { div_2 (n) } -> ImplicitlyConvertible<X>;
             { mod_2 (n) } -> ImplicitlyConvertible<X>;
+        } && requires (const X &n, int32 i) {
+            { digit (n, i) } -> Same<bool>;
         };
 
     template <typename X> concept group_number =
@@ -752,6 +757,12 @@ namespace data::math::def {
     template <typename A> struct div_2_pow;
     template <typename A> struct mod_2;
 
+    template <typename A> struct digit {
+        bool operator () (const A &a, int32 i) {
+            return data::odd (a >> i);
+        }
+    };
+
     template <typename A> struct square;
 
     template <typename A, typename B = A> struct GCD;
@@ -857,6 +868,10 @@ namespace data {
 
     template <typename A> constexpr auto inline mod_2 (const A &x) {
         return math::def::mod_2<A> {} (x);
+    }
+
+    template <typename A> constexpr bool inline digit (const A &x, int32 i) {
+        return math::def::digit<A> {} (x, i);
     }
 
     template <typename A, typename B, typename ...C> constexpr auto inline plus (const A &x, const B &y, C &&...z) {
