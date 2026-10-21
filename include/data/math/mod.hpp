@@ -69,6 +69,67 @@ namespace data::math::def {
                 number::bounded<false, endian::little, (sizeof (X) + 7) * 2 / 8, uint64>>>
                 >>>;
 
+    template <typename X> using extended =
+        std::conditional_t<!Integral<X>, X,
+            std::conditional_t<SignedIntegral<X>,
+                std::conditional_t<sizeof (X) == 1, int16,
+                std::conditional_t<sizeof (X) == 2, int32,
+                std::conditional_t<sizeof (X) == 4, int64,
+                number::bounded<true, endian::little, sizeof (X) / 8 + 1, uint64>>>
+                >,
+                std::conditional_t<sizeof (X) == 1, uint16,
+                std::conditional_t<sizeof (X) == 2, uint32,
+                std::conditional_t<sizeof (X) == 4, uint64,
+                number::bounded<false, endian::little, sizeof (X) / 8 + 1, uint64>>>
+                >>>;
+
+    template <typename Base, group_number Exp, group_number Mod> struct plus_mod<Base, Exp, Mod> {
+        constexpr Mod operator () (const Base &x, const Exp &y, const nonzero<Mod> &z) {
+
+            // we have a problem here because we can overflow, and when that happens, we cannot correctly mod
+            // the result. We transform to a type that is bigger than this and then transform back.
+
+            using innerBase = extended<Base>;
+            using innerExp = extended<Exp>;
+            using innerMod = extended<Mod>;
+
+            return math::convert<Mod> (
+                data::mod (
+                    data::plus (math::convert<innerMod> (data::mod (x, z)), math::convert<innerMod> (data::mod (y, z))),
+                    math::nonzero {math::convert<innerMod> (z.Value)}));
+        }
+    };
+
+    template <typename Base, group_number Exp, group_number Mod> struct minus_mod<Base, Exp, Mod> {
+        constexpr Mod operator () (const Base &a, const Exp &b, const nonzero<Mod> &z) {
+
+            if (data::is_negative (a) && data::is_negative (b))
+                return data::minus_mod (
+                    data::negate_mod (b, z),
+                    data::negate_mod (a, z), z);
+
+            if (data::is_negative (a))
+                return data::plus_mod (data::negate_mod (a, z), b, z);
+
+            if (data::is_negative (b))
+                return data::plus_mod (a, data::negate_mod (b, z), z);
+
+            if (b > a) return data::negate_mod (data::minus_mod (b, a, z), z);
+
+            // we have a problem here because we can overflow, and when that happens, we cannot correctly mod
+            // the result. We transform to a type that is bigger than this and then transform back.
+
+            using innerBase = extended<Base>;
+            using innerExp = extended<Exp>;
+            using innerMod = extended<Mod>;
+
+            return math::convert<Mod> (
+                data::mod (
+                    data::minus (math::convert<innerMod> (data::mod (a, z)), math::convert<innerMod> (data::mod (b, z))),
+                           math::nonzero {math::convert<innerMod> (z.Value)}));
+        }
+    };
+
     template <typename Base, group_number Mod> struct square_mod<Base, Mod> {
         constexpr Mod operator () (const Base &x, const nonzero<Mod> &z) {
 

@@ -1131,8 +1131,8 @@ namespace data::math::def {
 
     template <std::integral A, std::integral B> struct convert<A, B> {
         constexpr A operator () (B x) {
-            if (x > std::numeric_limits<A>::max ()) throw exception {} << "too high";
-            if (x < std::numeric_limits<A>::min ()) throw exception {} << "too low";
+            if (x > numeric_limits<A>::max ()) throw exception {} << "too high";
+            if (x < numeric_limits<A>::min ()) throw exception {} << "built-in value " << x << " too low to be converted to built-in type with minimum " << numeric_limits<A>::min ();
             return static_cast<A> (x);
         }
     };

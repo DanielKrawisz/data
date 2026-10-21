@@ -1191,10 +1191,10 @@ namespace data {
         EXPECT_EQ ((plus_mod (Z {65536}, Z {65536}, math::nonzero {N {65537}})), N {65535});
 
         EXPECT_EQ ((plus_mod (Z {70000}, Z {80000}, math::nonzero {N {100003}})), N {49997});
-    }
 
-    TYPED_TEST (Numbers, PlusModInt32Overflow) {
-        using N = typename TestFixture::N;
+        EXPECT_EQ ((plus_mod (Z {0x7ffffffe}, Z {0x00000002}, math::nonzero {N {0x7fffffff}})), N {1});
+
+        EXPECT_EQ ((plus_mod (Z {0x7ffffffd}, Z {0x00000003}, math::nonzero {N {0x7ffffffe}})), N {2});
     }
 
     TYPED_TEST (Integers, PlusMod) {
@@ -1205,6 +1205,32 @@ namespace data {
 
         EXPECT_EQ ((plus_mod (Z {-1}, Z {-1}, math::nonzero {N {65537}})), N {65535});
     }
+
+    TYPED_TEST (Naturals, PlusMod) {
+        using N = typename TestFixture::N;
+
+        EXPECT_EQ ((plus_mod (N {0xfffffffe}, N {0x00000002}, math::nonzero {N {0xffffffff}})), N {1});
+
+        EXPECT_EQ ((plus_mod (N {0xfffffffd}, N {0x00000003}, math::nonzero {N {0xfffffffe}})), N {2});
+    }
+
+    TYPED_TEST (Numbers, MinusMod) {
+        using Z = typename TestFixture::N;
+        using N = decltype (abs (Z {0}));
+
+        EXPECT_EQ (plus_mod (Z {INT32_MAX - 1}, Z {2}, math::nonzero {N {INT32_MAX}}), N {1});
+
+        EXPECT_EQ (plus_mod (Z {INT32_MAX - 2}, Z {3}, math::nonzero {N {INT32_MAX - 1}}), N {2});
+    }
+
+    TYPED_TEST (Naturals, MinusMod) {
+        using N = typename TestFixture::N;
+
+        EXPECT_EQ (minus_mod (N {1}, N {2}, math::nonzero {N {0xffffffff}}), N {0xfffffffe});
+
+        EXPECT_EQ (minus_mod (N {0}, N {0x7fffffff}, math::nonzero {N {0x80000001}}), N {2});
+    }
+
 
     TYPED_TEST (Numbers, Mul2) {
         using Z = typename TestFixture::N;
