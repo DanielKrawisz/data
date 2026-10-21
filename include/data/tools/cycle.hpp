@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_TOOLS_CYCLE
-#define DATA_TOOLS_CYCLE
+#pragma once
 
 #include <data/functional/list.hpp>
 #include <data/reverse.hpp>
@@ -141,6 +140,4 @@ namespace data::tool {
         return cycle {data::rotate_right (Cycle, n)};
     }
 }
-
-#endif
 

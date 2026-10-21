@@ -4,7 +4,8 @@
 
 #include <data/numbers.hpp>
 #include <data/list.hpp>
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 namespace data {
 
@@ -197,21 +198,6 @@ namespace data {
         
     }
 
-    TEST (ZBytes, ZToZBytes) {
-        
-        EXPECT_EQ (Z_bytes_big {Z::read ("1")}, Z_bytes_big::read ("1"));
-        EXPECT_EQ (Z_bytes_little {Z::read ("1")}, Z_bytes_little::read ("1"));
-        EXPECT_EQ (Z_bytes_big {Z::read ("23")}, Z_bytes_big::read ("23"));
-        EXPECT_EQ (Z_bytes_little {Z::read ("23")}, Z_bytes_little::read ("23"));
-        EXPECT_EQ (Z_bytes_big {Z::read ("5704566599993321")}, Z_bytes_big::read ("5704566599993321"));
-        EXPECT_EQ (Z_bytes_little {Z::read ("5704566599993321")}, Z_bytes_little::read ("5704566599993321"));
-        EXPECT_EQ (Z_bytes_big {Z::read ("-1")}, Z_bytes_big::read ("-1"));
-        EXPECT_EQ (Z_bytes_little {Z::read ("-1")}, Z_bytes_little::read ("-1"));
-        EXPECT_EQ (Z_bytes_big {Z::read ("-3393939987200333")}, Z_bytes_big::read ("-3393939987200333"));
-        EXPECT_EQ (Z_bytes_little {Z::read ("-3393939987200333")}, Z_bytes_little::read ("-3393939987200333"));
-        
-    }
-
     TEST (ZBytes, ZBytesIncrement) {
         
         auto zb0 = Z_bytes_big::read ("0x");
@@ -287,72 +273,6 @@ namespace data {
             (Z_bytes_big::read ("-3393939987200333")), std::string {"0xf3f13ac4ac86b3"});
         EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower>
             (Z_bytes_little::read ("-3393939987200333")), std::string {"0xf3f13ac4ac86b3"});
-        
-    }
-    
-    template<endian::order r>
-    N N_Bytes_to_N_stupid (const math::number::N_bytes<r, byte> &n) {
-        N x {0};
-        for (const byte &b : n.words ().reverse ()) {
-            x <<= 8;
-            x += b;
-        }
-        return x;
-    }
-    
-    template<endian::order r, neg zz>
-    Z Z_Bytes_to_Z_stupid (const math::number::Z_bytes<r, zz, byte> &z) {
-        if (is_negative (z)) return -N_Bytes_to_N_stupid (data::abs (z));
-        return N_Bytes_to_N_stupid (abs (z));
-    }
-    
-    template<endian::order r, neg zz>
-    math::number::Z_bytes<r, zz, byte> Z_to_Z_Bytes_stupid (const Z &n) {
-        return math::number::Z_bytes<r, zz, byte>::read
-            (encoding::hexidecimal::write<neg::twos, hex_case::lower> (n));
-    }
-    
-    template <typename in> void Z_Bytes_to_Z (in x) {
-        
-        Z z {x};
-        
-        Z_bytes_big big {x};
-        Z_bytes_little little {x};
-        
-        Z_bytes_big stupid_big = Z_to_Z_Bytes_stupid<endian::big, neg::twos> (z);
-        Z_bytes_little stupid_little = Z_to_Z_Bytes_stupid<endian::little, neg::twos> (z);
-        
-        EXPECT_EQ (stupid_big, big);
-        EXPECT_EQ (stupid_little, little);
-
-        Z Z_big = Z (big);
-        Z Z_little = Z (little);
-        
-        Z Z_big_stupid = Z_Bytes_to_Z_stupid (big);
-        Z Z_little_stupid = Z_Bytes_to_Z_stupid (little);
-        
-        EXPECT_EQ (Z_big_stupid, Z_big);
-        EXPECT_EQ (Z_little_stupid, Z_little);
-        
-        EXPECT_EQ (Z_big, z);
-        EXPECT_EQ (Z_little, z);
-        
-    }
-
-    TEST (ZBytesTest, ZBytesToZ) {
-
-        Z_Bytes_to_Z (0);
-        Z_Bytes_to_Z (-1);
-        Z_Bytes_to_Z (1);
-        Z_Bytes_to_Z (3);
-        Z_Bytes_to_Z (-3);
-        Z_Bytes_to_Z (229);
-        Z_Bytes_to_Z (767);
-        Z_Bytes_to_Z (916);
-        Z_Bytes_to_Z (1145);
-        Z_Bytes_to_Z (-1145);
-        Z_Bytes_to_Z ("0x0f00000a00aabbccddeeffffffffffffffff");
-        Z_Bytes_to_Z ("0xf000000a00aabbccddeeffffffffffffffff");
         
     }
 

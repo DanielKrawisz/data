@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MAYBE
-#define DATA_MAYBE
+#pragma once
 
 #include <optional>
 #include <data/concepts.hpp>
@@ -29,6 +28,20 @@ namespace data {
 
         constexpr const unref<X> *operator -> () const {
             return &*(*this);
+        }
+
+        // automatic conversions
+        template <typename Y> requires ImplicitlyConvertible<X, Y>
+        operator maybe<Y> () const {
+            if (!*this) return {};
+            return {Y (**this)};
+        }
+
+        // explicit conversions
+        template <typename Y> requires ExplicitlyConvertible<X, Y>
+        explicit operator maybe<Y> () const {
+            if (!*this) return {};
+            return {Y (**this)};
         }
 
     };
@@ -84,5 +97,3 @@ namespace data {
     }
 
 }
-
-#endif

@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ENCODING_ASCII
-#define DATA_ENCODING_ASCII
+#pragma once
 
 #include <string>
 #include <data/string.hpp>
@@ -39,5 +38,3 @@ namespace data::encoding::ASCII {
 namespace data {
     using ASCII = encoding::ASCII::string;
 }
-
-#endif 

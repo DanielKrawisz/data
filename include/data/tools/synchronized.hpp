@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_TOOLS_SYNCHRONIZED
-#define DATA_TOOLS_SYNCHRONIZED
+#pragma once
 
 #include <shared_mutex>
 
@@ -32,5 +31,3 @@ namespace data {
     };
 
 }
-
-#endif

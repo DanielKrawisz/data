@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_HASH
-#define DATA_HASH
+#pragma once
 
 /*
  *  data/hash.hpp
@@ -298,6 +297,4 @@ namespace data::hash {
 
     
 }
-
-#endif
 

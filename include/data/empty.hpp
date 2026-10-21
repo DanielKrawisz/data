@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_EMPTY
-#define DATA_EMPTY
+#pragma once
 
 #include <data/iterable.hpp>
 #include <data/size.hpp>
@@ -55,6 +54,3 @@ namespace data {
     }
 
 }
-
-#endif
-

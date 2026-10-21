@@ -4,12 +4,10 @@
 
 #include <data/numbers.hpp>
 #include <data/list.hpp>
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include "gmock/gmock-matchers.h"
-#include <stdexcept>
 
-#include <data/io/wait_for_enter.hpp>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
 
 namespace data {
     
@@ -104,11 +102,11 @@ namespace data {
     }
 
     TYPED_TEST (BitArithmetic, BitOr) {
-        test_bit_xor_unsigned<typename TestFixture::number> ();
+        test_bit_or_unsigned<typename TestFixture::number> ();
     }
 
     TYPED_TEST (BitArithmetic, BitAnd) {
-        test_bit_xor_unsigned<typename TestFixture::number> ();
+        test_bit_and_unsigned<typename TestFixture::number> ();
     }
     
     template <typename X> void test_bit_shift_bounded () {
@@ -203,21 +201,25 @@ namespace data {
 
         for (const string &number_string: numbers) {
 
-            N number = N {number_string};
+            N number = N::read (number_string);
             for (int32 shift : shifts) {
                 N expected_left = number * pow (N {2}, shift);
 
-                N expected_right = nest ([] (const N &n) -> N {
+                auto div_2 = [] (const auto& n) {
                     auto qr = divmod (n, math::nonzero<N> {N {2}});
                     return qr.Remainder < 0 ? qr.Quotient - 1u : qr.Quotient;
-                }, number, shift);
+                };
+
+                N expected_right = is_negative (number) ?
+                    N (-nest (div_2, -number - 1, shift) - 1):
+                    nest (div_2, number, shift);
 
                 //auto computed_left = number << shift;
                 auto computed_right = number >> shift;
 
                 //EXPECT_EQ (expected_left, computed_left);
                 EXPECT_EQ (expected_right, computed_right) <<
-                    "expected " << number << " >> " << shift << " -> " << expected_right << "; but got " << computed_right;
+                    "expected " << std::hex << number << " >> " << shift << " -> " << expected_right << "; but got " << computed_right;
             }
         }
 
@@ -252,56 +254,43 @@ namespace data {
         test_bit_shift_unbounded<N> (positive_numbers, shifts);
     }
 
-    // TODO make this a typed test.
-    TEST (BitOps, BitShiftUnbounded) {
+    template <typename X> struct NaturalShift : ::testing::Test {
+        using N = X;
+    };
 
-        // NOTE some of the commented tests don't compile and others are too slow.
-        /*
-        test_bit_shift_unsigned<hex_uint> ();
-        test_bit_shift_unsigned<dec_uint> ();
-        test_bit_shift_unsigned<base58_uint> ();
+    template <typename X> struct IntegerShift : ::testing::Test {
+        using Z = X;
+    };
 
-        test_bit_shift_signed<hex_int> ();
-        test_bit_shift_signed<hex_int_twos> ();
-        test_bit_shift_signed<dec_int> ();*/
+    using naturals = ::testing::Types<
+        N,
+        math::N_bytes<endian::little>,
+        math::N_bytes<endian::big>,
+        math::N_bytes<endian::little, short unsigned int>,
+        math::N_bytes<endian::big, short unsigned int>,
+        math::N_bytes<endian::little, unsigned int>,
+        math::N_bytes<endian::big, unsigned int>>;
 
+    using integers = ::testing::Types<
+        Z,
+        math::Z_bytes<endian::little>,
+        math::Z_bytes<endian::big>,
+        math::Z_bytes<endian::little, short unsigned int>,
+        math::Z_bytes<endian::big, short unsigned int>,
+        math::Z_bytes<endian::little, unsigned int>,
+        math::Z_bytes<endian::big, unsigned int>>;
+
+    TYPED_TEST_SUITE (NaturalShift, naturals);
+    TYPED_TEST_SUITE (IntegerShift, integers);
+
+    TYPED_TEST (NaturalShift, BitShiftUnbounded) {
+        using N = typename TestFixture::N;
         test_bit_shift_unsigned<N> ();
-        test_bit_shift_signed<Z> ();
-
-        test_bit_shift_unsigned<math::N_bytes<endian::little>> ();
-        test_bit_shift_unsigned<math::N_bytes<endian::big>> ();
-        test_bit_shift_unsigned<math::N_bytes<endian::little, short unsigned int>> ();
-        test_bit_shift_unsigned<math::N_bytes<endian::big, short unsigned int>> ();
-        test_bit_shift_unsigned<math::N_bytes<endian::little, unsigned int>> ();
-        test_bit_shift_unsigned<math::N_bytes<endian::big, unsigned int>> ();
-
-        test_bit_shift_signed<math::Z_bytes<endian::little>> ();
-        test_bit_shift_signed<math::Z_bytes<endian::big>> ();
-        test_bit_shift_signed<math::Z_bytes<endian::little, short unsigned int>> ();
-        test_bit_shift_signed<math::Z_bytes<endian::big, short unsigned int>> ();
-        test_bit_shift_signed<math::Z_bytes<endian::little, unsigned int>> ();
-        test_bit_shift_signed<math::Z_bytes<endian::big, unsigned int>> ();
-
-        // NOTE: the following no longer work because we changed the
-        // definition of bit shift for these types of numbers. We would
-        // need a new test for them.
-        /*
-        test_bit_shift_signed<math::Z_bytes_BC<endian::little>> ();
-        test_bit_shift_signed<math::Z_bytes_BC<endian::big>> ();
-        test_bit_shift_signed<math::Z_bytes_BC<endian::little, short unsigned int>> ();
-        test_bit_shift_signed<math::Z_bytes_BC<endian::big, short unsigned int>> ();
-        test_bit_shift_signed<math::Z_bytes_BC<endian::little, unsigned int>> ();
-        test_bit_shift_signed<math::Z_bytes_BC<endian::big, unsigned int>> ();
-        */
-
-        // TODO bigger word sizes.
     }
 
-    // Test that numbers get extended to perform bit ops if necessary.
-    TEST (BitOpsTest, BitAndOr) {
-
-
-
+    TYPED_TEST (IntegerShift, BitShiftUnbounded) {
+        using Z = typename TestFixture::Z;
+        test_bit_shift_signed<Z> ();
     }
     
 }

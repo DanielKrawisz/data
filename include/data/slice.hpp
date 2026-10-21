@@ -2,11 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_SLICE
-#define DATA_SLICE
+#pragma once
 
 #include <span>
 #include <data/tools/index_iterator.hpp>
+
 #include <data/exception.hpp>
 
 namespace data::meta {
@@ -159,5 +159,3 @@ namespace data {
     }
 
 }
-
-#endif

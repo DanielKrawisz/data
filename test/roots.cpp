@@ -3,7 +3,10 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/math.hpp>
-#include "gtest/gtest.h"
+
+#include <data/math/number/NTL/roots.hpp>
+
+#include <gtest/gtest.h>
 
 namespace data {
     
@@ -20,8 +23,8 @@ namespace data {
         auto root_128_3 = root<3> (NN (128));
         auto root_128_7 = root<7> (NN (128));
 
-        NN ntt1 = NN (N ("1798307508862833999690304313948111955510002315423096853"));
-        NN ntt2 = NN (N ("1798307508862833999690304313948111955510002315423096851"));
+        NN ntt1 = NN (N::read ("1798307508862833999690304313948111955510002315423096853"));
+        NN ntt2 = NN (N::read ("1798307508862833999690304313948111955510002315423096851"));
 
         auto root_1798307508862833999690304313948111955510002315423096853_19 = root<19> (ntt1);
         auto root_1798307508862833999690304313948111955510002315423096853_18 = root<18> (ntt1);
@@ -77,6 +80,32 @@ namespace data {
         EXPECT_FALSE (contains_8_n3);
         
     };
+
+    using natural_test_cases = ::testing::Types<
+        uint32, uint64, uint32_little, uint64_big,
+        uint128, uint128_little, uint160, uint160_big,
+        N, N_bytes_little,
+        dec_uint, hex_uint, base58_uint>;
+
+    using integer_test_cases = ::testing::Types<
+        int32, int64, int32_little, int64_big,
+        int128, int128_little, int160, int160_big,
+        Z, Z_bytes_little, Z_bytes_BC_big,
+        dec_int, hex_int, hex_int_BC>;
+
+    template <typename N>
+    struct NaturalSqrts : ::testing::Test {
+        using natural = N;
+    };
+
+    template <typename N>
+    struct IntegerSqrts : ::testing::Test {
+        using integer = N;
+    };
+
+    TYPED_TEST_SUITE (NaturalSqrts, integer_test_cases);
+
+    TYPED_TEST_SUITE (IntegerSqrts, natural_test_cases);
     
     TEST (Roots, Roots) {
 
@@ -93,5 +122,9 @@ namespace data {
         test_root_Z<dec_int> ();
         test_root_Z<hex_int> ();
         test_root_Z<hex_int_BC> ();
+    }
+
+    TEST (Roots, Rational) {
+
     }
 }

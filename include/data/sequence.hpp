@@ -2,15 +2,15 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_SEQUENCE
-#define DATA_SEQUENCE
+#pragma once
 
-#include <data/exception.hpp>
 #include <data/concepts.hpp>
 #include <data/empty.hpp>
 #include <data/function.hpp>
 #include <data/ordered.hpp>
 #include <data/iterable.hpp>
+
+#include <data/exception.hpp>
 
 namespace data {
     
@@ -132,5 +132,3 @@ namespace data {
     }
 
 }
-
-#endif

@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ENCODING_DIGITS
-#define DATA_ENCODING_DIGITS
+#pragma once
 
 #include <data/stack.hpp>
 #include <data/math/number/division.hpp>
@@ -49,6 +48,3 @@ namespace data::encoding {
         return n;
     }
 }
-
-#endif
-

@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_MODULAR
-#define DATA_MATH_NUMBER_MODULAR
+#pragma once
 
 #include <data/types.hpp>
 #include <data/integral.hpp>
@@ -70,6 +69,7 @@ namespace data::math::number {
     constexpr modular<mod, X> operator ^ (const modular<mod, X> &, const X &);
     
     template <auto mod, mod_base X> struct modular {
+        constexpr static const decltype (mod) Modulus = mod;
         X Value;
 
         template <typename... P>
@@ -200,6 +200,7 @@ namespace data::math::number {
 
     template <auto mod, mod_base X>
     constexpr maybe<modular<mod, X>> invert (const modular<mod, X> &x) {
+        //auto proof = euclidian::extended<X, decltype (-x.Value)>::algorithm (mod, x.Value);
         auto proof = euclidian::extended<X, modular<mod, X>>::algorithm (mod, x.Value);
         if (proof.GCD != 1) return {};
         return proof.BezoutT;
@@ -221,6 +222,4 @@ namespace data::math::number {
     }
 
 }
-
-#endif
 

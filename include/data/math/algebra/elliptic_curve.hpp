@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_CRYPTO_ELLIPTIC_CURVE
-#define DATA_MATH_CRYPTO_ELLIPTIC_CURVE
+#pragma once
 
 #include <data/math/number/prime.hpp>
 #include <data/math/number/modular.hpp>
@@ -14,7 +13,7 @@
 namespace data::math {
 
     template <typename curve> concept EllipticCurve =
-        field<typename curve::coordinate> && RingNumber<typename curve::scalar> &&
+        Field<typename curve::coordinate> && RingNumber<typename curve::scalar> &&
         requires (const curve &q) {
             { q.discriminant () } -> Same<typename curve::coordinate>;
         } && requires (typename space::vector<typename curve::coordinate, 2> &x) {
@@ -91,7 +90,7 @@ namespace data::math {
 
             point operator - () const;
             point operator + (const point &) const;
-            point operator - (const point &) const;
+            point operator - (  const point &) const;
             point operator * (const scalar &) const;
         };
     };
@@ -99,7 +98,7 @@ namespace data::math {
     // Not every elliptic curve can be expressed in Weierstrauss form,
     // but those that can't are very much exceptions.
     // NOTE: this particular type is only good for prime field curves ATM.
-    template <RingNumber N, field field> struct Weierstrauss {
+    template <RingNumber N, Field field> struct Weierstrauss {
 
         using coordinate = field;
         using scalar = N;
@@ -217,13 +216,13 @@ namespace data::math {
         };*/
     };
 
-    template <RingNumber N, field field>
+    template <RingNumber N, Field field>
     constexpr bool inline Weierstrauss<N, field>::valid () const {
         // make sure the curve is not singular.
         return discriminant () != 0;
     }
 
-    template <RingNumber N, field field>
+    template <RingNumber N, Field field>
     constexpr field inline Weierstrauss<N, field>::discriminant () const {
         return A * A * A * 4 + B * B * 27;
     }
@@ -363,7 +362,4 @@ namespace data::math {
     }*/
     
 }
-
-#endif
-
 
