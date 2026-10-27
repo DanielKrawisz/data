@@ -173,8 +173,7 @@ namespace data::math::space {
 }
 
 // NOTE: hereafter we use X {0} to represent the zero element of the field and X {1} to represent the unit.
-// this is not necessarilly correct for all fields but it ought to work in ordinary cases. To be perfect we
-// may need to be more careful in a later version.
+// That should work fine for all fields.
 
 namespace data::math::space {
     // valid if nonzero.

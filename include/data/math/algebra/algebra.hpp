@@ -8,6 +8,6 @@
 
 namespace data::math {
     template <typename F, typename V>
-    concept algebra = linear::Space<F, V> && Ring<V>;
+    concept Algebra = linear::Space<F, V> && Ring<V>;
 
 }
