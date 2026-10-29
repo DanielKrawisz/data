@@ -10,7 +10,7 @@ namespace data::math {
 
     // essentially a fold expression in which the bits of
     // the number become the sequence of inputs for each round.
-    template <typename N, typename A, group_number B>
+    template <typename N, typename A, Exponent B>
     class binary_accumulate {
         // use plus for times and times for pow.
         function<N (const N &, const A &)> C;
@@ -39,13 +39,13 @@ namespace data::math {
 
     // we can make a multiplication out of a group number type
     // thus turning them into ring number type.
-    template <typename A, group_number B>
+    template <GroupNumber A, Exponent B>
     constexpr A inline binary_accumulate_times (const A &x, const B &y) {
         if (y < 0) return -binary_accumulate_times (x, -y);
         return binary_accumulate<A, A, B> {&plus<A, A>, &mul_2<A>} (A {0}, x, y);
     }
 
-    template <typename A, group_number B, group_number Mod>
+    template <typename A, Exponent B, GroupNumber Mod>
     constexpr A inline binary_accumulate_times_mod (const A &x, const B &y, const nonzero<Mod> &z) {
         if (z.Value == 0) throw division_by_zero {};
         if (y < 0) return -binary_accumulate_times_mod (x, -y, z);
@@ -57,7 +57,7 @@ namespace data::math {
         }} (Mod {0}, x, y);
     }
 
-    template <typename Base, group_number Exp, group_number_unsigned Mod>
+    template <typename Base, Exponent Exp, group_number_unsigned Mod>
     constexpr Mod inline binary_accumulate_times_mod (const Base &x, const Exp &y, const nonzero<Mod> &z) {
         if (y < 0) return negate_mod (binary_accumulate_times_mod (x, negate_mod (y, z), z), z);
         return binary_accumulate<Mod, Mod, Mod> {[z] (const Mod &a, const Mod &b) -> Mod {

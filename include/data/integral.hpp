@@ -76,6 +76,24 @@ namespace data {
     using uint544 = math::uint<endian::little, 17, uint32>;
     using  int544 = math::sint<endian::little, 17, uint32>;
 
+    using uint1536 = math::uint<endian::little, 24, uint64>;
+    using  int1536 = math::sint<endian::little, 24, uint64>;
+
+    using uint2048 = math::uint<endian::little, 32, uint64>;
+    using  int2048 = math::sint<endian::little, 32, uint64>;
+
+    using uint3072 = math::uint<endian::little, 48, uint64>;
+    using  int3072 = math::sint<endian::little, 48, uint64>;
+
+    using uint4096 = math::uint<endian::little, 64, uint64>;
+    using  int4096 = math::sint<endian::little, 64, uint64>;
+
+    using uint6144 = math::uint<endian::little, 96, uint64>;
+    using  int6144 = math::sint<endian::little, 96, uint64>;
+
+    using uint8192 = math::uint<endian::little, 128, uint64>;
+    using  int8192 = math::sint<endian::little, 128, uint64>;
+
     using  uint80_little = uint_little<10>;
     using uint128_little = uint_little<16>;
     using uint160_little = uint_little<20>;

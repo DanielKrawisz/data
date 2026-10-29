@@ -183,9 +183,7 @@ namespace data {
     // a proto_integral type is starting to look like a number.
     template <typename X> concept proto_number =
         std::default_initializable<X> && Incrementable<X> &&
-        NumberComparable<X> && requires (const X &n) {
-            { abs (n) };
-        } && requires (const X &a, int i) {
+        requires (const X &a, int i) {
             { a >> i } -> ImplicitlyConvertible<X>;
             { a << i } -> ImplicitlyConvertible<X>;
         } && requires (X &a, int i) {
@@ -193,18 +191,25 @@ namespace data {
             { a <<= i } -> Same<X &>;
         };
 
-    template <typename A> concept proto_signed =
+    template <typename X> concept proto_comparable =
+        NumberComparable<X> &&
+        requires (const X &n) {
+            { abs (n) };
+        };
+
+    template <typename A> concept proto_signed = proto_comparable<A> &&
         proto_number<A> && Signed<A> && requires (const A &n) {
             { negate (abs (n)) } -> Same<A>;
         };
 
-    template <typename A> concept proto_unsigned =
+    template <typename A> concept proto_unsigned = proto_comparable<A> &&
         proto_number<A> && Unsigned<A> && requires (const A &n) {
             { bit_width (n) } -> Same<size_t>;
         };
 
     // now we have two types that go together as signed and unsigned versions of each other.
     template <typename Z, typename N> concept proto_system =
+        proto_comparable<Z> && proto_comparable<N> &&
         proto_number<Z> && proto_number<N> && Signed<Z> &&
         requires (const Z &a) {
             { negate (abs (a)) } -> Same<Z>;
@@ -215,13 +220,11 @@ namespace data {
         } && Comparable<Z, N>;
 
     template <typename Z, typename N> concept proto_integral_system =
-        proto_system<Z, N> && ImplicitlyConvertible<Z, N> &&
-        Convertible<N, Z> &&
+        proto_system<Z, N> && ImplicitlyConvertible<Z, N> && Convertible<N, Z> &&
         math::homo_abs_and_negate<Z> && math::homo_abs_and_negate<N>;
 
     template <typename Z, typename N = Z> concept proto_number_system =
-        proto_system<Z, N> && ImplicitlyConvertible<N, Z> &&
-        Convertible<Z, N> &&
+        proto_system<Z, N> && ImplicitlyConvertible<N, Z> && Convertible<Z, N> &&
         math::hetero_abs_and_negate<N, Z>;
 
     // here we look at types with bit operations defined on them.
@@ -345,17 +348,20 @@ namespace data {
         };
 
     template <typename X> concept group_algebraic =
-        group_algebraic_to<X, X> &&
-        requires (const X &n) {
-            { abs (n) };
+        group_algebraic_to<X, X>;
+
+    template <typename X> concept GroupNumber =
+        proto_number<X> && group_algebraic<X>;
+
+    // TODO this is not a good name because we also use it in binary_accumulate_times not as an exponent.
+    template <typename X> concept Exponent = GroupNumber<X> &&
+        requires (const X &n, int32 i) {
+            { digit (n, i) } -> Same<bool>;
+            { bit_width (n) } -> ImplicitlyConvertible<size_t>;
+        } && requires (const X &n) {
             { div_2 (n) } -> ImplicitlyConvertible<X>;
             { mod_2 (n) } -> ImplicitlyConvertible<X>;
-        } && requires (const X &n, int32 i) {
-            { digit (n, i) } -> Same<bool>;
         };
-
-    template <typename X> concept group_number =
-        proto_number<X> && group_algebraic<X>;
 
     template <typename A, typename B> concept ring_algebraic_to =
         group_algebraic_to<A, B> &&
@@ -372,10 +378,9 @@ namespace data {
     // This is what we need to ensure that we can
     // construct a division algorithm.
     template <typename X> concept MultiplicativeNumber =
-        group_number<X> && ring_algebraic<X> &&
+        GroupNumber<X> && ring_algebraic<X> &&
         requires (const X &n) {
             { mul_2 (n) } -> ImplicitlyConvertible<X>;
-            { bit_width (n) } -> ImplicitlyConvertible<size_t>;
         };
 
     template <typename X> concept MultiplicativeNumberUnsigned =
@@ -587,10 +592,10 @@ namespace data {
         div_algebraic_signed_big<X> && div_algebraic_unsigned_big<X>;
 
     template <typename A> concept group_number_signed =
-        group_number<A> && proto_signed<A> && group_algebraic_signed<A>;
+        GroupNumber<A> && proto_signed<A> && group_algebraic_signed<A>;
 
     template <typename A> concept group_number_unsigned =
-        group_number<A> && proto_unsigned<A> && group_algebraic_unsigned<A>;
+        GroupNumber<A> && proto_unsigned<A> && group_algebraic_unsigned<A>;
 
     template <typename A> concept group_number_signed_big =
         group_number_signed<A> && group_algebraic_signed_big<A>;
@@ -624,13 +629,13 @@ namespace data {
 
     // a number system is more like what a mathematician would expect.
     template <typename Z, typename N> concept group_number_system =
-        group_number<Z> && group_number<N> && proto_number_system<Z, N> &&
+        GroupNumber<Z> && GroupNumber<N> && proto_number_system<Z, N> &&
         group_algebraic_signed<Z> && group_algebraic_unsigned<N> &&
         group_algebraic_to<Z, N>;
 
     // an integral system resembls a built in c++ number.
     template <typename Z, typename N> concept group_integral_system =
-        group_number<Z> && group_number<N> && proto_integral_system<Z, N> &&
+        GroupNumber<Z> && GroupNumber<N> && proto_integral_system<Z, N> &&
         group_algebraic_signed<Z> && group_algebraic_unsigned<N> &&
         group_algebraic_to<N, Z>;
 
@@ -663,14 +668,14 @@ namespace data {
 
     // a whole number could be signed or unsigned
     // and does not require a negate operation.
-    template <typename Z> concept WholeNumber =
+    template <typename Z> concept WholeNumber = proto_comparable<Z> && Exponent<Z> &&
         div_number<Z> && requires (const Z &a, const Z &b) {
             { a % abs (b) };
             { divmod (a, math::nonzero {abs (b)}) };
         };
 
-    template <typename Z> concept Integer = math::IntegralDomain<Z> &&
-        div_number<Z> && RingNumber<Z> && div_number_signed<Z>;
+    template <typename Z> concept Integer = math::IntegralDomain<Z> && Exponent<Z> &&
+        div_number<Z> && RingNumber<Z> && div_number_signed<Z> && proto_comparable<Z>;
 
     template <typename Z> concept Natural =
         WholeNumber<Z> && div_number_unsigned<Z> && requires (const Z &a, const Z &b) {
@@ -1141,12 +1146,12 @@ namespace data::math::def {
 // we define bit operations in terms of arithmetic operations and vice versa.
 namespace data::math {
 
-    template <group_number A> constexpr A inline arithmetic_bit_invert_twos (const A &a) {
+    template <GroupNumber A> constexpr A inline arithmetic_bit_invert_twos (const A &a) {
         return -a - 1;
     }
 
     // we now define shifts in terms of mul_2 and div_2
-    template <group_number A> constexpr A arithmetic_shift_right_twos (const A &a, uint32 u) {
+    template <GroupNumber A> constexpr A arithmetic_shift_right_twos (const A &a, uint32 u) {
         return data::is_negative (a) ? -div_2_pow (-a - 1, u) : data::div_2_pow (a, u);
     }
 
@@ -1218,7 +1223,7 @@ namespace data::math::def {
         }
     };
 
-    template <group_number A, group_number B> struct minus<A, B> {
+    template <GroupNumber A, GroupNumber B> struct minus<A, B> {
         constexpr auto operator () (const A &x, const B &y) const {
             return x - y;
         }

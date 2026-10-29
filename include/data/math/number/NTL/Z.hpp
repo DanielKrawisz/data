@@ -824,28 +824,28 @@ namespace data::math::def {
         return NTL::IsOdd (a.Value) ? N (1): N ();
     }
 
-    template <group_number Exp>
+    template <GroupNumber Exp>
     N inline pow<N, Exp>::operator () (const N &x, const Exp &y) {
         if constexpr (NTL::Compatible<Exp>)
             return N (NTL::power (x.Value, long (y)));
         else return math::binary_accumulate_pow (x, y);
     }
 
-    template <group_number Exp>
+    template <GroupNumber Exp>
     Z inline pow<Z, Exp>::operator () (const Z &x, const Exp &y) {
         if constexpr (NTL::Compatible<Exp>)
             return Z (NTL::power (x.Value, long (y)));
         else return math::binary_accumulate_pow (x, y);
     }
 
-    template <group_number Exp>
+    template <GroupNumber Exp>
     N inline pow_mod<N, Exp, N>::operator () (const N &x, const Exp &y, const nonzero<N> &z) {
         if constexpr (Same<Exp, Z> || Same<Exp, N>)
             return N (NTL::pow_mod (x.Value, y.Value, z.Value.Value));
         else return math::binary_accumulate_pow_mod (x, y, z);
     }
 
-    template <group_number Exp>
+    template <GroupNumber Exp>
     N inline pow_mod<Z, Exp, N>::operator () (const Z &x, const Exp &y, const nonzero<N> &z) {
         if constexpr (Same<Exp, Z> || Same<Exp, N>)
             return N (NTL::pow_mod (x.Value, y.Value, z.Value.Value));

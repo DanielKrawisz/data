@@ -34,8 +34,7 @@ namespace data {
     }
 
     template <typename N, math::Ring M>
-    // TODO uncomment this later and make it work.
-    requires //RingNumber<M> &&
+    requires RingNumber<M> &&
     requires { pow<M, int>; }
     void test_suite () {
 

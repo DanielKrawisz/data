@@ -1427,21 +1427,21 @@ namespace data::math::def {
         N operator () (const Z &a);
     };
 
-    template <group_number Exp>
+    template <GroupNumber Exp>
     struct pow<N, Exp> {
         N operator () (const N &x, const Exp &y);
     };
 
-    template <group_number Exp>
+    template <GroupNumber Exp>
     struct pow<Z, Exp> {
         Z operator () (const Z &x, const Exp &y);
     };
 
-    template <group_number Exp> struct pow_mod<N, Exp, N> {
+    template <GroupNumber Exp> struct pow_mod<N, Exp, N> {
         N operator () (const N &x, const Exp &y, const nonzero<N> &z);
     };
 
-    template <group_number Exp> struct pow_mod<Z, Exp, N> {
+    template <GroupNumber Exp> struct pow_mod<Z, Exp, N> {
         N operator () (const Z &x, const Exp &y, const nonzero<N> &z);
     };
 

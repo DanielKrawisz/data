@@ -83,7 +83,7 @@ namespace data::math::def {
                 number::bounded<false, endian::little, sizeof (X) / 8 + 1, uint64>>>
                 >>>;
 
-    template <typename Base, group_number Exp, group_number Mod> struct plus_mod<Base, Exp, Mod> {
+    template <typename Base, GroupNumber Exp, GroupNumber Mod> struct plus_mod<Base, Exp, Mod> {
         constexpr Mod operator () (const Base &x, const Exp &y, const nonzero<Mod> &z) {
 
             // we have a problem here because we can overflow, and when that happens, we cannot correctly mod
@@ -100,7 +100,7 @@ namespace data::math::def {
         }
     };
 
-    template <typename Base, group_number Exp, group_number Mod> struct minus_mod<Base, Exp, Mod> {
+    template <typename Base, GroupNumber Exp, GroupNumber Mod> struct minus_mod<Base, Exp, Mod> {
         constexpr Mod operator () (const Base &a, const Exp &b, const nonzero<Mod> &z) {
 
             if (data::is_negative (a) && data::is_negative (b))
@@ -130,7 +130,7 @@ namespace data::math::def {
         }
     };
 
-    template <typename Base, group_number Mod> struct square_mod<Base, Mod> {
+    template <typename Base, GroupNumber Mod> struct square_mod<Base, Mod> {
         constexpr Mod operator () (const Base &x, const nonzero<Mod> &z) {
 
             // we have a problem here because we can overflow, and when that happens, we cannot correctly mod
@@ -146,7 +146,7 @@ namespace data::math::def {
         }
     };
 
-    template <typename Base, group_number Exp, group_number Mod> struct pow_mod<Base, Exp, Mod> {
+    template <typename Base, GroupNumber Exp, GroupNumber Mod> struct pow_mod<Base, Exp, Mod> {
         constexpr Mod operator () (const Base &x, const Exp &y, const nonzero<Mod> &z) {
 
             // we have a problem here because we can overflow, and when that happens, we cannot correctly mod
@@ -165,7 +165,7 @@ namespace data::math::def {
         }
     };
 
-    template <typename Base, group_number Exp, group_number Mod> struct times_mod<Base, Exp, Mod> {
+    template <typename Base, GroupNumber Exp, GroupNumber Mod> struct times_mod<Base, Exp, Mod> {
         constexpr Mod operator () (const Base &x, const Exp &y, const nonzero<Mod> &z) {
 
             // we have a problem here because we can overflow, and when that happens, we cannot correctly mod

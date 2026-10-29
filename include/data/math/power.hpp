@@ -15,13 +15,13 @@ namespace data::math {
         negative_power (): exception {"cannot take a negative power"} {}
     };
 
-    template <typename Base, group_number Exp>
+    template <typename Base, Exponent Exp>
     constexpr Base inline binary_accumulate_pow (const Base &x, const Exp &y) {
         if (y < 0) throw negative_power {};
         return binary_accumulate<Base, Base, Exp> {&times<Base, Base>, &square<Base>} (Base {1}, x, y);
     }
 
-    template <typename Base, group_number Exp, group_number Mod>
+    template <typename Base, GroupNumber Exp, GroupNumber Mod>
     constexpr Mod inline binary_accumulate_pow_mod (const Base &x, const Exp &y, const nonzero<Mod> &z) {
         if (z.Value < 0) throw negative_power {};
         if (y < 0) throw negative_power {};
@@ -33,7 +33,7 @@ namespace data::math {
         }} (Mod {1}, x, y);
     }
 
-    template <typename Base, group_number Exp, group_number_unsigned Mod>
+    template <typename Base, GroupNumber Exp, group_number_unsigned Mod>
     constexpr Mod inline binary_accumulate_pow_mod (const Base &x, const Exp &y, const nonzero<Mod> &z) {
         if (y < 0) throw negative_power {};
         return binary_accumulate<Mod, Base, Exp> {[z] (const Mod &a, const Base &b) {
@@ -48,7 +48,7 @@ namespace data::math {
 namespace data::math::def {
 
     // default implementations for pow.
-    template <typename A, group_number Exp>
+    template <typename A, GroupNumber Exp>
     struct pow<A, Exp> {
         constexpr A operator () (const A &x, const Exp &y) {
             return math::binary_accumulate_pow (x, y);

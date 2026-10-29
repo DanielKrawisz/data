@@ -12,7 +12,7 @@
 
 namespace data::math {
 
-    template <typename A, group_number Exp = A>
+    template <typename A, GroupNumber Exp = A>
     struct power {
         A Base;
         Exp Exponent;
@@ -22,49 +22,49 @@ namespace data::math {
         }
     };
 
-    template <typename A, group_number Mod>
+    template <typename A, GroupNumber Mod>
     std::ostream inline &operator << (std::ostream &o, const power<A, Mod> &p) {
         o << p.Base;
         if (p.Exponent != 1) o << " ^ " << p.Exponent;
         return o;
     }
 
-    template <Ring A, group_number N, char x> struct polynomial;
+    template <Ring A, GroupNumber N, char x> struct polynomial;
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     bool operator == (const polynomial<A, N, x>, const polynomial<A, N, x>);
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> operator - (const polynomial<A, N, x>);
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> operator + (const polynomial<A, N, x>, const polynomial<A, N, x>);
 
-    template <Ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    template <Ring A, GroupNumber N, char x, ImplicitlyConvertible<A> W>
     polynomial<A, N, x> operator + (const W &, const polynomial<A, N, x>);
 
-    template <Ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    template <Ring A, GroupNumber N, char x, ImplicitlyConvertible<A> W>
     polynomial<A, N, x> operator + (const polynomial<A, N, x>, const W &);
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> operator - (const polynomial<A, N, x>, const polynomial<A, N, x>);
 
-    template <Ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    template <Ring A, GroupNumber N, char x, ImplicitlyConvertible<A> W>
     polynomial<A, N, x> operator - (const W &, const polynomial<A, N, x>);
 
-    template <Ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    template <Ring A, GroupNumber N, char x, ImplicitlyConvertible<A> W>
     polynomial<A, N, x> operator - (const polynomial<A, N, x>, const W &);
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> operator * (const polynomial<A, N, x>, const polynomial<A, N, x>);
 
-    template <Ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    template <Ring A, GroupNumber N, char x, ImplicitlyConvertible<A> W>
     polynomial<A, N, x> operator * (const W &, const polynomial<A, N, x>);
 
-    template <Ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    template <Ring A, GroupNumber N, char x, ImplicitlyConvertible<A> W>
     polynomial<A, N, x> operator * (const polynomial<A, N, x>, const W &);
 
-    template <typename A, group_number N, char x>
+    template <typename A, GroupNumber N, char x>
     std::ostream &operator << (std::ostream &o, const polynomial<A, N, x> &p);
 
     template <char name> struct variable {};
@@ -75,7 +75,7 @@ namespace data::math {
     template <char name>
     std::ostream &operator << (std::ostream &o, const variable<name> &x);
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     struct polynomial {
         
         polynomial ();
@@ -192,32 +192,32 @@ namespace data::math {
     namespace def {
 
         // the other operations work if A is a ring, but for division we need A to be a field.
-        template <Ring A, group_number N, char x>
+        template <Ring A, GroupNumber N, char x>
         struct divmod<polynomial<A, N, x>> {
             division<polynomial<A, N, x>> operator () (const polynomial<A, N, x>, const nonzero<polynomial<A, N, x>>);
         };
 
-        template <typename A, group_number N, char x>
+        template <typename A, GroupNumber N, char x>
         struct identity<plus<polynomial<A, N, x>>, polynomial<A, N, x>> : identity<plus<A>, A> {
             polynomial<A, N, x> operator () ();
         };
 
-        template <typename A, group_number N, char x>
+        template <typename A, GroupNumber N, char x>
         struct identity<times<polynomial<A, N, x>>, polynomial<A, N, x>> : identity<times<A>, A> {
             polynomial<A, N, x> operator () ();
         };
 
-        template <typename A, group_number N, char x>
+        template <typename A, GroupNumber N, char x>
         polynomial<A, N, x> inline identity<plus<polynomial<A, N, x>>, polynomial<A, N, x>>::operator () () {
             return identity<plus<A>, A>::value ();
         }
 
-        template <typename A, group_number N, char x>
+        template <typename A, GroupNumber N, char x>
         polynomial<A, N, x> inline identity<times<polynomial<A, N, x>>, polynomial<A, N, x>>::operator () () {
             return identity<times<A>, A>::value ();
         }
 
-        template <Ring A, group_number N, char x>
+        template <Ring A, GroupNumber N, char x>
         division<polynomial<A, N, x>> inline divmod<polynomial<A, N, x>>::operator ()
         (const polynomial<A, N, x> Dividend, const nonzero<polynomial<A, N, x>> Divisor) {
 
@@ -255,7 +255,7 @@ namespace data::math {
         return o << name;
     }
 
-    template <typename A, group_number N, char x>
+    template <typename A, GroupNumber N, char x>
     std::ostream &operator << (std::ostream &o, const polynomial<A, N, x> &p) {
         o << "polynomial {";
         if (!p.Terms.empty ()) {
@@ -275,138 +275,138 @@ namespace data::math {
         return o << "}";
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     bool inline operator == (const polynomial<A, N, x> a, const polynomial<A, N, x> b) {
         return polynomial<A, N, x>::equal (a, b);
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline operator - (const polynomial<A, N, x> p) {
         return polynomial<A, N, x>::negative (p);
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline operator + (const polynomial<A, N, x> a, const polynomial<A, N, x> b) {
         return polynomial<A, N, x>::plus (a, b);
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline operator - (const polynomial<A, N, x> a, const polynomial<A, N, x> b) {
         return polynomial<A, N, x>::minus (a, b);
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline operator * (const polynomial<A, N, x> a, const polynomial<A, N, x> b) {
         return polynomial<A, N, x>::times (a, b);
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::operator ^ (const N &n) const {
         return polynomial<A, N, x>::pow (*this, n);
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::pow (const polynomial p, const N &n) {
         return binary_accumulate_pow (p, n);
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     bool polynomial<A, N, x>::valid () const {
         return Terms.valid ();
     }
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     bool inline polynomial<A, N, x>::term::operator == (const term &t) const {
         return *this <=> t == 0;
     }
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     bool inline polynomial<A, N, x>::term::operator == (const A &a) const {
         return operator == (term {a, 0});
     }
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     A inline polynomial<A, N, x>::term::operator () (const A f) const{
         return (f ^ Power) * Coefficient;
     }
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::term::operator () (const polynomial p) const {
         return (p ^ Power.Exponent) * Coefficient;
     }
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     typename polynomial<A, N, x>::term inline polynomial<A, N, x>::term::operator * (const term &t) const {
         return term {Coefficient * t.Coefficient, Power.Exponent + t.Power.Exponent};
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     typename polynomial<A, N, x>::term inline polynomial<A, N, x>::term::operator * (const A a) const {
         return term {Coefficient * a, Power.Exponent};
     }
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::term::operator * (const polynomial p) const {
         return fold ([this] (const polynomial &p, const term &t) -> polynomial {
             return p + (*this * t);
         }, polynomial {}, reverse (p.Terms));
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     inline polynomial<A, N, x>::term::term (A a, const N& n) : Coefficient {a}, Power {{}, n} {}
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     inline polynomial<A, N, x>::polynomial () : Terms {} {}
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     inline polynomial<A, N, x>::polynomial (const A a) : Terms {terms {}.insert (term {a, 0})} {}
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     inline polynomial<A, N, x>::polynomial (const term t) : Terms {terms {}.insert (t)} {}
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     typename polynomial<A, N, x>::term inline polynomial<A, N, x>::first () const {
         return Terms.first ();
     }
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::rest () const {
         return polynomial {Terms.rest (), nullptr};
     }
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     constexpr polynomial<A, N, x> inline polynomial<A, N, x>::unit () {
         return polynomial {term {A {1}, 0}};
     } 
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     constexpr polynomial<A, N, x> inline polynomial<A, N, x>::zero () {
         return polynomial {term {A {0}, 0}};
     }
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     constexpr polynomial<A, N, x> inline polynomial<A, N, x>::var () {
         return polynomial (term {A (1), 1});
     }
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     uint32 inline polynomial<A, N, x>::degree () const {
         auto p = normalize ();
         if (p.Terms.empty ()) return 0;
         return p.Terms.first ().Power.Exponent;
     }
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     bool inline polynomial<A, N, x>::equal (const polynomial p, const polynomial q) {
         return p.normalize ().Terms == q.normalize ().Terms;
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     bool inline polynomial<A, N, x>::operator == (const A &p) const {
         return equal (*this, polynomial {p});
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> polynomial<A, N, x>::insert (const term t) const {
         if (t == term {}) return *this;
         if (Terms.empty ()) return {t};
@@ -416,130 +416,130 @@ namespace data::math {
         return rest ().insert (t).insert (first);
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::insert (terms t) const {
         if (Terms.empty ()) return polynomial {t, nullptr};
         if (t.empty ()) return *this;
         return polynomial {insert (t.first ()).insert (t.rest ())};
     }
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::operator + (const A a) const {
         return insert (term {a, 0});
     }
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::plus (const polynomial a, const polynomial b) {
         return a.insert (b.Terms).normalize ();
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::minus (const polynomial a, const polynomial b) {
         return a + -b;
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::negative (const polynomial a) {
         return fold ([] (const polynomial p, const term &t) -> polynomial {
             return p + -t;
         }, polynomial {}, reverse (a.Terms));
     }
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::operator + (const term t) const {
         return insert (t);
     };
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     inline polynomial<A, N, x> polynomial<A, N, x>::operator += (const term t) {
         return *this = *this + t;
     }
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::operator += (const A a) {
         return *this = *this + a;
     }
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::operator += (const polynomial &p) {
         return *this = *this + p;
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::operator * (const A z) const {
         return fold ([z] (const polynomial p, const term &t) -> polynomial {
             return p + t * z;
         }, polynomial {}, reverse (Terms));
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::operator * (const term z) const {
         return fold ([z] (const polynomial p, const term &t) -> polynomial {
             return p + t * z;
         }, polynomial {}, reverse (Terms));
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::times (const polynomial a, const polynomial b) {
         return fold ([b] (const polynomial p, const term &t) -> polynomial {
             return p + t * b;
         }, polynomial {}, reverse (a.Terms));
     }
     
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::operator () (const A f) const {
         if (empty (Terms)) return 0;
         return Terms.first () (f) + polynomial {Terms.rest ()} (f);
     }
     
     // inefficient as it computes powers repeatedly. 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> polynomial<A, N, x>::operator () (const polynomial p) const {
         return fold ([p] (const polynomial n, const term &t) -> polynomial {
             return n + t (p);
         }, polynomial {}, reverse (Terms));
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> polynomial<A, N, x>::normalize () const {
         return polynomial {select (Terms, function<bool (const term &)> {[] (const term &t) -> bool {
             return t.Coefficient != 0;
         }}), nullptr};
     }
 
-    template <Ring A, group_number N, char x>
+    template <Ring A, GroupNumber N, char x>
     polynomial<A, N, x> inline polynomial<A, N, x>::derivative () const {
         return fold ([] (const polynomial p, const term &t) -> polynomial {
             return p + t.derivative ();
         }, polynomial {}, reverse (Terms)).normalize ();
     }
 
-    template <Ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    template <Ring A, GroupNumber N, char x, ImplicitlyConvertible<A> W>
     polynomial<A, N, x> inline operator + (const W &a, const polynomial<A, N, x> b) {
         return polynomial<A, N, x> (a) + b;
     }
 
-    template <Ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    template <Ring A, GroupNumber N, char x, ImplicitlyConvertible<A> W>
     polynomial<A, N, x> inline operator + (const polynomial<A, N, x> a, const W &b) {
         return a + polynomial<A, N, x> (b);
     }
 
-    template <Ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    template <Ring A, GroupNumber N, char x, ImplicitlyConvertible<A> W>
     polynomial<A, N, x> inline operator - (const W &a, const polynomial<A, N, x> b) {
         return polynomial<A, N, x> (a) - b;
     }
 
-    template <Ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    template <Ring A, GroupNumber N, char x, ImplicitlyConvertible<A> W>
     polynomial<A, N, x> inline operator - (const polynomial<A, N, x> a, const W &b) {
         return a - polynomial<A, N, x> (b);
     }
 
-    template <Ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    template <Ring A, GroupNumber N, char x, ImplicitlyConvertible<A> W>
     polynomial<A, N, x> inline operator * (const W &a, const polynomial<A, N, x> b) {
         return polynomial<A, N, x> (a) * b;
     }
 
-    template <Ring A, group_number N, char x, ImplicitlyConvertible<A> W>
+    template <Ring A, GroupNumber N, char x, ImplicitlyConvertible<A> W>
     polynomial<A, N, x> inline operator * (const polynomial<A, N, x> a, const W &b) {
         return a * polynomial<A, N, x> (b);
     }
