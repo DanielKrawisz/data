@@ -3,26 +3,26 @@
 
 namespace NTL {
 
-    void conv (ZZ &x, const data::encoding::signed_decimal::string &u) {
+    void conv (ZZ &x, const dec_int &u) {
         if (!u.valid ()) throw data::exception {} << "Invalid decimal string";
         if (u[0] == '-') x = -conv<NTL::ZZ> (u.c_str () + 1);
         else conv (x, u.c_str ());
     }
 
-    void conv (data::encoding::signed_decimal::string &x, const ZZ &u) {
+    void conv (dec_int &x, const ZZ &u) {
         x = data::encoding::signed_decimal::write (data::math::number::Z (u));
     }
 
-    void conv (data::encoding::decimal::string &x, const ZZ &u) {
+    void conv (dec_uint &x, const ZZ &u) {
         x = data::encoding::decimal::write (data::math::number::N (u));
     }
 
-    void conv (ZZ &x, const data::encoding::base58::string &u) {
+    void conv (ZZ &x, const base58_uint &u) {
         if (!u.valid ()) throw data::exception {} << "Invalid base58 string";
         x = data::encoding::base58::decode<data::Z> (u)->Value;
     }
 
-    void conv (data::encoding::base58::string &x, const ZZ &u) {
+    void conv (base58_uint &x, const ZZ &u) {
         x = data::encoding::base58::encode (data::math::number::Z (u));
     }
 

@@ -677,9 +677,9 @@ namespace data {
     template <typename Z> concept Integer = math::IntegralDomain<Z> && Exponent<Z> &&
         div_number<Z> && RingNumber<Z> && div_number_signed<Z> && proto_comparable<Z>;
 
-    template <typename Z> concept Natural =
-        WholeNumber<Z> && div_number_unsigned<Z> && requires (const Z &a, const Z &b) {
-            { a % b } -> Same<Z>;
+    template <typename N> concept Natural =
+        WholeNumber<N> && div_number_unsigned<N> && requires (const N &a, const N &b) {
+            { a % b } -> Same<N>;
         };
 
     // now we have two types that go together as signed and unsigned versions of each other.
@@ -697,6 +697,7 @@ namespace data {
             { b / a } -> ImplicitlyConvertible<Z>;
             { divmod (a, math::nonzero<N> {b}) } -> Same<division<Z, N>>;
         };
+
 }
 
 namespace data::math {
