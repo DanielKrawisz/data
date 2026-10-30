@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MAP
-#define DATA_MAP
+#pragma once
 
 #include <data/tools/rb.hpp>
 #include <data/tools/binary_search_tree.hpp>
@@ -59,5 +58,3 @@ namespace data {
     }
 
 }
-
-#endif

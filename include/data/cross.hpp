@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_CROSS
-#define DATA_CROSS
+#pragma once
 
 #include <data/sequence.hpp>
 #include <data/slice.hpp>
@@ -145,7 +144,3 @@ namespace data {
     }
     
 }
-
-#endif
-
-

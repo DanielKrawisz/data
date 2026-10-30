@@ -1,5 +1,4 @@
-#ifndef BOOST_ENDIAN_DETAIL_IS_SCOPED_ENUM_HPP_INCLUDED
-#define BOOST_ENDIAN_DETAIL_IS_SCOPED_ENUM_HPP_INCLUDED
+#pragma once
 
 // Copyright 2020 Peter Dimov
 //
@@ -10,24 +9,22 @@
 
 namespace boost
 {
-namespace endian
-{
-namespace detail
-{
+    namespace endian
+    {
+        namespace detail
+        {
 
-template<class T> struct negation: std::integral_constant<bool, !T::value> {};
+        template<class T> struct negation: std::integral_constant<bool, !T::value> {};
 
-template<class T> struct is_scoped_enum:
-    std::conditional<
-        std::is_enum<T>::value,
-        negation< std::is_convertible<T, int> >,
-        std::false_type
-    >::type
-{
-};
+        template<class T> struct is_scoped_enum:
+            std::conditional<
+                std::is_enum<T>::value,
+                negation< std::is_convertible<T, int> >,
+                std::false_type
+            >::type
+        {
+        };
 
-} // namespace detail
-} // namespace endian
+        } // namespace detail
+    } // namespace endian
 } // namespace boost
-
-#endif  // BOOST_ENDIAN_DETAIL_IS_SCOPED_ENUM_HPP_INCLUDED

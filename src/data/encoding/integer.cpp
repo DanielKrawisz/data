@@ -5,15 +5,13 @@
 #include <data/encoding/integer.hpp>
 #include <data/encoding/hex.hpp>
 #include <data/math/number/bytes.hpp>
-#include <data/math/number/gmp/Z.hpp>
-// ideally we would get rid of this.
-#include <data/math/number/gmp/mpz.hpp>
+#include <data/math/number/NTL/Z.hpp>
 #include <data/encoding/digits.hpp>
 #include <data/numbers.hpp>
 #include <data/math/number/division.hpp>
 #include <data/encoding/read.hpp>
+
 #include <data/exception.hpp>
-#include <algorithm>
 
 namespace data::encoding {
     
@@ -156,19 +154,13 @@ namespace data::encoding {
         }
         
         string operator / (const string &m, const string &x) {
+            if (x == 0) throw math::division_by_zero {};
             return decimal::write (math::number::natural_divmod (N {m}, N {x}).Quotient);
         }
         
         string operator % (const string &m, const string &x) {
+            if (x == 0) throw math::division_by_zero {};
             return decimal::write (math::number::natural_divmod (N {m}, N {x}).Remainder);
-        }
-        
-        bool string::operator == (uint64 x) const {
-            return *this == string {x};
-        }
-        
-        std::strong_ordering string::operator <=> (uint64 x) const {
-            return *this <=> string {x};
         }
         
         string::operator double () const {
@@ -176,7 +168,7 @@ namespace data::encoding {
         }
         
         string string::read (string_view x) {
-            return decimal::write (N {x});
+            return decimal::write (N::read (x));
         }
     
         signed_decimal::string operator - (const string &x) {
@@ -276,16 +268,7 @@ namespace data::encoding {
             return signed_decimal::write (Z_bytes_little {m} | Z_bytes_little {n});
         }
         
-        bool string::operator == (int64 x) const {
-            return *this == string {x};
-        }
-        
-        std::strong_ordering string::operator <=> (int64 x) const {
-            return *this <=> string {x};
-        }
-        
         string::operator double () const {
-            // TODO we need a different way of doing this.
             return double (Z (*this));
         }
     
@@ -304,6 +287,36 @@ namespace data::encoding {
         
         string string::read (string_view x) {
             return signed_decimal::write (Z::read (x));
+        }
+
+        string operator ^ (const string &a, const string &b) {
+            return signed_decimal::write (Z (a) ^ Z (b));
+        }
+
+        std::strong_ordering operator <=> (const decimal::string &left, const string &right) {
+            if (!left.valid ()) throw exception {} << "invalid decimal string: " << left;
+            if (!right.valid ()) throw exception {} << "invalid signed decimal string: " << right;
+            if (is_negative (right)) return std::strong_ordering::greater;
+            return decimal::N_compare (left, right);
+        }
+
+        std::strong_ordering operator <=> (const string &left, const decimal::string &right) {
+            if (!left.valid ()) throw exception {} << "invalid signed decimal string: " << left;
+            if (!right.valid ()) throw exception {} << "invalid decimal string: " << right;
+            if (is_negative (left)) return std::strong_ordering::less;
+            return decimal::N_compare (left, right);
+        }
+
+        string operator - (const decimal::string &m, const string &n) {
+            if (!m.valid ()) throw exception {} << "invalid decimal string: " << m;
+            if (!n.valid ()) throw exception {} << "invalid signed decimal string: " << n;
+            return signed_decimal::write (Z::read (m) - Z::read (n));
+        }
+
+        string operator + (const decimal::string &m, const string &n) {
+            if (!m.valid ()) throw exception {} << "invalid decimal string: " << m;
+            if (!n.valid ()) throw exception {} << "invalid signed decimal string: " << n;
+            return signed_decimal::write (Z::read (m) + Z::read (n));
         }
     
     }
@@ -446,6 +459,14 @@ namespace data::math::def {
         (const dec_int &x, const nonzero<int> &y) {
         division<dec_uint, unsigned int> d = divmod<dec_uint, int> {} (abs<dec_int> {} (x), y);
         return division<dec_int, unsigned int> {x < 0 || y.Value < 0 ? -d.Quotient: dec_int {d.Quotient}, d.Remainder};
+    }
+
+    size_t digit<dec_uint>::operator () (const dec_uint &u, int32 i) {
+        return data::digit (N (u), i);
+    }
+
+    size_t digit<dec_int>::operator () (const dec_int &u, int32 i) {
+        return data::digit (Z (u), i);
     }
 
 }

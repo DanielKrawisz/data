@@ -2,12 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ARITHMETIC
-#define DATA_ARITHMETIC
+#pragma once
 
 #include <data/types.hpp>
 #include <data/maybe.hpp>
 #include <data/math/nonzero.hpp>
+#include <data/math/ring.hpp>
 #include <data/sign.hpp>
 #include <data/abs.hpp>
 #include <data/increment.hpp>
@@ -16,12 +16,20 @@
 namespace data {
 
     // basic arithmetic
-    template <typename A, typename B> constexpr auto plus (const A &, const B &);
-    template <typename A, typename B> constexpr auto minus (const A &, const B &);
-    template <typename A, typename B> constexpr auto times (const A &, const B &);
-    template <typename A, typename Exp> constexpr A pow (const A &, const Exp &);
+    template <typename A, typename B, typename ...C>
+    constexpr auto plus (const A &, const B &, C &&...);
 
-    template <typename A> auto constexpr square (const A &);
+    template <typename A, typename B>
+    constexpr auto minus (const A &, const B &);
+
+    template <typename A, typename B, typename ...C>
+    constexpr auto times (const A &, const B &, C &&...);
+
+    template <typename A, typename Exp>
+    constexpr A pow (const A &, const Exp &);
+
+    template <typename A>
+    auto constexpr square (const A &);
 
     template <typename dividend, typename divisor>
     constexpr auto divide (const dividend &a, const math::nonzero<divisor> &b);
@@ -29,8 +37,26 @@ namespace data {
     template <typename dividend, typename divisor>
     constexpr bool divides (const dividend &a, const math::nonzero<divisor> &b);
 
-    template <typename A> constexpr bool even (const A &);
-    template <typename A> constexpr bool odd (const A &);
+    template <typename A>
+    constexpr bool even (const A &);
+
+    template <typename A>
+    constexpr bool odd (const A &);
+
+    template <typename A, typename B, typename ...C>
+    constexpr auto GCD (const A &, const B &, C &&...x);
+
+    template <typename A, typename ...C> requires Same<A, C...>
+    constexpr auto LCM (const A &, const A &, C &&...x);
+
+    // functions on rational numbers.
+    template <typename A> constexpr auto floor (const A &);
+    template <typename A> constexpr auto ceiling (const A &);
+    template <typename A> constexpr auto round (const A &);
+    template <typename A> constexpr auto is_whole (const A &);
+    template <typename A> constexpr auto numerator (const A &);
+    template <typename A> constexpr auto denominator (const A &);
+    template <typename A> constexpr auto frac (const A &);
 
     // modular arithmetic
     template <typename A, typename Mod = A> constexpr auto mod (const A &, const math::nonzero<Mod> &);
@@ -43,6 +69,7 @@ namespace data {
     template <typename A, typename B, typename Mod> constexpr auto times_mod (const A &, const B &, const math::nonzero<Mod> &);
     template <typename A, typename Exp = A, typename Mod = Exp> constexpr auto pow_mod (const A &, const Exp &, const math::nonzero<Mod> &);
 
+    // result may not exist.
     template <typename A, typename Mod> constexpr auto invert_mod (const A &x, const math::nonzero<Mod> &n);
 
     // helper functions for computing pow mod and times mod.
@@ -53,17 +80,23 @@ namespace data {
     template <typename A> constexpr auto mul_2 (const A &);
     template <typename A> constexpr auto div_2 (const A &);
 
+    template <typename A> constexpr auto mul_2_pow (const A &, uint32 u);
+    template <typename A> constexpr auto div_2_pow (const A &, uint32 u);
+
+    template <typename A> constexpr auto mul_2 (const A &x) {
+        return mul_2_pow (x, 1);
+    }
+
+    template <typename A> constexpr auto div_2 (const A &x) {
+        return div_2_pow (x, 1);
+    }
+
     template <typename A> constexpr bool inline even (const A &x) {
         return mod_2 (x) == 0;
     }
 
     template <typename A> constexpr bool inline odd (const A &x) {
         return mod_2 (x) == 1;
-    }
-
-    template <typename dividend, typename divisor>
-    constexpr bool inline divides (const dividend &a, const math::nonzero<divisor> &b) {
-        return divide (a, b) == 0;
     }
 
     // bit arithmetic
@@ -82,17 +115,11 @@ namespace data {
         return i < 0 ? bit_shift_right (x, static_cast<uint32> (-i)) : bit_shift_left (x, static_cast<uint32> (i));
     }
 
-    // may not exist
-    template <typename A, typename Mod = A> constexpr auto invert_mod (const A &, const math::nonzero<Mod> &);
-
     // count digits in a number.
-    template <typename A> size_t constexpr size_in_base_2 (const A &);
+    template <typename A> constexpr size_t bit_width (const A &);
 
-    template <typename A> constexpr auto mul_2_pow (const A &, uint32 u);
-
-    template <typename A> constexpr auto mul_2 (const A &x) {
-        return mul_2_pow (x, 1);
-    }
+    // get the ith base 2 digit of a number.
+    template <typename A> constexpr bool digit (const A &, int32 i);
 
     // We use two different concepts for numbers, one more
     // alligend with c++ standards and the other more closely
@@ -156,9 +183,7 @@ namespace data {
     // a proto_integral type is starting to look like a number.
     template <typename X> concept proto_number =
         std::default_initializable<X> && Incrementable<X> &&
-        NumberComparable<X> && requires (const X &n) {
-            { abs (n) };
-        } && requires (const X &a, int i) {
+        requires (const X &a, int i) {
             { a >> i } -> ImplicitlyConvertible<X>;
             { a << i } -> ImplicitlyConvertible<X>;
         } && requires (X &a, int i) {
@@ -166,37 +191,40 @@ namespace data {
             { a <<= i } -> Same<X &>;
         };
 
-    template <typename A> concept proto_signed =
+    template <typename X> concept proto_comparable =
+        NumberComparable<X> &&
+        requires (const X &n) {
+            { abs (n) };
+        };
+
+    template <typename A> concept proto_signed = proto_comparable<A> &&
         proto_number<A> && Signed<A> && requires (const A &n) {
             { negate (abs (n)) } -> Same<A>;
         };
 
-    template <typename A> concept proto_unsigned =
+    template <typename A> concept proto_unsigned = proto_comparable<A> &&
         proto_number<A> && Unsigned<A> && requires (const A &n) {
-            { size_in_base_2 (n) } -> Same<size_t>;
+            { bit_width (n) } -> Same<size_t>;
         };
 
     // now we have two types that go together as signed and unsigned versions of each other.
     template <typename Z, typename N> concept proto_system =
+        proto_comparable<Z> && proto_comparable<N> &&
         proto_number<Z> && proto_number<N> && Signed<Z> &&
         requires (const Z &a) {
             { negate (abs (a)) } -> Same<Z>;
         } && requires (const N &a) {
             { abs (negate (a)) } -> Same<N>;
         } && requires (const N &a) {
-            { size_in_base_2 (a) } -> Same<size_t>;
-        } && comparable_to<Z, N>;
+            { bit_width (a) } -> Same<size_t>;
+        } && Comparable<Z, N>;
 
     template <typename Z, typename N> concept proto_integral_system =
-        proto_system<Z, N> && ImplicitlyConvertible<Z, N> &&
-        Convertible<N, Z> &&
+        proto_system<Z, N> && ImplicitlyConvertible<Z, N> && Convertible<N, Z> &&
         math::homo_abs_and_negate<Z> && math::homo_abs_and_negate<N>;
 
     template <typename Z, typename N = Z> concept proto_number_system =
-        proto_system<Z, N> && ImplicitlyConvertible<N, Z> &&
-        // NOTE: this clause should be uncommented, but the numbers
-        // don't work right ATM so we need to fix them.
-        //ExplicitlyConvertible<Z, N> &&
+        proto_system<Z, N> && ImplicitlyConvertible<N, Z> && Convertible<Z, N> &&
         math::hetero_abs_and_negate<N, Z>;
 
     // here we look at types with bit operations defined on them.
@@ -320,15 +348,20 @@ namespace data {
         };
 
     template <typename X> concept group_algebraic =
-        group_algebraic_to<X, X> &&
-        requires (const X &n) {
-            { abs (n) };
+        group_algebraic_to<X, X>;
+
+    template <typename X> concept GroupNumber =
+        proto_number<X> && group_algebraic<X>;
+
+    // TODO this is not a good name because we also use it in binary_accumulate_times not as an exponent.
+    template <typename X> concept Exponent = GroupNumber<X> &&
+        requires (const X &n, int32 i) {
+            { digit (n, i) } -> Same<bool>;
+            { bit_width (n) } -> ImplicitlyConvertible<size_t>;
+        } && requires (const X &n) {
             { div_2 (n) } -> ImplicitlyConvertible<X>;
             { mod_2 (n) } -> ImplicitlyConvertible<X>;
         };
-
-    template <typename X> concept group_number =
-        proto_number<X> && group_algebraic<X>;
 
     template <typename A, typename B> concept ring_algebraic_to =
         group_algebraic_to<A, B> &&
@@ -345,10 +378,16 @@ namespace data {
     // This is what we need to ensure that we can
     // construct a division algorithm.
     template <typename X> concept MultiplicativeNumber =
-        group_number<X> && ring_algebraic<X> &&
+        GroupNumber<X> && ring_algebraic<X> &&
         requires (const X &n) {
             { mul_2 (n) } -> ImplicitlyConvertible<X>;
         };
+
+    template <typename X> concept MultiplicativeNumberUnsigned =
+        MultiplicativeNumber<X> && Unsigned<X>;
+
+    template <typename X> concept MultiplicativeNumberSigned =
+        MultiplicativeNumber<X> && Signed<X>;
 
     template <typename X> concept RingNumber =
         MultiplicativeNumber<X> &&
@@ -401,7 +440,7 @@ namespace data {
         group_algebraic_unsigned_to<X, Y> &&
         requires (const X &a) {
             { a * 1u } -> ImplicitlyConvertible<Y>;
-            //{ 1u * a } -> ImplicitlyConvertible<Y>;
+            { 1u * a } -> ImplicitlyConvertible<Y>;
         };
 
     template <typename X, typename Y>
@@ -414,11 +453,11 @@ namespace data {
 
     template <typename X, typename Y>
     concept div_algebraic_unsigned_to =
-        ring_algebraic_unsigned_to<X, Y> /*&&
+        ring_algebraic_unsigned_to<X, Y> &&
         requires (const X &a) {
             { a / 1u } -> ImplicitlyConvertible<Y>;
-            { 1u / a } -> ImplicitlyConvertible<Y>;
-        }*/;
+            //{ 1u / a } -> ImplicitlyConvertible<Y>;
+        };
 
     template <typename X, typename Y>
     concept group_algebraic_signed_big_to =
@@ -553,10 +592,10 @@ namespace data {
         div_algebraic_signed_big<X> && div_algebraic_unsigned_big<X>;
 
     template <typename A> concept group_number_signed =
-        group_number<A> && proto_signed<A> && group_algebraic_signed<A>;
+        GroupNumber<A> && proto_signed<A> && group_algebraic_signed<A>;
 
     template <typename A> concept group_number_unsigned =
-        group_number<A> && proto_unsigned<A> && group_algebraic_unsigned<A>;
+        GroupNumber<A> && proto_unsigned<A> && group_algebraic_unsigned<A>;
 
     template <typename A> concept group_number_signed_big =
         group_number_signed<A> && group_algebraic_signed_big<A>;
@@ -590,13 +629,13 @@ namespace data {
 
     // a number system is more like what a mathematician would expect.
     template <typename Z, typename N> concept group_number_system =
-        group_number<Z> && group_number<N> && proto_number_system<Z, N> &&
+        GroupNumber<Z> && GroupNumber<N> && proto_number_system<Z, N> &&
         group_algebraic_signed<Z> && group_algebraic_unsigned<N> &&
         group_algebraic_to<Z, N>;
 
     // an integral system resembls a built in c++ number.
     template <typename Z, typename N> concept group_integral_system =
-        group_number<Z> && group_number<N> && proto_integral_system<Z, N> &&
+        GroupNumber<Z> && GroupNumber<N> && proto_integral_system<Z, N> &&
         group_algebraic_signed<Z> && group_algebraic_unsigned<N> &&
         group_algebraic_to<N, Z>;
 
@@ -616,6 +655,9 @@ namespace data {
         ring_algebraic_signed<Z> && ring_algebraic_unsigned<N> &&
         ring_algebraic_to<Z, N>;
 
+    template <typename Z, typename N> concept ring_number_system =
+        group_number_system<Z, N> && ring_number_signed<Z> && ring_number_unsigned<N>;
+
     template <typename Z, typename N> concept ring_number_system_big =
         group_number_system<Z, N> && ring_number_signed_big<Z> && ring_number_unsigned_big<N>;
 
@@ -626,22 +668,22 @@ namespace data {
 
     // a whole number could be signed or unsigned
     // and does not require a negate operation.
-    template <typename Z> concept WholeNumber =
+    template <typename Z> concept WholeNumber = proto_comparable<Z> && Exponent<Z> &&
         div_number<Z> && requires (const Z &a, const Z &b) {
-            { a % b };
-            // NOTE this should be uncommented.
-            //{ divmod (a, b) };
-        } && (Signed<Z> || Unsigned<Z>);
+            { a % abs (b) };
+            { divmod (a, math::nonzero {abs (b)}) };
+        };
 
-    template <typename Z> concept Integer =
-        WholeNumber<Z> && RingNumber<Z> && div_number_signed<Z>;
+    template <typename Z> concept Integer = math::IntegralDomain<Z> && Exponent<Z> &&
+        div_number<Z> && RingNumber<Z> && div_number_signed<Z> && proto_comparable<Z>;
 
-    // TODO require homo modable.
-    template <typename Z> concept Natural =
-        WholeNumber<Z> && div_number_unsigned<Z>;
+    template <typename N> concept Natural =
+        WholeNumber<N> && div_number_unsigned<N> && requires (const N &a, const N &b) {
+            { a % b } -> Same<N>;
+        };
 
     // now we have two types that go together as signed and unsigned versions of each other.
-    template <typename Z, typename N = Z> concept number_system =
+    template <typename Z, typename N = Z> concept NumberSystem =
         MultiplicativeNumberSystem<Z, N> &&
         ring_algebraic_signed<Z> &&
         ring_algebraic_unsigned<N> &&
@@ -655,9 +697,13 @@ namespace data {
             { b / a } -> ImplicitlyConvertible<Z>;
             { divmod (a, math::nonzero<N> {b}) } -> Same<division<Z, N>>;
         };
+
 }
 
 namespace data::math {
+
+    // convert from one number type to another.
+    template <typename A, typename B> A convert (const B &);
 
     // we extend std::numeric_limits for more types of numbers.
     template <typename X> struct numeric_limits;
@@ -689,7 +735,7 @@ namespace data {
             { math::numeric_limits<X>::min () } -> ImplicitlyConvertible<X>;
         };
 
-    template <typename A> concept SignedIntegral =
+    template <typename A> concept SignedIntegral = math::IntegralDomain<A> &&
         Integral<A> && div_number_signed<A> && proto_bit_signed<A>;
 
     template <typename A> concept UnsignedIntegral =
@@ -704,19 +750,28 @@ namespace data {
         } && requires (const N &n) {
             { negate (n) } -> ImplicitlyConvertible<N>;
         };
+
+    template <typename X> concept SignedNumber = SignedIntegral<X> || Integer<X>;
+    template <typename X> concept UnsignedNumber = UnsignedIntegral<X> || Natural<X>;
+    template <typename X> concept Number = SignedNumber<X> || UnsignedNumber<X>;
 }
 
 namespace data::math::def {
     template <typename A, uint32 base> struct size_in_base;
 
     template <typename A> struct mul_2_pow;
-    template <typename A> struct div_2;
+    template <typename A> struct div_2_pow;
     template <typename A> struct mod_2;
+
+    template <typename A> struct digit {
+        bool operator () (const A &a, int32 i) {
+            return data::odd (a >> i);
+        }
+    };
 
     template <typename A> struct square;
 
-    template <typename A, typename B = A> struct plus;
-    template <typename A, typename B = A> struct minus;
+    template <typename A, typename B = A> struct GCD;
 
     template <typename A> struct bit_not;
     template <typename A, typename B = A> struct bit_and;
@@ -725,16 +780,19 @@ namespace data::math::def {
     template <typename A> struct bit_shift_left;
     template <typename A> struct bit_shift_right;
 
-    template <typename A, typename B = A> struct times;
-    template <typename A, typename Exp = A> struct pow;
-
     template <typename A, typename B> struct times {
         constexpr auto operator () (const A &x, const B &y) const {
             return x * y;
         }
     };
 
-    template <typename A, typename B = A> struct divide;
+    template <typename A> struct floor;
+    template <typename A> struct ceiling;
+    template <typename A> struct round;
+    template <typename A> struct numerator;
+    template <typename A> struct denominator;
+    template <typename A> struct frac;
+    template <typename A> struct is_whole;
 
     template <typename A, typename Mod = A> struct mod;
     template <typename A, typename Mod = A> struct negate_mod;
@@ -760,6 +818,8 @@ namespace data::math::def {
             return bit_and (bit_not (x), bit_not (x));
         }
     };
+
+    template <typename A, typename B> struct convert;
 }
 
 namespace data {
@@ -776,16 +836,53 @@ namespace data {
         return math::def::mul_2_pow<A> {} (x, u);
     }
 
-    template <typename A> constexpr auto inline div_2 (const A &x) {
-        return math::def::div_2<A> {} (x);
+    template <typename A> constexpr auto inline div_2_pow (const A &x, uint32 u) {
+        return math::def::div_2_pow<A> {} (x, u);
+    }
+
+    template <typename A> constexpr size_t bit_width (const A &x) {
+        return math::def::size_in_base<A, 2> {} (x);
+    }
+
+    template <typename A> constexpr auto floor (const A &x) {
+        return math::def::floor<A> {} (x);
+    }
+
+    template <typename A> constexpr auto ceiling (const A &x) {
+        return math::def::ceiling<A> {} (x);
+    }
+
+    template <typename A> constexpr auto numerator (const A &x) {
+        return math::def::numerator<A> {} (x);
+    }
+
+    template <typename A> constexpr auto denominator (const A &x) {
+        return math::def::denominator<A> {} (x);
+    }
+
+    template <typename A> constexpr auto round (const A &x) {
+        return math::def::round<A> {} (x);
+    }
+
+    template <typename A> constexpr auto is_whole (const A &x) {
+        return math::def::is_whole<A> {} (x);
+    }
+
+    template <typename A> constexpr auto frac (const A &x) {
+        return math::def::frac<A> {} (x);
     }
 
     template <typename A> constexpr auto inline mod_2 (const A &x) {
         return math::def::mod_2<A> {} (x);
     }
 
-    template <typename A, typename B> constexpr auto inline plus (const A &x, const B &y) {
-        return math::def::plus<A, B> {} (x, y);
+    template <typename A> constexpr bool inline digit (const A &x, int32 i) {
+        return math::def::digit<A> {} (x, i);
+    }
+
+    template <typename A, typename B, typename ...C> constexpr auto inline plus (const A &x, const B &y, C &&...z) {
+        if constexpr (sizeof... (C) == 0) return math::def::plus<A, B> {} (x, y);
+        else return plus (math::def::plus<A, B> {} (x, y), std::forward<C> (z)...);
     }
 
     template <typename A, typename B> constexpr auto inline minus (const A &x, const B &y) {
@@ -824,8 +921,26 @@ namespace data {
         return math::def::bit_shift_left<A> {} (x, i);
     }
 
-    template <typename A, typename B> constexpr auto inline times (const A &x, const B &y) {
-        return math::def::times<A, B> {} (x, y);
+    template <typename A, typename B, typename ...C> constexpr auto inline times (const A &x, const B &y, C &&...z) {
+        auto r = math::def::times<A, B> {} (x, y);
+        if constexpr (sizeof... (C) == 0) return r;
+        else return times (r, std::forward<C> (z)...);
+    }
+
+    template <typename A, typename B, typename ...C> constexpr auto inline GCD (const A &x, const B &y, C &&...z) {
+        using negate_type = decltype (negate (x));
+        using abs_type = decltype (abs (x));
+        auto gcd = math::def::GCD<abs_type, negate_type> {} (abs (x), abs (y));
+        if constexpr (sizeof... (C) == 0) return gcd;
+        else return GCD (gcd, std::forward<C> (z)...);
+    }
+
+    template <typename A, typename ...C> requires Same<A, C...>
+    constexpr auto inline LCM (const A &x, const A &y, C &&...z) {
+        if (is_zero (x) || is_zero (y)) return abs (A (0));
+        auto lcm = abs (times (x, y)) / GCD (x, y);
+        if constexpr (sizeof... (C) == 0) return abs (A (lcm));
+        else return LCM (lcm, std::forward<C> (z)...);
     }
 
     template <typename A, typename Mod> constexpr A inline pow (const A &x, const Mod &y) {
@@ -871,16 +986,20 @@ namespace data {
 
 namespace data::math {
     // for numbers with bit operations, we can define mul_2 and div_2 in terms of shifts
-    template <proto_number A> constexpr A inline bit_mul_2_pow (const A &x, uint32 u) {
-        return x << u;
+    template <proto_number A> constexpr A inline bit_mul_2_pow (const A &x, uint32 exp) {
+        return x << exp;
     }
 
-    template <proto_number A> constexpr A inline bit_div_2_positive_mod (const A &x) {
-        return x >> 1;
+    // In some cases, shift and multiplication by powers of 2 are defined to be equal.
+    // they are also equal when we say that modulos are always positive.
+    template <proto_number A> constexpr A inline bit_div_2_pow (const A &x, uint32 exp) {
+        return x >> exp;
     }
 
-    template <proto_number A> constexpr A inline bit_div_2_negative_mod (const A &x) {
-        return (x < 0 ? increment (x) : x) >> 1;
+    // for built in signed numbers, -1 / 2 -> 0.
+    template <proto_number A> constexpr A inline bit_div_2_pow_signed (const A &x, uint32 exp) {
+        if (x < 0) return -(-x >> exp);
+        return x >> exp;
     }
 
     template <proto_bit_unsigned A> constexpr A inline bit_mod_2 (const A &x) {
@@ -894,6 +1013,10 @@ namespace data::math {
     template <proto_bit_number A> constexpr A inline bit_mod_2_negative_mod (const A &x) {
         auto m = abs (x) & 1;
         return is_negative (x) ? -m : m;
+    }
+
+    template <typename A, typename B> A inline convert (const B &x) {
+        return def::convert<A, B> {} (x);
     }
 }
 
@@ -955,7 +1078,8 @@ namespace data::math::def {
 
     template <std::signed_integral X> struct size_in_base<X, 2> {
         constexpr size_t operator () (X x) {
-            return std::bit_width (static_cast<std::make_signed_t<X>> (x));
+            if (x < 0) return std::bit_width (static_cast<std::make_unsigned_t<X>> (~x)) + 1;
+            else return std::bit_width (static_cast<std::make_unsigned_t<X>> (x)) + 1;
         }
     };
 
@@ -981,62 +1105,15 @@ namespace data::math::def {
         }
     };
 
-    template <std::integral X> struct mod<X> {
-        constexpr auto operator () (const X &x, const nonzero<X> &n) const {
-            return static_cast<X> (x % n.Value);
+    template <std::signed_integral X> struct div_2_pow<X> {
+        constexpr X operator () (X x, uint32 exp) {
+            return bit_div_2_pow_signed (x, exp);
         }
     };
 
-    template <typename A, typename Mod> struct negate_mod {
-        constexpr auto operator () (const A &x, const nonzero<Mod> &n) const {
-            return x >= 0 && x < n.Value ?
-            // We need to cast to A here because of the endian arithmetic numbers.
-            // We should be able to get rid of that. TODO
-            data::mod (A (n.Value - x), n):
-            data::mod (A (n.Value - data::mod (x, n)), n);
-        }
-    };
-
-    template <typename A, typename Mod> struct mul_2_mod {
-        constexpr auto operator () (const A &x, const nonzero<Mod> &n) const {
-            return data::mod (data::mul_2 (x), n);
-        }
-    };
-
-    template <typename A, typename B, typename Mod> struct plus_mod {
-        constexpr auto operator () (const A &x, const B &y, const math::nonzero<Mod> &n) const {
-            return data::mod (data::plus (x, y), n);
-        }
-    };
-
-    template <typename A, typename B, typename Mod> struct minus_mod {
-        constexpr auto operator () (const A &x, const B &y, const nonzero<Mod> &n) const {
-            return data::mod (data::minus (x, y), n);
-        }
-    };
-
-    template <typename A, typename Mod> struct square_mod {
-        constexpr auto operator () (const A &x, const nonzero<Mod> &n) const {
-            return data::mod (data::square (x), n);
-        }
-    };
-
-    // note: should have a special case for integral that uses twice.
-    template <typename A, typename B, typename Mod> struct times_mod {
-        constexpr auto operator () (A a, B b, nonzero<Mod> n) {
-            return data::mod (a * b, n);
-        }
-    };
-
-    template <std::signed_integral X> struct div_2<X> {
-        constexpr X operator () (X x) {
-            return bit_div_2_negative_mod (x);
-        }
-    };
-
-    template <std::unsigned_integral X> struct div_2<X> {
-        constexpr X operator () (X x) {
-            return bit_div_2_positive_mod (x);
+    template <std::unsigned_integral X> struct div_2_pow<X> {
+        constexpr X operator () (X x, uint32 exp) {
+            return bit_div_2_pow (x, exp);
         }
     };
 
@@ -1051,22 +1128,36 @@ namespace data::math::def {
             return bit_mod_2 (x);
         }
     };
+
+    template <typename A> struct convert<A, A> {
+        constexpr const A &operator () (const A &x) {
+            return x;
+        }
+    };
+
+    template <std::integral A, std::integral B> struct convert<A, B> {
+        constexpr A operator () (B x) {
+            if (x > numeric_limits<A>::max ()) throw exception {} << "too high";
+            if (x < numeric_limits<A>::min ()) throw exception {} << "built-in value " << x << " too low to be converted to built-in type with minimum " << numeric_limits<A>::min ();
+            return static_cast<A> (x);
+        }
+    };
 }
 
 // we define bit operations in terms of arithmetic operations and vice versa.
 namespace data::math {
 
-    // we now define shifts in terms of mul_2 and div_2
-    template <group_number A> constexpr A arithmetic_shift_right (const A &a, uint32 u) {
-        A x = a;
-        while (u-- > 0) x = mul_2 (x);
-        return x;
+    template <GroupNumber A> constexpr A inline arithmetic_bit_invert_twos (const A &a) {
+        return -a - 1;
     }
 
-    template <group_number_unsigned A> constexpr A arithmetic_shift_left (const A &a, uint32 u) {
-        A x = a;
-        while (u-- > 0) x = data::div_2 (x);
-        return x;
+    // we now define shifts in terms of mul_2 and div_2
+    template <GroupNumber A> constexpr A arithmetic_shift_right_twos (const A &a, uint32 u) {
+        return data::is_negative (a) ? -div_2_pow (-a - 1, u) : data::div_2_pow (a, u);
+    }
+
+    template <group_number_unsigned A> constexpr A arithmetic_shift_left_twos (const A &a, uint32 u) {
+        return data::is_negative (a) ? -mul_2_pow (-a - 1, u) : data::mul_2_pow (a, u);
     }
 
     // we now implement plus and minus in terms of bit operations.
@@ -1133,7 +1224,7 @@ namespace data::math::def {
         }
     };
 
-    template <group_number A, group_number B> struct minus<A, B> {
+    template <GroupNumber A, GroupNumber B> struct minus<A, B> {
         constexpr auto operator () (const A &x, const B &y) const {
             return x - y;
         }
@@ -1145,11 +1236,45 @@ namespace data::math::def {
         }
     };
 
-    template <MultiplicativeNumber A, MultiplicativeNumber B> struct mod<A, B> {
-        constexpr auto operator () (const A &a, const nonzero<B> &b) const {
-            return divmod<A, B> {} (a, b).Remainder;
+    template <WholeNumber X> struct round<X> {
+        constexpr auto operator () (const X &a) const {
+            return a;
+        }
+    };
+
+    template <WholeNumber X> struct floor<X> {
+        constexpr auto operator () (const X &a) const {
+            return a;
+        }
+    };
+
+    template <WholeNumber X> struct ceiling<X> {
+        constexpr auto operator () (const X &a) const {
+            return a;
+        }
+    };
+
+    template <WholeNumber X> struct numerator<X> {
+        constexpr auto operator () (const X &a) const {
+            return a;
+        }
+    };
+
+    template <WholeNumber X> struct denominator<X> {
+        constexpr auto operator () (const X &a) const {
+            return 1;
+        }
+    };
+
+    template <WholeNumber X> struct is_whole<X> {
+        constexpr auto operator () (const X &a) const {
+            return true;
+        }
+    };
+
+    template <WholeNumber X> struct frac<X> {
+        constexpr auto operator () (const X &a) const {
+            return 0;
         }
     };
 }
-
-#endif

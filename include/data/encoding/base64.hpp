@@ -3,8 +3,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ENCODING_BASE64
-#define DATA_ENCODING_BASE64
+#pragma once
 
 #include <ctre.hpp>
 
@@ -46,7 +45,7 @@ namespace data::encoding::base64 {
             return *b;
         }
 
-        friend string operator "" _b64 (const char*, size_t);
+        friend string operator ""_b64 (const char*, size_t);
     };
     
     string write (byte_slice);
@@ -55,6 +54,4 @@ namespace data::encoding::base64 {
     string write (uint16);
     string write (byte);
 }
-
-#endif
 

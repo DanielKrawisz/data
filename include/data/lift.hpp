@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_LIFT
-#define DATA_LIFT
+#pragma once
 
 #include <data/list.hpp>
 #include <data/tree.hpp>
@@ -12,6 +11,7 @@
 #include <data/array.hpp>
 #include <data/cross.hpp>
 #include <data/for_each.hpp>
+
 #include <data/exception.hpp>
 
 namespace data {
@@ -111,5 +111,3 @@ namespace data {
     }
 
 }
-
-#endif

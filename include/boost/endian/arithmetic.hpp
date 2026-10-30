@@ -18,8 +18,7 @@
 //  partial specialization to correctly extend the sign when cover integer size
 //  differs from endian representation size.
 
-#ifndef BOOST_ENDIAN_ARITHMETIC_HPP
-#define BOOST_ENDIAN_ARITHMETIC_HPP
+#pragma once
 
 #if defined(_MSC_VER)
 # pragma warning(push)
@@ -60,40 +59,40 @@ namespace endian
       class endian_arithmetic;
 
   // big endian signed integer aligned types
-  typedef endian_arithmetic<order::big, std::int8_t, 8, align::yes>        big_int8_at;
+  typedef endian_arithmetic<order::big, std::int8_t,  8, align::yes>       big_int8_at;
   typedef endian_arithmetic<order::big, std::int16_t, 16, align::yes>      big_int16_at;
   typedef endian_arithmetic<order::big, std::int32_t, 32, align::yes>      big_int32_at;
   typedef endian_arithmetic<order::big, std::int64_t, 64, align::yes>      big_int64_at;
 
   // big endian unsigned integer aligned types
-  typedef endian_arithmetic<order::big, std::uint8_t, 8, align::yes>       big_uint8_at;
+  typedef endian_arithmetic<order::big, std::uint8_t,  8, align::yes>      big_uint8_at;
   typedef endian_arithmetic<order::big, std::uint16_t, 16, align::yes>     big_uint16_at;
   typedef endian_arithmetic<order::big, std::uint32_t, 32, align::yes>     big_uint32_at;
   typedef endian_arithmetic<order::big, std::uint64_t, 64, align::yes>     big_uint64_at;
 
   // little endian signed integer aligned types
-  typedef endian_arithmetic<order::little, std::int8_t, 8, align::yes>     little_int8_at;
+  typedef endian_arithmetic<order::little, std::int8_t,  8, align::yes>    little_int8_at;
   typedef endian_arithmetic<order::little, std::int16_t, 16, align::yes>   little_int16_at;
   typedef endian_arithmetic<order::little, std::int32_t, 32, align::yes>   little_int32_at;
   typedef endian_arithmetic<order::little, std::int64_t, 64, align::yes>   little_int64_at;
 
   // little endian unsigned integer aligned types
-  typedef endian_arithmetic<order::little, std::uint8_t, 8, align::yes>    little_uint8_at;
+  typedef endian_arithmetic<order::little, std::uint8_t,  8, align::yes>   little_uint8_at;
   typedef endian_arithmetic<order::little, std::uint16_t, 16, align::yes>  little_uint16_at;
   typedef endian_arithmetic<order::little, std::uint32_t, 32, align::yes>  little_uint32_at;
   typedef endian_arithmetic<order::little, std::uint64_t, 64, align::yes>  little_uint64_at;
 
   // aligned floating point types
-  typedef endian_arithmetic<order::big, float, 32, align::yes>        big_float32_at;
-  typedef endian_arithmetic<order::big, double, 64, align::yes>       big_float64_at;
-  typedef endian_arithmetic<order::little, float, 32, align::yes>     little_float32_at;
-  typedef endian_arithmetic<order::little, double, 64, align::yes>    little_float64_at;
+  typedef endian_arithmetic<order::big,    float,  32, align::yes>        big_float32_at;
+  typedef endian_arithmetic<order::big,    double, 64, align::yes>        big_float64_at;
+  typedef endian_arithmetic<order::little, float,  32, align::yes>        little_float32_at;
+  typedef endian_arithmetic<order::little, double, 64, align::yes>        little_float64_at;
 
   // aligned native endian typedefs are not provided because
   // <cstdint> types are superior for this use case
 
   // big endian signed integer unaligned types
-  typedef endian_arithmetic<order::big, std::int_least8_t, 8>        big_int8_t;
+  typedef endian_arithmetic<order::big, std::int_least8_t,  8>       big_int8_t;
   typedef endian_arithmetic<order::big, std::int_least16_t, 16>      big_int16_t;
   typedef endian_arithmetic<order::big, std::int_least32_t, 24>      big_int24_t;
   typedef endian_arithmetic<order::big, std::int_least32_t, 32>      big_int32_t;
@@ -103,7 +102,7 @@ namespace endian
   typedef endian_arithmetic<order::big, std::int_least64_t, 64>      big_int64_t;
 
   // big endian unsigned integer unaligned types
-  typedef endian_arithmetic<order::big, std::uint_least8_t, 8>       big_uint8_t;
+  typedef endian_arithmetic<order::big, std::uint_least8_t,  8>      big_uint8_t;
   typedef endian_arithmetic<order::big, std::uint_least16_t, 16>     big_uint16_t;
   typedef endian_arithmetic<order::big, std::uint_least32_t, 24>     big_uint24_t;
   typedef endian_arithmetic<order::big, std::uint_least32_t, 32>     big_uint32_t;
@@ -113,7 +112,7 @@ namespace endian
   typedef endian_arithmetic<order::big, std::uint_least64_t, 64>     big_uint64_t;
 
   // little endian signed integer unaligned types
-  typedef endian_arithmetic<order::little, std::int_least8_t, 8>     little_int8_t;
+  typedef endian_arithmetic<order::little, std::int_least8_t,  8>    little_int8_t;
   typedef endian_arithmetic<order::little, std::int_least16_t, 16>   little_int16_t;
   typedef endian_arithmetic<order::little, std::int_least32_t, 24>   little_int24_t;
   typedef endian_arithmetic<order::little, std::int_least32_t, 32>   little_int32_t;
@@ -123,7 +122,7 @@ namespace endian
   typedef endian_arithmetic<order::little, std::int_least64_t, 64>   little_int64_t;
 
   // little endian unsigned integer unaligned types
-  typedef endian_arithmetic<order::little, std::uint_least8_t, 8>    little_uint8_t;
+  typedef endian_arithmetic<order::little, std::uint_least8_t,  8>   little_uint8_t;
   typedef endian_arithmetic<order::little, std::uint_least16_t, 16>  little_uint16_t;
   typedef endian_arithmetic<order::little, std::uint_least32_t, 24>  little_uint24_t;
   typedef endian_arithmetic<order::little, std::uint_least32_t, 32>  little_uint32_t;
@@ -133,7 +132,7 @@ namespace endian
   typedef endian_arithmetic<order::little, std::uint_least64_t, 64>  little_uint64_t;
 
   // native endian signed integer unaligned types
-  typedef endian_arithmetic<order::native, std::int_least8_t, 8>     native_int8_t;
+  typedef endian_arithmetic<order::native, std::int_least8_t,  8>    native_int8_t;
   typedef endian_arithmetic<order::native, std::int_least16_t, 16>   native_int16_t;
   typedef endian_arithmetic<order::native, std::int_least32_t, 24>   native_int24_t;
   typedef endian_arithmetic<order::native, std::int_least32_t, 32>   native_int32_t;
@@ -143,7 +142,7 @@ namespace endian
   typedef endian_arithmetic<order::native, std::int_least64_t, 64>   native_int64_t;
 
   // native endian unsigned integer unaligned types
-  typedef endian_arithmetic<order::native, std::uint_least8_t, 8>    native_uint8_t;
+  typedef endian_arithmetic<order::native, std::uint_least8_t,  8>   native_uint8_t;
   typedef endian_arithmetic<order::native, std::uint_least16_t, 16>  native_uint16_t;
   typedef endian_arithmetic<order::native, std::uint_least32_t, 24>  native_uint24_t;
   typedef endian_arithmetic<order::native, std::uint_least32_t, 32>  native_uint32_t;
@@ -153,19 +152,17 @@ namespace endian
   typedef endian_arithmetic<order::native, std::uint_least64_t, 64>  native_uint64_t;
 
   // unaligned floating point types
-  typedef endian_arithmetic<order::big, float, 32, align::no>        big_float32_t;
-  typedef endian_arithmetic<order::big, double, 64, align::no>       big_float64_t;
-  typedef endian_arithmetic<order::little, float, 32, align::no>     little_float32_t;
+  typedef endian_arithmetic<order::big,    float,  32, align::no>    big_float32_t;
+  typedef endian_arithmetic<order::big,    double, 64, align::no>    big_float64_t;
+  typedef endian_arithmetic<order::little, float,  32, align::no>    little_float32_t;
   typedef endian_arithmetic<order::little, double, 64, align::no>    little_float64_t;
-  typedef endian_arithmetic<order::native, float, 32, align::no>     native_float32_t;
+  typedef endian_arithmetic<order::native, float,  32, align::no>    native_float32_t;
   typedef endian_arithmetic<order::native, double, 64, align::no>    native_float64_t;
 
 //----------------------------------  end synopsis  ------------------------------------//
 
-template <order Order, class T, std::size_t n_bits,
-    align Align>
-class endian_arithmetic
-{
+template <order Order, class T, std::size_t n_bits, align Align>
+class endian_arithmetic {
 private:
 
     typedef endian_buffer<Order, T, n_bits, Align> buffer_type;
@@ -178,229 +175,214 @@ public:
 
 #ifndef BOOST_ENDIAN_NO_CTORS
 
-    BOOST_CONSTEXPR endian_arithmetic() = default;
+    BOOST_CONSTEXPR endian_arithmetic () = default;
 
-    BOOST_CONSTEXPR BOOST_ENDIAN_EXPLICIT_OPT endian_arithmetic( T val ) BOOST_NOEXCEPT: buf_( val )
-    {
-    }
+    BOOST_CONSTEXPR BOOST_ENDIAN_EXPLICIT_OPT endian_arithmetic (T val) BOOST_NOEXCEPT: buf_ (val) {}
 
 #endif
 
-    BOOST_CONSTEXPR endian_arithmetic& operator=( T val ) BOOST_NOEXCEPT
-    {
+    BOOST_CONSTEXPR endian_arithmetic& operator = (T val) BOOST_NOEXCEPT {
         buf_ = val;
         return *this;
     }
 
-    BOOST_CONSTEXPR value_type value() const BOOST_NOEXCEPT
-    {
-        return buf_.value();
+    BOOST_CONSTEXPR value_type value () const BOOST_NOEXCEPT {
+        return buf_.value ();
     }
 
-    BOOST_CONSTEXPR unsigned char const * data() const BOOST_NOEXCEPT
-    {
-        return buf_.data();
+    BOOST_CONSTEXPR unsigned char const * data () const BOOST_NOEXCEPT {
+        return buf_.data ();
     }
 
-    BOOST_CONSTEXPR unsigned char * data() BOOST_NOEXCEPT
-    {
-        return buf_.data();
+    BOOST_CONSTEXPR unsigned char * data () BOOST_NOEXCEPT {
+        return buf_.data ();
     }
 
-    BOOST_CONSTEXPR unsigned char const & operator [] (size_t i) const BOOST_NOEXCEPT
-    {
-        return buf_.data()[i];
+    BOOST_CONSTEXPR unsigned char const & operator [] (size_t i) const BOOST_NOEXCEPT {
+        return buf_.data ()[i];
     }
 
-    BOOST_CONSTEXPR unsigned char & operator [] (size_t i) BOOST_NOEXCEPT
-    {
-        return buf_.data()[i];
+    BOOST_CONSTEXPR unsigned char & operator [] (size_t i) BOOST_NOEXCEPT {
+        return buf_.data ()[i];
     }
 
-    BOOST_CONSTEXPR unsigned char const * begin() const BOOST_NOEXCEPT
-    {
-        return buf_.data();
+    BOOST_CONSTEXPR unsigned char const * begin () const BOOST_NOEXCEPT {
+        return buf_.data ();
     }
 
-    BOOST_CONSTEXPR unsigned char * begin() BOOST_NOEXCEPT
+    BOOST_CONSTEXPR unsigned char * begin () BOOST_NOEXCEPT
     {
-        return buf_.data();
+        return buf_.data ();
     }
 
-    BOOST_CONSTEXPR unsigned char const * end() const BOOST_NOEXCEPT
-    {
-        return buf_.data() + n_bits / 8;
+    BOOST_CONSTEXPR unsigned char const * end () const BOOST_NOEXCEPT {
+        return buf_.data () + n_bits / 8;
     }
 
-    BOOST_CONSTEXPR unsigned char * end() BOOST_NOEXCEPT
-    {
-        return buf_.data() + n_bits / 8;
+    BOOST_CONSTEXPR unsigned char * end () BOOST_NOEXCEPT {
+        return buf_.data () + n_bits / 8;
     }
 
-    BOOST_CONSTEXPR operator std::basic_string_view<unsigned char> () const BOOST_NOEXCEPT
-    {
+    BOOST_CONSTEXPR operator std::basic_string_view<unsigned char> () const BOOST_NOEXCEPT {
         return std::basic_string_view<unsigned char> (buf_.data (), n_bits / 8);
     }
 
-    BOOST_CONSTEXPR operator value_type() const BOOST_NOEXCEPT
-    {
+    BOOST_CONSTEXPR operator value_type () const BOOST_NOEXCEPT {
         return this->value();
     }
 
-    BOOST_CONSTEXPR operator buffer_type& () BOOST_NOEXCEPT
-    {
+    BOOST_CONSTEXPR operator buffer_type & () BOOST_NOEXCEPT {
         return buf_;
     }
 
-    BOOST_CONSTEXPR operator buffer_type const& () BOOST_NOEXCEPT
-    {
+    BOOST_CONSTEXPR operator buffer_type const & () BOOST_NOEXCEPT {
         return buf_;
     }
 
     // operators
 
-    BOOST_CONSTEXPR T operator+() const BOOST_NOEXCEPT
-    {
-        return this->value();
+    BOOST_CONSTEXPR T operator + () const BOOST_NOEXCEPT {
+        return this->value ();
     }
 
-    BOOST_CONSTEXPR endian_arithmetic operator-() const BOOST_NOEXCEPT
-    {
-        return endian_arithmetic (-this->value());
+    BOOST_CONSTEXPR endian_arithmetic operator - () const BOOST_NOEXCEPT {
+        return endian_arithmetic (-this->value ());
     }
 
     template <std::integral I>
-    BOOST_CONSTEXPR auto operator+(I y) const BOOST_NOEXCEPT
-    {
-        auto result = this->value() + y;
+    BOOST_CONSTEXPR auto operator + (I y) const BOOST_NOEXCEPT {
+        auto result = this->value () + y;
         return endian_arithmetic<Order, decltype (result), n_bits, Align> (result);
     }
 
     template <std::integral I>
-    BOOST_CONSTEXPR auto operator-(I y) const BOOST_NOEXCEPT
-    {
-        auto result = this->value() - y;
+    BOOST_CONSTEXPR auto operator - (I y) const BOOST_NOEXCEPT {
+        auto result = this->value () - y;
         return endian_arithmetic<Order, decltype (result), n_bits, Align> (result);
     }
 
     template <std::integral I>
-    BOOST_CONSTEXPR auto operator*(I y) const BOOST_NOEXCEPT
-    {
-        auto result = this->value() * y;
+    BOOST_CONSTEXPR auto operator * (I y) const BOOST_NOEXCEPT {
+        auto result = this->value () * y;
         return endian_arithmetic<Order, decltype (result), n_bits, Align> (result);
     }
 
     template <std::integral I>
-    BOOST_CONSTEXPR auto operator/(I y) const BOOST_NOEXCEPT
+    BOOST_CONSTEXPR auto operator / (I y) const BOOST_NOEXCEPT
     {
-        auto result = this->value() / y;
+        auto result = this->value () / y;
         return endian_arithmetic<Order, decltype (result), n_bits, Align> (result);
     }
 
     template <std::integral I>
-    BOOST_CONSTEXPR auto operator%(I y) const BOOST_NOEXCEPT
+    BOOST_CONSTEXPR auto operator % (I y) const BOOST_NOEXCEPT
     {
-        auto result = this->value() % y;
+        auto result = this->value () % y;
         return endian_arithmetic<Order, decltype (result), n_bits, Align> (result);
     }
 
-    BOOST_CONSTEXPR endian_arithmetic& operator+=( T y ) BOOST_NOEXCEPT
-    {
-        *this = static_cast<T>( this->value() + y );
+    BOOST_CONSTEXPR endian_arithmetic &operator += (T y) BOOST_NOEXCEPT {
+        *this = static_cast<T> (this->value () + y );
         return *this;
     }
 
-    BOOST_CONSTEXPR endian_arithmetic& operator-=( T y ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic &operator -= (T y) BOOST_NOEXCEPT
     {
-        *this = static_cast<T>( this->value() - y );
+        *this = static_cast<T> (this->value () - y );
         return *this;
     }
 
-    BOOST_CONSTEXPR endian_arithmetic& operator*=( T y ) BOOST_NOEXCEPT
-    {
-        *this = static_cast<T>( this->value() * y );
+    BOOST_CONSTEXPR endian_arithmetic &operator *= (T y) BOOST_NOEXCEPT {
+        *this = static_cast<T> (this->value () * y );
         return *this;
     }
 
-    BOOST_CONSTEXPR endian_arithmetic& operator/=( T y ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic& operator /= (T y) BOOST_NOEXCEPT
     {
-        *this = static_cast<T>( this->value() / y );
+        *this = static_cast<T> (this->value () / y );
         return *this;
     }
 
-    BOOST_CONSTEXPR endian_arithmetic& operator%=( T y ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic& operator %= (T y) BOOST_NOEXCEPT
     {
-        *this = static_cast<T>( this->value() % y );
+        *this = static_cast<T> (this->value () % y );
         return *this;
     }
 
-    BOOST_CONSTEXPR endian_arithmetic& operator&=( T y ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic& operator &= (T y) BOOST_NOEXCEPT
     {
-        *this = static_cast<T>( this->value() & y );
+        *this = static_cast<T> (this->value () & y );
         return *this;
     }
 
-    BOOST_CONSTEXPR endian_arithmetic& operator|=( T y ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic &operator |= (T y) BOOST_NOEXCEPT
     {
-        *this = static_cast<T>( this->value() | y );
+        *this = static_cast<T> (this->value () | y );
         return *this;
     }
 
-    BOOST_CONSTEXPR endian_arithmetic& operator^=( T y ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic &operator ^= (T y) BOOST_NOEXCEPT
     {
-        *this = static_cast<T>( this->value() ^ y );
+        *this = static_cast<T> (this->value () ^ y );
         return *this;
     }
 
-    BOOST_CONSTEXPR endian_arithmetic& operator<<=( T y ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic operator << (int y) BOOST_NOEXCEPT
     {
-        *this = static_cast<T>( this->value() << y );
+        auto result = this->value () << y;
+        return endian_arithmetic<Order, decltype (result), n_bits, Align> (result);
+    }
+
+    BOOST_CONSTEXPR endian_arithmetic operator >> (int y) BOOST_NOEXCEPT
+    {
+        auto result = this->value () >> y;
+        return endian_arithmetic<Order, decltype (result), n_bits, Align> (result);
+    }
+
+    BOOST_CONSTEXPR endian_arithmetic &operator <<= (int y) BOOST_NOEXCEPT {
+        *this = static_cast<T> ( this->value () << y );
         return *this;
     }
 
-    BOOST_CONSTEXPR endian_arithmetic& operator>>=( T y ) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic &operator >>= (int y) BOOST_NOEXCEPT
     {
-        *this = static_cast<T>( this->value() >> y );
+        *this = static_cast<T> ( this->value () >> y );
         return *this;
     }
 
-    BOOST_CONSTEXPR endian_arithmetic& operator++() BOOST_NOEXCEPT
-    {
+    BOOST_CONSTEXPR endian_arithmetic &operator ++ () BOOST_NOEXCEPT {
         *this += 1;
         return *this;
     }
 
-    BOOST_CONSTEXPR endian_arithmetic& operator--() BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic& operator -- () BOOST_NOEXCEPT
     {
         *this -= 1;
         return *this;
     }
 
-    BOOST_CONSTEXPR endian_arithmetic operator++(int) BOOST_NOEXCEPT
+    BOOST_CONSTEXPR endian_arithmetic operator ++ (int) BOOST_NOEXCEPT
     {
         endian_arithmetic tmp( *this );
         *this += 1;
         return tmp;
     }
 
-    BOOST_CONSTEXPR endian_arithmetic operator--(int) BOOST_NOEXCEPT
-    {
+    BOOST_CONSTEXPR endian_arithmetic operator -- (int) BOOST_NOEXCEPT {
         endian_arithmetic tmp( *this );
         *this -= 1;
         return tmp;
     }
 
     template<class Ch, class Tr>
-    friend std::basic_ostream<Ch, Tr>&
-    operator<<( std::basic_ostream<Ch, Tr>& os, endian_arithmetic const& x )
-    {
+    friend std::basic_ostream<Ch, Tr> &
+    operator << (std::basic_ostream<Ch, Tr> &os, endian_arithmetic const &x) {
         return os << x.value();
     }
 
     template<class Ch, class Tr>
-    friend std::basic_istream<Ch, Tr>&
-    operator>>( std::basic_istream<Ch, Tr>& is, endian_arithmetic& x )
-    {
+    friend std::basic_istream<Ch, Tr> &
+    operator >> (std::basic_istream<Ch, Tr> &is, endian_arithmetic &x) {
         T i;
 
         if( is >> i )
@@ -424,8 +406,7 @@ public:
         && std::signed_integral<T>
         && std::unsigned_integral<U>)
     )
-    BOOST_CONSTEXPR operator endian_arithmetic<Order, U, sizeof (U) * 8, Align> () const
-    {
+    BOOST_CONSTEXPR operator endian_arithmetic<Order, U, sizeof (U) * 8, Align> () const {
         return U (value ());
     }
 
@@ -433,18 +414,17 @@ public:
     // ------------------------------
     // Explicit conversions otherwise
     // ------------------------------
-    template<std::integral U>
-    requires (
+    template<std::integral U> requires (
         !(
-            (sizeof(U) > sizeof(T))
+            (sizeof(U) > sizeof (T))
             ||
-            (sizeof(U)==sizeof(T)
+            (sizeof(U)==sizeof (T)
             && std::signed_integral<T>
             && std::unsigned_integral<U>)
         )
     )
-    BOOST_CONSTEXPR explicit operator endian_arithmetic<Order, U, sizeof (U) * 8, Align> () const
-    {
+
+    BOOST_CONSTEXPR explicit operator endian_arithmetic<Order, U, sizeof (U) * 8, Align> () const {
         return U (value ());
     }
 
@@ -460,5 +440,3 @@ public:
 #if defined(_MSC_VER)
 # pragma warning(pop)
 #endif
-
-#endif // BOOST_ENDIAN_ARITHMETIC_HPP

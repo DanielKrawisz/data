@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_TRANSPOSE
-#define DATA_TRANSPOSE
+#pragma once
 
 #include <data/array.hpp>
 #include <data/get.hpp>
@@ -142,5 +141,3 @@ namespace data {
     }
 
 }
-
-#endif

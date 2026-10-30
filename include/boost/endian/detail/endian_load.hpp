@@ -1,5 +1,4 @@
-#ifndef BOOST_ENDIAN_DETAIL_ENDIAN_LOAD_HPP_INCLUDED
-#define BOOST_ENDIAN_DETAIL_ENDIAN_LOAD_HPP_INCLUDED
+#pragma once
 
 // Copyright 2019 Peter Dimov
 // Copyright 2025 Daniel Krawisz
@@ -599,4 +598,3 @@ template<class T, order Order> struct endian_load_impl<T, 8, Order, 7, order::bi
 } // namespace endian
 } // namespace boost
 
-#endif  // BOOST_ENDIAN_DETAIL_ENDIAN_LOAD_HPP_INCLUDED

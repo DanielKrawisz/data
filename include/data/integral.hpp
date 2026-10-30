@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_INTEGRAL
-#define DATA_MATH_INTEGRAL
+#pragma once
 
 // numbers of either endian of any size up to 64 bits using boost.
 #include <data/encoding/endian.hpp>
@@ -12,7 +11,7 @@
 
 // bounded size numbers of any size (bigger than 64 bit)
 #include <data/math/number/bounded.hpp>
-#include <data/math/number/bytes.hpp>
+#include <data/math/mod.hpp>
 
 #include <data/exception.hpp>
 
@@ -76,6 +75,24 @@ namespace data {
 
     using uint544 = math::uint<endian::little, 17, uint32>;
     using  int544 = math::sint<endian::little, 17, uint32>;
+
+    using uint1536 = math::uint<endian::little, 24, uint64>;
+    using  int1536 = math::sint<endian::little, 24, uint64>;
+
+    using uint2048 = math::uint<endian::little, 32, uint64>;
+    using  int2048 = math::sint<endian::little, 32, uint64>;
+
+    using uint3072 = math::uint<endian::little, 48, uint64>;
+    using  int3072 = math::sint<endian::little, 48, uint64>;
+
+    using uint4096 = math::uint<endian::little, 64, uint64>;
+    using  int4096 = math::sint<endian::little, 64, uint64>;
+
+    using uint6144 = math::uint<endian::little, 96, uint64>;
+    using  int6144 = math::sint<endian::little, 96, uint64>;
+
+    using uint8192 = math::uint<endian::little, 128, uint64>;
+    using  int8192 = math::sint<endian::little, 128, uint64>;
 
     using  uint80_little = uint_little<10>;
     using uint128_little = uint_little<16>;
@@ -146,6 +163,4 @@ namespace data {
     static_assert (IntegralSystem<int256_little, uint256_little>);
     static_assert (IntegralSystem<int512_little, uint512_little>);
 }
-
-#endif
 

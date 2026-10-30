@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_COMPLEX
-#define DATA_COMPLEX
+#pragma once
 
 #include <data/norm.hpp>
 #include <data/arithmetic.hpp>
@@ -32,7 +31,7 @@ namespace data::math {
     template <typename A> constexpr A imaginary_unit (uint32);
 
     template <typename A> concept quad_algebra =
-        math::ring<A> && requires (const A &x, const A &y) {
+        math::Ring<A> && requires (const A &x, const A &y) {
             { inner (x, y) } -> ImplicitlyConvertible<A>;
         };
 
@@ -50,8 +49,6 @@ namespace data::math {
     template <typename A> concept cayley_dickson_algebra =
         quad_algebra<A> && requires (const A &x) {
             requires Same<decltype (ev (x)), decltype (od (x))>;
-            //requires Same<decltype (ev (x)), A> ||
-            //    (sub_quad_algebra<decltype (ev (x)), A>);
             requires Ordered<decltype (re (x))>;
             requires ImplicitlyConvertible<decltype (abs (re (x))),
                 decltype (quadrance (x))>;
@@ -69,7 +66,7 @@ namespace data::math {
 
     template <typename A> concept Octonionic = cayley_dickson_algebra<A> && Quaternionic<decltype (ev (std::declval<A> ()))>;
 
-    template <typename A> concept CompositionAlgebra = cayley_dickson_algebra<A> && math::field<A>;
+    template <typename A> concept CompositionAlgebra = cayley_dickson_algebra<A> && math::Field<A>;
 
     template <typename A> constexpr auto re (const A &x) {
         if constexpr (ImplicitlyConvertible<A, decltype (ev (x))>) {
@@ -125,10 +122,10 @@ namespace data::math::def {
 
     // if abs and inner are defined, then quadrance x is inner x x.
     template <typename X> requires requires (const X &x) {
-        { data::abs (math::re (math::inner (x, x))) };
+        { math::re (math::inner (x, x)) };
     } struct quadrance<X> {
         constexpr auto operator () (const X &x) {
-            return data::abs (math::re (math::inner (x, x)));
+            return math::re (math::inner (x, x));
         }
     };
 
@@ -145,5 +142,3 @@ namespace data::math::def {
     };
 
 }
-
-#endif

@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ARRAY
-#define DATA_ARRAY
+#pragma once
 
 #include <data/slice.hpp>
 #include <data/valid.hpp>
@@ -74,6 +73,10 @@ namespace data {
     } constexpr array<X, sizes...> operator * (const array<X, sizes...> &, const X &);
 
     template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
+        { x * y } -> ImplicitlyConvertible<X>;
+    } constexpr array<X, sizes...> operator * (const X &, const array<X, sizes...> &);
+
+    template <typename X, size_t... sizes> requires requires (const X &x, const X &y) {
         { x / y } -> ImplicitlyConvertible<X>;
     } constexpr array<X, sizes...> operator / (const array<X, sizes...> &, const X &);
 
@@ -101,6 +104,9 @@ namespace data {
         constexpr array (slice<const X, z> x) {
             std::copy (x.begin (), x.end (), this->begin ());
         }
+
+        // size of vector must be equal to Size
+        array (std::vector<X> &&);
 
         // make an array filled with a particular value.
         constexpr static array filled (const X &x);
@@ -765,5 +771,3 @@ namespace data {
     }
 
 }
-
-#endif

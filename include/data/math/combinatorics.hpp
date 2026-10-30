@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_COMBINATORICS
-#define DATA_COMBINATORICS
+#pragma once
 
 #include <data/list.hpp>
 #include <data/stack.hpp>
@@ -456,5 +455,3 @@ namespace data {
         return n;
     }
 }
-
-#endif

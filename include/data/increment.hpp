@@ -2,34 +2,39 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_INCREMENT
-#define DATA_MATH_NUMBER_INCREMENT
+#pragma once
 
 #include <data/math/nonzero.hpp>
 
-namespace data {
-    template <typename N> auto increment (const N &n);
-    template <typename N> auto decrement (const math::nonzero<N> &n);
-    template <typename N> auto decrement (const N &n);
-}
-
 namespace data::math::number {
 
-    template <typename N> struct increment;
-    template <typename N> struct decrement;
+    template <typename N> struct increment {};
+    template <typename N> struct decrement {};
+
+}
+
+namespace data::math {
+
+    template <typename N> concept has_increment = requires (const N &n) {
+        { number::increment<N> {} (n) };
+    };
+
+    template <typename N> concept has_decrement = requires (const N &n) {
+        { number::increment<N> {} (n) };
+    };
 
 }
 
 namespace data {
-    template <typename N> auto inline increment (const N &n) {
+    template <math::has_increment N> auto inline increment (const N &n) {
         return math::number::increment<N> {} (n);
     }
 
-    template <typename N> auto inline decrement (const math::nonzero<N> &n) {
+    template <math::has_decrement N> auto inline decrement (const math::nonzero<N> &n) {
         return math::number::decrement<N> {} (n);
     }
 
-    template <typename N> auto inline decrement (const N &n) {
+    template <math::has_decrement N> auto inline decrement (const N &n) {
         return math::number::decrement<N> {} (n);
     }
 }
@@ -73,5 +78,3 @@ namespace data::math::number {
     }
 
 }
-
-#endif
