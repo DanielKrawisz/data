@@ -59,8 +59,7 @@ namespace NTL {
     concept Compatible =
         Same<T, int> ||
         Same<T, long> ||
-        Same<T, unsigned int> ||
-        Same<T, unsigned long>;
+        Same<T, unsigned int>;
 
     template <typename T>
     concept Incompatible =

@@ -98,13 +98,15 @@ namespace data {
     template <std::unsigned_integral word> using Zb1 = math::number::Z_bytes<endian::big, negativity::twos, word>;
     template <std::unsigned_integral word> using Zb2 = math::number::Z_bytes<endian::big, negativity::BC, word>;
 
-    template <typename in, std::unsigned_integral word> void N_Bytes_to_N_by_word (in x) {
+    template <typename in, Word word> void N_Bytes_to_N_by_word (in x) {
 
+        // read in three kinds of numbers from the string.
         N n = N::read (x);
 
         Nb<word> big {x};
         Nl<word> little {x};
 
+        // stupid but correct way of converting from N to N_bytes by writing out as hex.
         Nb<word> stupid_big = N_to_N_Bytes_stupid<endian::big, word> (n);
         Nl<word> stupid_little = N_to_N_Bytes_stupid<endian::little, word> (n);
 
@@ -126,13 +128,11 @@ namespace data {
     }
 
     template <typename in> void N_Bytes_to_N (in x) {
-
         N_Bytes_to_N_by_word<in, byte> (x);
         N_Bytes_to_N_by_word<in, unsigned short> (x);
         N_Bytes_to_N_by_word<in, unsigned> (x);
         N_Bytes_to_N_by_word<in, unsigned long> (x);
         N_Bytes_to_N_by_word<in, unsigned long long> (x);
-
     }
 
     TEST (N, NBytesToN) {
@@ -144,14 +144,14 @@ namespace data {
         N_Bytes_to_N<string> ("7439");
         N_Bytes_to_N<string> ("10920960978709");
 
-        N_Bytes_to_N<string> (
-            "0x0fabcdef123456789012323454567600000a00aabbccddeeffffffffffffffff"
+        N_Bytes_to_N<string> ("0x"
+            "0fabcdef123456789012323454567600000a00aabbccddeeffffffffffffffff"
             "0000111122223333444455556666777788889999aaaabbbbccccddddeeeeffff"
             "0369cf258be147ad05af49e38d27c16b07e5c3a18f6d4b29092b4d6f81a3c5e7"
             "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd");
 
-        N_Bytes_to_N<string> (
-            "0xf0abcdef123456789012323454567600000a00aabbccddeeffffffffffffffff"
+        N_Bytes_to_N<string> ("0x"
+            "f0abcdef123456789012323454567600000a00aabbccddeeffffffffffffffff"
             "0000111122223333444455556666777788889999aaaabbbbccccddddeeeeffff"
             "0369cf258be147ad05af49e38d27c16b07e5c3a18f6d4b29092b4d6f81a3c5e7"
             "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd");
