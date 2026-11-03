@@ -95,6 +95,8 @@ namespace data::arithmetic {
         
     };
 
+    // TODO these should be in arithmetic.hpp
+
     // must check that the input has at least size 1 to use.
     template <endian r, typename digit> constexpr void inline flip_sign_bit (Words<r, digit> x) {
         if (x[-1] & get_sign_bit<digit>::value) x[-1] &= ~get_sign_bit<digit>::value;

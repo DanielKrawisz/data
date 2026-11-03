@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <data/math/number/bytes/Z.hpp>
+#include <data/math/number/conversions.hpp>
 #include <data/encoding/integer.hpp>
 
 // TODO we would like to remove this include eventually.
@@ -23,7 +23,7 @@ namespace data::math::number {
     template <endian r, Word word>
     N_bytes<r, word> inline N_bytes<r, word>::read (string_view x) {
         if (!encoding::natural::valid (x))
-            throw exception {} << "invalid number string A " << x;
+            throw exception {} << "invalid number string " << x;
 
         if (encoding::hexidecimal::valid (x)) {
             if (auto m = encoding::hexidecimal::read<r, word> (x); bool (m)) {
@@ -32,8 +32,9 @@ namespace data::math::number {
         }
 
         // TODO N_bytes should not depend on N.
-        if (encoding::decimal::valid (x)) return N_bytes<r, word> (N::read (x));
-        throw exception {} << "invalid number string B " << x;
+        if (encoding::decimal::valid (x))
+            return N_bytes<r, word> (N::read (x));
+        throw exception {} << "invalid number string " << x;
     }
 
     template <endian r, Word word>
@@ -45,7 +46,7 @@ namespace data::math::number {
         if (encoding::hexidecimal::valid (x))
             return *encoding::integer::read<r, negativity::twos, word> (x);
 
-        return convert<Z_bytes<r, negativity::twos, word>> (Z::read (x));
+        return Z_bytes<r, negativity::twos, word> (Z::read (x));
     }
 
     template <endian r, Word word>
@@ -142,13 +143,13 @@ namespace data::encoding::signed_decimal {
 namespace data::encoding::natural {
     
     template <endian::order r, Word word>
-    maybe<math::N_bytes<r, word>> inline read (string_view s) {
+    maybe<N_bytes<r, word>> inline read (string_view s) {
         if (!valid (s)) return {};
 
         if (hexidecimal::valid (s)) {
             auto p = hexidecimal::read<r, word> (s);
             if (!p) return {};
-            return math::number::N_bytes<r, word> (math::number::N_bytes<r, word>::read (view<word> (*p)));
+            return math::N_bytes<r, word>::read (view<word> (*p));
         }
         
         return decimal::read<r, word> (s);
@@ -157,47 +158,8 @@ namespace data::encoding::natural {
 }
 
 namespace data::encoding::hexidecimal {
-
-    template <negativity n, hex::letter_case cx, std::integral I>
-    string<cx> write (I x) {
-        if constexpr (n == negativity::nones)
-            return write<cx> (math::number::N_bytes<endian::big> {x});
-        else return write<cx> (math::number::Z_bytes<endian::big, n> {x});
-    }
-
-    template <negativity neg, hex::letter_case zz>
-    integer<neg, zz> inline bit_shift (const integer<neg, zz> &x, int i) {
-        return write<zz> (data::bit_shift (
-            std::conditional_t<neg == negativity::nones,
-                math::number::N_bytes<endian::big, byte>,
-                math::number::Z_bytes<endian::big, neg, byte>> (x), i));
-    }
-
-    template <hex_case zz, endian::order r, Word word>
-    integer<negativity::nones, zz> write (const math::number::N_bytes<r, word> &z) {
-        std::stringstream ss;
-        write (ss, static_cast<const oriented<r, word> &> (z), zz);
-        return integer<negativity::nones, zz> {ss.str ()};
-    }
-
-    template <hex_case zz, endian::order r, negativity n, Word word>
-    integer<n, zz> write (const math::number::Z_bytes<r, n, word> &z) {
-        std::stringstream ss;
-        write (ss, static_cast<const oriented<r, word> &> (z), zz);
-        return integer<n, zz> {ss.str ()};
-    }
     
     namespace {
-        template <endian::order r, negativity c> struct get_bytes_type {
-            using value = math::number::Z_bytes<r, c, byte>;
-        };
-        
-        template <endian::order r> struct get_bytes_type<r, negativity::nones> {
-            using value = math::number::N_bytes<r, byte>;
-        };
-        
-        template <endian::order r, negativity c>
-        using bytes_type = get_bytes_type<r, c>::value;
 
         using nat = math::number::N;
         
@@ -279,7 +241,7 @@ namespace data::encoding::hexidecimal {
     
     template <negativity c, hex::letter_case zz>
     inline integer<c, zz>::operator double () const {
-        return double (bytes_type<endian::little, c>::read (*this));
+        return double (Z_bytes<endian::little, c>::read (*this));
     }
 
     template <negativity n, hex::letter_case zz>
@@ -315,19 +277,8 @@ namespace data::encoding::integer {
         return ss.str ();
     }
     
-    template <endian::order r, Word word>
-    std::ostream inline &write (std::ostream &o, const math::number::N_bytes<r, word> &z) {
-        return decimal::write (o, z);
-    }
-    
-    template <endian::order r, Word word>
-    string inline write (const math::number::N_bytes<r, word> &z) {
-        std::stringstream ss;
-        write (ss, z);
-        return ss.str ();
-    }
-    
 }
+
 namespace data::encoding::base58 {
 
     template <std::integral I> inline string::string (I x): string {encode (N {x})} {}
@@ -456,21 +407,6 @@ namespace data::math::def {
         return {
             encoding::hexidecimal::write<zz> (d.Quotient),
             encoding::hexidecimal::write<zz> (d.Remainder)};
-    }
-
-    template <endian r, negativity c, Word word>
-    number::Z_bytes<r, c, word> inline convert<number::Z_bytes<r, c, word>, Z>::operator () (const Z &z) const {
-        return z.operator number::Z_bytes<r, c, word> ();
-    }
-
-    template <endian r, Word word>
-    number::N_bytes<r, word> inline convert<number::N_bytes<r, word>, N>::operator () (const N &n) const {
-        return n.operator number::N_bytes<r, word> ();
-    }
-
-    template <endian r, Word word>
-    N inline convert<N, number::N_bytes<r, word>>::operator () (const number::N_bytes<r, word> &n) const {
-        return N (n);
     }
 
     template <negativity c, hex_case zz>

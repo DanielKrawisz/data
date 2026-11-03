@@ -11,8 +11,7 @@
 #include <data/math/number/NTL/Z.hpp>
 #include <data/math/number/bounded.hpp>
 #include <data/math/number/bytes.hpp>
-
-#include <algorithm>
+#include <data/math/number/conversions.hpp>
 
 namespace data {
     // we use a wrapper around NTL for natural numbers and integers.
@@ -25,17 +24,17 @@ namespace data {
     // representation. They can be big or little endian. 
     // Z_bytes are two's complement.
 
-    using N_bytes_little = math::number::N_bytes<endian::little, byte>;
+    using N_bytes_little = math::N_bytes<endian::little, byte>;
     
-    using N_bytes_big = math::number::N_bytes<endian::big, byte>;
+    using N_bytes_big = math::N_bytes<endian::big, byte>;
     
-    using Z_bytes_little = math::number::Z_bytes<endian::little, negativity::twos, byte>;
+    using Z_bytes_little = math::Z_bytes<endian::little, byte>;
     
-    using Z_bytes_big = math::number::Z_bytes<endian::big, negativity::twos, byte>;
+    using Z_bytes_big = math::Z_bytes<endian::big, byte>;
     
-    using Z_bytes_BC_little = math::number::Z_bytes<endian::little, negativity::BC, byte>;
+    using Z_bytes_BC_little = math::Z_bytes_BC<endian::little, byte>;
     
-    using Z_bytes_BC_big = math::number::Z_bytes<endian::big, negativity::BC, byte>;
+    using Z_bytes_BC_big = math::Z_bytes_BC<endian::big, byte>;
     
     // string numbers. 
     using dec_uint = encoding::decimal::string;
@@ -44,8 +43,6 @@ namespace data {
     using hex_int = hex::int2<hex_case::lower>;
     using hex_int_BC = hex::intBC<hex_case::lower>;
     using base58_uint = encoding::base58::string;
-
-    static_assert (proto_bit_unsigned<hex_uint>);
     
 }
 
@@ -74,38 +71,25 @@ namespace data {
     static_assert (Natural<hex_uint>);
     static_assert (NumberSystem<hex_int, hex_uint>);
 
-    // TODO put these back in
     static_assert (Integer<hex_int_BC>);
     static_assert (NumberSystem<hex_int_BC>);
 
     static_assert (Natural<base58_uint>);
-
-    template <> struct twice<int64> {
-        using type = int128;
-    };
-
-    template <> struct twice<int64_little> {
-        using type = int128_little;
-    };
-
-    template <> struct twice<int64_big> {
-        using type = int128_big ;
-    };
 
 }
 
 namespace data::math::number {
     
     // explicit instantiations
-    template struct N_bytes<endian::big, byte>;
-    template struct N_bytes<endian::little, byte>;
+    template struct Z_bytes<endian::big, negativity::nones, byte>;
+    template struct Z_bytes<endian::little, negativity::nones, byte>;
     template struct Z_bytes<endian::big, negativity::twos, byte>;
     template struct Z_bytes<endian::little, negativity::twos, byte>;
     template struct Z_bytes<endian::big, negativity::BC, byte>;
     template struct Z_bytes<endian::little, negativity::BC, byte>;
     
-    template std::weak_ordering operator <=> (const N_bytes<endian::big, byte> &, const N_bytes<endian::big, byte> &);
-    template std::weak_ordering operator <=> (const N_bytes<endian::little, byte> &, const N_bytes<endian::little, byte> &);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::big, negativity::nones, byte> &, const Z_bytes<endian::big, negativity::nones, byte> &);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::little, negativity::nones, byte> &, const Z_bytes<endian::little, negativity::nones, byte> &);
     
     template std::weak_ordering operator <=>
         (const Z_bytes<endian::big, negativity::twos, byte> &, const Z_bytes<endian::big, negativity::twos, byte> &);
@@ -116,86 +100,86 @@ namespace data::math::number {
     template std::weak_ordering operator <=>
         (const Z_bytes<endian::little, negativity::BC, byte> &, const Z_bytes<endian::little, negativity::BC, byte> &);
     
-    template std::weak_ordering operator <=> (const Z_bytes<endian::big, negativity::twos, byte> &, const N_bytes<endian::big, byte> &);
-    template std::weak_ordering operator <=> (const Z_bytes<endian::big, negativity::BC, byte> &, const N_bytes<endian::big, byte> &);
-    template std::weak_ordering operator <=> (const Z_bytes<endian::little, negativity::twos, byte> &, const N_bytes<endian::little, byte> &);
-    template std::weak_ordering operator <=> (const Z_bytes<endian::little, negativity::BC, byte> &, const N_bytes<endian::little, byte> &);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::big, negativity::twos, byte> &, const Z_bytes<endian::big, negativity::nones, byte> &);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::big, negativity::BC, byte> &, const Z_bytes<endian::big, negativity::nones, byte> &);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::little, negativity::twos, byte> &, const Z_bytes<endian::little, negativity::nones, byte> &);
+    template std::weak_ordering operator <=> (const Z_bytes<endian::little, negativity::BC, byte> &, const Z_bytes<endian::little, negativity::nones, byte> &);
     
     template std::weak_ordering operator <=> (const Z_bytes<endian::big, negativity::twos, byte> &, int64);
     template std::weak_ordering operator <=> (const Z_bytes<endian::big, negativity::BC, byte> &, int64);
     template std::weak_ordering operator <=> (const Z_bytes<endian::little, negativity::twos, byte> &, int64);
     template std::weak_ordering operator <=> (const Z_bytes<endian::little, negativity::BC, byte> &, int64);
     
-    template bool operator == (const N_bytes<endian::big, byte> &, uint64);
+    template bool operator == (const Z_bytes<endian::big, negativity::nones, byte> &, uint64);
     template bool operator == (const Z_bytes<endian::big, negativity::twos, byte> &, int64);
     template bool operator == (const Z_bytes<endian::big, negativity::BC, byte> &, int64);
     
-    template bool operator == (const N_bytes<endian::little, byte> &, uint64);
+    template bool operator == (const Z_bytes<endian::little, negativity::nones, byte> &, uint64);
     template bool operator == (const Z_bytes<endian::little, negativity::twos, byte> &, int64);
     template bool operator == (const Z_bytes<endian::little, negativity::BC, byte> &, int64);
     
-    template Z_bytes<endian::big, negativity::twos, byte> operator ~ (const N_bytes<endian::big, byte> &);
+    template Z_bytes<endian::big, negativity::twos, byte> operator ~ (const Z_bytes<endian::big, negativity::nones, byte> &);
     template Z_bytes<endian::big, negativity::twos, byte> operator ~ (const Z_bytes<endian::big, negativity::twos, byte> &);
 
-    template N_bytes<endian::big, byte> operator ^ (const N_bytes<endian::big, byte> &, const N_bytes<endian::big, byte> &);
+    template Z_bytes<endian::big, negativity::nones, byte> operator ^ (const Z_bytes<endian::big, negativity::nones, byte> &, const Z_bytes<endian::big, negativity::nones, byte> &);
     template Z_bytes<endian::big, negativity::twos, byte> operator ^
         (const Z_bytes<endian::big, negativity::twos, byte> &, const Z_bytes<endian::big, negativity::twos, byte> &);
     template Z_bytes<endian::big, negativity::twos, byte> operator ^
-        (const Z_bytes<endian::big, negativity::twos, byte> &, const N_bytes<endian::big, byte> &);
+        (const Z_bytes<endian::big, negativity::twos, byte> &, const Z_bytes<endian::big, negativity::nones, byte> &);
     template Z_bytes<endian::big, negativity::twos, byte> operator ^
-        (const N_bytes<endian::big, byte> &, const Z_bytes<endian::big, negativity::twos, byte> &);
+        (const Z_bytes<endian::big, negativity::nones, byte> &, const Z_bytes<endian::big, negativity::twos, byte> &);
     
-    template N_bytes<endian::big, byte> operator & (const N_bytes<endian::big, byte> &, const N_bytes<endian::big, byte> &);
-    template N_bytes<endian::big, byte> operator | (const N_bytes<endian::big, byte> &, const N_bytes<endian::big, byte> &);
-    template Z_bytes<endian::big, negativity::twos, byte> operator - (const N_bytes<endian::big, byte> &);
+    template Z_bytes<endian::big, negativity::nones, byte> operator & (const Z_bytes<endian::big, negativity::nones, byte> &, const Z_bytes<endian::big, negativity::nones, byte> &);
+    template Z_bytes<endian::big, negativity::nones, byte> operator | (const Z_bytes<endian::big, negativity::nones, byte> &, const Z_bytes<endian::big, negativity::nones, byte> &);
+    template Z_bytes<endian::big, negativity::twos, byte> operator - (const Z_bytes<endian::big, negativity::nones, byte> &);
     
     template Z_bytes<endian::big, negativity::twos, byte> operator &
         (const Z_bytes<endian::big, negativity::twos, byte> &, const Z_bytes<endian::big, negativity::twos, byte> &);
     template Z_bytes<endian::big, negativity::twos, byte> operator &
-        (const N_bytes<endian::big, byte> &, const Z_bytes<endian::big, negativity::twos, byte> &);
+        (const Z_bytes<endian::big, negativity::nones, byte> &, const Z_bytes<endian::big, negativity::twos, byte> &);
     template Z_bytes<endian::big, negativity::twos, byte> operator &
-        (const Z_bytes<endian::big, negativity::twos, byte> &, const N_bytes<endian::big, byte> &);
+        (const Z_bytes<endian::big, negativity::twos, byte> &, const Z_bytes<endian::big, negativity::nones, byte> &);
     
     template Z_bytes<endian::big, negativity::twos, byte> operator |
         (const Z_bytes<endian::big, negativity::twos, byte> &, const Z_bytes<endian::big, negativity::twos, byte> &);
     template Z_bytes<endian::big, negativity::twos, byte> operator |
-        (const N_bytes<endian::big, byte> &, const Z_bytes<endian::big, negativity::twos, byte> &);
+        (const Z_bytes<endian::big, negativity::nones, byte> &, const Z_bytes<endian::big, negativity::twos, byte> &);
     template Z_bytes<endian::big, negativity::twos, byte> operator |
-        (const Z_bytes<endian::big, negativity::twos, byte> &, const N_bytes<endian::big, byte> &);
+        (const Z_bytes<endian::big, negativity::twos, byte> &, const Z_bytes<endian::big, negativity::nones, byte> &);
     
     template Z_bytes<endian::big, negativity::twos, byte> operator - (const Z_bytes<endian::big, negativity::twos, byte> &);
     
     template Z_bytes<endian::big, negativity::BC, byte> operator - (const Z_bytes<endian::big, negativity::BC, byte> &);
     
-    template Z_bytes<endian::little, negativity::twos, byte> operator ~ (const N_bytes<endian::little, byte> &);
+    template Z_bytes<endian::little, negativity::twos, byte> operator ~ (const Z_bytes<endian::little, negativity::nones, byte> &);
     template Z_bytes<endian::little, negativity::twos, byte> operator ~ (const Z_bytes<endian::little, negativity::twos, byte> &);
 
-    template N_bytes<endian::little, byte> operator ^
-        (const N_bytes<endian::little, byte> &, const N_bytes<endian::little, byte> &);
+    template Z_bytes<endian::little, negativity::nones, byte> operator ^
+        (const Z_bytes<endian::little, negativity::nones, byte> &, const Z_bytes<endian::little, negativity::nones, byte> &);
     template Z_bytes<endian::little, negativity::twos, byte> operator ^
         (const Z_bytes<endian::little, negativity::twos, byte> &, const Z_bytes<endian::little, negativity::twos, byte> &);
     template Z_bytes<endian::little, negativity::twos, byte> operator ^
-        (const Z_bytes<endian::little, negativity::twos, byte> &, const N_bytes<endian::little, byte> &);
+        (const Z_bytes<endian::little, negativity::twos, byte> &, const Z_bytes<endian::little, negativity::nones, byte> &);
     template Z_bytes<endian::little, negativity::twos, byte> operator ^
-        (const N_bytes<endian::little, byte> &, const Z_bytes<endian::little, negativity::twos, byte> &);
+        (const Z_bytes<endian::little, negativity::nones, byte> &, const Z_bytes<endian::little, negativity::twos, byte> &);
     
-    template N_bytes<endian::little, byte> operator & (const N_bytes<endian::little, byte> &, const N_bytes<endian::little, byte> &);
-    template N_bytes<endian::little, byte> operator | (const N_bytes<endian::little, byte> &, const N_bytes<endian::little, byte> &);
-    template Z_bytes<endian::little, negativity::twos, byte> operator - (const N_bytes<endian::little, byte> &);
+    template Z_bytes<endian::little, negativity::nones, byte> operator & (const Z_bytes<endian::little, negativity::nones, byte> &, const Z_bytes<endian::little, negativity::nones, byte> &);
+    template Z_bytes<endian::little, negativity::nones, byte> operator | (const Z_bytes<endian::little, negativity::nones, byte> &, const Z_bytes<endian::little, negativity::nones, byte> &);
+    template Z_bytes<endian::little, negativity::twos, byte> operator - (const Z_bytes<endian::little, negativity::nones, byte> &);
     
     template Z_bytes<endian::little, negativity::twos, byte> operator &
         (const Z_bytes<endian::little, negativity::twos, byte> &, const Z_bytes<endian::little, negativity::twos, byte> &);
     template Z_bytes<endian::little, negativity::twos, byte> operator &
-        (const N_bytes<endian::little, byte> &, const Z_bytes<endian::little, negativity::twos, byte> &);
+        (const Z_bytes<endian::little, negativity::nones, byte> &, const Z_bytes<endian::little, negativity::twos, byte> &);
     template Z_bytes<endian::little, negativity::twos, byte> operator &
-        (const Z_bytes<endian::little, negativity::twos, byte> &, const N_bytes<endian::little, byte> &);
+        (const Z_bytes<endian::little, negativity::twos, byte> &, const Z_bytes<endian::little, negativity::nones, byte> &);
     
     template Z_bytes<endian::little, negativity::twos, byte> operator |
         (const Z_bytes<endian::little, negativity::twos, byte> &, const Z_bytes<endian::little, negativity::twos, byte> &);
     template Z_bytes<endian::little, negativity::twos, byte> operator |
-        (const N_bytes<endian::little, byte> &, const Z_bytes<endian::little, negativity::twos, byte> &);
+        (const Z_bytes<endian::little, negativity::nones, byte> &, const Z_bytes<endian::little, negativity::twos, byte> &);
     template Z_bytes<endian::little, negativity::twos, byte> operator |
-        (const Z_bytes<endian::little, negativity::twos, byte> &, const N_bytes<endian::little, byte> &);
+        (const Z_bytes<endian::little, negativity::twos, byte> &, const Z_bytes<endian::little, negativity::nones, byte> &);
     
     template Z_bytes<endian::little, negativity::twos, byte> operator - (const Z_bytes<endian::little, negativity::twos, byte> &);
     

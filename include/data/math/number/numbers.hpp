@@ -18,7 +18,9 @@
 
 #include <data/encoding/endian.hpp>
 
-#include <data/bytes.hpp>
+// this file contains declarations for our number types. We have
+// fixed-size numbers that resemble large built-in integral types,
+// as well as unbounded big numbers both signed and unsigned.
 
 // Basic number types.
 namespace data::math::number {
@@ -29,7 +31,7 @@ namespace data::math::number {
 
     // an implementation of the natural numbers that is
     // encoded as a big or little endian sequence of bytes.
-    template <endian, Word = byte> struct N_bytes;
+    // template <endian, Word = byte> struct N_bytes;
 
     // similar implementation of the integers. We have two's complement
     // and the sign-and-magnetude system used in Bitcoin. N_bytes works
@@ -42,28 +44,10 @@ namespace data::math::number {
 
 }
 
-// alternate names.
-namespace data {
-    using Z = math::number::Z;
-    using N = math::number::N;
-
-    using N_bytes_little = math::number::N_bytes<endian::little, byte>;
-
-    using N_bytes_big = math::number::N_bytes<endian::big, byte>;
-
-    using Z_bytes_little = math::number::Z_bytes<endian::little, negativity::twos, byte>;
-
-    using Z_bytes_big = math::number::Z_bytes<endian::big, negativity::twos, byte>;
-
-    using Z_bytes_BC_little = math::number::Z_bytes<endian::little, negativity::BC, byte>;
-
-    using Z_bytes_BC_big = math::number::Z_bytes<endian::big, negativity::BC, byte>;
-}
-
 namespace data::math {
 
     template <endian r, Word word = byte>
-    using N_bytes = number::N_bytes<r, word>;
+    using N_bytes = number::Z_bytes<r, negativity::nones, word>;
 
     template <endian r, Word word = byte>
     using Z_bytes = number::Z_bytes<r, negativity::twos, word>;
@@ -73,35 +57,53 @@ namespace data::math {
 
     // satisfies UnsignedIntegral
     template <endian r, size_t x, Word word = byte>
-    using uint = number::bounded<false, r, x, word>;
+    using ubound = number::bounded<false, r, x, word>;
 
     // satisfies SignedIntegral
     template <endian r, size_t x, Word word = byte>
-    using sint = number::bounded<true, r, x, word>;
+    using bound = number::bounded<true, r, x, word>;
 
     template <size_t size, Word word = byte>
-    using uint_little = typename number::bounded<false, endian::little, size, word>;
+    using ubound_little = typename number::bounded<false, endian::little, size, word>;
 
     template <size_t size, Word word = byte>
-    using uint_big = typename number::bounded<false, endian::big, size, word>;
+    using ubound_big = typename number::bounded<false, endian::big, size, word>;
 
     template <size_t size, Word word = byte>
-    using int_little = typename number::bounded<true, endian::little, size, word>;
+    using bound_little = typename number::bounded<true, endian::little, size, word>;
 
     template <size_t size, Word word = byte>
-    using int_big = typename number::bounded<true, endian::big, size, word>;
+    using bound_big = typename number::bounded<true, endian::big, size, word>;
 
 }
 
+// alternate names.
+namespace data {
+    using Z = math::number::Z;
+    using N = math::number::N;
+
+    using N_bytes_little = math::N_bytes<endian::little, byte>;
+
+    using N_bytes_big = math::N_bytes<endian::big, byte>;
+
+    using Z_bytes_little = math::Z_bytes<endian::little, byte>;
+
+    using Z_bytes_big = math::Z_bytes<endian::big, byte>;
+
+    using Z_bytes_BC_little = math::Z_bytes_BC<endian::little, byte>;
+
+    using Z_bytes_BC_big = math::Z_bytes_BC<endian::big, byte>;
+
+    template <endian r, Word word> struct oriented<r, word>;
+
+    template <endian r, Word word, size_t size> struct oriented<r, word, size>;
+}
+
 namespace data::encoding {
-    template <endian::order r, Word word = byte>
-    using N_bytes = math::number::N_bytes<r, word>;
-
-    template <endian::order r, Word word = byte>
-    using Z_bytes = math::number::Z_bytes<r, negativity::twos, word>;
-
-    template <endian::order r, Word word = byte>
-    using Z_bytes_BC = math::number::Z_bytes<r, negativity::BC, word>;
+    using math::number::Z_bytes;
+    using math::N_bytes;
+    using math::ubound;
+    using math::bound;
 }
 
 // functions for reading and wriing these numbers in various formats.
@@ -121,10 +123,10 @@ namespace data::encoding::decimal {
     std::ostream &write (std::ostream &, const N &);
 
     template <endian::order r, size_t x, Word word>
-    std::ostream &write (std::ostream &o, const math::uint<r, x, word> &);
+    std::ostream &write (std::ostream &o, const ubound<r, x, word> &);
 
     template <endian::order r, size_t x, Word word>
-    string write (const math::uint<r, x, word> &);
+    string write (const ubound<r, x, word> &);
 
     template <endian::order r, Word word> string write (const N_bytes<r, word> &z);
 
@@ -141,7 +143,7 @@ namespace data::encoding::signed_decimal {
     constexpr bool valid (string_view s);
 
     template <endian::order r, negativity neg, Word word = byte>
-    maybe<math::number::Z_bytes<r, neg, word>> read (string_view);
+    maybe<Z_bytes<r, neg, word>> read (string_view);
 
     struct string;
 
@@ -150,16 +152,16 @@ namespace data::encoding::signed_decimal {
     std::ostream &write (std::ostream &, const Z &);
 
     template <endian::order r, size_t x, Word word>
-    std::ostream &write (std::ostream &o, const math::sint<r, x, word> &);
+    std::ostream &write (std::ostream &o, const bound<r, x, word> &);
 
     template <endian::order r, size_t x, Word word>
-    string write (const math::sint<r, x, word> &);
+    string write (const bound<r, x, word> &);
 
     template <endian::order r, negativity neg, Word word>
-    string write (const math::number::Z_bytes<r, neg, word> &);
+    string write (const Z_bytes<r, neg, word> &);
 
     template <endian::order r, negativity neg, Word word>
-    std::ostream inline &write (std::ostream &o, const math::number::Z_bytes<r, neg, word> &);
+    std::ostream &write (std::ostream &o, const Z_bytes<r, neg, word> &);
 
 }
 
@@ -167,24 +169,8 @@ namespace data::encoding::hexidecimal {
     constexpr bool valid (string_view s);
 
     std::ostream &write (std::ostream &, const N &, hex_case = hex_case::lower);
+
     std::ostream &write (std::ostream &, const Z &, hex_case = hex_case::lower, negativity = negativity::twos);
-
-    template <hex_case zz> struct string;
-
-    template <negativity, hex_case> struct integer;
-
-    template <hex_case zz, endian::order r, Word word>
-    integer<negativity::nones, zz> write (const math::number::N_bytes<r, word> &);
-
-    template <hex_case zz, endian::order r, negativity neg, Word word>
-    integer<neg, zz> write (const math::number::Z_bytes<r, neg, word> &);
-
-    template <hex_case zz> integer<negativity::nones, zz> write (const N &);
-    template <hex_case zz, negativity n = negativity::twos> integer<n, zz> write (const Z &);
-
-}
-
-namespace data::encoding::hexidecimal {
 
     template <endian::order r, Word word>
     maybe<oriented<r, word>> read (string_view);
@@ -192,68 +178,77 @@ namespace data::encoding::hexidecimal {
     template <endian::order r, Word word>
     std::ostream &write (std::ostream &, const oriented<r, word> &, hex_case q = hex_case::lower);
 
+    template <endian::order r, Word word, size_t size>
+    std::ostream &write (std::ostream &, const oriented<r, word, size> &, hex_case q = hex_case::lower);
+
     template <hex_case zz> struct string;
 
     template <hex_case zz, endian::order r, Word word>
     string<zz> write (const oriented<r, word> &);
+
+    template <hex_case zz, endian::order r, Word word, size_t size>
+    string<zz> write (const oriented<r, word, size> &);
+
+    template <negativity, hex_case> struct integer;
+
+    template <hex_case zz, endian::order r, negativity neg, Word word>
+    integer<neg, zz> write (const Z_bytes<r, neg, word> &);
+
+    template <hex_case zz> integer<negativity::nones, zz> write (const N &);
+
+    template <hex_case zz, negativity n = negativity::twos> integer<n, zz> write (const Z &);
 
 }
 
 namespace data::encoding::natural {
 
     template <endian::order r, Word word>
-    maybe<math::N_bytes<r, word>> read (string_view s);
+    maybe<N_bytes<r, word>> read (string_view s);
 
 }
 
 namespace data::encoding::integer {
 
     template <endian::order r, negativity neg, Word word>
-    maybe<math::number::Z_bytes<r, neg, word>> read (string_view s);
+    maybe<Z_bytes<r, neg, word>> read (string_view s);
 
     template <endian::order r, negativity neg, Word word>
-    std::ostream &write (std::ostream &, const math::number::Z_bytes<r, neg, word> &);
+    std::ostream &write (std::ostream &, const Z_bytes<r, neg, word> &);
 
 }
 
 namespace data::math::number {
 
-    // read from and write to streams.
+    /*************************************************************/
+    /*             read from and write to streams.               */
+    /*************************************************************/
+
     std::ostream &operator << (std::ostream &o, const Z &n);
     std::ostream &operator << (std::ostream &o, const N &n);
 
     std::istream &operator >> (std::istream &i, Z &z);
     std::istream &operator >> (std::istream &i, N &n);
 
-    template <endian r, Word word>
-    std::ostream &operator << (std::ostream &o, const N_bytes<r, word> &n);
-
     template <endian r, negativity neg, Word word>
     std::ostream &operator << (std::ostream &o, const Z_bytes<r, neg, word> &n);
-
-    template <endian r, Word word>
-    std::istream &operator >> (std::istream &o, N_bytes<r, word> &n);
 
     template <endian r, negativity neg, Word word>
     std::istream &operator >> (std::istream &o, Z_bytes<r, neg, word> &n);
 
-    template <endian r, Word word>
-    writer<word> &operator << (writer<word> &o, const N_bytes<r, word> &n);
-
     template <endian r, negativity neg, Word word>
     writer<word> &operator << (writer<word> &o, const Z_bytes<r, neg, word> &n);
-
-    template <endian r, Word word>
-    reader<word> &operator >> (reader<word> &o, N_bytes<r, word> &n);
 
     template <endian r, negativity neg, Word word>
     reader<word> &operator >> (reader<word> &o, Z_bytes<r, neg, word> &n);
 
-    template <data::endian r, size_t x, Word word>
-    std::ostream &operator << (std::ostream &s, const uint<r, x, word> &n);
+    template <endian r, Word word>
+    std::ostream &operator << (std::ostream &o, const N_bytes<r, word> &n);
 
-    template <data::endian r, size_t x, Word word>
-    std::ostream &operator << (std::ostream &s, const sint<r, x, word> &n);
+    template <endian r, Word word>
+    std::istream &operator >> (std::istream &o, N_bytes<r, word> &n);
+
+    template <bool u, data::endian r, size_t x, Word word>
+    std::ostream &operator << (std::ostream &s, const bounded<u, r, x, word> &n);
 
     template <bool u, data::endian r, size_t x, Word word>
     std::istream &operator >> (std::istream &i, const bounded<u, r, x, word> &n);
@@ -295,27 +290,15 @@ namespace data::math::number {
     };
 
     //pre increment and decrement
-    template <endian r, Word word>
-    N_bytes<r, word> &operator ++ (N_bytes<r, word> &);
-
     template <endian r, negativity neg, Word word>
     Z_bytes<r, neg, word> &operator ++ (Z_bytes<r, neg, word> &);
-
-    template <endian r, Word word>
-    N_bytes<r, word> &operator -- (N_bytes<r, word> &);
 
     template <endian r, negativity neg, Word word>
     Z_bytes<r, neg, word> &operator -- (Z_bytes<r, neg, word> &);
 
     // post-increment and decrement
-    template <endian r, Word word>
-    N_bytes<r, word> operator ++ (N_bytes<r, word> &, int);
-
     template <endian r, negativity neg, Word word>
     Z_bytes<r, neg, word> operator ++ (Z_bytes<r, neg, word> &, int);
-
-    template <endian r, Word word>
-    N_bytes<r, word> operator -- (N_bytes<r, word> &, int);
 
     template <endian r, negativity neg, Word word>
     Z_bytes<r, neg, word> operator -- (Z_bytes<r, neg, word> &, int);
@@ -352,38 +335,32 @@ namespace data::math::number {
     constexpr bounded<u, r, size, word> &operator -- (bounded<u, r, size, word> &);
 
     template <endian r, size_t x, Word word>
-    struct increment<uint<r, x, word>> {
-        constexpr nonzero<uint<r, x, word>> operator () (const uint<r, x, word> &);
+    struct increment<ubound<r, x, word>> {
+        constexpr nonzero<ubound<r, x, word>> operator () (const ubound<r, x, word> &);
     };
 
     template <endian r, size_t x, Word word>
-    struct decrement<uint<r, x, word>> {
-        constexpr uint<r, x, word> operator () (const nonzero<uint<r, x, word>> &);
-        constexpr uint<r, x, word> operator () (const uint<r, x, word> &);
+    struct decrement<ubound<r, x, word>> {
+        constexpr ubound<r, x, word> operator () (const nonzero<ubound<r, x, word>> &);
+        constexpr ubound<r, x, word> operator () (const ubound<r, x, word> &);
     };
 
     template <endian r, size_t x, Word word>
-    struct increment<sint<r, x, word>> {
-        constexpr sint<r, x, word> operator () (const sint<r, x, word> &);
+    struct increment<bound<r, x, word>> {
+        constexpr bound<r, x, word> operator () (const bound<r, x, word> &);
     };
 
     template <endian r, size_t x, Word word>
-    struct decrement<sint<r, x, word>> {
-        constexpr sint<r, x, word> operator () (const sint<r, x, word> &);
+    struct decrement<bound<r, x, word>> {
+        constexpr bound<r, x, word> operator () (const bound<r, x, word> &);
     };
 
     /*************************************************************/
     /*                           Size                            */
     /*************************************************************/
 
-    template <endian r, Word word>
-    bool is_minimal (const N_bytes<r, word> &);
-
-    template <endian r, Word word>
-    bool is_minimal (const Z_bytes<r, negativity::twos, word> &);
-
-    template <endian r, Word word>
-    bool is_minimal (const Z_bytes<r, negativity::BC, word> &);
+    template <endian r, negativity neg, Word word>
+    bool is_minimal (const Z_bytes<r, neg, word> &x);
 
     template <endian r, Word word>
     size_t minimal_size (const N_bytes<r, word> &);
@@ -396,9 +373,6 @@ namespace data::math::number {
 
     template <endian r, negativity neg, Word word>
     Z_bytes<r, neg, word> extend (const Z_bytes<r, neg, word> &, size_t);
-
-    template <endian r, Word word>
-    N_bytes<r, word> trim (const N_bytes<r, word> &);
 
     template <endian r, negativity neg, Word word>
     Z_bytes<r, neg, word> trim (const Z_bytes<r, neg, word> &);
@@ -422,32 +396,29 @@ namespace data {
 
     // signed versus unsigned.
     template <endian r, size_t x, Word word>
-    struct make_unsigned<math::uint<r, x, word>> {
-        using type = math::uint<r, x, word>;
+    struct make_unsigned<math::ubound<r, x, word>> {
+        using type = math::ubound<r, x, word>;
     };
 
     template <endian r, size_t x, Word word>
-    struct make_signed<math::uint<r, x, word>> {
-        using type = math::sint<r, x, word>;
+    struct make_signed<math::ubound<r, x, word>> {
+        using type = math::bound<r, x, word>;
     };
 
     template <endian r, size_t x, Word word>
-    struct make_unsigned<math::sint<r, x, word>> {
-        using type = math::uint<r, x, word>;
+    struct make_unsigned<math::bound<r, x, word>> {
+        using type = math::ubound<r, x, word>;
     };
 
     template <endian r, size_t x, Word word>
-    struct make_signed<math::sint<r, x, word>> {
-        using type = math::sint<r, x, word>;
+    struct make_signed<math::bound<r, x, word>> {
+        using type = math::bound<r, x, word>;
     };
 
     template <endian a, Word word>
     struct make_signed<math::Z_bytes_BC<a, word>> {
         using type = math::Z_bytes_BC<a, word>;
     };
-
-    template <endian a, endian b, Word word>
-    bool identical (const math::number::N_bytes<a, word> &, const math::number::N_bytes<b, word> &);
 
     template <endian a, negativity nb, endian c, negativity nd, Word word>
     bool identical (const math::number::Z_bytes<a, nb, word> &, const math::number::Z_bytes<c, nd, word> &);
@@ -476,9 +447,6 @@ namespace data::math::number {
     std::strong_ordering operator <=> (const N &, const N &);
 
     // N_bytes, Z_bytes
-    template <endian r, Word word>
-    bool operator == (const N_bytes<r, word> &, const N_bytes<r, word> &);
-
     template <endian r, negativity neg, Word word>
     bool operator == (const Z_bytes<r, neg, word> &, const Z_bytes<r, neg, word> &);
 
@@ -502,26 +470,26 @@ namespace data::math::number {
     constexpr bool operator == (const bounded<x, r, n, word> &, const bounded<y, o, z, word> &);
 
     template <endian r, size_t size, Word word>
-    constexpr std::strong_ordering operator <=> (const sint<r, size, word> &, const sint<r, size, word> &);
+    constexpr std::strong_ordering operator <=> (const bound<r, size, word> &, const bound<r, size, word> &);
 
     template <endian r, size_t size, Word word>
-    constexpr std::strong_ordering operator <=> (const uint<r, size, word> &, const uint<r, size, word> &);
+    constexpr std::strong_ordering operator <=> (const ubound<r, size, word> &, const ubound<r, size, word> &);
 
     template <bool x, endian r, size_t n, bool y, endian o, size_t z, Word word>
     constexpr std::strong_ordering operator <=> (const bounded<x, r, n, word> &, const bounded<y, o, z, word> &);
 
     // comparisons of N/Z with N_bytes/Z_bytes and bounded types.
     template <endian r, size_t size, Word word>
-    bool operator == (const Z &, const sint<r, size, word> &);
+    bool operator == (const Z &, const bound<r, size, word> &);
 
     template <endian r, size_t size, Word word>
-    std::strong_ordering operator <=> (const Z &, const sint<r, size, word> &);
+    std::strong_ordering operator <=> (const Z &, const bound<r, size, word> &);
 
     template <endian r, size_t size, Word word>
-    bool operator == (const N &, const uint<r, size, word> &);
+    bool operator == (const N &, const ubound<r, size, word> &);
 
     template <endian r, size_t size, Word word>
-    std::strong_ordering operator <=> (const N &, const uint<r, size, word> &);
+    std::strong_ordering operator <=> (const N &, const ubound<r, size, word> &);
 
     template <endian r, negativity neg, Word word>
     bool operator == (const Z &, const Z_bytes<r, neg, word> &);
@@ -537,20 +505,20 @@ namespace data::math::number {
 
     // Equality of _bytes types with bounded
     template <endian r, size_t size, endian o, Word word>
-    bool operator == (const sint<r, size, word> &, const Z_bytes<o, negativity::twos, word> &);
+    bool operator == (const bound<r, size, word> &, const Z_bytes<o, negativity::twos, word> &);
 
     template <endian r, size_t size, endian o, Word word>
-    std::weak_ordering operator <=> (const sint<r, size, word> &, const Z_bytes<o, negativity::twos, word> &);
+    std::weak_ordering operator <=> (const bound<r, size, word> &, const Z_bytes<o, negativity::twos, word> &);
 
     template <endian r, size_t size, endian o, Word word>
-    bool operator == (const uint<r, size, word> &, const N_bytes<o, word> &);
+    bool operator == (const ubound<r, size, word> &, const N_bytes<o, word> &);
 
     template <endian r, size_t size, endian o, Word word>
-    std::weak_ordering operator <=> (const uint<r, size, word> &, const N_bytes<o, word> &);
+    std::weak_ordering operator <=> (const ubound<r, size, word> &, const N_bytes<o, word> &);
 
     template <endian r, size_t size, Word word,
     endian o, negativity neg, Word w>
-    std::weak_ordering operator <=> (const uint<r, size, word> &, const Z_bytes<o, neg, w> &);
+    std::weak_ordering operator <=> (const ubound<r, size, word> &, const Z_bytes<o, neg, w> &);
 
     // comparisons with endian integral types.
     template <bool x, endian r, size_t n, bool y, endian o, size_t z, Word word>
@@ -568,18 +536,11 @@ namespace data::math::number {
 
     template <std::integral I> std::strong_ordering operator <=> (const Z &, I);
 
-    // TODO: these ought to use a std::integral type parameter.
-    template <endian r, Word word>
-    bool operator == (const N_bytes<r, word> &, uint64);
+    template <endian r, negativity neg, Word word, std::integral I>
+    bool operator == (const Z_bytes<r, neg, word> &, I);
 
-    template <endian r, negativity neg, Word word>
-    bool operator == (const Z_bytes<r, neg, word> &, int64);
-
-    template <endian r, Word word>
-    std::weak_ordering operator <=> (const N_bytes<r, word> &, uint64);
-
-    template <endian r, negativity neg, Word word>
-    std::weak_ordering operator <=> (const Z_bytes<r, neg, word> &, int64);
+    template <endian r, negativity neg, Word word, std::integral I>
+    std::weak_ordering operator <=> (const Z_bytes<r, neg, word> &, I);
 
     template <bool u, endian r, size_t size, Word word, std::integral I>
     constexpr bool operator == (const bounded<u, r, size, word> &, I);
@@ -666,13 +627,13 @@ namespace data::math::number {
     constexpr bounded<u, r, size, word> &operator ^= (bounded<u, r, size, word> &, const bounded<u, r, size, word> &);
 
     template <endian r, size_t size, Word word>
-    constexpr uint<r, size, word> &operator &= (uint<r, size, word> &, const sint<r, size, word> &);
+    constexpr ubound<r, size, word> &operator &= (ubound<r, size, word> &, const bound<r, size, word> &);
 
     template <bool u, endian r, size_t size, Word word>
-    constexpr uint<r, size, word> &operator |= (uint<r, size, word> &, const sint<r, size, word> &);
+    constexpr ubound<r, size, word> &operator |= (ubound<r, size, word> &, const bound<r, size, word> &);
 
     template <bool u, endian r, size_t size, Word word>
-    constexpr uint<r, size, word> &operator ^= (uint<r, size, word> &, const sint<r, size, word> &);
+    constexpr ubound<r, size, word> &operator ^= (ubound<r, size, word> &, const bound<r, size, word> &);
 
     template <bool u, endian r, size_t size, Word word>
     constexpr bounded<u, r, size, word> &operator <<= (bounded<u, r, size, word> &, int);
@@ -857,76 +818,76 @@ namespace data::math::number {
 
     // bit arithmetic with built-in types.
     template <endian r, size_t size, Word word, std::integral I>
-    constexpr uint<r, size, word> operator & (const uint<r, size, word> &, I);
+    constexpr ubound<r, size, word> operator & (const ubound<r, size, word> &, I);
 
     template <std::integral I, endian r, size_t size, Word word>
-    constexpr uint<r, size, word> operator & (I, const uint<r, size, word> &);
+    constexpr ubound<r, size, word> operator & (I, const ubound<r, size, word> &);
 
     template <endian r, size_t size, Word word, std::signed_integral I>
-    constexpr sint<r, size, word> operator & (const sint<r, size, word> &, I);
+    constexpr bound<r, size, word> operator & (const bound<r, size, word> &, I);
 
     template <std::signed_integral I, endian r, size_t size, Word word>
-    constexpr sint<r, size, word> operator & (I, const sint<r, size, word> &);
+    constexpr bound<r, size, word> operator & (I, const bound<r, size, word> &);
 
     template <endian r, size_t size, Word word, std::unsigned_integral I>
-    constexpr uint<r, size, word> operator & (const sint<r, size, word> &, I);
+    constexpr ubound<r, size, word> operator & (const bound<r, size, word> &, I);
 
     template <std::unsigned_integral I, endian r, size_t size, Word word>
-    constexpr uint<r, size, word> operator & (I, const sint<r, size, word> &);
+    constexpr ubound<r, size, word> operator & (I, const bound<r, size, word> &);
 
     template <endian r, size_t size, Word word, std::integral I>
-    constexpr uint<r, size, word> &operator &= (uint<r, size, word> &, I);
+    constexpr ubound<r, size, word> &operator &= (ubound<r, size, word> &, I);
 
     template <endian r, size_t size, Word word, std::signed_integral I>
-    constexpr sint<r, size, word> &operator &= (sint<r, size, word> &, I);
+    constexpr bound<r, size, word> &operator &= (bound<r, size, word> &, I);
 
     template <endian r, size_t size, Word word, std::integral I>
-    constexpr uint<r, size, word> operator ^ (const uint<r, size, word> &, I);
+    constexpr ubound<r, size, word> operator ^ (const ubound<r, size, word> &, I);
 
     template <std::integral I, endian r, size_t size, Word word>
-    constexpr uint<r, size, word> operator ^ (I, const uint<r, size, word> &);
+    constexpr ubound<r, size, word> operator ^ (I, const ubound<r, size, word> &);
 
     template <endian r, size_t size, Word word, std::signed_integral I>
-    constexpr sint<r, size, word> operator ^ (const sint<r, size, word> &, I);
+    constexpr bound<r, size, word> operator ^ (const bound<r, size, word> &, I);
 
     template <std::signed_integral I, endian r, size_t size, Word word>
-    constexpr sint<r, size, word> operator ^ (I, const sint<r, size, word> &);
+    constexpr bound<r, size, word> operator ^ (I, const bound<r, size, word> &);
 
     template <endian r, size_t size, Word word, std::unsigned_integral I>
-    constexpr uint<r, size, word> operator ^ (const sint<r, size, word> &, I);
+    constexpr ubound<r, size, word> operator ^ (const bound<r, size, word> &, I);
 
     template <std::unsigned_integral I, endian r, size_t size, Word word>
-    constexpr uint<r, size, word> operator ^ (I, const sint<r, size, word> &);
+    constexpr ubound<r, size, word> operator ^ (I, const bound<r, size, word> &);
 
     template <endian r, size_t size, Word word, std::integral I>
-    constexpr uint<r, size, word> &operator ^= (uint<r, size, word> &, I);
+    constexpr ubound<r, size, word> &operator ^= (ubound<r, size, word> &, I);
 
     template <endian r, size_t size, Word word, std::signed_integral I>
-    constexpr sint<r, size, word> &operator ^= (sint<r, size, word> &, I);
+    constexpr bound<r, size, word> &operator ^= (bound<r, size, word> &, I);
 
     template <endian r, size_t size, Word word, std::integral I>
-    constexpr uint<r, size, word> operator | (const uint<r, size, word> &, I);
+    constexpr ubound<r, size, word> operator | (const ubound<r, size, word> &, I);
 
     template <std::integral I, endian r, size_t size, Word word>
-    constexpr uint<r, size, word> operator | (I, const uint<r, size, word> &);
+    constexpr ubound<r, size, word> operator | (I, const ubound<r, size, word> &);
 
     template <endian r, size_t size, Word word, std::signed_integral I>
-    constexpr sint<r, size, word> operator | (const sint<r, size, word> &, I);
+    constexpr bound<r, size, word> operator | (const bound<r, size, word> &, I);
 
     template <std::signed_integral I, endian r, size_t size, Word word>
-    constexpr sint<r, size, word> operator | (I, const sint<r, size, word> &);
+    constexpr bound<r, size, word> operator | (I, const bound<r, size, word> &);
 
     template <endian r, size_t size, Word word, std::unsigned_integral I>
-    constexpr uint<r, size, word> operator | (const sint<r, size, word> &, I);
+    constexpr ubound<r, size, word> operator | (const bound<r, size, word> &, I);
 
     template <std::unsigned_integral I, endian r, size_t size, Word word>
-    constexpr uint<r, size, word> operator | (I, const sint<r, size, word> &);
+    constexpr ubound<r, size, word> operator | (I, const bound<r, size, word> &);
 
     template <endian r, size_t size, Word word, std::integral I>
-    constexpr uint<r, size, word> &operator |= (uint<r, size, word> &, I);
+    constexpr ubound<r, size, word> &operator |= (ubound<r, size, word> &, I);
 
     template <endian r, size_t size, Word word, std::signed_integral I>
-    constexpr sint<r, size, word> &operator |= (sint<r, size, word> &, I);
+    constexpr bound<r, size, word> &operator |= (bound<r, size, word> &, I);
 
     /*************************************************************/
     /*                        Arithmetic                         */
@@ -1119,18 +1080,6 @@ namespace data::math::number {
     math::Z_bytes<r, word> &operator -= (math::Z_bytes<r, word> &, const N_bytes<r, word> &);
 
     template <endian r, Word word>
-    N_bytes<r, word> &operator += (N_bytes<r, word> &, uint64);
-
-    template <endian r, Word word>
-    N_bytes<r, word> &operator -= (N_bytes<r, word> &, uint64);
-
-    template <endian r, negativity neg, Word word>
-    Z_bytes<r, neg, word> &operator += (Z_bytes<r, neg, word> &, int64);
-
-    template <endian r, negativity neg, Word word>
-    Z_bytes<r, neg, word> &operator -= (Z_bytes<r, neg, word> &, int64);
-
-    template <endian r, Word word>
     N_bytes<r, word> &operator *= (N_bytes<r, word> &, const N_bytes<r, word> &);
 
     template <endian r, negativity neg, Word word>
@@ -1139,11 +1088,32 @@ namespace data::math::number {
     template <endian r, Word word>
     math::Z_bytes<r, word> &operator *= (math::Z_bytes<r, word> &, const N_bytes<r, word> &);
 
-    template <endian r, Word word>
-    N_bytes<r, word> &operator *= (N_bytes<r, word> &, uint64);
+    template <endian r, Word word, std::unsigned_integral I>
+    N_bytes<r, word> &operator += (N_bytes<r, word> &, I);
 
-    template <endian r, negativity neg, Word word>
-    Z_bytes<r, neg, word> &operator *= (Z_bytes<r, neg, word> &, int64);
+    template <endian r, Word word, std::unsigned_integral I>
+    N_bytes<r, word> &operator -= (N_bytes<r, word> &, I);
+
+    template <endian r, Word word, std::unsigned_integral I>
+    N_bytes<r, word> &operator *= (N_bytes<r, word> &, I);
+
+    template <endian r, Word word, std::integral I>
+    math::Z_bytes<r, word> &operator += (math::Z_bytes<r, word> &, I);
+
+    template <endian r, Word word, std::integral I>
+    math::Z_bytes<r, word> &operator -= (math::Z_bytes<r, word> &, I);
+
+    template <endian r, Word word, std::integral I>
+    math::Z_bytes<r, word> &operator *= (math::Z_bytes<r, word> &, I);
+
+    template <endian r, Word word, std::integral I>
+    Z_bytes_BC<r, word> &operator += (Z_bytes_BC<r, word> &, I);
+
+    template <endian r, Word word, std::integral I>
+    Z_bytes_BC<r, word> &operator -= (Z_bytes_BC<r, word> &, I);
+
+    template <endian r, Word word, std::integral I>
+    Z_bytes_BC<r, word> &operator *= (Z_bytes_BC<r, word> &, I);
 
     // plus
     template <bool u, endian r, size_t size, Word word>
@@ -1168,86 +1138,86 @@ namespace data::math::number {
 
     // basic arithmetic with automatic conversions to unsigned.
     template <endian r, size_t size, Word word>
-    constexpr uint<r, size, word> &operator += (uint<r, size, word> &, const sint<r, size, word> &);
+    constexpr ubound<r, size, word> &operator += (ubound<r, size, word> &, const bound<r, size, word> &);
 
     template <endian r, size_t size, Word word>
-    constexpr uint<r, size, word> &operator -= (uint<r, size, word> &, const sint<r, size, word> &);
+    constexpr ubound<r, size, word> &operator -= (ubound<r, size, word> &, const bound<r, size, word> &);
 
     template <endian r, size_t size, Word word>
-    constexpr uint<r, size, word> &operator *= (uint<r, size, word> &, const sint<r, size, word> &);
+    constexpr ubound<r, size, word> &operator *= (ubound<r, size, word> &, const bound<r, size, word> &);
 
     // basic arithmetic with built-in types.
     template <endian r, size_t size, Word word, std::integral I>
-    constexpr uint<r, size, word> operator + (const uint<r, size, word> &, I);
+    constexpr ubound<r, size, word> operator + (const ubound<r, size, word> &, I);
 
     template <std::integral I, endian r, size_t size, Word word>
-    constexpr uint<r, size, word> operator + (I, const uint<r, size, word> &);
+    constexpr ubound<r, size, word> operator + (I, const ubound<r, size, word> &);
 
     template <endian r, size_t size, Word word, std::signed_integral I>
-    constexpr sint<r, size, word> operator + (const sint<r, size, word> &, I);
+    constexpr bound<r, size, word> operator + (const bound<r, size, word> &, I);
 
     template <std::signed_integral I, endian r, size_t size, Word word>
-    constexpr sint<r, size, word> operator + (I, const sint<r, size, word> &);
+    constexpr bound<r, size, word> operator + (I, const bound<r, size, word> &);
 
     template <endian r, size_t size, Word word, std::unsigned_integral I>
-    constexpr uint<r, size, word> operator + (const sint<r, size, word> &, I);
+    constexpr ubound<r, size, word> operator + (const bound<r, size, word> &, I);
 
     template <std::unsigned_integral I, endian r, size_t size, Word word>
-    constexpr uint<r, size, word> operator + (I, const sint<r, size, word> &);
+    constexpr ubound<r, size, word> operator + (I, const bound<r, size, word> &);
 
     template <endian r, size_t size, Word word, std::integral I>
-    constexpr uint<r, size, word> &operator += (uint<r, size, word> &, I);
+    constexpr ubound<r, size, word> &operator += (ubound<r, size, word> &, I);
 
     template <endian r, size_t size, Word word, std::signed_integral I>
-    constexpr sint<r, size, word> &operator += (sint<r, size, word> &, I);
+    constexpr bound<r, size, word> &operator += (bound<r, size, word> &, I);
 
     template <endian r, size_t size, Word word, std::integral I>
-    constexpr uint<r, size, word> operator - (const uint<r, size, word> &, I);
+    constexpr ubound<r, size, word> operator - (const ubound<r, size, word> &, I);
 
     template <std::integral I, endian r, size_t size, Word word>
-    constexpr uint<r, size, word> operator - (I, const uint<r, size, word> &);
+    constexpr ubound<r, size, word> operator - (I, const ubound<r, size, word> &);
 
     template <endian r, size_t size, Word word, std::signed_integral I>
-    constexpr sint<r, size, word> operator - (const sint<r, size, word> &, I);
+    constexpr bound<r, size, word> operator - (const bound<r, size, word> &, I);
 
     template <std::signed_integral I, endian r, size_t size, Word word>
-    constexpr sint<r, size, word> operator - (I, const sint<r, size, word> &);
+    constexpr bound<r, size, word> operator - (I, const bound<r, size, word> &);
 
     template <endian r, size_t size, Word word, std::unsigned_integral I>
-    constexpr uint<r, size, word> operator - (const sint<r, size, word> &, I);
+    constexpr ubound<r, size, word> operator - (const bound<r, size, word> &, I);
 
     template <std::unsigned_integral I, endian r, size_t size, Word word>
-    constexpr uint<r, size, word> operator - (I, const sint<r, size, word> &);
+    constexpr ubound<r, size, word> operator - (I, const bound<r, size, word> &);
 
     template <endian r, size_t size, Word word, std::integral I>
-    constexpr uint<r, size, word> &operator -= (uint<r, size, word> &, I);
+    constexpr ubound<r, size, word> &operator -= (ubound<r, size, word> &, I);
 
     template <endian r, size_t size, Word word, std::signed_integral I>
-    constexpr sint<r, size, word> &operator -= (sint<r, size, word> &, I);
+    constexpr bound<r, size, word> &operator -= (bound<r, size, word> &, I);
 
     template <endian r, size_t size, Word word, std::integral I>
-    constexpr uint<r, size, word> operator * (const uint<r, size, word> &, I);
+    constexpr ubound<r, size, word> operator * (const ubound<r, size, word> &, I);
 
     template <std::integral I, endian r, size_t size, Word word>
-    constexpr uint<r, size, word> operator * (I, const uint<r, size, word> &);
+    constexpr ubound<r, size, word> operator * (I, const ubound<r, size, word> &);
 
     template <endian r, size_t size, Word word, std::signed_integral I>
-    constexpr sint<r, size, word> operator * (const sint<r, size, word> &, I);
+    constexpr bound<r, size, word> operator * (const bound<r, size, word> &, I);
 
     template <std::signed_integral I, endian r, size_t size, Word word>
-    constexpr sint<r, size, word> operator * (I, const sint<r, size, word> &);
+    constexpr bound<r, size, word> operator * (I, const bound<r, size, word> &);
 
     template <endian r, size_t size, Word word, std::unsigned_integral I>
-    constexpr uint<r, size, word> operator * (const sint<r, size, word> &, I);
+    constexpr ubound<r, size, word> operator * (const bound<r, size, word> &, I);
 
     template <std::unsigned_integral I, endian r, size_t size, Word word>
-    constexpr uint<r, size, word> operator * (I, const sint<r, size, word> &);
+    constexpr ubound<r, size, word> operator * (I, const bound<r, size, word> &);
 
     template <endian r, size_t size, Word word, std::integral I>
-    constexpr uint<r, size, word> &operator *= (uint<r, size, word> &, I);
+    constexpr ubound<r, size, word> &operator *= (ubound<r, size, word> &, I);
 
     template <endian r, size_t size, Word word, std::signed_integral I>
-    constexpr sint<r, size, word> &operator *= (sint<r, size, word> &, I);
+    constexpr bound<r, size, word> &operator *= (bound<r, size, word> &, I);
 
     // mod and divmod
     template <bool u, endian r, size_t x, Word word>
@@ -1304,11 +1274,11 @@ namespace data::math::number {
     template <endian r, negativity neg, Word word>
     Z_bytes<r, neg, word> &operator /= (Z_bytes<r, neg, word> &, const Z_bytes<r, neg, word> &);
 
-    template <endian r, Word word>
-    N_bytes<r, word> &operator /= (N_bytes<r, word> &, uint64);
+    template <endian r, Word word, std::unsigned_integral I>
+    N_bytes<r, word> &operator /= (N_bytes<r, word> &, I);
 
-    template <endian r, negativity neg, Word word>
-    Z_bytes<r, neg, word> &operator /= (Z_bytes<r, neg, word> &, int64);
+    template <endian r, negativity neg, Word word, std::integral I>
+    Z_bytes<r, neg, word> &operator /= (Z_bytes<r, neg, word> &, I);
 
     template <endian r, Word word>
     N_bytes<r, word> &operator %= (N_bytes<r, word> &, const N_bytes<r, word> &);
@@ -1322,9 +1292,114 @@ namespace data::math::number {
 
     template <endian r, Word word>
     N_bytes<r, word> &operator %= (N_bytes<r, word> &, uint64);
+
+    template <bool a, bool b, endian r, size_t x, Word word>
+    constexpr ubound<r, x, word> inline operator ^ (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
+        return ubound<r, x, word> (n) ^ ubound<r, x, word> (m);
+    }
+
+    template <bool a, bool b, endian r, size_t x, Word word>
+    constexpr ubound<r, x, word> inline operator & (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
+        return ubound<r, x, word> (n) & ubound<r, x, word> (m);
+    }
+
+    template <bool a, bool b, endian r, size_t x, Word word>
+    constexpr ubound<r, x, word> inline operator | (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
+        return ubound<r, x, word> (n) | ubound<r, x, word> (m);
+    }
+
+    template <bool a, bool b, endian r, size_t x, Word word>
+    constexpr ubound<r, x, word> inline operator + (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
+        return ubound<r, x, word> (n) + ubound<r, x, word> (m);
+    }
+
+    template <bool a, bool b, endian r, size_t x, Word word>
+    constexpr ubound<r, x, word> inline operator - (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
+        return ubound<r, x, word> (n) - ubound<r, x, word> (m);
+    }
+
+    template <bool a, bool b, endian r, size_t x, Word word>
+    constexpr ubound<r, x, word> inline operator * (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
+        return ubound<r, x, word> (n) * ubound<r, x, word> (m);
+    }
+
+    template <bool a, bool b, endian r, size_t x, Word word>
+    constexpr ubound<r, x, word> inline operator / (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
+        return ubound<r, x, word> (n) / ubound<r, x, word> (m);
+    }
+
+    template <bool a, bool b, endian r, size_t x, Word word>
+    constexpr ubound<r, x, word> inline operator % (const bounded<a, r, x, word> &n, const bounded<b, r, x, word> &m) {
+        return ubound<r, x, word> (n) % ubound<r, x, word> (m);
+    }
+
+    template <endian r, size_t size, Word word>
+    constexpr ubound<r, size, word> inline &operator &= (ubound<r, size, word> &a, const bound<r, size, word> &b) {
+        return a &= ubound<r, size, word> (b);
+    }
+
+    template <endian r, size_t size, Word word>
+    constexpr ubound<r, size, word> inline &operator |= (ubound<r, size, word> &a, const bound<r, size, word> &b) {
+        return a |= ubound<r, size, word> (b);
+    }
+
+    template <endian r, size_t size, Word word>
+    constexpr ubound<r, size, word> inline &operator ^= (ubound<r, size, word> &a, const bound<r, size, word> &b) {
+        return a ^= ubound<r, size, word> (b);
+    }
+
+    template <endian r, size_t size, Word word>
+    constexpr ubound<r, size, word> inline &operator += (ubound<r, size, word> &a, const bound<r, size, word> &b) {
+        return a += ubound<r, size, word> (b);
+    }
+
+    template <endian r, size_t size, Word word>
+    constexpr ubound<r, size, word> inline &operator -= (ubound<r, size, word> &a, const bound<r, size, word> &b) {
+        return a -= ubound<r, size, word> (b);
+    }
+
+    template <endian r, size_t size, Word word>
+    constexpr ubound<r, size, word> inline &operator *= (ubound<r, size, word> &a, const bound<r, size, word> &b) {
+        return a *= ubound<r, size, word> (b);
+    }
+
+    // here we have some arithmetic with other number types.
+
+    template <endian r, size_t x, Word word, std::integral I>
+    constexpr ubound<r, x, word> operator / (const ubound<r, x, word> &, I);
+
+    template <endian r, size_t x, Word word, std::signed_integral I>
+    constexpr bound<r, x, word> operator / (const bound<r, x, word> &, I);
+
+    template <endian r, size_t x, Word word, std::unsigned_integral I>
+    constexpr ubound<r, x, word> operator / (const bound<r, x, word> &, I);
+
+    template <endian r, size_t x, Word word>
+    constexpr uint64 operator % (const ubound<r, x, word> &, uint64);
+
+    template <endian r, size_t x, Word word>
+    constexpr uint64 operator % (const bound<r, x, word> &, uint64);
+
+    template <endian r, size_t x, Word word, std::unsigned_integral I>
+    constexpr ubound<r, x, word> &operator /= (ubound<r, x, word> &, I);
+
+    template <endian r, size_t x, Word word, std::integral I>
+    constexpr bound<r, x, word> &operator /= (bound<r, x, word> &, I);
+
+    template <endian r, size_t x, Word word>
+    constexpr ubound<r, x, word> &operator %= (ubound<r, x, word> &, uint64);
+
+    template <bool u, endian r, size_t x, Word word>
+    constexpr bounded<u, r, x, word> &operator /= (bounded<u, r, x, word> &, const bounded<u, r, x, word> &);
+
+    template <bool u, endian r, size_t z, Word word>
+    constexpr bounded<u, r, z, word> &operator %= (bounded<u, r, z, word> &, const bounded<u, r, z, word> &);
 }
 
 namespace data::math::def {
+
+    template <endian r, negativity neg, Word word = byte>
+    using Zb = number::Z_bytes<r, neg, word>;
 
     template <> struct abs<Z> {
         N operator () (const Z &);
@@ -1335,13 +1410,13 @@ namespace data::math::def {
     };
 
     template <endian r, Word word>
-    struct min<number::N_bytes<r, word>> {
-        const number::N_bytes<r, word> &operator () (const number::N_bytes<r, word> &, const number::N_bytes<r, word> &) const;
+    struct min<N_bytes<r, word>> {
+        const N_bytes<r, word> &operator () (const N_bytes<r, word> &, const N_bytes<r, word> &) const;
     };
 
     template <endian r, Word word>
-    struct max<number::N_bytes<r, word>> {
-        const number::N_bytes<r, word> &operator () (const number::N_bytes<r, word> &, const number::N_bytes<r, word> &) const;
+    struct max<N_bytes<r, word>> {
+        const N_bytes<r, word> &operator () (const N_bytes<r, word> &, const N_bytes<r, word> &) const;
     };
 
     template <endian r, negativity neg, Word word>
@@ -1411,12 +1486,12 @@ namespace data::math::def {
 
     template <endian r, Word word>
     struct div_2_pow<math::N_bytes<r, word>> {
-        math::N_bytes<r, word> operator () (const math::N_bytes<r, word> &x, uint32 exp);
+        N_bytes<r, word> operator () (const N_bytes<r, word> &x, uint32 exp);
     };
 
     template <endian r, negativity neg, Word word>
-    struct div_2_pow<math::number::Z_bytes<r, neg, word>> {
-        math::number::Z_bytes<r, neg, word> operator () (const math::number::Z_bytes<r, neg, word> &x, uint32 exp);
+    struct div_2_pow<number::Z_bytes<r, neg, word>> {
+        number::Z_bytes<r, neg, word> operator () (const number::Z_bytes<r, neg, word> &x, uint32 exp);
     };
 
     template <> struct mod_2<N> {
@@ -1445,6 +1520,14 @@ namespace data::math::def {
         N operator () (const Z &x, const Exp &y, const nonzero<N> &z);
     };
 
+    template <> struct convert<N, Z> {
+        N operator () (const Z &) const;
+    };
+
+    template <> struct convert<Z, N> {
+        Z operator () (const N &) const;
+    };
+
     // conversions with built-in types.
     // in general, conversions throw if one number is outside the range of another.
     template <std::integral I> struct convert<N, I> {
@@ -1463,34 +1546,24 @@ namespace data::math::def {
         I operator () (const Z &) const;
     };
 
-    template <bool is_signed, endian r, size_t size, Word word, std::integral I>
-    struct convert<number::bounded<is_signed, r, size, word>, I> {
-        constexpr number::bounded<is_signed, r, size, word> operator () (const I &) const;
+    template <data::endian Order, class T, std::size_t n_bits, alignment Align>
+    struct convert<N, endian_arithmetic<Order, T, n_bits, Align>> {
+        N operator () (const endian_arithmetic<Order, T, n_bits, Align> &) const;
     };
 
-    template <std::integral I, bool is_signed, endian r, size_t size, Word word>
-    struct convert<I, number::bounded<is_signed, r, size, word>> {
-        constexpr I operator () (const number::bounded<is_signed, r, size, word> &) const;
+    template <data::endian Order, class T, std::size_t n_bits, alignment Align>
+    struct convert<Z, endian_arithmetic<Order, T, n_bits, Align>> {
+        Z operator () (const endian_arithmetic<Order, T, n_bits, Align> &) const;
     };
 
-    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct convert<N, boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        N operator () (const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &) const;
+    template <data::endian Order, class T, std::size_t n_bits, alignment Align>
+    struct convert<endian_arithmetic<Order, T, n_bits, Align>, N> {
+        endian_arithmetic<Order, T, n_bits, Align> operator () (const N &) const;
     };
 
-    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct convert<Z, boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        Z operator () (const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &) const;
-    };
-
-    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct convert<boost::endian::endian_arithmetic<Order, T, n_bits, Align>, N> {
-        boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (const N &) const;
-    };
-
-    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct convert<boost::endian::endian_arithmetic<Order, T, n_bits, Align>, Z> {
-        boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (const Z &) const;
+    template <data::endian Order, class T, std::size_t n_bits, alignment Align>
+    struct convert<endian_arithmetic<Order, T, n_bits, Align>, Z> {
+        endian_arithmetic<Order, T, n_bits, Align> operator () (const Z &) const;
     };
 
     template <endian r, negativity neg, Word word>
@@ -1503,39 +1576,14 @@ namespace data::math::def {
         Z operator () (const number::Z_bytes<r, neg, word> &) const;
     };
 
-    template <endian r, Word word>
-    struct convert<number::N_bytes<r, word>, N> {
-        number::N_bytes<r, word> operator () (const N &) const;
+    template <endian r, negativity neg, Word word>
+    struct convert<number::Z_bytes<r, neg, word>, N> {
+        number::Z_bytes<r, neg, word> operator () (const N &) const;
     };
 
-    template <endian r, Word word>
-    struct convert<N, number::N_bytes<r, word>> {
-        N operator () (const number::N_bytes<r, word> &) const;
-    };
-
-    template <endian r, Word word>
-    struct convert<number::N_bytes<r, word>, Z> {
-        number::N_bytes<r, word> operator () (const Z &) const;
-    };
-
-    template <endian r, Word word>
-    struct convert<Z, number::N_bytes<r, word>> {
-        Z operator () (const number::N_bytes<r, word> &) const;
-    };
-
-    template <endian r, Word word, std::integral I>
-    struct convert<number::N_bytes<r, word>, I> {
-        number::N_bytes<r, word> operator () (const I &) const;
-    };
-
-    template <std::integral I, endian r, Word word>
-    struct convert<I, number::N_bytes<r, word>> {
-        I operator () (const number::N_bytes<r, word> &) const;
-    };
-
-    template <bool is_signed, endian r, size_t size, Word word>
-    struct convert<number::bounded<is_signed, r, size, word>, Z> {
-        number::bounded<is_signed, r, size, word> operator () (const Z &) const;
+    template <endian r, negativity neg, Word word>
+    struct convert<N, number::Z_bytes<r, neg, word>> {
+        N operator () (const number::Z_bytes<r, neg, word> &) const;
     };
 
     template <bool is_signed, endian r, size_t size, Word word>
@@ -1546,6 +1594,11 @@ namespace data::math::def {
     template <bool is_signed, endian r, size_t size, Word word>
     struct convert<number::bounded<is_signed, r, size, word>, N> {
         number::bounded<is_signed, r, size, word> operator () (const N &) const;
+    };
+
+    template <bool is_signed, endian r, size_t size, Word word>
+    struct convert<number::bounded<is_signed, r, size, word>, Z> {
+        number::bounded<is_signed, r, size, word> operator () (const Z &) const;
     };
 
     template <bool is_signed, endian r, size_t size, Word word>
@@ -1573,28 +1626,6 @@ namespace data::math::def {
         Z operator () (const hex::intBC<zz> &) const;
     };
 
-    template <> struct convert<dec_uint, dec_int> {
-        dec_uint operator () (const dec_int &) const;
-    };
-
-    template <bool is_signed, endian r, size_t size, Word word, endian o, std::integral T, std::size_t n_bits>
-    struct convert<boost::endian::endian_arithmetic<o, T, n_bits, boost::endian::align::no>, number::bounded<is_signed, r, size, word>> {
-        constexpr boost::endian::endian_arithmetic<o, T, n_bits, boost::endian::align::no>
-        operator () (const number::bounded<is_signed, r, size, word> &) const;
-    };
-
-    template <bool is_signed, endian r, size_t size, Word word, endian o, std::integral T, std::size_t n_bits>
-    struct convert<number::bounded<is_signed, r, size, word>, boost::endian::endian_arithmetic<o, T, n_bits, boost::endian::align::no>> {
-        constexpr number::bounded<is_signed, r, size, word> operator () (const boost::endian::endian_arithmetic<o, T, n_bits, boost::endian::align::no> &) const;
-    };
-
-    // convert between any two types of N_bytes
-    template <endian ToEndian, Word ToWord, endian FromEndian, Word FromWord>
-    requires Unsame<number::N_bytes<ToEndian, ToWord>, number::N_bytes<FromEndian, FromWord>>
-    struct convert<number::N_bytes<ToEndian, ToWord>, number::N_bytes<FromEndian, FromWord>> {
-        number::N_bytes<ToEndian, ToWord> operator () (const number::N_bytes<FromEndian, FromWord> &from) const;
-    };
-
     // convert between any two types of Z_bytes
     template <endian ToEndian, negativity ToNeg, Word ToWord, endian FromEndian, negativity FromNeg, Word FromWord>
     requires Unsame<number::Z_bytes<ToEndian, ToNeg, ToWord>, number::Z_bytes<FromEndian, FromNeg, FromWord>>
@@ -1602,25 +1633,17 @@ namespace data::math::def {
         number::Z_bytes<ToEndian, ToNeg, ToWord> operator () (const number::Z_bytes<FromEndian, FromNeg, FromWord> &from) const;
     };
 
-    // convert from N_bytes to Z_bytes
-    template <endian ToEndian, negativity ToNeg, Word ToWord, endian FromEndian, Word FromWord>
-    struct convert<number::Z_bytes<ToEndian, ToNeg, ToWord>, number::N_bytes<FromEndian, FromWord>> {
-        number::Z_bytes<ToEndian, ToNeg, ToWord> operator () (const number::N_bytes<FromEndian, FromWord> &from) const;
+    // convert between any bounded types.
+    template <bool a, endian r, size_t x, Word w, bool b, endian o, size_t y, Word u>
+    requires Unsame<number::bounded<a, r, x, w>, number::bounded<b, o, y, u>>
+    struct convert<number::bounded<a, r, x, w>, number::bounded<b, o, y, u>> {
+        constexpr number::bounded<a, r, x, w> operator () (const number::bounded<b, o, y, u> &) const;
     };
 
-    template <endian ToEndian, negativity FromNeg, Word ToWord, endian FromEndian, Word FromWord>
-    struct convert<number::N_bytes<ToEndian, ToWord>, number::Z_bytes<FromEndian, FromNeg, FromWord>> {
-        number::N_bytes<ToEndian, ToWord> operator () (const number::Z_bytes<FromEndian, FromNeg, FromWord> &from) const;
-    };
-
+    // Z_bytes <=> bounded
     template <bool is_signed, endian to_r, size_t to_size, Word to_word, endian from_r, negativity neg, Word from_word>
     struct convert<number::bounded<is_signed, to_r, to_size, to_word>, number::Z_bytes<from_r, neg, from_word>> {
         number::bounded<is_signed, to_r, to_size, to_word> operator () (const number::Z_bytes<from_r, neg, from_word> &) const;
-    };
-
-    template <bool is_signed, endian to_r, size_t to_size, Word to_word, endian from_r, Word from_word>
-    struct convert<number::bounded<is_signed, to_r, to_size, to_word>, number::N_bytes<from_r, from_word>> {
-        number::bounded<is_signed, to_r, to_size, to_word> operator () (const number::N_bytes<from_r, from_word> &) const;
     };
 
     template <endian to_r, negativity neg, Word to_word, bool is_signed, endian from_r, size_t size, Word from_word>
@@ -1628,14 +1651,51 @@ namespace data::math::def {
         number::Z_bytes<to_r, neg, to_word> operator () (const number::bounded<is_signed, from_r, size, from_word> &) const;
     };
 
-    template <endian to_r, Word to_word, bool is_signed, endian from_r, size_t size, Word from_word>
-    struct convert<number::N_bytes<to_r, to_word>, number::bounded<is_signed, from_r, size, from_word>> {
-        number::N_bytes<to_r, to_word> operator () (const number::bounded<is_signed, from_r, size, from_word> &) const;
+    // Z_bytes <=> endian
+    template <endian to_r, negativity neg, Word to_word, endian o, std::integral T, std::size_t n_bits>
+    struct convert<number::Z_bytes<to_r, neg, to_word>, endian_arithmetic<o, T, n_bits, alignment::no>> {
+        number::Z_bytes<to_r, neg, to_word> operator () (const endian_arithmetic<o, T, n_bits, alignment::no> &ear) const;
     };
 
-    template <bool a, endian r, size_t x, Word w, bool b, endian o, size_t y, Word u>
-    struct convert<number::bounded<a, r, x, w>, number::bounded<b, o, y, u>> {
-        number::bounded<a, r, x, w> operator () (const number::bounded<b, o, y, u> &) const;
+    template <endian o, std::integral T, std::size_t n_bits, endian FromEndian, negativity FromNeg, Word FromWord>
+    struct convert<endian_arithmetic<o, T, n_bits, alignment::no>, number::Z_bytes<FromEndian, FromNeg, FromWord>> {
+        endian_arithmetic<o, T, n_bits, alignment::no> operator () (const number::Z_bytes<FromEndian, FromNeg, FromWord> &from) const;
+    };
+
+    // bounded <=> endian
+    template <bool is_signed, endian r, size_t size, Word word, endian o, std::integral T, std::size_t n_bits>
+    struct convert<endian_arithmetic<o, T, n_bits, alignment::no>, number::bounded<is_signed, r, size, word>> {
+        constexpr endian_arithmetic<o, T, n_bits, alignment::no>
+        operator () (const number::bounded<is_signed, r, size, word> &) const;
+    };
+
+    template <bool is_signed, endian r, size_t size, Word word, endian o, std::integral T, std::size_t n_bits>
+    struct convert<number::bounded<is_signed, r, size, word>, endian_arithmetic<o, T, n_bits, alignment::no>> {
+        constexpr number::bounded<is_signed, r, size, word> operator () (const endian_arithmetic<o, T, n_bits, alignment::no> &) const;
+    };
+
+    template <bool is_signed, endian r, size_t size, Word word, std::integral I>
+    struct convert<number::bounded<is_signed, r, size, word>, I> {
+        constexpr number::bounded<is_signed, r, size, word> operator () (const I &) const;
+    };
+
+    template <std::integral I, bool is_signed, endian r, size_t size, Word word>
+    struct convert<I, number::bounded<is_signed, r, size, word>> {
+        constexpr I operator () (const number::bounded<is_signed, r, size, word> &) const;
+    };
+
+    template <endian r, negativity neg, Word word, std::integral I>
+    struct convert<number::Z_bytes<r, neg, word>, I> {
+        number::Z_bytes<r, neg, word> operator () (const I &) const;
+    };
+
+    template <std::integral I, endian r, negativity neg, Word word>
+    struct convert<I, number::Z_bytes<r, neg, word>> {
+        I operator () (const number::Z_bytes<r, neg, word> &) const;
+    };
+
+    template <> struct convert<dec_uint, dec_int> {
+        dec_uint operator () (const dec_int &) const;
     };
 
     template <bool is_signed, endian r, size_t size, Word word>
@@ -1644,8 +1704,8 @@ namespace data::math::def {
     };
 
     template <endian r, Word word>
-    struct size_in_base<number::N_bytes<r, word>, 2> {
-        size_t operator () (const number::N_bytes<r, word> &);
+    struct size_in_base<N_bytes<r, word>, 2> {
+        size_t operator () (const N_bytes<r, word> &);
     };
 
     template <endian r, negativity neg, Word word>
@@ -1674,22 +1734,9 @@ namespace data::math::def {
         size_t operator () (const hex::integer<neg, zz> &);
     };
 
-    template <endian r, negativity neg, Word word = byte>
-    using Zb = number::Z_bytes<r, neg, word>;
-
-    template <endian r, Word word>
-    struct is_zero<N_bytes<r, word>> {
-        bool operator () (const N_bytes<r, word> &);
-    };
-
-    template <endian r, Word word>
-    struct is_zero<Z_bytes<r, word>> {
-        bool operator () (const Z_bytes<r, word> &);
-    };
-
-    template <endian r, Word word>
-    struct is_zero<Z_bytes_BC<r, word>> {
-        bool operator () (const Z_bytes_BC<r, word> &);
+    template <endian r, negativity neg, Word word>
+    struct is_zero<number::Z_bytes<r, neg, word>> {
+        bool operator () (const number::Z_bytes<r, neg, word> &);
     };
 
     template <endian r, Word word>
@@ -1891,5 +1938,197 @@ namespace data::math::def {
     template <> struct digit<dec_int> {
         size_t operator () (const dec_int &, int32 i);
     };
+
+    template <bool is_signed, endian r, size_t size, Word word = byte>
+    using nbound = number::bounded<is_signed, r, size, word>;
+
+    template <bool is_signed, endian r, size_t size, Word word>
+    struct times<nbound<is_signed, r, size, word>> {
+        constexpr nbound<is_signed, r, size, word> operator ()
+        (const nbound<is_signed, r, size, word> &a, const nbound<is_signed, r, size, word> &b) {
+            return a * b;
+        }
+
+        constexpr nonzero<nbound<is_signed, r, size, word>> operator ()
+        (const nonzero<nbound<is_signed, r, size, word>> &a, const nonzero<nbound<is_signed, r, size, word>> &b);
+    };
+
+    template <bool u, endian r, size_t x, Word word>
+    struct inverse<plus<nbound<u, r, x, word>>, nbound<u, r, x, word>> {
+        constexpr nbound<u, r, x, word> operator () (const nbound<u, r, x, word> &a, const nbound<u, r, x, word> &b);
+    };
+
+    template <endian r, size_t x, Word word>
+    struct abs<ubound<r, x, word>> {
+        constexpr ubound<r, x, word> operator () (const ubound<r, x, word> &);
+    };
+
+    template <endian r, size_t x, Word word>
+    struct abs<bound<r, x, word>> {
+        constexpr bound<r, x, word> operator () (const bound<r, x, word> &);
+    };
+
+    template <bool u, endian r, size_t x, Word word>
+    struct quadrance<nbound<u, r, x, word>> {
+        constexpr nbound<u, r, x, word> operator () (const nbound<u, r, x, word> &z) {
+            return z * z;
+        }
+    };
+
+    template <endian r, size_t x, Word word>
+    struct sign<ubound<r, x, word>> {
+        constexpr math::sign operator () (const ubound<r, x, word> &);
+    };
+
+    template <endian r, size_t x, Word word>
+    struct sign<bound<r, x, word>> {
+        constexpr math::sign operator () (const bound<r, x, word> &);
+    };
+
+    template <bool u, endian r, size_t x, Word word>
+    struct is_zero<nbound<u, r, x, word>> {
+        constexpr bool operator () (const nbound<u, r, x, word> &);
+    };
+
+    template <endian r, size_t x, Word word>
+    struct is_negative<ubound<r, x, word>> {
+        constexpr bool operator () (const ubound<r, x, word> &);
+    };
+
+    template <endian r, size_t x, Word word>
+    struct is_negative<bound<r, x, word>> {
+        constexpr bool operator () (const bound<r, x, word> &);
+    };
+
+    template <endian r, size_t x, Word word>
+    struct is_positive<ubound<r, x, word>> {
+        constexpr bool operator () (const ubound<r, x, word> &);
+    };
+
+    template <endian r, size_t x, Word word>
+    struct is_positive<bound<r, x, word>> {
+        constexpr bool operator () (const bound<r, x, word> &);
+    };
+
+    template <endian r, size_t x, Word word>
+    struct divmod<ubound<r, x, word>, ubound<r, x, word>> {
+        constexpr division<ubound<r, x, word>, ubound<r, x, word>>
+        operator () (const ubound<r, x, word> &, const nonzero<ubound<r, x, word>> &);
+    };
+
+    template <endian r, size_t x, Word word>
+    struct divmod<bound<r, x, word>, bound<r, x, word>> {
+        constexpr division<bound<r, x, word>, bound<r, x, word>>
+        operator () (const bound<r, x, word> &, const nonzero<bound<r, x, word>> &);
+    };
+
+    template <endian r, size_t x, Word word>
+    struct divmod<bound<r, x, word>, ubound<r, x, word>> {
+        constexpr division<ubound<r, x, word>, ubound<r, x, word>>
+        operator () (const bound<r, x, word> &, const nonzero<ubound<r, x, word>> &);
+    };
+
+    template <bool a, endian r, size_t x, Word word>
+    struct bit_xor<nbound<a, r, x, word>, nbound<a, r, x, word>> {
+        constexpr nbound<a, r, x, word> operator () (
+            const nbound<a, r, x, word> &m,
+            const nbound<a, r, x, word> &n) {
+            nbound<a, r, x, word> result;
+            arithmetic::bit_xor<word> (result.begin (), result.end (), m.begin (), n.begin ());
+            return result;
+            }
+    };
+
+    template <bool a, endian r, size_t x, Word word>
+    struct bit_not<nbound<a, r, x, word>> {
+        constexpr nbound<a, r, x, word> operator () (const nbound<a, r, x, word> &m) {
+            nbound<a, r, x, word> result;
+            arithmetic::bit_negate<word> (result.begin (), result.end (), m.begin ());
+            return result;
+        }
+    };
+
+    template <bool a, bool b, endian r, size_t x, Word word>
+    struct plus_mod<nbound<a, r, x, word>, nbound<b, r, x, word>, ubound<r, x, word>> {
+        constexpr ubound<r, x, word> operator () (
+            const nbound<a, r, x, word> &,
+            const nbound<b, r, x, word> &,
+            const nonzero<ubound<r, x, word>> &);
+    };
+
+    template <bool a, endian r, size_t x, Word word>
+    struct square_mod<nbound<a, r, x, word>, ubound<r, x, word>> {
+        constexpr ubound<r, x, word> operator () (
+            const nbound<a, r, x, word> &,
+            const nonzero<ubound<r, x, word>> &);
+    };
+
+    template <bool a, bool b, endian r, size_t x, Word word>
+    struct times_mod<nbound<a, r, x, word>, nbound<b, r, x, word>, ubound<r, x, word>> {
+        constexpr ubound<r, x, word> operator () (
+            const nbound<a, r, x, word> &,
+            const nbound<b, r, x, word> &,
+            const nonzero<ubound<r, x, word>> &);
+    };
+
+    template <endian r, size_t x, Word word>
+    struct div_2_pow<ubound<r, x, word>> {
+        constexpr ubound<r, x, word> operator () (const ubound<r, x, word> &, uint32 exp);
+    };
+
+    template <endian r, size_t x, Word word>
+    struct mod_2<ubound<r, x, word>> {
+        constexpr ubound<r, x, word> operator () (const ubound<r, x, word> &);
+    };
+
+    template <endian r, size_t x, Word word>
+    struct div_2_pow<bound<r, x, word>> {
+        constexpr bound<r, x, word> operator () (const bound<r, x, word> &, uint32 exp);
+    };
+
+    template <endian r, size_t x, Word word>
+    struct mod_2<bound<r, x, word>> {
+        constexpr bound<r, x, word> operator () (const bound<r, x, word> &);
+    };
+
+}
+
+// Definitions of functions that do not need to know the size of the number types.
+namespace data::math::number {
+
+    template <bool x, endian r, size_t n, bool y, endian o, size_t z, Word word>
+    constexpr bool operator == (const bounded<x, r, n, word> &a, const bounded<y, o, z, word> &b) {
+        return (a <=> b) == 0;
+    }
+
+    template <bool x, endian r, size_t n, bool y, endian o, size_t z, Word word>
+    constexpr bool operator == (const bounded<x, r, n, word> &a, const endian_integral<y, o, z> &b) {
+        return (a <=> b) == 0;
+    }
+
+    template <std::integral I, bool u, endian r, size_t size, Word word>
+    constexpr bool operator == (I x, const bounded<u, r, size, word> &y) {
+        return (x <=> y) == 0;
+    }
+
+    template <bool u, endian r, size_t size, Word word, std::integral I>
+    constexpr bool operator == (const bounded<u, r, size, word> &x, I y) {
+        return (x <=> y) == 0;
+    }
+
+    template <endian r, size_t size, endian o, Word word>
+    bool inline operator == (const bound<r, size, word> &a, const Z_bytes<o, negativity::twos, word> &b) {
+        return (a <=> b) == 0;
+    }
+
+    template <endian r, size_t size, endian o, Word word>
+    bool inline operator == (const ubound<r, size, word> &a, const N_bytes<o, word> &b) {
+        return (a <=> b) == 0;
+    }
+
+    template <endian r, negativity c, Word word>
+    bool inline operator == (const Z_bytes<r, c, word> &a, const Z_bytes<r, c, word> &b) {
+        return (a <=> b) == 0;
+    }
 
 }

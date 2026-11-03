@@ -249,7 +249,7 @@ namespace data::encoding::hexidecimal {
                 return write<endian::little, byte> (o, static_cast<const oriented<endian::little, byte> &> (z), x);
             }
             default: {
-                auto n = math::number::N_bytes<endian::little, byte> (N (zz));
+                auto n = math::N_bytes<endian::little, byte> (zz);
                 return write<endian::little, byte> (o, static_cast<const oriented<endian::little, byte> &> (n), x);
             }
         }

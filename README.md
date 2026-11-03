@@ -246,7 +246,9 @@ cmake -S . -B build -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
     -DNTL_PREFIX=/opt/ntl \
     -DCMAKE_INSTALL_PREFIX=/usr/local \
-    -DPACKAGE_TESTS=ON
+    -DPACKAGE_TESTS=ON \
+    -DCMAKE_COLOR_DIAGNOSTICS=ON \
+    -DCMAKE_CXX_FLAGS=-fdiagnostics-color=always
 ```
 
 ## 5. Build and install data

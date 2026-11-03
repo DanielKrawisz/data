@@ -15,7 +15,7 @@
 #include <data/encoding/endian.hpp>
 
 namespace data {
-    template <std::integral word> struct bytestring;
+    template <Word word> struct bytestring;
 
     using bytes = bytestring<byte>;
 }
@@ -65,7 +65,10 @@ namespace data::encoding::hex {
             return hex::valid (*this);
         }
 
-        template <std::integral word> operator bytestring<word> () const;
+        // previously here we had template <Word word> bytestring<word> here
+        // but that doesn't make sense bceause the hex representation would
+        // depend on the native endian of the words.
+        operator bytes () const;
     };
     
     template <std::ranges::range range> 

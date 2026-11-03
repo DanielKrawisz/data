@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include <data/math/number/types.hpp>
+#include <data/bytes.hpp>
+#include <data/math/number/bounded/bounded.hpp>
 #include <data/arithmetic/complementary.hpp>
 
 #include <data/exception.hpp>
@@ -14,7 +15,7 @@ namespace data::math::number {
     // N_bytes is a representation of the natural numbers that
     // is also a string of bytes. It has an order parameter
     // representing endianness.
-    template <endian r, Word word> struct N_bytes : oriented<r, word> {
+    template <endian r, Word word> struct Z_bytes<r, negativity::nones, word> : oriented<r, word> {
 
         // read in a standard number representation as a string.
         // decimal and hexidecimal are both accepted. In hexidecimal,
@@ -22,39 +23,51 @@ namespace data::math::number {
         // representation, including extra leading zeros.
         // for example, "0x00" and "0x" are both representations of zero
         // but different strings of bytes.
-        static N_bytes read (string_view x);
+        static Z_bytes read (string_view x);
 
         // read in the number as a string of bytes.
-        static N_bytes read (slice<const word> x);
+        static Z_bytes read (slice<const word> x);
 
         // trim the number to its minimal representation.
-        N_bytes &trim ();
+        Z_bytes &trim ();
 
         // get a representation of zero of any size.
-        static N_bytes zero (size_t size = 0);
+        static Z_bytes zero (size_t size = 0);
         
-        N_bytes () : oriented<r, word> {} {}
+        Z_bytes () : oriented<r, word> {} {}
 
-        // construct from any number literal
-        template <std::integral I> N_bytes (I);
+        // implicitly convert from fixed size types.
+        // this is important so that we can write literals
+        // that will be automatically converted. We throw
+        // if we try to construct with a negative number.
+        template <std::integral I> Z_bytes (I x): Z_bytes {convert<Z_bytes> (x)} {}
 
-        explicit N_bytes (string_view x): N_bytes {read (x)} {}
-        explicit N_bytes (slice<const word> x): N_bytes {read (x)} {}
-        template <hex_case zz> explicit N_bytes (const hex::uint<zz> &);
-        explicit N_bytes (const dec_uint &u): N_bytes {read (u)} {}
+        template <endian Order, std::integral T, std::size_t n_bits, alignment Align>
+        Z_bytes (const endian_arithmetic<Order, T, n_bits, Align> &x): Z_bytes {convert<Z_bytes> (x)} {}
+
+        template <bool is_signed, endian o, size_t size, Word w>
+        Z_bytes (const bounded<is_signed, o, size, w> &n): Z_bytes {convert<Z_bytes> (n)} {}
+
+        // Implicitly convert from unsigned N_bytes number types.
+        template <data::endian o, Word w> requires Unsame<N_bytes<o, w>, Z_bytes>
+        Z_bytes (const N_bytes<o, w> &n): Z_bytes {convert<Z_bytes> (n)} {}
+
+        // explicitly convert from signed Z_bytes types.
+
+        template <endian o, negativity neg, Word w> requires (neg != negativity::nones)
+        explicit Z_bytes (const Z_bytes<o, neg, w> &n): Z_bytes {convert<Z_bytes> (n)} {}
+
+        explicit Z_bytes (string_view x): Z_bytes {read (x)} {}
+        explicit Z_bytes (slice<const word> x): Z_bytes {read (x)} {}
+
+        template <hex_case zz> explicit Z_bytes (const hex::uint<zz> &);
+        explicit Z_bytes (const dec_uint &u): Z_bytes {read (u)} {}
 
         explicit operator double () const;
         
-        template <std::integral I>
-        explicit operator I () const;
+        template <std::integral I> explicit operator I () const;
 
-        // TODO we need this intstead of the above two operators.
-        /*
-        // cast to any built in type
-        template <std::integral I>
-        explicit operator I () const;*/
-
-        explicit N_bytes (bytestring<word> &&b): oriented<r, word> {b} {}
+        explicit Z_bytes (bytestring<word> &&b): oriented<r, word> {b} {}
 
     };
     
@@ -64,7 +77,13 @@ namespace data::math::number {
         Z_bytes () : oriented<r, word> {} {}
 
         // construct from any number literal.
-        template <std::integral I> Z_bytes (I);
+        template <std::integral I> Z_bytes (I x): Z_bytes {convert<Z_bytes> (x)} {};
+
+        template <data::endian Order, std::integral T, std::size_t n_bits, alignment Align>
+        Z_bytes (const endian_arithmetic<Order, T, n_bits, Align> &x): Z_bytes {convert<Z_bytes> (x)} {}
+
+        template <bool is_signed, data::endian o, size_t size, Word w>
+        Z_bytes (const bounded<is_signed, o, size, w> &n): Z_bytes {convert<Z_bytes> (n)} {}
 
         Z_bytes (const N_bytes<r, word> &n): Z_bytes {convert<Z_bytes<r, negativity::twos, word>> (n)} {}
         
@@ -82,8 +101,6 @@ namespace data::math::number {
 
         // TODO get rid of this and replace with a constructor.
         operator Z_bytes<r, negativity::BC, word> () const;
-
-        explicit operator N_bytes<r, word> () const;
         
         explicit operator double () const;
         
@@ -97,6 +114,8 @@ namespace data::math::number {
 
         explicit Z_bytes (bytestring<word> &&b) : oriented<r, word> {b} {}
 
+        explicit Z_bytes (const hex_string &x): oriented<r, word> {x} {}
+
     };
     
     // for little endian, these are an implementation of bitcoin numbers.
@@ -109,7 +128,7 @@ namespace data::math::number {
         Z_bytes (bool);
 
         // construct from any number literal.
-        template <std::integral I> Z_bytes (I);
+        template <std::integral I> Z_bytes (I x): Z_bytes {convert<Z_bytes> (x)} {}
 
         Z_bytes (const N_bytes<r, word> &n): Z_bytes {convert<Z_bytes<r, negativity::BC, word>> (n)} {}
         
@@ -126,8 +145,6 @@ namespace data::math::number {
         // we need this constructor because the compiler gets confused
         // with the bool constructor when we try to use string literals.
         Z_bytes (const char *x): Z_bytes {string_view {x, std::strlen (x)}} {}
-
-        explicit operator N_bytes<r, word> () const;
         
         explicit operator double () const;
         
@@ -360,49 +377,19 @@ namespace data::math::number {
     Z_bytes<r, negativity::twos, word> inline operator * (I x, const N_bytes<r, word> &u) {
         return Z_bytes<r, negativity::twos, word> {x} * Z_bytes<r, negativity::twos, word> {u};
     }
-    
-    template <endian r, Word word>
-    N_bytes<r, word> inline operator ++ (N_bytes<r, word> &x, int) {
-        N_bytes<r, word> z = x;
-        ++x;
-        return z;
-    }
-    
-    template <endian r, Word word>
-    N_bytes<r, word> inline operator -- (N_bytes<r, word> &x, int) {
-        N_bytes<r, word> z = x;
-        --x;
-        return z;
-    }
-    
-    // TODO these next several operations could be more optimized.
+
     template <endian r, Word word>
     N_bytes<r, word> inline &operator += (N_bytes<r, word> &x, const N_bytes<r, word> &n) {
         return x = x + n;
     }
-    
+
     template <endian r, Word word>
     N_bytes<r, word> inline &operator -= (N_bytes<r, word> &x, const N_bytes<r, word> &n) {
         return x = x - n;
     }
     
     template <endian r, Word word>
-    N_bytes<r, word> inline &operator += (N_bytes<r, word> &x, uint64 n) {
-        return x = x + n;
-    }
-    
-    template <endian r, Word word>
-    N_bytes<r, word> inline &operator -= (N_bytes<r, word> &x, uint64 n) {
-        return x = x - n;
-    }
-    
-    template <endian r, Word word>
     N_bytes<r, word> inline &operator *= (N_bytes<r, word> &x, const N_bytes<r, word> &n) {
-        return x = x * n;
-    }
-    
-    template <endian r, Word word>
-    N_bytes<r, word> inline &operator *= (N_bytes<r, word> &x, uint64 n) {
         return x = x * n;
     }
     
@@ -443,22 +430,7 @@ namespace data::math::number {
     }
     
     template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> inline &operator += (Z_bytes<r, c, word> &x, int64 n) {
-        return x = x + n;
-    }
-    
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> inline &operator -= (Z_bytes<r, c, word> &x, int64 n) {
-        return x = x - n;
-    }
-    
-    template <endian r, negativity c, Word word>
     Z_bytes<r, c, word> inline &operator *= (Z_bytes<r, c, word> &x, const Z_bytes<r, c, word> &n) {
-        return x = x * n;
-    }
-    
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> inline &operator *= (Z_bytes<r, c, word> &x, const int64 n) {
         return x = x * n;
     }
 
@@ -475,6 +447,51 @@ namespace data::math::number {
     template <endian r, negativity c, Word word>
     Z_bytes<r, c, word> inline &operator >>= (Z_bytes<r, c, word> &x, int64 i) {
         return x = x >> i;
+    }
+
+    template <endian r, Word word, std::unsigned_integral I>
+    N_bytes<r, word> inline &operator += (N_bytes<r, word> &x, I n) {
+        return x = x + n;
+    }
+
+    template <endian r, Word word, std::unsigned_integral I>
+    N_bytes<r, word> inline &operator -= (N_bytes<r, word> &x, I n) {
+        return x = x - n;
+    }
+
+    template <endian r, Word word, std::unsigned_integral I>
+    N_bytes<r, word> inline &operator *= (N_bytes<r, word> &x, I n) {
+        return x = x * n;
+    }
+
+    template <endian r, Word word, std::integral I>
+    math::Z_bytes<r, word> inline &operator += (math::Z_bytes<r, word> &x, I n) {
+        return x = x + n;
+    }
+
+    template <endian r, Word word, std::integral I>
+    math::Z_bytes<r, word> inline &operator -= (math::Z_bytes<r, word> &x, I n) {
+        return x = x - n;
+    }
+
+    template <endian r, Word word, std::integral I>
+    math::Z_bytes<r, word> inline &operator *= (math::Z_bytes<r, word> &x, I n) {
+        return x = x * n;
+    }
+
+    template <endian r, Word word, std::integral I>
+    Z_bytes_BC<r, word> inline &operator += (Z_bytes_BC<r, word> &x, I n) {
+        return x = x + n;
+    }
+
+    template <endian r, Word word, std::integral I>
+    Z_bytes_BC<r, word> inline &operator -= (Z_bytes_BC<r, word> &x, I n) {
+        return x = x - n;
+    }
+
+    template <endian r, Word word, std::integral I>
+    Z_bytes_BC<r, word> inline &operator *= (Z_bytes_BC<r, word> &x, I n) {
+        return x = x * n;
     }
     
     // check if the number is negative, and then do bit shift on the absolute value.
@@ -558,36 +575,15 @@ namespace data::math::number {
     Z_bytes<r, negativity::twos, word> inline operator & (I x, const N_bytes<r, word> &u) {
         return Z_bytes<r, negativity::twos, word> {x} & Z_bytes<r, negativity::twos, word> {u};
     }
-
-    template <endian r, Word word>
-    inline Z_bytes<r, negativity::twos, word>::operator N_bytes<r, word> () const {
-        N_bytes<r, word> n;
-        n.resize (this->size ());
-        std::copy (this->begin (), this->end (), n.begin ());
-        return n;
-    }
-
-    // for little endian, these are an implementation of bitcoin numbers.
-    template <endian r, Word word>
-    inline Z_bytes<r, negativity::BC, word>::operator N_bytes<r, word> () const {
-        N_bytes<r, word> n;
-        n.resize (this->size ());
-        std::copy (this->begin (), this->end (), n.begin ());
-        return n;
-    }
     
 }
 
 namespace data {
 
-    template <endian a, endian b, Word word>
-    bool inline identical (const math::number::N_bytes<a, word> &x, const math::number::N_bytes<b, word> &y) {
-        return static_cast<bytes> (x) == static_cast<bytes> (y);
-    }
-
     template <endian a, negativity b, endian c, negativity d, Word word>
     bool inline identical (const math::number::Z_bytes<a, b, word> &x, const math::number::Z_bytes<c, d, word> &y) {
-        return static_cast<bytes> (x) == static_cast<bytes> (y);
+        if constexpr (a != c || b != d) return false;
+        else return static_cast<const bytestring<word> &> (x) == static_cast<const bytestring<word> &> (y);
     }
     
 }
@@ -672,19 +668,9 @@ namespace data::math::def {
         return !data::is_zero (x) && !arithmetic::sign_bit (x.words ());
     }
     
-    template <endian r, Word word>
-    bool inline is_zero<N_bytes<r, word>>::operator () (const N_bytes<r, word> &x) {
-        return arithmetic::is_zero (x.words ());
-    }
-    
-    template <endian r, Word word>
-    bool inline is_zero<Z_bytes<r, word>>::operator () (const Z_bytes<r, word> &x) {
-        return arithmetic::is_zero (x.words ());
-    }
-    
-    template <endian r, Word word>
-    bool inline is_zero<Z_bytes_BC<r, word>>::operator () (const Z_bytes_BC<r, word> &x) {
-        return arithmetic::BC::is_zero (x.words ());
+    template <endian r, negativity neg, Word word>
+    bool inline is_zero<number::Z_bytes<r, neg, word>>::operator () (const number::Z_bytes<r, neg, word> &x) {
+        return arithmetic::is_zero<neg> (x.words ());
     }
     
     template <endian r, Word word>
@@ -809,197 +795,24 @@ namespace data::math::def {
         }
     };
 
-    // convert between any two types of N_bytes
-    template <endian ToEndian, Word ToWord, endian FromEndian, Word FromWord>
-    requires Unsame<number::N_bytes<ToEndian, ToWord>, number::N_bytes<FromEndian, FromWord>>
-    number::N_bytes<ToEndian, ToWord>
-    convert<number::N_bytes<ToEndian, ToWord>, number::N_bytes<FromEndian, FromWord>>::operator ()
-    (const number::N_bytes<FromEndian, FromWord> &from) const {
-        number::N_bytes<ToEndian, ToWord> result;
-
-        constexpr std::size_t from_bits = sizeof (FromWord) * CHAR_BIT;
-        constexpr std::size_t to_bits   = sizeof (ToWord) * CHAR_BIT;
-
-        const auto trimmed = trim (from);
-        const auto source = trimmed.words ();
-
-        if constexpr (to_bits == from_bits) {
-            result.resize (source.size ());
-
-            auto dst = result.words ().begin();
-
-            for (const auto word : source)
-                *dst++ = static_cast<ToWord> (word);
-        } else if constexpr (to_bits > from_bits) {
-            constexpr std::size_t words_per_destination = to_bits / from_bits;
-
-            result.resize (
-                (source.size () + words_per_destination - 1)
-                    / words_per_destination
-            );
-
-            auto dst = result.words ().begin ();
-
-            ToWord value = 0;
-            std::size_t shift = 0;
-
-            for (const auto word : source) {
-                value |= static_cast<ToWord> (word) << shift;
-                shift += from_bits;
-
-                if (shift == to_bits) {
-                    *dst++ = value;
-                    value = 0;
-                    shift = 0;
-                }
-            }
-
-            if (shift != 0)
-                *dst = value;
-        } else {
-            constexpr std::size_t words_per_source = from_bits / to_bits;
-
-            result.resize (source.size () * words_per_source);
-
-            auto dst = result.words ().begin ();
-
-            for (const auto word : source) {
-                FromWord value = word;
-
-                for (std::size_t i = 0; i < words_per_source; ++i) {
-                    *dst++ = static_cast<ToWord> (value);
-                    value >>= to_bits;
-                }
-            }
-        }
-
-        return trim (result);
-    }
-
-    // convert between any two types of Z_bytes
-    template <endian ToEndian, negativity ToNeg, Word ToWord, endian FromEndian, negativity FromNeg, Word FromWord>
-    requires Unsame<number::Z_bytes<ToEndian, ToNeg, ToWord>, number::Z_bytes<FromEndian, FromNeg, FromWord>>
-    number::Z_bytes<ToEndian, ToNeg, ToWord>
-    convert<number::Z_bytes<ToEndian, ToNeg, ToWord>, number::Z_bytes<FromEndian, FromNeg, FromWord>>::operator ()
-        (const number::Z_bytes<FromEndian, FromNeg, FromWord> &from) const {
-
-        if constexpr (ToNeg != FromNeg)
-            return math::convert<number::Z_bytes<ToEndian, ToNeg, ToWord>> (from.operator number::Z_bytes<FromEndian, ToNeg, FromWord> ());
-
-        number::Z_bytes<ToEndian, ToNeg, ToWord> result;
-
-        constexpr std::size_t from_bits = sizeof (FromWord) * CHAR_BIT;
-        constexpr std::size_t to_bits   = sizeof (ToWord) * CHAR_BIT;
-
-        const auto trimmed = trim (from);
-        const auto source = trimmed.words ();
-
-        if constexpr (to_bits == from_bits) {
-            result.resize (source.size ());
-
-            auto dst = result.words ().begin();
-
-            for (const auto word : source)
-                *dst++ = static_cast<ToWord> (word);
-        } else if constexpr (to_bits > from_bits) {
-            constexpr std::size_t words_per_destination = to_bits / from_bits;
-
-            result.resize (
-                (source.size () + words_per_destination - 1)
-                    / words_per_destination
-            );
-
-            auto dst = result.words ().begin ();
-
-            ToWord value = 0;
-            std::size_t shift = 0;
-
-            for (const auto word : source) {
-                value |= static_cast<ToWord> (word) << shift;
-                shift += from_bits;
-
-                if (shift == to_bits) {
-                    *dst++ = value;
-                    value = 0;
-                    shift = 0;
-                }
-            }
-
-            if (shift != 0)
-                *dst = value;
-        } else {
-            constexpr std::size_t words_per_source = from_bits / to_bits;
-
-            result.resize (source.size () * words_per_source);
-
-            auto dst = result.words ().begin ();
-
-            for (const auto word : source) {
-                FromWord value = word;
-
-                for (std::size_t i = 0; i < words_per_source; ++i) {
-                    *dst++ = static_cast<ToWord> (value);
-                    value >>= to_bits;
-                }
-            }
-        }
-
-        return trim (result);
-    }
-
-    // convert from N_bytes to Z_bytes
-    template <endian ToEndian, negativity ToNeg, Word ToWord, endian FromEndian, Word FromWord>
-    number::Z_bytes<ToEndian, ToNeg, ToWord> inline
-    convert<number::Z_bytes<ToEndian, ToNeg, ToWord>, number::N_bytes<FromEndian, FromWord>>::operator ()
-    (const number::N_bytes<FromEndian, FromWord> &from) const {
-
-        number::Z_bytes<ToEndian, ToNeg, ToWord> result;
-        number::N_bytes<ToEndian, ToWord> input;
-
-        constexpr std::size_t from_bits = sizeof (FromWord) * CHAR_BIT;
-        constexpr std::size_t to_bits   = sizeof (ToWord) * CHAR_BIT;
-
-        if constexpr (to_bits == from_bits) {
-            input = trim (from);
-        } else {
-            input = math::convert<number::N_bytes<ToEndian, ToWord>> (from);
-        }
-
-        result = number::Z_bytes<ToEndian, ToNeg, ToWord>::zero (input.size () + 1);
-
-        std::copy (input.words ().begin (), input.words ().end (), result.words ().begin ());
-        return number::trim (result);
-    }
-
     template <endian r, Word word>
-    size_t inline size_in_base<number::N_bytes<r, word>, 2>::operator () (const number::N_bytes<r, word> &x) {
-        return arithmetic::nones::bit_width (x.words ());
+    size_t inline size_in_base<N_bytes<r, word>, 2>::operator () (const N_bytes<r, word> &x) {
+        return arithmetic::bit_width<negativity::nones> (x.words ());
     }
 
     template <endian r, negativity c, Word word>
     size_t inline size_in_base<number::Z_bytes<r, c, word>, 2>::operator () (const number::Z_bytes<r, c, word> &x) {
-        if constexpr (c == negativity::twos) return arithmetic::twos::bit_width (x.words ());
-        else return arithmetic::BC::bit_width (x.words ());
-    }
-
-
-    template <endian r, Word word, std::integral I>
-    number::N_bytes<r, word> inline convert<number::N_bytes<r, word>, I>::operator () (const I &i) const {
-        return number::N_bytes<r, word> (i);
-    }
-
-    template <std::integral I, endian r, Word word>
-    I inline convert<I, number::N_bytes<r, word>>::operator () (const number::N_bytes<r, word> &n) const {
-        return I (n);
+        if constexpr (c == negativity::twos) return arithmetic::bit_width<c> (x.words ());
+        else return arithmetic::bit_width<negativity::BC> (x.words ());
     }
 
     template <endian r, Word word>
-    const number::N_bytes<r, word> inline &min<number::N_bytes<r, word>>::operator () (const number::N_bytes<r, word> &a, const number::N_bytes<r, word> &b) const {
+    const N_bytes<r, word> inline &min<N_bytes<r, word>>::operator () (const N_bytes<r, word> &a, const N_bytes<r, word> &b) const {
         return a < b ? a : b;
     }
 
     template <endian r, Word word>
-    const number::N_bytes<r, word> inline &max<number::N_bytes<r, word>>::operator () (const number::N_bytes<r, word> &a, const number::N_bytes<r, word> &b) const {
+    const N_bytes<r, word> inline &max<N_bytes<r, word>>::operator () (const N_bytes<r, word> &a, const N_bytes<r, word> &b) const {
         return a > b ? a : b;
     }
 
@@ -1028,19 +841,9 @@ namespace data::math::def {
 // level functions in arithmetic. 
 namespace data::math::number {
     
-    template <endian r, Word word>
-    bool inline is_minimal (const N_bytes<r, word> &x) {
-        return arithmetic::nones::is_minimal (x.words ());
-    }
-    
-    template <endian r, Word word>
-    bool inline is_minimal (const Z_bytes<r, negativity::twos, word> &x) {
-        return arithmetic::twos::is_minimal (x.words ());
-    }
-    
-    template <endian r, Word word>
-    bool inline is_minimal (const Z_bytes<r, negativity::BC, word> &x) {
-        return arithmetic::BC::is_minimal (x.words ());
+    template <endian r, negativity neg, Word word>
+    bool inline is_minimal (const Z_bytes<r, neg, word> &x) {
+        return arithmetic::is_minimal<neg> (x.words ());
     }
     
     template <endian r, Word word>
@@ -1064,16 +867,6 @@ namespace data::math::number {
     }
     
     template <endian r, Word word>
-    bool inline operator == (const N_bytes<r, word> &a, const N_bytes<r, word> &b) {
-        return (a <=> b) == 0;
-    }
-    
-    template <endian r, negativity c, Word word>
-    bool inline operator == (const Z_bytes<r, c, word> &a, const Z_bytes<r, c, word> &b) {
-        return (a <=> b) == 0;
-    }
-    
-    template <endian r, Word word>
     std::weak_ordering inline operator <=> (const N_bytes<r, word> &a, const N_bytes<r, word> &b) {
         return arithmetic::nones::compare<r, word> (a, b);
     }
@@ -1088,23 +881,17 @@ namespace data::math::number {
         return arithmetic::BC::compare<r, word> (a, b);
     }
     
-    template <endian r, negativity c, Word word>
-    std::weak_ordering inline operator <=> (const Z_bytes<r, c, word> &a, int64 i) {
+    template <endian r, negativity c, Word word, std::integral I>
+    std::weak_ordering inline operator <=> (const Z_bytes<r, c, word> &a, I i) {
+        if constexpr (c == negativity::nones && std::signed_integral<I>)
+            if (i < 0) return std::weak_ordering::greater;
         return a <=> Z_bytes<r, c, word> {i};
     }
     
-    template <endian r, Word word>
-    std::weak_ordering inline operator <=> (const N_bytes<r, word> &a, uint64 i) {
-        return a <=> N_bytes<r, word> {i};
-    }
-    
-    template <endian r, Word word>
-    bool inline operator == (const N_bytes<r, word> &x, uint64 i) {
-        return x == N_bytes<r, word> {i};
-    }
-    
-    template <endian r, negativity c, Word word>
-    bool inline operator == (const Z_bytes<r, c, word> &x, int64 i) {
+    template <endian r, negativity c, Word word, std::integral I>
+    bool inline operator == (const Z_bytes<r, c, word> &x, I i) {
+        if constexpr (c == negativity::nones && std::signed_integral<I>)
+            if (i < 0) return false;
         return (x <=> Z_bytes<r, c, word> {i}) == 0;
     }
 
@@ -1337,176 +1124,9 @@ namespace data::math::number {
         } else throw exception {} << "invalid neg " << c;
     }
 
-    // set a number to the value of a built-in type using a minimal representation.
-    #pragma GCC push_options
-    #pragma GCC optimize("O1")
-    // we need these directives here for this particular function on gcc or else the tests fail.
-    template <std::integral Int, negativity Negativity, typename ZZ, Word word>
-    void initialize_bytes (Int input, ZZ &location) {
-        if constexpr (Negativity == negativity::nones && std::signed_integral<Int>)
-            if (input < 0) throw out_of_range {} << "write negative value to unsigned type " << input;
-
-        if (input == 0) return;
-
-        using X = std::make_signed_t<word>;
-        using UInt = std::make_unsigned_t<Int>;
-
-        // sign bit is always zero other than when n == BC and i is negative.
-        word sign_bit;
-
-        // val contains information that can be copied directly into the result.
-        // for n == BC, we need to take the absolute value before we can copy.
-        // for other cases, x is the same as i.
-        Int val;
-
-        // set the correct values for val and sign_bit.
-        if constexpr (Negativity == negativity::BC && std::signed_integral<Int>) {
-            if (input > 0) {
-                sign_bit = 0;
-                val = input;
-            } else {
-                sign_bit = static_cast<word> (numeric_limits<X>::min ());
-                val = input == static_cast<Int> (numeric_limits<std::make_signed_t<Int>>::min ()) ? input : -input;
-            }
-        } else {
-            sign_bit = 0;
-            val = input;
-        };
-
-        if constexpr (sizeof (Int) < sizeof (word)) {
-            location.resize (1);
-
-            if constexpr (Negativity == negativity::BC)
-                // cast to unsigned and then to word.
-                *location.words ().begin () = sign_bit | static_cast<word> (static_cast<UInt> (val));
-            else if constexpr (std::signed_integral<Int>)
-                // cast to signed then to word
-                *location.words ().begin () = static_cast<word> (static_cast<X> (val));
-            else *location.words ().begin () = static_cast<word> (val);
-
-        } else if constexpr (sizeof (Int) == sizeof (word)) {
-            // the size of the number to initialize.
-            size_t number_size;
-
-            // we need to resize to 2 in the following cases:
-            //   * n == BC and I is signed and equal to min value.
-            //   * n is signed and I is unsigned and bigger than the max value if it were signed.
-            if constexpr (Negativity != negativity::nones && std::unsigned_integral<Int>)
-                number_size = val > static_cast<Int> (numeric_limits<std::make_signed_t<Int>>::max ()) ? 2 : 1;
-            else if constexpr (Negativity == negativity::BC)
-                number_size = val == static_cast<Int> (numeric_limits<std::make_signed_t<Int>>::min ()) ? 2 : 1;
-            else number_size = 1;
-
-            location.resize (number_size);
-            *location.words ().begin () = static_cast<word> (val);
-
-            if constexpr (Negativity == negativity::BC) *(location.words ().end () - 1) |= sign_bit;
-
-        } else if constexpr (sizeof (Int) % sizeof (word) != 0) {
-            // should not really happen.
-            throw exception {} <<
-                "We do not know how to handle this case; init value size is " <<
-                sizeof (Int) << " and word size is " << sizeof (word);
-        } else if constexpr (Same<word, byte>) {
-
-            const auto bits_per_word = sizeof (word) * CHAR_BIT;
-
-            // bit width that val takes up in the result, not including sign.
-            size_t width; {
-
-                // For sign-and-magnitude, mb is the magnitude of val.
-                // For two's-complement, this is the bitwise complement of a negative val.
-                // In the latter case, its bit width determines whether an additional word
-                // is required for sign extension.
-                UInt mb; {
-                    if constexpr (Negativity == negativity::twos && std::signed_integral<Int>)
-                        mb = static_cast<UInt> (val < 0 ? ~val : val);
-                    else mb = static_cast<UInt> (val);
-                }
-
-                width = std::bit_width (mb);
-            }
-
-            // words_to_copy is the number of words needed to represent the
-            // significant bits of the input in the representation we are using.
-            // built-in division discards remainders, but we need a division
-            // that rounds up if there is a remainder.
-            const auto words_to_copy = (width + bits_per_word - 1) / bits_per_word;
-
-            // the size of the number to initialize. For signed representations,
-            // an additional word may be required to represent the sign without
-            // changing the value. In nones (unsigned) representation, no sign
-            // word is needed. In the signed representations (ones, twos, and BC),
-            // an additional word is needed when the significant bits exactly
-            // fill a word, leaving no room for the sign bit.
-            size_t number_size; {
-                if constexpr (Negativity == negativity::nones) number_size = words_to_copy;
-                else number_size = width / bits_per_word + 1;
-            }
-
-            location.resize (number_size);
-
-            // write val in little endian order for copying into location.
-            endian_integral<std::signed_integral<Int>, endian::little, sizeof (val)> e {val};
-            std::copy (e.begin (), e.begin () + words_to_copy, location.words ().begin ());
-
-            // For two's-complement, a negative value requires an additional
-            // sign-extension word only when number_size exceeds words_to_copy.
-            if constexpr (Negativity == negativity::twos) {
-                if (val < 0 && number_size > words_to_copy)
-                    *(location.words ().end () - 1) = static_cast<word> (X {-1});
-            // set sign bit
-            } else if constexpr (Negativity == negativity::BC)
-                *(location.words ().end () - 1) |= sign_bit;
-
-        // the general case, not perfectly efficient but good enough.
-        } else {
-
-            // this case could be more efficient and not use trim
-            // just like the above case but we don't bother because
-            // this case just isn't that important.
-            if constexpr (Negativity == negativity::BC) {
-                location.resize (sizeof (Int) / sizeof (word) + 1);
-
-                *(location.words ().end () - 1) = sign_bit;
-            } else {
-                location.resize (sizeof (Int) / sizeof (word));
-            }
-
-            data::arithmetic::Words<endian::native, word> e {
-                slice<word> {(word*) (&val), sizeof (Int) / sizeof (word)}};
-            std::copy (e.begin (), e.end (), location.words ().begin ());
-
-            location.trim ();
-        }
-    }
-
-    template <endian r, Word word>
-    template <std::integral I> inline
-    N_bytes<r, word>::N_bytes (I x) {
-        initialize_bytes<I, negativity::nones, N_bytes<r, word>, word> (x, *this);
-    }
-
-    template <endian r, Word word>
-    template <std::integral I> inline
-    Z_bytes<r, negativity::twos, word>::Z_bytes (I x) {
-        initialize_bytes<I, negativity::twos, Z_bytes<r, negativity::twos, word>, word> (x, *this);
-    }
-
-    template <endian r, Word word>
-    template <std::integral I> inline
-    Z_bytes<r, negativity::BC, word>::Z_bytes (I x) {
-        initialize_bytes<I, negativity::BC, Z_bytes<r, negativity::BC, word>, word> (x, *this);
-    }
-
     template <endian r, Word word> inline
     Z_bytes<r, negativity::BC, word>::Z_bytes (bool b): Z_bytes<r, negativity::BC, word> {} {
         if (b) this->push_back (1);
-    }
-
-    template <endian r, Word word>
-    N_bytes<r, word> inline trim (const N_bytes<r, word> &n) {
-        return N_bytes<r, word> (std::move (arithmetic::trim<r, negativity::nones, word> (n)));
     }
 
     template <endian r, negativity c, Word word>
@@ -1515,7 +1135,7 @@ namespace data::math::number {
     }
     
     template <endian r, Word word>
-    N_bytes<r, word> inline &N_bytes<r, word>::trim () {
+    Z_bytes<r, negativity::nones, word> inline &Z_bytes<r, negativity::nones, word>::trim () {
         arithmetic::trim<r, negativity::nones, word> (*this);
         return *this;
     }
@@ -1533,81 +1153,20 @@ namespace data::math::number {
     }
     
     template <endian r, Word word> template <std::integral I>
-    N_bytes<r, word>::operator I () const {
-        if (*this > numeric_limits<I>::max ())
-            throw exception {} << "value too big";
-
-        boost::endian::endian_arithmetic<endian::little, I, 8 * sizeof (I), boost::endian::align::no> xx {0};
-
-        std::copy (this->words ().begin (),
-            this->words ().begin () + std::min (sizeof (I), this->size ()), xx.begin ());
-
-        return I (xx);
+    inline N_bytes<r, word>::operator I () const {
+        return convert<I> (*this);
     } 
     
     template <endian r, Word word>
     template <std::integral I>
-    Z_bytes<r, negativity::twos, word>::operator I () const {
-
-        if (*this > numeric_limits<I>::max ())
-            throw std::invalid_argument {"value too big"};
-
-        if (*this < numeric_limits<I>::min ())
-            throw std::invalid_argument {"value too small"};
-
-        if (this->size () == 0) return 0;
-
-        if constexpr (Same<word, byte>) {
-            endian_integral<std::signed_integral<I>, endian::little, sizeof (I)> xx {0};
-
-            std::copy (this->words ().begin (),
-                this->words ().begin () +
-                    std::min (static_cast<size_t> (sizeof (I)),
-                        this->size ()),
-                xx.begin ());
-
-            return I (xx);
-        } else if constexpr (Same<I, word>) {
-            return this->words () [0];
-        } else throw unimplemented {"Z_bytes to signed integral"};
+    inline Z_bytes<r, negativity::twos, word>::operator I () const {
+        return convert<I> (*this);
     } 
     
     template <endian r, Word word>
     template <std::integral I>
     inline Z_bytes<r, negativity::BC, word>::operator I () const {
-
-        if (*this > numeric_limits<I>::max ())
-            throw std::invalid_argument {"value too big"};
-
-        if (*this < numeric_limits<I>::min ())
-            throw std::invalid_argument {"value too small"};
-
-        if (this->size () == 0) return 0;
-
-        bool neg = is_negative (*this);
-
-        Z_bytes neg_if;
-        if (neg) neg_if = -*this;
-
-        const Z_bytes &mag = neg ? neg_if : *this;
-
-        I result;
-
-        if constexpr (Same<word, byte>) {
-            endian_integral<std::signed_integral<I>, endian::little, sizeof (I)> xx {0};
-
-            std::copy (this->words ().begin (),
-                this->words ().begin () +
-                    std::min (static_cast<size_t> (sizeof (I)),
-                        this->size ()),
-                xx.begin ());
-
-            result = I (xx);
-        } else if constexpr (Same<I, word>) {
-            result = mag->words () [0];
-        } else throw unimplemented {"Z_bytes to signed integral"};
-
-        return neg ? -result : result;
+        return convert<I> (*this);
     } 
     
     template <endian r, Word word>
@@ -1632,21 +1191,10 @@ namespace data::math::number {
         std::copy (this->begin (), this->end (), z.begin ());
         return z.trim ();
     }
-    
-    template <endian r, Word word>
-    N_bytes<r, word> inline &operator ++ (N_bytes<r, word> &x) {
-        arithmetic::nones::increment<r> (arithmetic::trim<r, negativity::nones> (x));
-        return x;
-    }
-    
-    template <endian r, Word word>
-    N_bytes<r, word> inline &operator -- (N_bytes<r, word> &x) {
-        arithmetic::trim<r, negativity::nones> (arithmetic::nones::decrement<r> (x));
-        return x;
-    }
 
     template <endian r, negativity c, Word word>
     Z_bytes<r, c, word> inline &operator ++ (Z_bytes<r, c, word> &x) {
+        if constexpr (c == negativity::nones) arithmetic::trim<r, c> (arithmetic::nones::increment<r> (x));
         if constexpr (c == negativity::twos) arithmetic::trim<r, c> (arithmetic::twos::increment<r> (x));
         if constexpr (c == negativity::BC) arithmetic::trim<r, c> (arithmetic::BC::increment<r> (x));
         return x;
@@ -1654,6 +1202,7 @@ namespace data::math::number {
 
     template <endian r, negativity c, Word word>
     Z_bytes<r, c, word> inline &operator -- (Z_bytes<r, c, word> &x) {
+        if constexpr (c == negativity::nones) arithmetic::trim<r, c> (arithmetic::nones::decrement<r> (x));
         if constexpr (c == negativity::twos) arithmetic::trim<r, c> (arithmetic::twos::decrement<r> (x));
         if constexpr (c == negativity::BC) arithmetic::trim<r, c> (arithmetic::BC::decrement<r> (x));
         return x;
@@ -1771,14 +1320,14 @@ namespace data::math::number {
         return data::divmod<Z_bytes<r, c, word>> (x, nonzero<Z_bytes<r, c, word>> {Z_bytes<r, c, word> {j}}).Quotient;
     }
 
-    template <endian r, Word word>
-    N_bytes<r, word> inline operator / (const N_bytes<r, word> &x, uint64 j) {
+    template <endian r, Word word, std::unsigned_integral I>
+    N_bytes<r, word> inline operator / (const N_bytes<r, word> &x, I j) {
         if (j == 0) throw math::division_by_zero {};
         return data::divmod<N_bytes<r, word>> (x, nonzero<N_bytes<r, word>> {N_bytes<r, word> {j}}).Quotient;
     }
 
-    template <endian r, negativity c, Word word>
-    Z_bytes<r, c, word> inline operator / (const Z_bytes<r, c, word> &x, int64 j) {
+    template <endian r, negativity c, Word word, std::integral I>
+    Z_bytes<r, c, word> inline operator / (const Z_bytes<r, c, word> &x, I j) {
         if (j == 0) throw math::division_by_zero {};
         return data::divmod<Z_bytes<r, c, word>> (x, nonzero<Z_bytes<r, c, word>> {Z_bytes<r, c, word> {j}}).Quotient;
     }
@@ -1814,20 +1363,9 @@ namespace data::math::number {
         return uint64 (data::divmod<Z_bytes<r, c, word>> (x, nonzero<Z_bytes<r, c, word>> {Z_bytes<r, c, word> {j}}).Remainder);
     }
 
-    template <endian r, Word word>
-    writer<word> inline &operator << (writer<word> &w, const N_bytes<r, word> &n) {
-        return w << static_cast<const bytestring<word> &> (n);
-    }
-
     template <endian r, negativity c, Word word>
     writer<word> inline &operator << (writer<word> &w, const Z_bytes<r, c, word> &n) {
         return w << static_cast<const bytestring<word> &> (n);
-    }
-
-    template <endian r, Word word>
-    reader<word> inline &operator >> (reader<word> &rr, N_bytes<r, word> &n) {
-        rr.read (n.data (), n.size ());
-        return rr;
     }
 
     template <endian r, negativity c, Word word>
@@ -1836,8 +1374,8 @@ namespace data::math::number {
         return rr;
     }
 
-    template <endian r, Word word> template <hex_case zz> inline N_bytes<r, word>::N_bytes (const hex::uint<zz> &u) {
-        *this = math::number::N_bytes<r, word>::zero ((u.size () / 2 - 1 + sizeof (word) - 1) / sizeof (word));
+    template <endian r, Word word> template <hex_case zz> inline Z_bytes<r, negativity::nones, word>::Z_bytes (const hex::uint<zz> &u) {
+        *this = math::N_bytes<r, word>::zero ((u.size () / 2 - 1 + sizeof (word) - 1) / sizeof (word));
         encoding::hex::decode (u.begin () + 2, u.end (), this->words ().rbegin ());
     }
 

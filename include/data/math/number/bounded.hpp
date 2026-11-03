@@ -7,9 +7,11 @@
 #include <type_traits>
 #include <iterator>
 #include <data/math/number/bounded/bounded.hpp>
-#include <data/math/power.hpp>
-#include <data/float.hpp>
+#include <data/math/number/bytes/Z.hpp>
+
 #include <data/math/number/extended_euclidian.hpp>
+#include <data/math/power.hpp>
+
 #include <data/encoding/integer.hpp>
 #include <data/encoding/digits.hpp>
 
@@ -48,7 +50,7 @@ namespace data::math::number {
                     *this = bounded<true, r, size, word> (
                         encoding::read_base<bounded<false, r, size, word>> (x, 10, encoding::decimal::digit));
 
-                    // if the result was negative then clearly the string was too big clearly, but
+                    // if the result was negative then clearly the string was too big, but
                     // we could have still strings that are too big that we don't catch this way.
                     if (*this < 0)
                         throw exception {} << "integer string \"" << x << "\" is too big for the given number type";
@@ -62,9 +64,8 @@ namespace data::math::number {
                 encoding::hex::decode (x.begin (), x.end (), this->begin ());
         } else {
             if (encoding::signed_decimal::valid (x)) {
-                auto zb = Z_bytes<r, negativity::twos, word>::read (x);
-                // TODO this operation should be replaced by a conversion function call.
-                *this = bounded {zb};
+                auto z = Z_bytes<r, negativity::twos, word>::read (x);
+                *this = convert<bounded<true, r, size, word>> (z);
             }
             else if (encoding::hexidecimal::valid (x) && x.size () == 2 * size * sizeof (word) + 2)
                 encoding::hex::decode (x.begin () + 2, x.end (), this->words ().rbegin ());
@@ -93,92 +94,48 @@ namespace data::math::number {
 
 namespace data::math::def {
     template <endian r, size_t x, Word word>
-    constexpr division<uint<r, x, word>, uint<r, x, word>> inline divmod<uint<r, x, word>, uint<r, x, word>>::operator ()
-        (const uint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
+    constexpr division<ubound<r, x, word>, ubound<r, x, word>> inline divmod<ubound<r, x, word>, ubound<r, x, word>>::operator ()
+        (const ubound<r, x, word> &v, const nonzero<ubound<r, x, word>> &z) {
         return number::divmod (v, z.Value);
     }
 
     template <endian r, size_t x, Word word>
-    constexpr division<sint<r, x, word>, sint<r, x, word>> inline divmod<sint<r, x, word>, sint<r, x, word>>::operator ()
-        (const sint<r, x, word> &v, const nonzero<sint<r, x, word>> &z) {
+    constexpr division<bound<r, x, word>, bound<r, x, word>> inline divmod<bound<r, x, word>, bound<r, x, word>>::operator ()
+        (const bound<r, x, word> &v, const nonzero<bound<r, x, word>> &z) {
         return number::integer_divmod<number::TRUNCATE_TOWARD_ZERO> (v, z.Value);
     }
 
     template <endian r, size_t x, Word word>
-    constexpr division<uint<r, x, word>, uint<r, x, word>> inline divmod<sint<r, x, word>, uint<r, x, word>>::operator ()
-        (const sint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
-        return number::divmod (uint<r, x, word> (v), z.Value);
+    constexpr division<ubound<r, x, word>, ubound<r, x, word>> inline divmod<bound<r, x, word>, ubound<r, x, word>>::operator ()
+        (const bound<r, x, word> &v, const nonzero<ubound<r, x, word>> &z) {
+        return number::divmod (ubound<r, x, word> (v), z.Value);
     }
 
     template <bool a, endian r, size_t x, Word word>
-    constexpr uint<r, x, word> square_mod<bounded<a, r, x, word>, uint<r, x, word>>::operator () (
-        const bounded<a, r, x, word> &m,
-        const nonzero<uint<r, x, word>> &q) {
-        return times_mod<bounded<a, r, x, word>, bounded<a, r, x, word>, uint<r, x, word>> {} (m, m, q);
+    constexpr ubound<r, x, word> square_mod<nbound<a, r, x, word>, ubound<r, x, word>>::operator () (
+        const nbound<a, r, x, word> &m,
+        const nonzero<ubound<r, x, word>> &q) {
+        return times_mod<nbound<a, r, x, word>, nbound<a, r, x, word>, ubound<r, x, word>> {} (m, m, q);
     }
 
     template <bool a, bool b, endian r, size_t x, Word word>
-    constexpr uint<r, x, word> inline plus_mod<bounded<a, r, x, word>, bounded<b, r, x, word>, uint<r, x, word>>::operator () (
-        const bounded<a, r, x, word> &m,
-        const bounded<b, r, x, word> &n,
-        const nonzero<uint<r, x, word>> &q) {
-        return uint<r, x, word> ((bounded<a, r, x + 1, word> (m) +
-            bounded<b, r, x + 1, word> (n)) % uint<r, x + 1, word> (q.Value));
+    constexpr ubound<r, x, word> inline plus_mod<nbound<a, r, x, word>, nbound<b, r, x, word>, ubound<r, x, word>>::operator () (
+        const nbound<a, r, x, word> &m,
+        const nbound<b, r, x, word> &n,
+        const nonzero<ubound<r, x, word>> &q) {
+        return ubound<r, x, word> ((nbound<a, r, x + 1, word> (m) +
+            nbound<b, r, x + 1, word> (n)) % ubound<r, x + 1, word> (q.Value));
     }
 
     template <bool a, bool b, endian r, size_t x, Word word>
-    constexpr uint<r, x, word> inline times_mod<bounded<a, r, x, word>, bounded<b, r, x, word>, uint<r, x, word>>::operator () (
-        const bounded<a, r, x, word> &m,
-        const bounded<b, r, x, word> &n,
-        const nonzero<uint<r, x, word>> &q) {
-        return uint<r, x, word> (binary_accumulate_times_mod (
-            bounded<a, r, x + 1, word> (m),
-            bounded<b, r, x + 1, word> (n),
-            nonzero {uint<r, x + 1, word> (q.Value)}));
-    }
-
-    template <bool is_signed, endian to_r, size_t to_size, Word to_word, endian from_r, negativity neg, Word from_word>
-    number::bounded<is_signed, to_r, to_size, to_word> inline
-    convert<number::bounded<is_signed, to_r, to_size, to_word>, number::Z_bytes<from_r, neg, from_word>>::operator ()
-    (const number::Z_bytes<from_r, neg, from_word> &x) const {
-        return number::bounded<is_signed, to_r, to_size, to_word> (x);
-    }
-
-    template <bool is_signed, endian to_r, size_t size, Word to_word, endian from_r, Word from_word>
-    number::bounded<is_signed, to_r, size, to_word> inline
-    convert<number::bounded<is_signed, to_r, size, to_word>, number::N_bytes<from_r, from_word>>::operator ()
-    (const number::N_bytes<from_r, from_word> &x) const {
-        return number::bounded<is_signed, to_r, size, to_word> (x);
-    }
-
-    template <endian to_r, negativity neg, Word to_word, bool is_signed, endian from_r, size_t size, Word from_word>
-    number::Z_bytes<to_r, neg, to_word> inline
-    convert<number::Z_bytes<to_r, neg, to_word>, number::bounded<is_signed, from_r, size, from_word>>::operator ()
-    (const number::bounded<is_signed, from_r, size, from_word> &x) const {
-        return number::Z_bytes<to_r, neg, to_word> (x);
-    }
-
-    template <endian to_r, Word to_word, bool is_signed, endian from_r, size_t size, Word from_word>
-    number::N_bytes<to_r, to_word> inline
-    convert<number::N_bytes<to_r, to_word>, number::bounded<is_signed, from_r, size, from_word>>::operator ()
-    (const number::bounded<is_signed, from_r, size, from_word> &x) const {
-        return number::N_bytes<to_r, to_word> (x);
-    }
-}
-
-namespace data::encoding::hexidecimal {
-
-    template <endian::order r, Word word, size_t x>
-    std::ostream &write (std::ostream &o, const oriented<r, word, x> &z, hex_case q) {
-        o << "0x";
-        return encoding::hex::write (o, z.words ().reverse (), q);
-    }
-
-    template <hex_case cx, endian::order r, Word word, size_t x>
-    string<cx> write (const oriented<r, word, x> &z) {
-        std::stringstream ss;
-        write (ss, z, cx);
-        return string<cx> {ss.str ()};
+    constexpr ubound<r, x, word> inline times_mod<nbound<a, r, x, word>, nbound<b, r, x, word>, ubound<r, x, word>>::operator () (
+        const nbound<a, r, x, word> &m,
+        const nbound<b, r, x, word> &n,
+        const nonzero<ubound<r, x, word>> &q) {
+        return ubound<r, x, word> (binary_accumulate_times_mod (
+            nbound<a, r, x + 1, word> (m),
+            nbound<b, r, x + 1, word> (n),
+            nonzero {ubound<r, x + 1, word> (q.Value)}));
     }
 
 }

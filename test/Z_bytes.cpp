@@ -10,8 +10,15 @@
 namespace data {
 
     TEST (ZBytes, Construct) {
+
+        auto zb0 = Z_bytes_big {byte (0)};
+
+        EXPECT_EQ (zb0.size (), 0);
+        EXPECT_EQ (minimal_size (zb0), 0);
+
         // positive numbers
-        EXPECT_EQ ((bytes (Z_bytes_big {byte (0)})), (bytes {}));
+        EXPECT_EQ ((bytes (zb0)), (bytes {}));
+
         EXPECT_EQ ((bytes (Z_bytes_big {int8 (0)})), (bytes {}));
         EXPECT_EQ ((bytes (Z_bytes_big {int64 (0)})), (bytes {}));
         EXPECT_EQ ((bytes (Z_bytes_big {uint64 (0)})), (bytes {}));

@@ -73,7 +73,7 @@ namespace data::math::number::euclidian {
         
         // we know that a >= b
         constexpr static extended run (const N &a, const N &b) {
-            return loop (sequence {{0, a}, Z {1}, Z {0}}, sequence {{0, b}, Z {0}, Z {1}});
+            return loop (sequence {{0u, a}, Z {1}, Z {0u}}, sequence {{0u, b}, Z {0u}, Z {1u}});
         }
         
     public:

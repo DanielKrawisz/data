@@ -208,6 +208,18 @@ namespace data {
         stack<Z_bytes_little> {1};
         stack<Z_bytes_little> (1);
         stack<Z_bytes_little> {1, 2};
+
+        stack<Z> {};
+        stack<Z> ();
+        stack<Z> {1};
+        stack<Z> (1);
+        stack<Z> {1, 2};
+
+        stack<int128> {};
+        stack<int128> ();
+        stack<int128> {1};
+        stack<int128> (1);
+        stack<int128> {1, 2};
     }
 
     // test that equality operations are defined for different kinds of stacks.

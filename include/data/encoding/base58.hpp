@@ -15,7 +15,7 @@
 #include <data/arithmetic.hpp>
 #include <data/string.hpp>
 
-#include <data/math/number/types.hpp>
+#include <data/math/number/numbers.hpp>
 
 // base 58 is a format for writing natural numbers using
 // 58 digits that are easily distinguished by the human

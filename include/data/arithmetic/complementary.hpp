@@ -15,14 +15,6 @@ namespace data::arithmetic {
     // provide a zero of a given size.
     template <endian r, std::integral word> bytestring<word> zero (size_t new_size);
 
-    template <endian r, negativity c, std::integral word> bool is_zero (slice<const word>);
-
-    template <endian r, negativity c, std::integral word> bool sign_bit (slice<const word>);
-
-    template <endian r, negativity c, std::integral word> size_t minimal_size (slice<const word>);
-
-    template <endian r, negativity c, std::integral word> bool is_minimal (slice<const word>);
-
     template <endian r, negativity c, std::integral word>
     bytestring<word> &extend (bytestring<word> &, size_t new_size);
 
@@ -382,30 +374,8 @@ namespace data::arithmetic {
         return Words<r, word> {slice<word> {const_cast<word *> (z.data ()), z.size ()}};
     }
 
-    template <endian r, negativity c, std::integral word> size_t inline minimal_size (slice<const word> x) {
-        return minimal_size<c> (words<r> (x));
-    }
-
-    template <endian r, negativity c, std::integral word> bool inline is_minimal (slice<const word> x) {
-        return minimal_size<r, c> (x) == x.size ();
-    }
-
     template <endian r, std::integral word> bytestring<word> inline zero (size_t size) {
         return bytestring<word> (size, 0);
-    }
-
-    template <endian r, negativity c, std::integral word>
-    bool inline is_zero (slice<const word> x) {
-        if constexpr (c == negativity::BC) {
-            return arithmetic::BC::is_zero (words<r> (x));
-        } else {
-            return arithmetic::is_zero (words<r> (x));
-        }
-    }
-
-    template <endian r, negativity c, std::integral word> bool inline sign_bit (slice<const word> x) {
-        if constexpr (c == negativity::nones) return false;
-        else return arithmetic::sign_bit (words<r> (x));
     }
 
     template <endian r, negativity c, std::integral word>
@@ -479,6 +449,7 @@ namespace data::arithmetic::nones {
         auto i = w.begin ();
         //auto remainder = arithmetic::plus<word> (w.end (), o, 1, i);
         bool remainder = arithmetic::add_with_carry<word> (w.end (), o, i, 1);
+
         if (remainder) {
             x = extend<r, negativity::nones> (x, size (w) + 1);
             words<r> (x)[-1] = remainder;
@@ -492,7 +463,7 @@ namespace data::arithmetic::nones {
         auto w = words<r> (x);
         auto xx = w.begin ();
         auto xy = w.begin ();
-        if (!is_zero (w)) arithmetic::subtract_with_carry<word> (w.end (), xx, xy, 1);
+        if (!is_zero<negativity::nones> (w)) arithmetic::subtract_with_carry<word> (w.end (), xx, xy, 1);
         return x;
     }
 
@@ -566,7 +537,8 @@ namespace data::arithmetic::twos {
     bytestring<word> &decrement (bytestring<word> &x) {
 
         auto w = words<r> (x);
-        if (is_zero (w)) return x = bytestring<word> (1, std::numeric_limits<word>::max ());
+        if (is_zero<negativity::twos> (w))
+            return x = bytestring<word> (1, std::numeric_limits<word>::max ());
 
         extend<r, negativity::twos> (x, size (w) + 1);
 
@@ -623,13 +595,14 @@ namespace data::arithmetic::BC {
         auto w = words<r> (x);
 
         // zero can be empty, so we handle this case separately.
-        if (BC::is_zero (w)) {
+        if (is_zero<negativity::BC> (w)) {
             x = zero<r, word> (1);
             words<r> (x)[1] = 1;
             return x;
         }
 
-        if (sign_bit (w)) return negate<r> (decrement<r> (negate<r> (x)));
+        if (sign_bit (w))
+            return negate<r> (decrement<r> (negate<r> (x)));
 
         auto oit = w.begin ();
         auto iit = w.begin ();
@@ -654,11 +627,10 @@ namespace data::arithmetic::BC {
     template <endian r, std::integral word>
     bytestring<word> &decrement (bytestring<word> &x) {
         auto w = words<r> (x);
-        if (BC::is_zero (w)) return negate<r> (increment<r> (x = zero<r, word> (0)));
-
-        if (arithmetic::sign_bit (w))
+        if (is_zero<negativity::BC> (w))
+            return negate<r> (increment<r> (x = zero<r, word> (0)));
+        if (sign_bit (w))
             return negate<r> (increment<r> (negate<r> (x)));
-
         auto xx = w.begin ();
         auto xy = w.begin ();
         arithmetic::subtract_with_carry<word> (w.end (), xx, xy, 1);

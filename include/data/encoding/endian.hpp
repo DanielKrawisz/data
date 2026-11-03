@@ -48,9 +48,9 @@ namespace data::encoding::endian {
         }
     };
     
-    template <bool is_signed, std::size_t bytes> struct native_representation;
+    template <bool is_signed, size_t bytes> struct native_representation;
     
-    template <bool is_signed, std::size_t bytes> using to_native = native_representation<is_signed, bytes>::type;
+    template <bool is_signed, size_t bytes> using to_native = native_representation<is_signed, bytes>::type;
     
     template <> struct native_representation<true, 1> {
         using type = int_least8_t;
@@ -127,18 +127,22 @@ namespace data {
 
     template <bool is_signed, endian r, size_t size>
     using endian_integral = encoding::endian::integral<is_signed, r, size>;
+
+    using boost::endian::endian_arithmetic;
+    using alignment = boost::endian::align;
+
 }
 
 namespace boost::endian {
 
     template <data::endian Order, class T, std::size_t n_bits, align Align>
-    data::writer<data::byte> inline &operator << (data::writer<data::byte> &w, endian::endian_arithmetic<Order, T, n_bits, Align> x) {
+    data::writer<data::byte> inline &operator << (data::writer<data::byte> &w, endian_arithmetic<Order, T, n_bits, Align> x) {
         w.write (x.data (), n_bits / 8);
         return w;
     }
 
     template <data::endian Order, class T, std::size_t n_bits, align Align>
-    data::reader<data::byte> inline &operator >> (data::reader<data::byte> &r, endian::endian_arithmetic<Order, T, n_bits, Align> &x) {
+    data::reader<data::byte> inline &operator >> (data::reader<data::byte> &r, endian_arithmetic<Order, T, n_bits, Align> &x) {
         r.read (x.data (), n_bits / 8);
         return r;
     }
@@ -150,9 +154,9 @@ namespace boost::endian {
 
 namespace data::meta {
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct size<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr size_t operator () (boost::endian::endian_arithmetic<Order, T, n_bits, Align>) {
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct size<endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr size_t operator () (endian_arithmetic<Order, T, n_bits, Align>) {
             return n_bits / 8;
         }
     };
@@ -160,43 +164,43 @@ namespace data::meta {
 
 namespace data::math::number {
 
-    template <endian Order, std::unsigned_integral T, std::size_t n_bits, boost::endian::align Align>
-    struct increment<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr nonzero<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> operator () (
-            const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &x) const {
-            return nonzero<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
+    template <endian Order, std::unsigned_integral T, size_t n_bits, alignment Align>
+    struct increment<endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr nonzero<endian_arithmetic<Order, T, n_bits, Align>> operator () (
+            const endian_arithmetic<Order, T, n_bits, Align> &x) const {
+            return nonzero<endian_arithmetic<Order, T, n_bits, Align>> {
                 static_cast<T> (x.value () + 1)
             };
         }
     };
 
-    template <endian Order, std::unsigned_integral T, std::size_t n_bits, boost::endian::align Align>
-    struct decrement<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (
-            const nonzero<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> &x) const {
+    template <endian Order, std::unsigned_integral T, size_t n_bits, alignment Align>
+    struct decrement<endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr endian_arithmetic<Order, T, n_bits, Align> operator () (
+            const nonzero<endian_arithmetic<Order, T, n_bits, Align>> &x) const {
             return x.Value.value () - 1;
         }
 
-        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (
-            const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &x) const {
+        constexpr endian_arithmetic<Order, T, n_bits, Align> operator () (
+            const endian_arithmetic<Order, T, n_bits, Align> &x) const {
             T n = x.value ();
             if (n == 0) return n;
             return n - 1;
         }
     };
 
-    template <endian Order, std::signed_integral T, std::size_t n_bits, boost::endian::align Align>
-    struct increment<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (
-            const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &z) const {
+    template <endian Order, std::signed_integral T, size_t n_bits, alignment Align>
+    struct increment<endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr endian_arithmetic<Order, T, n_bits, Align> operator () (
+            const endian_arithmetic<Order, T, n_bits, Align> &z) const {
             return z.value () + 1;
         }
     };
 
-    template <endian Order, std::signed_integral T, std::size_t n_bits, boost::endian::align Align>
-    struct decrement<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (
-            const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &z) const {
+    template <endian Order, std::signed_integral T, size_t n_bits, alignment Align>
+    struct decrement<endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr endian_arithmetic<Order, T, n_bits, Align> operator () (
+            const endian_arithmetic<Order, T, n_bits, Align> &z) const {
             return z.value () - 1;
         }
     };
@@ -204,16 +208,16 @@ namespace data::math::number {
 
 namespace data::math {
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct numeric_limits<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr static const boost::endian::endian_arithmetic<Order, T, n_bits, Align> Max {std::numeric_limits<T>::max ()};
-        constexpr static const boost::endian::endian_arithmetic<Order, T, n_bits, Align> Min {std::numeric_limits<T>::min ()};
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct numeric_limits<endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr static const endian_arithmetic<Order, T, n_bits, Align> Max {std::numeric_limits<T>::max ()};
+        constexpr static const endian_arithmetic<Order, T, n_bits, Align> Min {std::numeric_limits<T>::min ()};
 
-        constexpr static const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &max () {
+        constexpr static const endian_arithmetic<Order, T, n_bits, Align> &max () {
             return Max;
         }
 
-        constexpr static const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &min () {
+        constexpr static const endian_arithmetic<Order, T, n_bits, Align> &min () {
             return Min;
         }
     };
@@ -221,69 +225,69 @@ namespace data::math {
 
 namespace data::math::def {
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct abs<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (
-            const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &x) {
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct abs<endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr endian_arithmetic<Order, T, n_bits, Align> operator () (
+            const endian_arithmetic<Order, T, n_bits, Align> &x) {
             return data::abs (x.value ());
         }
     };
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct negate<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (
-            const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &x) {
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct negate<endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr endian_arithmetic<Order, T, n_bits, Align> operator () (
+            const endian_arithmetic<Order, T, n_bits, Align> &x) {
             return data::negate (x.value ());
         }
     };
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct plus<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (
-            boost::endian::endian_arithmetic<Order, T, n_bits, Align> a,
-            boost::endian::endian_arithmetic<Order, T, n_bits, Align> b) {
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct plus<endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr endian_arithmetic<Order, T, n_bits, Align> operator () (
+            endian_arithmetic<Order, T, n_bits, Align> a,
+            endian_arithmetic<Order, T, n_bits, Align> b) {
             return data::plus (a.value (), b.value ());
         }
     };
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct minus<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (
-            boost::endian::endian_arithmetic<Order, T, n_bits, Align> a,
-            boost::endian::endian_arithmetic<Order, T, n_bits, Align> b) {
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct minus<endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr endian_arithmetic<Order, T, n_bits, Align> operator () (
+            endian_arithmetic<Order, T, n_bits, Align> a,
+            endian_arithmetic<Order, T, n_bits, Align> b) {
             return data::minus (a.value (), b.value ());
         }
     };
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
+    template <endian Order, class T, size_t n_bits, alignment Align>
     struct inverse<
-        plus<boost::endian::endian_arithmetic<Order, T, n_bits, Align>>,
-        boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (
-            const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &a,
-            const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &b) {
+        plus<endian_arithmetic<Order, T, n_bits, Align>>,
+        endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr endian_arithmetic<Order, T, n_bits, Align> operator () (
+            const endian_arithmetic<Order, T, n_bits, Align> &a,
+            const endian_arithmetic<Order, T, n_bits, Align> &b) {
             return data::minus (b.value (), a.value ());
         }
     };
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct times<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (
-            const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &a,
-            const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &b) {
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct times<endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr endian_arithmetic<Order, T, n_bits, Align> operator () (
+            const endian_arithmetic<Order, T, n_bits, Align> &a,
+            const endian_arithmetic<Order, T, n_bits, Align> &b) {
             return a.value () * b.value ();
         }
 
-        constexpr nonzero<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> operator () (
-            const nonzero<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> &a,
-            const nonzero<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> &b) {
-            return nonzero<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {a.Value.value () * b.Value.value ()};
+        constexpr nonzero<endian_arithmetic<Order, T, n_bits, Align>> operator () (
+            const nonzero<endian_arithmetic<Order, T, n_bits, Align>> &a,
+            const nonzero<endian_arithmetic<Order, T, n_bits, Align>> &b) {
+            return nonzero<endian_arithmetic<Order, T, n_bits, Align>> {a.Value.value () * b.Value.value ()};
         }
     };
 
-    template <endian Order, std::unsigned_integral T, std::size_t n_bits, boost::endian::align Align>
-    struct divmod<boost::endian::endian_arithmetic<Order, T, n_bits, Align>, boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        using ue = boost::endian::endian_arithmetic<Order, T, n_bits, Align>;
+    template <endian Order, std::unsigned_integral T, size_t n_bits, alignment Align>
+    struct divmod<endian_arithmetic<Order, T, n_bits, Align>, endian_arithmetic<Order, T, n_bits, Align>> {
+        using ue = endian_arithmetic<Order, T, n_bits, Align>;
         constexpr division<ue, ue> operator () (const ue &dividend, const nonzero<ue> &divisor) {
             if (divisor.Value == 0) throw division_by_zero {};
             return {ue (dividend.value () / divisor.Value.value ()),
@@ -291,129 +295,129 @@ namespace data::math::def {
         }
     };
 
-    template <endian Order, std::signed_integral T, std::unsigned_integral U, std::size_t n_bits, boost::endian::align Align>
-    struct divmod<boost::endian::endian_arithmetic<Order, T, n_bits, Align>, boost::endian::endian_arithmetic<Order, U, n_bits, Align>> {
-        using se = boost::endian::endian_arithmetic<Order, T, n_bits, Align>;
-        using ue = boost::endian::endian_arithmetic<Order, U, n_bits, Align>;
+    template <endian Order, std::signed_integral T, std::unsigned_integral U, size_t n_bits, alignment Align>
+    struct divmod<endian_arithmetic<Order, T, n_bits, Align>, endian_arithmetic<Order, U, n_bits, Align>> {
+        using se = endian_arithmetic<Order, T, n_bits, Align>;
+        using ue = endian_arithmetic<Order, U, n_bits, Align>;
         constexpr division<ue, ue> operator () (const se &dividend, const nonzero<ue> &divisor) {
             auto d = divmod<T, U> {} (dividend.value (), nonzero<U> {divisor.Value.value ()});
             return division<ue, ue> {ue (d.Quotient), ue (d.Remainder)};
         }
     };
 
-    template <endian Order, std::signed_integral T, std::size_t n_bits, boost::endian::align Align>
-    struct divmod<boost::endian::endian_arithmetic<Order, T, n_bits, Align>, boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        using se = boost::endian::endian_arithmetic<Order, T, n_bits, Align>;
+    template <endian Order, std::signed_integral T, size_t n_bits, alignment Align>
+    struct divmod<endian_arithmetic<Order, T, n_bits, Align>, endian_arithmetic<Order, T, n_bits, Align>> {
+        using se = endian_arithmetic<Order, T, n_bits, Align>;
         constexpr division<se, se> operator () (const se &dividend, const nonzero<se> &divisor) {
             auto d = divmod<T, T> {} (dividend.value (), nonzero<T> {divisor.Value.value ()});
             return division<se, se> {se (d.Quotient), se (d.Remainder)};
         }
     };
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct mod<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct mod<endian_arithmetic<Order, T, n_bits, Align>> {
         constexpr auto operator () (
-            const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &x,
-            const nonzero<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> &n) const {
-            return boost::endian::endian_arithmetic<Order, T, n_bits, Align> (data::mod (T (x), nonzero<T> {T (n.Value)}));
+            const endian_arithmetic<Order, T, n_bits, Align> &x,
+            const nonzero<endian_arithmetic<Order, T, n_bits, Align>> &n) const {
+            return endian_arithmetic<Order, T, n_bits, Align> (data::mod (T (x), nonzero<T> {T (n.Value)}));
         }
     };
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct negate_mod<boost::endian::endian_arithmetic<Order, T, n_bits, Align>,
-        boost::endian::endian_arithmetic<Order, std::make_unsigned_t<T>, n_bits, Align>> {
-        constexpr boost::endian::endian_arithmetic<Order, std::make_unsigned_t<T>, n_bits, Align> operator () (
-            boost::endian::endian_arithmetic<Order, T, n_bits, Align> a,
-            nonzero<boost::endian::endian_arithmetic<Order, std::make_unsigned_t<T>, n_bits, Align>> n) {
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct negate_mod<endian_arithmetic<Order, T, n_bits, Align>,
+        endian_arithmetic<Order, std::make_unsigned_t<T>, n_bits, Align>> {
+        constexpr endian_arithmetic<Order, std::make_unsigned_t<T>, n_bits, Align> operator () (
+            endian_arithmetic<Order, T, n_bits, Align> a,
+            nonzero<endian_arithmetic<Order, std::make_unsigned_t<T>, n_bits, Align>> n) {
             return data::negate_mod (a.value (), nonzero {n.Value.value ()});
         }
     };
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct square_mod<boost::endian::endian_arithmetic<Order, T, n_bits, Align>,
-    boost::endian::endian_arithmetic<Order, std::make_unsigned_t<T>, n_bits, Align>> {
-        constexpr boost::endian::endian_arithmetic<Order, std::make_unsigned_t<T>, n_bits, Align> operator () (
-            boost::endian::endian_arithmetic<Order, T, n_bits, Align> a,
-            nonzero<boost::endian::endian_arithmetic<Order, std::make_unsigned_t<T>, n_bits, Align>> n) {
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct square_mod<endian_arithmetic<Order, T, n_bits, Align>,
+    endian_arithmetic<Order, std::make_unsigned_t<T>, n_bits, Align>> {
+        constexpr endian_arithmetic<Order, std::make_unsigned_t<T>, n_bits, Align> operator () (
+            endian_arithmetic<Order, T, n_bits, Align> a,
+            nonzero<endian_arithmetic<Order, std::make_unsigned_t<T>, n_bits, Align>> n) {
             return data::square_mod (a.value (), nonzero {n.Value.value ()});
         }
     };
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct square<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (
-            boost::endian::endian_arithmetic<Order, T, n_bits, Align> a) {
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct square<endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr endian_arithmetic<Order, T, n_bits, Align> operator () (
+            endian_arithmetic<Order, T, n_bits, Align> a) {
             return a * a;
         }
     };
 
-    template <endian Order, class u, class w, class v, std::size_t n_bits, boost::endian::align Align>
-    struct times_mod<boost::endian::endian_arithmetic<Order, u, n_bits, Align>,
-        boost::endian::endian_arithmetic<Order, w, n_bits, Align>,
-        boost::endian::endian_arithmetic<Order, v, n_bits, Align>> {
-        constexpr boost::endian::endian_arithmetic<Order,
+    template <endian Order, class u, class w, class v, size_t n_bits, alignment Align>
+    struct times_mod<endian_arithmetic<Order, u, n_bits, Align>,
+        endian_arithmetic<Order, w, n_bits, Align>,
+        endian_arithmetic<Order, v, n_bits, Align>> {
+        constexpr endian_arithmetic<Order,
             decltype (data::times_mod (std::declval<u> (), std::declval<w> (), std::declval<nonzero<v>> ())),
             n_bits, Align> operator () (
-            boost::endian::endian_arithmetic<Order, u, n_bits, Align> a,
-            boost::endian::endian_arithmetic<Order, w, n_bits, Align> b,
-            nonzero<boost::endian::endian_arithmetic<Order, v, n_bits, Align>> n) {
+            endian_arithmetic<Order, u, n_bits, Align> a,
+            endian_arithmetic<Order, w, n_bits, Align> b,
+            nonzero<endian_arithmetic<Order, v, n_bits, Align>> n) {
             return data::times_mod (a.value (), b.value (), nonzero {n.Value.value ()});
         }
     };
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct bit_not<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (
-            const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &x) {
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct bit_not<endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr endian_arithmetic<Order, T, n_bits, Align> operator () (
+            const endian_arithmetic<Order, T, n_bits, Align> &x) {
             return static_cast<T> (~x.value ());
         }
     };
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct bit_and<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (
-            boost::endian::endian_arithmetic<Order, T, n_bits, Align> a,
-            boost::endian::endian_arithmetic<Order, T, n_bits, Align> b) {
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct bit_and<endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr endian_arithmetic<Order, T, n_bits, Align> operator () (
+            endian_arithmetic<Order, T, n_bits, Align> a,
+            endian_arithmetic<Order, T, n_bits, Align> b) {
             return data::bit_and (a.value (), b.value ());
         }
     };
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct bit_xor<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (
-            boost::endian::endian_arithmetic<Order, T, n_bits, Align> a,
-            boost::endian::endian_arithmetic<Order, T, n_bits, Align> b) {
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct bit_xor<endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr endian_arithmetic<Order, T, n_bits, Align> operator () (
+            endian_arithmetic<Order, T, n_bits, Align> a,
+            endian_arithmetic<Order, T, n_bits, Align> b) {
             return data::bit_xor (a.value (), b.value ());
         }
     };
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct div_2_pow<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (
-            boost::endian::endian_arithmetic<Order, T, n_bits, Align> a, uint32 exp) {
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct div_2_pow<endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr endian_arithmetic<Order, T, n_bits, Align> operator () (
+            endian_arithmetic<Order, T, n_bits, Align> a, uint32 exp) {
             return data::div_2_pow (a.value (), exp);
         }
     };
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct mod_2<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (
-            boost::endian::endian_arithmetic<Order, T, n_bits, Align> a) {
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct mod_2<endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr endian_arithmetic<Order, T, n_bits, Align> operator () (
+            endian_arithmetic<Order, T, n_bits, Align> a) {
             return data::mod_2 (a.value ());
         }
     };
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct size_in_base<boost::endian::endian_arithmetic<Order, T, n_bits, Align>, 2> {
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct size_in_base<endian_arithmetic<Order, T, n_bits, Align>, 2> {
         constexpr size_t operator () (
-            boost::endian::endian_arithmetic<Order, T, n_bits, Align> a) {
+            endian_arithmetic<Order, T, n_bits, Align> a) {
             return data::bit_width (a.value ());
         }
     };
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align, std::integral B>
-    struct convert<boost::endian::endian_arithmetic<Order, T, n_bits, Align>, B> {
-        constexpr boost::endian::endian_arithmetic<Order, T, n_bits, Align> operator () (B x) {
+    template <endian Order, class T, size_t n_bits, alignment Align, std::integral B>
+    struct convert<endian_arithmetic<Order, T, n_bits, Align>, B> {
+        constexpr endian_arithmetic<Order, T, n_bits, Align> operator () (B x) {
             if constexpr (std::is_signed_v<B>) {
                 if (x < std::numeric_limits<T>::min ())
                     throw exception {} << "built-in value " << x
@@ -424,15 +428,15 @@ namespace data::math::def {
             if (x > std::numeric_limits<T>::max ())
                 throw exception {} << "too high";
 
-            return boost::endian::endian_arithmetic<Order, T, n_bits, Align> (
+            return endian_arithmetic<Order, T, n_bits, Align> (
                 static_cast<T> (x)
             );
         }
     };
 
-    template <std::integral A, endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct convert<A, boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        constexpr A operator () (boost::endian::endian_arithmetic<Order, T, n_bits, Align> y) {
+    template <std::integral A, endian Order, class T, size_t n_bits, alignment Align>
+    struct convert<A, endian_arithmetic<Order, T, n_bits, Align>> {
+        constexpr A operator () (endian_arithmetic<Order, T, n_bits, Align> y) {
             T x = T (y);
             if (x > std::numeric_limits<A>::max ()) throw exception {} << "too high";
             if constexpr (std::is_signed_v<A>) {
@@ -445,20 +449,20 @@ namespace data::math::def {
 }
 
 namespace data {
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct make_unsigned<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        using type = boost::endian::endian_arithmetic<Order, std::make_unsigned_t<T>, n_bits, Align>;
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct make_unsigned<endian_arithmetic<Order, T, n_bits, Align>> {
+        using type = endian_arithmetic<Order, std::make_unsigned_t<T>, n_bits, Align>;
     };
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct make_signed<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> {
-        using type = boost::endian::endian_arithmetic<Order, std::make_signed_t<T>, n_bits, Align>;
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct make_signed<endian_arithmetic<Order, T, n_bits, Align>> {
+        using type = endian_arithmetic<Order, std::make_signed_t<T>, n_bits, Align>;
     };
 
-    template <endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    struct twice<boost::endian::endian_arithmetic<Order, T, n_bits, Align>,
+    template <endian Order, class T, size_t n_bits, alignment Align>
+    struct twice<endian_arithmetic<Order, T, n_bits, Align>,
         std::void_t<typename encoding::int_by_size<sizeof (T) * 2>::type>> {
-        using type = boost::endian::endian_arithmetic<Order, typename encoding::int_by_size<sizeof (T) * 2>::type, n_bits * 2, Align>;
+        using type = endian_arithmetic<Order, typename encoding::int_by_size<sizeof (T) * 2>::type, n_bits * 2, Align>;
     };
 
     // big endian signed integer unaligned types

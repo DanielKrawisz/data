@@ -11,10 +11,12 @@ add_executable (
     unit_tests
     # we put these first even though they don't belong here because
     # they take such a long time so we want to get them started first.
+    numbers.cpp
+    number_theory.cpp
     modular.cpp                  # TODO: A condition is commented out.
     finite_field.cpp             # TODO: make typed test.
     exterior.cpp
-    numbers.cpp
+    rational.cpp                 # TODO: fill in more details
 
     # These tests only require data_core for the components being tested.
     # other components may be used for the tests themselves.
@@ -69,13 +71,13 @@ add_executable (
     Z_bytes.cpp
     unbounded_sequences.cpp
     float.cpp
-    NTL.cpp
+    conversions.cpp
     #numbers.cpp
     N.cpp
     Z.cpp
     bit_ops.cpp                  # TODO: Contains commented test cases
     decimal.cpp                  # TODO: need to include bounded numbers.
-    hexidecimal.cpp
+    hexidecimal.cpp              # TODO: stuff is commented out
     base58.cpp
     string_numbers.cpp
     infinite.cpp                 # TODO: should be a typed test.
@@ -85,10 +87,10 @@ add_executable (
     extended_euclidian.cpp
     Eratosthenes.cpp
     prime_factor.cpp
-    number_theory.cpp            # TODO: make typed tests
+    #number_theory.cpp
 
     # math
-    rational.cpp                 # TODO: fill in more details
+    #rational.cpp                 # TODO: fill in more details
     Caylay_Dickson.cpp           # TODO: Uncomment and expand. constexpr
     sign.cpp                     # TODO: Contains commented test cases and should be a typed test
     abs.cpp                      # TODO: should be a typed test.

@@ -68,4 +68,6 @@ namespace data {
     template <typename X> using unref = std::remove_reference_t<X>;
     template <typename X> using unconst = std::remove_const_t<X>;
 
+    using std::size_t;
+
 }

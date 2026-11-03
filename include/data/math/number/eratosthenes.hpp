@@ -70,9 +70,9 @@ namespace data::math::number {
         stack<prime<N>> Primes;
         eratosthenes<N> Eratosthenes;
 
-        prime<N> operator [] (N n) {
+        prime<N> operator [] (size_t n) {
             if (n == 0) return first ();
-            return rest ()[n - 1u];
+            return rest ()[n - 1];
         }
 
     private:
@@ -95,7 +95,7 @@ namespace data::math::number {
 
     template <Number N>
     eratosthenes<N> eratosthenes<N>::next () const {
-        return next (1);
+        return next (1u);
     }
     
     template <Number N>

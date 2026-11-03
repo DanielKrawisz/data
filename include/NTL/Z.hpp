@@ -28,6 +28,10 @@ namespace NTL {
     using data::dec_int;
     namespace hex = data::hex;
     using data::base58_uint;
+
+    using data::math::number::bounded;
+    using data::math::number::Z_bytes;
+
     using boost::endian::align;
     using boost::endian::endian_arithmetic;
 
@@ -101,19 +105,21 @@ namespace NTL {
     void conv (endian_arithmetic<Order, T, n_bits, Align> &, const ZZ &);
 
     template <endian r, negativity neg, Word word>
-    void conv (ZZ &x, const data::math::number::Z_bytes<r, neg, word> &);
+    void conv (ZZ &x, const Z_bytes<r, neg, word> &);
 
-    template <endian r, Word word>
-    void conv (ZZ &x, const data::math::number::N_bytes<r, word> &);
-
-    template <bool is_signed, endian r, size_t size, Word word>
-    void conv (ZZ &x, const data::math::number::bounded<is_signed, r, size, word> &);
+    template <endian r, negativity neg, Word word>
+    void conv (const Z_bytes<r, neg, word> &, const ZZ &x);
 
     template <bool is_signed, endian r, size_t size, Word word>
-    void conv (data::math::number::bounded<is_signed, r, size, word> &, const ZZ &);
+    void conv (ZZ &x, const bounded<is_signed, r, size, word> &);
+
+    template <bool is_signed, endian r, size_t size, Word word>
+    void conv (bounded<is_signed, r, size, word> &, const ZZ &);
 
     ZZ pow_mod (const ZZ &base, const ZZ &exp, const ZZ &mod);
 
+    // the complement two's bit width of a ZZ
+    // NTL has NumBits which only works for positive numbers.
     size_t inline bit_width (const ZZ &x) {
         if (sign (x) >= 0) return NumBits (x) + 1;
         return NumBits (abs (x) - 1) + 1;
@@ -128,20 +134,12 @@ namespace NTL {
     }
 
     template <endian r, negativity neg, Word word>
-    void inline conv (ZZ &x, const data::math::number::Z_bytes<r, neg, word> &u) {
+    void inline conv (ZZ &x, const Z_bytes<r, neg, word> &u) {
         x = import_bin<word> (slice<const word> (u), r, endian::native, neg);
     }
 
-    template <endian r, Word word>
-    void inline conv (ZZ &x, const data::math::number::N_bytes<r, word> &u) {
-        x = import_bin<word> (
-            slice<const word> (u), r,
-            endian::native,
-            negativity::nones);
-    }
-
     template <bool is_signed, endian r, size_t size, Word word>
-    void inline conv (ZZ &x, const data::math::number::bounded<is_signed, r, size, word> &u) {
+    void inline conv (ZZ &x, const bounded<is_signed, r, size, word> &u) {
         x = import_bin<word> (
             slice<const word> (u), r, endian::native,
             is_signed ? negativity::twos : negativity::nones);
@@ -188,7 +186,7 @@ namespace NTL {
     }
 
     template <bool is_signed, endian r, size_t size, Word word>
-    void inline conv (data::math::number::bounded<is_signed, r, size, word> &x, const ZZ &u) {
+    void inline conv (bounded<is_signed, r, size, word> &x, const ZZ &u) {
         export_bin<word> (slice<word> (x), u, r, endian::native,
             is_signed ? negativity::twos : negativity::nones);
     }
@@ -207,6 +205,33 @@ namespace NTL {
         export_bin<data::byte> (slice<data::byte> (x), u, Order,
             endian::native, // this value doesn't matter since we're using bytes
             std::signed_integral<T> ? negativity::twos : negativity::nones);
+    }
+
+    bool is_minimum_negative_twos (const ZZ &);
+
+    template <endian r, negativity neg, Word word>
+    void conv (Z_bytes<r, neg, word> &result, const ZZ &x) {
+        constexpr size_t word_bits = sizeof (word) * CHAR_BIT;
+
+        size_t result_size;
+
+        if (x == 0) result_size = 0;
+        else {
+
+            auto bw = NTL::bit_width (x);
+
+            if constexpr (neg == negativity::nones) {
+                if (x < 0) throw data::exception {} << "cannot convert negative to unsigned";
+                --bw;
+            } else if constexpr (neg == negativity::BC) {
+                if (bw == NTL::NumBits (NTL::abs (x))) ++bw;
+            }
+
+            result_size = (bw + word_bits - 1) / word_bits;
+        }
+
+        result.resize (result_size);
+        NTL::export_bin<word> (slice<word> (result), x, r, endian::native, neg);
     }
 
     // TODO put this function in arithmetic.
@@ -335,9 +360,9 @@ namespace NTL {
         if (neg == negativity::nones && sign < 0)
             throw data::exception {} << "negative value";
 
-        constexpr size_t bits = sizeof (U) * 8;
+        constexpr size_t word_bits = sizeof (U) * CHAR_BIT;
 
-        const size_t capacity = output.size () * bits;
+        const size_t capacity = output.size () * word_bits;
 
         // Determine that the minimal size is enough given the buffer.
         size_t required = sign == 0 ? 0:

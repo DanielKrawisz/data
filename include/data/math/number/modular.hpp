@@ -5,7 +5,7 @@
 #pragma once
 
 #include <data/types.hpp>
-#include <data/integral.hpp>
+#include <data/arithmetic.hpp>
 #include <data/math/algebra.hpp>
 #include <data/math/number/extended_euclidian.hpp>
 

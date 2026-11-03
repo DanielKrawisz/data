@@ -66,7 +66,7 @@ namespace data {
     }
 
     template<endian r>
-    N N_Bytes_to_N_stupid (const math::number::N_bytes<r, byte> &n) {
+    N N_Bytes_to_N_stupid (const math::N_bytes<r, byte> &n) {
         N x {0};
         for (const byte &b : n.words ().reverse ()) {
             x <<= 8;

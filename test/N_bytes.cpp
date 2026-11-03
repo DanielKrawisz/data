@@ -7,7 +7,7 @@
 
 #include <gtest/gtest.h>
 
-namespace data::math::number {
+namespace data::math {
 
     TEST (NBytes, StringToNBytes) {
 

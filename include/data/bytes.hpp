@@ -13,23 +13,23 @@
 
 namespace data {
 
-    template <std::integral word> struct bytestring;
+    template <Word word> struct bytestring;
 
     using bytes = bytestring<byte>;
 
-    template <std::integral word>
+    template <Word word>
     std::ostream &operator << (std::ostream &o, const bytestring<byte> &s);
 
-    template <std::integral word>
+    template <Word word>
     bytestring<word> operator ~ (const bytestring<word> &b);
 
-    template <std::integral word>
+    template <Word word>
     bytestring<word> operator << (const bytestring<word> &b, int32 i);
 
-    template <std::integral word>
+    template <Word word>
     bytestring<word> operator >> (const bytestring<word> &b, int32 i);
 
-    template <std::integral word>
+    template <Word word>
     struct bytestring : public cross<word> {
         using cross<word>::cross;
         bytestring (slice<const word> v);
@@ -50,7 +50,7 @@ namespace data {
 
     template <endian r, typename word, size_t ... sizes> struct oriented;
 
-    template <endian r, std::unsigned_integral word>
+    template <endian r, Word word>
     struct oriented<r, word> : public bytestring<word> {
         using bytestring<word>::bytestring;
 
@@ -66,7 +66,7 @@ namespace data {
     };
 
     // all constructors constexpr
-    template <endian r, std::unsigned_integral word, size_t size>
+    template <endian r, Word word, size_t size>
     struct oriented<r, word, size> : public bytes_array<word, size> {
         using bytes_array<word, size>::bytes_array;
         constexpr oriented (const bytes_array<word, size> &x) : bytes_array<word, size> {x} {}
@@ -82,47 +82,47 @@ namespace data {
         }
     };
 
-    template <std::integral word>
+    template <Word word>
     inline bytestring<word>::bytestring (slice<const word> v) : cross<word> (v.size ()) {
         std::copy (v.begin (), v.end (), this->begin ());
     }
 
-    template <std::integral word>
+    template <Word word>
     inline bytestring<word>::operator slice<const word> () const {
         return slice<const word> {this->data (), this->size ()};
     }
 
-    template <std::integral word>
+    template <Word word>
     inline bytestring<word>::operator slice<word> () {
         return {this->data (), this->size ()};
     }
 
-    template <std::integral word>
+    template <Word word>
     bytestring<word> inline &bytestring<word>::bit_negate () {
         arithmetic::bit_negate<word> (this->begin (), this->end (), this->begin ());
         return *this;
     }
 
-    template <std::integral word>
+    template <Word word>
     writer<word> inline &operator << (writer<word> &w, const bytestring<word> &x) {
         w.write (x.data (), x.size ());
         return w;
     }
 
-    template <std::integral word>
+    template <Word word>
     reader<word> inline &operator >> (reader<word> &r, bytestring<word> &x) {
         r.read (x.data (), x.size ());
         return r;
     }
 
-    template <std::unsigned_integral word>
+    template <Word word>
     bytestring<word> operator ~ (const bytestring<word> &b) {
         bytestring n (b);
         n.bit_negate ();
         return n;
     }
 
-    template <std::integral word>
+    template <Word word>
     bytestring<word> operator << (const bytestring<word> &b, int32 i) {
         bytestring n (b);
         if (i < 0) n.bit_shift_right (-i);
@@ -130,7 +130,7 @@ namespace data {
         return n;
     }
 
-    template <std::integral word>
+    template <Word word>
     bytestring<word> operator >> (const bytestring<word> &b, int32 i) {
         bytestring n (b);
         if (i < 0) n.bit_shift_left (-i);
@@ -138,31 +138,19 @@ namespace data {
         return n;
     }
 
-    template <std::integral word>
+    template <Word word>
     void inline bytestring<word>::bit_shift_left (uint32 x, bool fill) {
         arithmetic::Words<endian::big, word> (slice<word> (*this)).bit_shift_left (x, fill);
     }
 
-    template <std::integral word>
+    template <Word word>
     void inline bytestring<word>::bit_shift_right (uint32 x, bool fill) {
         arithmetic::Words<endian::big, word> (slice<word> (*this)).bit_shift_right (x, fill);
     }
 
-    template <std::integral word>
+    template <Word word>
     std::ostream inline &operator << (std::ostream &o, const bytestring<word> &s) {
         return o << "\"" << encoding::hex::write (slice<const word> (s)) << "\"";
     }
 
-}
-
-namespace data::encoding::hex {
-
-    template <std::integral word> string::operator bytestring<word> () const {
-        if (!this->valid ()) throw invalid {} << ": " << *this;
-        if ((this->size () / 2) % sizeof (word) != 0)
-            throw invalid {} << ": invalid hex string size " << this->size () << " for word size " << sizeof (word);
-        bytestring<word> z (this->size () / (sizeof (word) * 2));
-        decode (this->begin (), this->end (), z.data ());
-        return z;
-    }
 }
