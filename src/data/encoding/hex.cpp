@@ -58,4 +58,14 @@ namespace data::encoding::hex {
         write_hex (output, byte_slice {(byte*) (&x), sizeof (byte)}, q);
         return output;
     }
+
+    string::operator bytes () const {
+        if (!this->valid ()) throw invalid {} << ": " << *this;
+        if (this->size () % 2 != 0)
+            throw invalid {} << ": invalid hex string size " << this->size ();
+
+        bytes z (this->size () / 2);
+        decode (this->begin (), this->end (), z.data ());
+        return z;
+    }
 }

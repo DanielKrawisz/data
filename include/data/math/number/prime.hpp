@@ -58,7 +58,7 @@ namespace data::math::number {
             return Likelihood != impossible;
         }
 
-        prime () : nonzero<N> {0}, Likelihood {impossible} {}
+        prime () : nonzero<N> {0u}, Likelihood {impossible} {}
 
         operator bool () const {
             return valid ();

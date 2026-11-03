@@ -115,8 +115,15 @@ namespace data {
         return i < 0 ? bit_shift_right (x, static_cast<uint32> (-i)) : bit_shift_left (x, static_cast<uint32> (i));
     }
 
-    // count digits in a number.
-    template <typename A> constexpr size_t bit_width (const A &);
+    // count digits in a number. For unsigned types, this works the
+    // same as std::bit_width. For signed types, we also count a
+    // sign bit. For positive numbers, the result is always +1 what
+    // you would get from std::bit_width. For negative numbers, the
+    // result is different depending on whether the number is two's
+    // complement or sign-and-magnetude. For sign-and-magnetude,
+    // the result is equal to bit_width (-x), whereas for two's
+    // complement, it's equal to bit_width (~x).
+    template <typename A> constexpr size_t bit_width (const A &x);
 
     // get the ith base 2 digit of a number.
     template <typename A> constexpr bool digit (const A &, int32 i);
@@ -703,7 +710,7 @@ namespace data {
 namespace data::math {
 
     // convert from one number type to another.
-    template <typename A, typename B> A convert (const B &);
+    template <typename A, typename B> constexpr A convert (const B &);
 
     // we extend std::numeric_limits for more types of numbers.
     template <typename X> struct numeric_limits;
@@ -824,19 +831,19 @@ namespace data::math::def {
 
 namespace data {
 
-    template <typename A> constexpr size_t inline size_in_base_2 (const A &x) {
+    template <typename A> constexpr size_t size_in_base_2 (const A &x) {
         return math::def::size_in_base<A, 2> {} (x);
     }
 
-    template <typename A> constexpr auto inline square (const A &x) {
+    template <typename A> constexpr auto square (const A &x) {
         return math::def::square<A> {} (x);
     }
 
-    template <typename A> constexpr auto inline mul_2_pow (const A &x, uint32 u) {
+    template <typename A> constexpr auto mul_2_pow (const A &x, uint32 u) {
         return math::def::mul_2_pow<A> {} (x, u);
     }
 
-    template <typename A> constexpr auto inline div_2_pow (const A &x, uint32 u) {
+    template <typename A> constexpr auto div_2_pow (const A &x, uint32 u) {
         return math::def::div_2_pow<A> {} (x, u);
     }
 
@@ -876,16 +883,16 @@ namespace data {
         return math::def::mod_2<A> {} (x);
     }
 
-    template <typename A> constexpr bool inline digit (const A &x, int32 i) {
+    template <typename A> constexpr bool digit (const A &x, int32 i) {
         return math::def::digit<A> {} (x, i);
     }
 
-    template <typename A, typename B, typename ...C> constexpr auto inline plus (const A &x, const B &y, C &&...z) {
+    template <typename A, typename B, typename ...C> constexpr auto plus (const A &x, const B &y, C &&...z) {
         if constexpr (sizeof... (C) == 0) return math::def::plus<A, B> {} (x, y);
         else return plus (math::def::plus<A, B> {} (x, y), std::forward<C> (z)...);
     }
 
-    template <typename A, typename B> constexpr auto inline minus (const A &x, const B &y) {
+    template <typename A, typename B> constexpr auto minus (const A &x, const B &y) {
         return math::def::minus<A, B> {} (x, y);
     }
 
@@ -893,11 +900,11 @@ namespace data {
         return math::def::bit_not<A> {} (x);
     }
 
-    template <typename A, typename B> constexpr auto inline bit_and (const A &x, const B &y) {
+    template <typename A, typename B> constexpr auto bit_and (const A &x, const B &y) {
         return math::def::bit_and<A, B> {} (x, y);
     }
 
-    template <typename A, typename B> constexpr auto inline bit_or (const A &x, const B &y) {
+    template <typename A, typename B> constexpr auto bit_or (const A &x, const B &y) {
         return math::def::bit_or<A, B> {} (x, y);
     }
 
@@ -913,21 +920,21 @@ namespace data {
         return math::def::bit_nor<A, B> {} (x, y);
     }
 
-    template <typename A> constexpr A inline bit_shift_right (const A &x, uint32 i) {
+    template <typename A> constexpr A bit_shift_right (const A &x, uint32 i) {
         return math::def::bit_shift_right<A> {} (x, i);
     }
 
-    template <typename A> constexpr A inline bit_shift_left (const A &x, uint32 i) {
+    template <typename A> constexpr A bit_shift_left (const A &x, uint32 i) {
         return math::def::bit_shift_left<A> {} (x, i);
     }
 
-    template <typename A, typename B, typename ...C> constexpr auto inline times (const A &x, const B &y, C &&...z) {
+    template <typename A, typename B, typename ...C> constexpr auto times (const A &x, const B &y, C &&...z) {
         auto r = math::def::times<A, B> {} (x, y);
         if constexpr (sizeof... (C) == 0) return r;
         else return times (r, std::forward<C> (z)...);
     }
 
-    template <typename A, typename B, typename ...C> constexpr auto inline GCD (const A &x, const B &y, C &&...z) {
+    template <typename A, typename B, typename ...C> constexpr auto GCD (const A &x, const B &y, C &&...z) {
         using negate_type = decltype (negate (x));
         using abs_type = decltype (abs (x));
         auto gcd = math::def::GCD<abs_type, negate_type> {} (abs (x), abs (y));
@@ -955,19 +962,19 @@ namespace data {
         return math::def::negate_mod<A, Mod> {} (x, n);
     }
 
-    template <typename A, typename B, typename Mod> constexpr auto inline plus_mod (const A &x, const B &y, const math::nonzero<Mod> &n) {
+    template <typename A, typename B, typename Mod> constexpr auto plus_mod (const A &x, const B &y, const math::nonzero<Mod> &n) {
         return math::def::plus_mod<A, B, Mod> {} (x, y, n);
     }
 
-    template <typename A, typename B, typename Mod> constexpr auto inline minus_mod (const A &x, const B &y, const math::nonzero<Mod> &n) {
+    template <typename A, typename B, typename Mod> constexpr auto minus_mod (const A &x, const B &y, const math::nonzero<Mod> &n) {
         return math::def::minus_mod<A, B, Mod> {} (x, y, n);
     }
 
-    template <typename A, typename Exp, typename Mod> constexpr auto inline times_mod (const A &x, const Exp &y, const math::nonzero<Mod> &n) {
+    template <typename A, typename Exp, typename Mod> constexpr auto times_mod (const A &x, const Exp &y, const math::nonzero<Mod> &n) {
         return math::def::times_mod<A, Exp, Mod> {} (x, y, n);
     }
 
-    template <typename A, typename Exp, typename Mod> constexpr auto inline pow_mod (const A &x, const Exp &y, const math::nonzero<Mod> &n) {
+    template <typename A, typename Exp, typename Mod> constexpr auto pow_mod (const A &x, const Exp &y, const math::nonzero<Mod> &n) {
         return math::def::pow_mod<A, Exp, Mod> {} (x, y, n);
     }
 
@@ -975,47 +982,47 @@ namespace data {
         return math::def::invert_mod<A, Mod> {} (x, n);
     }
 
-    template <typename A, typename Mod> constexpr auto inline mul_2_mod (const A &x, const math::nonzero<Mod> &z) {
+    template <typename A, typename Mod> constexpr auto mul_2_mod (const A &x, const math::nonzero<Mod> &z) {
         return math::def::mul_2_mod<A, Mod> {} (x, z);
     }
 
-    template <typename A, typename Mod> constexpr auto inline square_mod (const A &x, const math::nonzero<Mod> &z) {
+    template <typename A, typename Mod> constexpr auto square_mod (const A &x, const math::nonzero<Mod> &z) {
         return math::def::square_mod<A, Mod> {} (x, z);
     }
 }
 
 namespace data::math {
     // for numbers with bit operations, we can define mul_2 and div_2 in terms of shifts
-    template <proto_number A> constexpr A inline bit_mul_2_pow (const A &x, uint32 exp) {
+    template <proto_number A> constexpr A bit_mul_2_pow (const A &x, uint32 exp) {
         return x << exp;
     }
 
     // In some cases, shift and multiplication by powers of 2 are defined to be equal.
     // they are also equal when we say that modulos are always positive.
-    template <proto_number A> constexpr A inline bit_div_2_pow (const A &x, uint32 exp) {
+    template <proto_number A> constexpr A bit_div_2_pow (const A &x, uint32 exp) {
         return x >> exp;
     }
 
     // for built in signed numbers, -1 / 2 -> 0.
-    template <proto_number A> constexpr A inline bit_div_2_pow_signed (const A &x, uint32 exp) {
+    template <proto_number A> constexpr A bit_div_2_pow_signed (const A &x, uint32 exp) {
         if (x < 0) return -(-x >> exp);
         return x >> exp;
     }
 
-    template <proto_bit_unsigned A> constexpr A inline bit_mod_2 (const A &x) {
+    template <proto_bit_unsigned A> constexpr A bit_mod_2 (const A &x) {
         return x & 1u;
     }
 
-    template <proto_bit_number A> constexpr A inline bit_mod_2_positive_mod (const A &x) {
+    template <proto_bit_number A> constexpr A bit_mod_2_positive_mod (const A &x) {
         return abs (x) & 1u;
     }
 
-    template <proto_bit_number A> constexpr A inline bit_mod_2_negative_mod (const A &x) {
+    template <proto_bit_number A> constexpr A bit_mod_2_negative_mod (const A &x) {
         auto m = abs (x) & 1;
         return is_negative (x) ? -m : m;
     }
 
-    template <typename A, typename B> A inline convert (const B &x) {
+    template <typename A, typename B> constexpr A convert (const B &x) {
         return def::convert<A, B> {} (x);
     }
 }
@@ -1137,8 +1144,22 @@ namespace data::math::def {
 
     template <std::integral A, std::integral B> struct convert<A, B> {
         constexpr A operator () (B x) {
-            if (x > numeric_limits<A>::max ()) throw exception {} << "too high";
-            if (x < numeric_limits<A>::min ()) throw exception {} << "built-in value " << x << " too low to be converted to built-in type with minimum " << numeric_limits<A>::min ();
+
+            // We cannot put these together into one case because if A is unsigned,
+            // then x < numeric_limits<A>::min () will convert x to unsigned before
+            // evaluation.
+            if constexpr (std::unsigned_integral<A> && std::signed_integral<B>) {
+                if (x < 0) throw exception {} << "convert negative value " << x << " to unsigned";
+            } if constexpr (std::signed_integral<A> && std::signed_integral<B>) {
+                if (x < numeric_limits<A>::min ()) throw exception {} << "value " << x << " is too low for an integral type of size " << sizeof (A);
+            }
+
+            // we now know that x is not too low, which means that if A is unsigned,
+            // then it is not negative. Thus, it is ok to convert it to unsigned
+            // in this expression. Conversely, max is also not negative, so it too
+            // can be converted to unsigned.
+            if (x > numeric_limits<A>::max ()) throw exception {} << "value " << x << " is too high for an integral type of size " << sizeof (A);
+
             return static_cast<A> (x);
         }
     };
@@ -1262,7 +1283,7 @@ namespace data::math::def {
 
     template <WholeNumber X> struct denominator<X> {
         constexpr auto operator () (const X &a) const {
-            return 1;
+            return 1u;
         }
     };
 
@@ -1274,7 +1295,7 @@ namespace data::math::def {
 
     template <WholeNumber X> struct frac<X> {
         constexpr auto operator () (const X &a) const {
-            return 0;
+            return 0u;
         }
     };
 }

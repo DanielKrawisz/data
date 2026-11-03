@@ -86,22 +86,22 @@ namespace data {
         using val = typename TestFixture::value;
         using inf = math::unsigned_limit<val>;
 
-        EXPECT_TRUE (inf::infinity () > inf {0});
-        EXPECT_TRUE (inf::infinity () > val {0});
+        EXPECT_TRUE (inf::infinity () > inf {0u});
+        EXPECT_TRUE (inf::infinity () > val {0u});
 
-        EXPECT_FALSE (inf::infinity () < inf {0});
-        EXPECT_FALSE (inf::infinity () < val {0});
+        EXPECT_FALSE (inf::infinity () < inf {0u});
+        EXPECT_FALSE (inf::infinity () < val {0u});
 
-        EXPECT_TRUE (inf {0} < inf::infinity ());
-        EXPECT_TRUE (val {0} < inf::infinity ());
+        EXPECT_TRUE (inf {0u} < inf::infinity ());
+        EXPECT_TRUE (val {0u} < inf::infinity ());
 
-        EXPECT_FALSE (inf {0} > inf::infinity ());
-        EXPECT_FALSE (val {0} > inf::infinity ());
+        EXPECT_FALSE (inf {0u} > inf::infinity ());
+        EXPECT_FALSE (val {0u} > inf::infinity ());
 
         EXPECT_EQ (inf::infinity (), inf::infinity ());
-        EXPECT_NE (inf::infinity (), inf {0});
-        EXPECT_NE (inf::infinity (), val {0});
-        EXPECT_EQ (inf {0}, val {0});
+        EXPECT_NE (inf::infinity (), inf {0u});
+        EXPECT_NE (inf::infinity (), val {0u});
+        EXPECT_EQ (inf {0u}, val {0u});
     }
 
 }

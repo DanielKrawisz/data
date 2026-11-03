@@ -28,8 +28,18 @@ namespace data::math::number {
             }
         };
 
-        list<test_case> test_cases {{1, {}}, {2, {{2, 1}}}, {4, {{2, 2}}}, {3, {{3, 1}}}, {5, {{5, 1}}},
-            {6, {{2, 1}, {3, 1}}}, {7, {{7, 1}}}, {9, {{3, 2}}}, {273, {{3, 1}, {7, 1}, {13, 1}}}};
+        list<test_case> test_cases {
+            {1u, {}},
+            {2u, {{2u, 1u}}},
+            {4u, {{2u, 2u}}},
+            {3u, {{3u, 1u}}},
+            {5u, {{5u, 1u}}},
+            {6u, {{2u, 1u},
+            {3u, 1u}}},
+            {7u, {{7u, 1u}}},
+            {9u, {{3u, 2u}}},
+            {273u, {{3u, 1u},
+            {7u, 1u}, {13u, 1u}}}};
 
         eratosthenes<N> e;
         for (const test_case &tc : test_cases) {

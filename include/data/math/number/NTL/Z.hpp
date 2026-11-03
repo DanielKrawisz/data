@@ -18,8 +18,8 @@ namespace data::math::number {
 
         template <std::integral I> Z (I u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
-        template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-        Z (boost::endian::endian_arithmetic<Order, T, n_bits, Align> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
+        template <data::endian Order, class T, std::size_t n_bits, alignment Align>
+        Z (endian_arithmetic<Order, T, n_bits, Align> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
         static Z read (string_view x);
 
@@ -31,14 +31,17 @@ namespace data::math::number {
         template <endian r, negativity c, Word word>
         explicit Z (const Z_bytes<r, c, word> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
-        template <endian r, Word word>
-        explicit Z (const N_bytes<r, word> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
-
         template <bool is_signed, endian r, size_t size, Word word>
         explicit Z (const bounded<is_signed, r, size, word> &u): Value {NTL::conv<NTL::ZZ> (u)} {}
 
         template <std::integral I>
         explicit operator I () const {
+            if (*this > numeric_limits<I>::max ()) throw exception {} << "too high";
+
+            if constexpr (std::unsigned_integral<I>) {
+                if (is_negative (*this)) throw exception {} << "try to convert value " << *this << " to unsigned type";
+            } else if (*this < numeric_limits<I>::min ()) throw exception {} << "too low";
+
             return NTL::conv<I> (Value);
         }
 
@@ -50,12 +53,12 @@ namespace data::math::number {
             return NTL::conv<dec_int> (Value);
         }
 
-        template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-        explicit Z (const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &x): Value {NTL::conv<NTL::ZZ> (x)} {}
+        template <data::endian Order, class T, std::size_t n_bits, alignment Align>
+        explicit Z (const endian_arithmetic<Order, T, n_bits, Align> &x): Value {NTL::conv<NTL::ZZ> (x)} {}
 
-        template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-        explicit operator boost::endian::endian_arithmetic<Order, T, n_bits, Align> () const {
-            return NTL::conv<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> (Value);
+        template <data::endian Order, class T, std::size_t n_bits, alignment Align>
+        explicit operator endian_arithmetic<Order, T, n_bits, Align> () const {
+            return NTL::conv<endian_arithmetic<Order, T, n_bits, Align>> (Value);
         }
 
         // TODO get rid of these operators and make them constructors.
@@ -111,7 +114,7 @@ namespace data::math::number {
 
         template <bool is_signed, endian r, size_t size, Word word>
         explicit N (const bounded<is_signed, r, size, word> &u): Value {NTL::conv<NTL::ZZ> (u)} {
-            if (Value < 0) throw exception {} << "cannot instantiate N with negative number " << Value;
+            if (is_negative (u)) throw exception {} << "cannot instantiate N with negative number " << Value;
         }
 
         operator Z () const {
@@ -124,6 +127,7 @@ namespace data::math::number {
 
         template <std::integral I>
         explicit operator I () const {
+            if (*this > numeric_limits<I>::max ()) throw exception {} << "out of bounds";
             return NTL::conv<I> (Value);
         }
 
@@ -140,21 +144,16 @@ namespace data::math::number {
         }
 
         template <negativity n, hex_case zz> explicit operator hex::integer<n, zz> () const {
-            if constexpr (n == negativity::nones)
-                return encoding::hexidecimal::write<zz> (N_bytes<endian::little, byte> (*this));
-            else return encoding::hexidecimal::write<zz> (Z_bytes<endian::little, n, byte> (*this));
+            return encoding::hexidecimal::write<zz> (Z_bytes<endian::little, n, byte> (*this));
         }
 
-        template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-        explicit N (const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &x): Value {NTL::conv<NTL::ZZ> (x)} {}
+        template <data::endian Order, class T, std::size_t n_bits, alignment Align>
+        explicit N (const endian_arithmetic<Order, T, n_bits, Align> &x): Value {NTL::conv<NTL::ZZ> (x)} {}
 
-        template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-        explicit operator boost::endian::endian_arithmetic<Order, T, n_bits, Align> () const {
-            return NTL::conv<boost::endian::endian_arithmetic<Order, T, n_bits, Align>> (Value);
+        template <data::endian Order, class T, std::size_t n_bits, alignment Align>
+        explicit operator endian_arithmetic<Order, T, n_bits, Align> () const {
+            return NTL::conv<endian_arithmetic<Order, T, n_bits, Align>> (Value);
         }
-
-        template <endian r, Word word>
-        explicit operator N_bytes<r, word> () const;
 
         template <endian r, negativity c, Word word>
         explicit operator Z_bytes<r, c, word> () const;
@@ -519,16 +518,6 @@ namespace data::math::number {
         Z_bytes<r, c, word> result;
         result.resize (size);
         NTL::export_bin<word> (slice<word> (result), this->Value, r, endian::native, c);
-        return result;
-    }
-
-    template <endian r, Word word>
-    N::operator N_bytes<r, word> () const {
-        constexpr size_t bits = sizeof (word) * 8;
-        size_t size = (NTL::NumBits (this->Value) + bits - 1) / bits;
-        N_bytes<r, word> result;
-        result.resize (size);
-        NTL::export_bin<word> (slice<word> (result), this->Value, r, endian::native, negativity::nones);
         return result;
     }
 
@@ -897,6 +886,24 @@ namespace data::math::def {
         return N (u);
     }
 
+    template <endian r, negativity neg, Word word>
+    N convert<N, number::Z_bytes<r, neg, word>>::operator () (const number::Z_bytes<r, neg, word> &z) const {
+        if constexpr (neg == negativity::nones) {
+            return N (z);
+        } else {
+            if (data::is_negative (z)) throw exception {} << "cannot convert negative value " << z << " to unsigned type N";
+            return N {NTL::conv<NTL::ZZ> (z)};
+        }
+    }
+
+    Z inline convert<Z, N>::operator () (const N &n) const {
+        return Z (n);
+    }
+
+    N inline convert<N, Z>::operator () (const Z &n) const {
+        return N (n);
+    }
+
     template <std::integral I>
     Z inline convert<Z, I>::operator () (I i) const {
         return Z (i);
@@ -912,28 +919,28 @@ namespace data::math::def {
         return I (n);
     }
 
-    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    N inline convert<N, boost::endian::endian_arithmetic<Order, T, n_bits, Align>>::operator ()
-    (const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &u) const {
+    template <data::endian Order, class T, std::size_t n_bits, alignment Align>
+    N inline convert<N, endian_arithmetic<Order, T, n_bits, Align>>::operator ()
+    (const endian_arithmetic<Order, T, n_bits, Align> &u) const {
         return N (u);
     }
 
-    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    Z inline convert<Z, boost::endian::endian_arithmetic<Order, T, n_bits, Align>>::operator ()
-    (const boost::endian::endian_arithmetic<Order, T, n_bits, Align> &i) const {
+    template <data::endian Order, class T, std::size_t n_bits, alignment Align>
+    Z inline convert<Z, endian_arithmetic<Order, T, n_bits, Align>>::operator ()
+    (const endian_arithmetic<Order, T, n_bits, Align> &i) const {
         return Z (i);
     }
 
-    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    boost::endian::endian_arithmetic<Order, T, n_bits, Align> inline
-    convert<boost::endian::endian_arithmetic<Order, T, n_bits, Align>, N>::operator () (const N &n) const {
-        return boost::endian::endian_arithmetic<Order, T, n_bits, Align> (n);
+    template <data::endian Order, class T, std::size_t n_bits, alignment Align>
+    endian_arithmetic<Order, T, n_bits, Align> inline
+    convert<endian_arithmetic<Order, T, n_bits, Align>, N>::operator () (const N &n) const {
+        return endian_arithmetic<Order, T, n_bits, Align> (n);
     }
 
-    template <data::endian Order, class T, std::size_t n_bits, boost::endian::align Align>
-    boost::endian::endian_arithmetic<Order, T, n_bits, Align> inline
-    convert<boost::endian::endian_arithmetic<Order, T, n_bits, Align>, Z>::operator () (const Z &n) const {
-        return boost::endian::endian_arithmetic<Order, T, n_bits, Align> (n);
+    template <data::endian Order, class T, std::size_t n_bits, alignment Align>
+    endian_arithmetic<Order, T, n_bits, Align> inline
+    convert<endian_arithmetic<Order, T, n_bits, Align>, Z>::operator () (const Z &n) const {
+        return endian_arithmetic<Order, T, n_bits, Align> (n);
     }
 
     template <endian r, negativity c, Word word>
@@ -992,15 +999,15 @@ namespace data::math::def {
         return N (n);
     }
 
-    template <endian r, Word word>
-    number::N_bytes<r, word> inline convert<number::N_bytes<r, word>, Z>::operator () (const Z &z) const {
-        return N_bytes<r, word> (N (z));
+    template <endian r, negativity neg, Word word>
+    number::Z_bytes<r, neg, word> inline convert<number::Z_bytes<r, neg, word>, Z>::operator () (const Z &z) const {
+        return number::Z_bytes<r, neg, word> (z);
     }
 
-    template <endian r, Word word>
-    Z inline convert<Z, number::N_bytes<r, word>>::operator () (const number::N_bytes<r, word> &z) const {
-        return Z (z);
-    }
+    template <endian r, negativity neg, Word word>
+    number::Z_bytes<r, neg, word> inline convert<number::Z_bytes<r, neg, word>, N>::operator () (const N &z) const {
+        return number::Z_bytes<r, neg, word> (z);
+    };
 
     size_t inline size_in_base<N, 2>::operator () (const N &n) {
         return NTL::NumBits (n.Value);
@@ -1042,7 +1049,7 @@ namespace data::encoding::signed_decimal {
 
 namespace data::encoding::hexidecimal {
     std::ostream inline &write (std::ostream &o, const math::number::N &n, hex::letter_case x) {
-        auto nb = math::number::N_bytes<endian::big, byte> (n);
+        auto nb = math::N_bytes<endian::big, byte> (n);
         return write<endian::big, byte> (o, static_cast<const oriented<endian::big, byte> &> (nb), x);
     }
 

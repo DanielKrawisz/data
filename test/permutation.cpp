@@ -137,6 +137,8 @@ namespace data {
         EXPECT_EQ (sign (p1234a), math::negative);
         EXPECT_EQ (sign (p1234b), math::positive);
     }
+
+    // the test below solves a puzzle in a game I like.
 /*
     namespace TinyBang {
 

@@ -67,7 +67,7 @@ namespace data {
     }
 
     template<endian r, std::unsigned_integral word>
-    N N_Bytes_to_N_stupid (const math::number::N_bytes<r, word> &n) {
+    N N_Bytes_to_N_stupid (const math::N_bytes<r, word> &n) {
         N x {0};
 
         for (const word &b : n.words ().reverse ()) {
@@ -79,7 +79,7 @@ namespace data {
     }
 
     template<endian r, std::unsigned_integral word>
-    math::number::N_bytes<r, word> inline N_to_N_Bytes_stupid (const N &n) {
+    math::N_bytes<r, word> inline N_to_N_Bytes_stupid (const N &n) {
         auto hex_string = encoding::hexidecimal::write<hex_case::lower> (n);
         size_t bytes_encoded = (hex_string.size () - 2) / 2;
 
@@ -88,13 +88,13 @@ namespace data {
 
         auto hex_resized = encoding::hexidecimal::extend<negativity::nones, hex_case::lower> (hex_string, bytes_extended * 2 + 2);
 
-        return math::number::N_bytes<r, word>::read (hex_resized);
+        return math::N_bytes<r, word>::read (hex_resized);
     }
 
-    template <std::unsigned_integral word> using Nl = math::number::N_bytes<endian::little, word>;
+    template <std::unsigned_integral word> using Nl = math::N_bytes<endian::little, word>;
     template <std::unsigned_integral word> using Zl1 = math::number::Z_bytes<endian::little, negativity::twos, word>;
     template <std::unsigned_integral word> using Zl2 = math::number::Z_bytes<endian::little, negativity::BC, word>;
-    template <std::unsigned_integral word> using Nb = math::number::N_bytes<endian::big, word>;
+    template <std::unsigned_integral word> using Nb = math::N_bytes<endian::big, word>;
     template <std::unsigned_integral word> using Zb1 = math::number::Z_bytes<endian::big, negativity::twos, word>;
     template <std::unsigned_integral word> using Zb2 = math::number::Z_bytes<endian::big, negativity::BC, word>;
 
@@ -206,7 +206,7 @@ namespace data {
         
     }
         
-    template<endian r> using N_bytes = math::number::N_bytes<r, byte>;
+    template<endian r> using N_bytes = math::N_bytes<r, byte>;
     
     TEST (N, N) {
         

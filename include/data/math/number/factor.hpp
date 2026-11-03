@@ -51,7 +51,7 @@ namespace data::math::number {
                 // in this case, the number itself must be prime.
                 if (d.Quotient < p.Value) {
                     p = prime<N> {x, certain};
-                    x = 1;
+                    x = 1u;
                     break;
                 }
 
@@ -64,7 +64,7 @@ namespace data::math::number {
             }
 
             // next we try that prime again until it no longer divides the result.
-            power<prime<N>, N> factor {p, 1};
+            power<prime<N>, N> factor {p, 1u};
 
             while (true) {
                 division<N> d = math::number::natural_divmod (x, factor.Base.Value);

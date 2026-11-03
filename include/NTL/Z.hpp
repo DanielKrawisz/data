@@ -103,9 +103,6 @@ namespace NTL {
     template <endian r, negativity neg, Word word>
     void conv (ZZ &x, const data::math::number::Z_bytes<r, neg, word> &);
 
-    template <endian r, Word word>
-    void conv (ZZ &x, const data::math::number::N_bytes<r, word> &);
-
     template <bool is_signed, endian r, size_t size, Word word>
     void conv (ZZ &x, const data::math::number::bounded<is_signed, r, size, word> &);
 
@@ -130,14 +127,6 @@ namespace NTL {
     template <endian r, negativity neg, Word word>
     void inline conv (ZZ &x, const data::math::number::Z_bytes<r, neg, word> &u) {
         x = import_bin<word> (slice<const word> (u), r, endian::native, neg);
-    }
-
-    template <endian r, Word word>
-    void inline conv (ZZ &x, const data::math::number::N_bytes<r, word> &u) {
-        x = import_bin<word> (
-            slice<const word> (u), r,
-            endian::native,
-            negativity::nones);
     }
 
     template <bool is_signed, endian r, size_t size, Word word>

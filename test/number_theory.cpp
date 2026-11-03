@@ -224,40 +224,40 @@ namespace data {
     TYPED_TEST (TheoryNaturals, Factor) {
         using N = typename TestFixture::number;
 
-        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {1}, e<N>)),
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N>  {1u}, e<N>)),
             (math::number::factorization<N> {}));
 
-        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {2}, e<N>)),
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N>  {2u}, e<N>)),
             (math::number::factorization<N> {{p2<N>, 1}}));
 
-        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {3}, e<N>)),
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N>  {3u}, e<N>)),
             (math::number::factorization<N> {{p3<N>, 1}}));
 
-        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {4}, e<N>)),
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N>  {4u}, e<N>)),
             (math::number::factorization<N> {{p2<N>, 2}}));
 
-        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {5}, e<N>)),
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N>  {5u}, e<N>)),
             (math::number::factorization<N> {{p5<N>, 1}}));
 
-        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {6}, e<N>)),
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N>  {6u}, e<N>)),
             (math::number::factorization<N> {{p2<N>, 1}, {p3<N>, 1}}));
 
-        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {8}, e<N>)),
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N>  {8u}, e<N>)),
             (math::number::factorization<N> {{p2<N>, 3}}));
 
-        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {9}, e<N>)),
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N>  {9u}, e<N>)),
             (math::number::factorization<N> {{p3<N>, 2}}));
 
-        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {10}, e<N>)),
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {10u}, e<N>)),
             (math::number::factorization<N> {{p2<N>, 1}, {p5<N>, 1}}));
 
-        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {12}, e<N>)),
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {12u}, e<N>)),
             (math::number::factorization<N> {{p2<N>, 2}, {p3<N>, 1}}));
 
-        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {17}, e<N>)),
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {17u}, e<N>)),
             (math::number::factorization<N> {{p17<N>, 1}}));
 
-        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {21}, e<N>)),
+        EXPECT_EQ ((math::number::factorize<N> (math::nonzero<N> {21u}, e<N>)),
             (math::number::factorization<N> {{p3<N>, 1}, {p7<N>, 1}}));
 
     }
@@ -265,22 +265,22 @@ namespace data {
     TYPED_TEST (TheoryNaturals, Totient) {
         using N = typename TestFixture::number;
 
-        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {1}, e<N>), N {1});
-        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {2}, e<N>), N {1});
-        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {5}, e<N>), N {4});
-        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {6}, e<N>), N {2});
-        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {10}, e<N>), N {4});
-        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {15}, e<N>), N {8});
-        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {16}, e<N>), N {8});
-        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {25}, e<N>), N {20});
-        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {36}, e<N>), N {12});
-        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {100}, e<N>), N {40});
-        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {101}, e<N>), N {100});
-        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {210}, e<N>), N {48});
-        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {760}, e<N>), N {288});
-        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {761}, e<N>), N {760});
-        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {997}, e<N>), N {996});
-        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {1024}, e<N>), N {512});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {1},     e<N>), N {1});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {2},     e<N>), N {1});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {5},     e<N>), N {4});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {6},     e<N>), N {2});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {10},    e<N>), N {4});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {15},    e<N>), N {8});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {16},    e<N>), N {8});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {25},    e<N>), N {20});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {36},    e<N>), N {12});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {100},   e<N>), N {40});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {101},   e<N>), N {100});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {210},   e<N>), N {48});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {760},   e<N>), N {288});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {761},   e<N>), N {760});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {997},   e<N>), N {996});
+        EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {1024},  e<N>), N {512});
         EXPECT_EQ (math::number::totient<N> (math::nonzero<N> {12345}, e<N>), N {6576});
 
     }

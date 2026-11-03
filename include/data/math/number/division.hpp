@@ -16,7 +16,7 @@ namespace data::math::number {
     constexpr division<N> natural_divmod (const N &Dividend, const N &Divisor) {
 
         if (Divisor == 0) throw division_by_zero {};
-        if (Divisor > Dividend) return {0, Dividend};
+        if (Divisor > Dividend) return {0u, Dividend};
         if (Divisor == 1) return {Dividend, 0u};
         if (Divisor == 2) return {div_2 (Dividend), mod_2 (Dividend)};
 
@@ -40,7 +40,7 @@ namespace data::math::number {
         // at this point, pow is the largest power of two such
         // that exp = Divisor * pow is smaller than Dividend.
 
-        division<N> result {0, Dividend};
+        division<N> result {0u, Dividend};
         while (pow > 0) {
             while (exp > result.Remainder) {
                 exp >>= 1;
@@ -92,7 +92,7 @@ namespace data::math::number {
         if (d.Remainder == 0)
             return {data::sign (Divisor) * data::sign (Dividend) == negative ?
                 data::negate (Z (d.Quotient)):
-                Z (d.Quotient), 0};
+                Z (d.Quotient), 0u};
 
         if constexpr (m == EUCLIDIAN_ALWAYS_POSITIVE) {
 

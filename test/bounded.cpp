@@ -37,8 +37,8 @@ namespace data {
     using s11l = bounded<true, endian::little, 11>;
     using s11b  = bounded<true, endian::big, 11>;
     
-    using nl = math::number::N_bytes<endian::little, byte>;
-    using nb = math::number::N_bytes<endian::big, byte>;
+    using nl = math::N_bytes<endian::little, byte>;
+    using nb = math::N_bytes<endian::big, byte>;
     using zl = math::number::Z_bytes<endian::little, negativity::twos, byte>;
     using zb = math::number::Z_bytes<endian::big, negativity::twos, byte>;
     
@@ -248,7 +248,7 @@ namespace data {
         bounded<is_signed, o, size> n;
         
         EXPECT_NO_THROW ( (n = bounded<is_signed, o, size>{x}) );
-        EXPECT_EQ (encoding::hexidecimal::write (n), x);
+        EXPECT_EQ (encoding::hexidecimal::write<hex_case::lower> (n), x);
         
         if (o == endian::little) {
             EXPECT_EQ (n[0], 0xff);

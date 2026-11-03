@@ -492,7 +492,7 @@ namespace data::arithmetic::nones {
         auto w = words<r> (x);
         auto xx = w.begin ();
         auto xy = w.begin ();
-        if (!is_zero (w)) arithmetic::subtract_with_carry<word> (w.end (), xx, xy, 1);
+        if (!is_zero<negativity::nones> (w)) arithmetic::subtract_with_carry<word> (w.end (), xx, xy, 1);
         return x;
     }
 
@@ -566,7 +566,7 @@ namespace data::arithmetic::twos {
     bytestring<word> &decrement (bytestring<word> &x) {
 
         auto w = words<r> (x);
-        if (is_zero (w)) return x = bytestring<word> (1, std::numeric_limits<word>::max ());
+        if (is_zero<negativity::twos> (w)) return x = bytestring<word> (1, std::numeric_limits<word>::max ());
 
         extend<r, negativity::twos> (x, size (w) + 1);
 
