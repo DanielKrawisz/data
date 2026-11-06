@@ -85,7 +85,7 @@ target_link_libraries (
 
   Data::string
   ctre
-  PkgConfig::NTL
+  NTL::NTL
 
   PRIVATE
 

@@ -17,6 +17,7 @@ set (CMAKE_EXPERIMENTAL_CXX_IMPORT_STD
 # ---------------------------------------------------------
 #  Project info
 # ---------------------------------------------------------
+
 project (
   data
   VERSION 0.0.36
@@ -101,6 +102,7 @@ endif ()
 # ---------------------------------------------------------
 # User option: build tests
 # ---------------------------------------------------------
+
 option (PACKAGE_TESTS "Build the unit tests for this project" ON)
 
 if (PACKAGE_TESTS)
@@ -117,6 +119,7 @@ message (STATUS "")
 # ---------------------------------------------------------
 # Concepts diagnostics depth (GCC/Clang only)
 # ---------------------------------------------------------
+
 include (CheckCXXCompilerFlag)
 
 check_cxx_compiler_flag ("-fconcepts-diagnostics-depth=20" HAS_CONCEPTS_DEPTH)
@@ -124,39 +127,78 @@ check_cxx_compiler_flag ("-fconcepts-diagnostics-depth=20" HAS_CONCEPTS_DEPTH)
 if (HAS_CONCEPTS_DEPTH)
     add_compile_options ("-fconcepts-diagnostics-depth=20")
 endif ()
-
 # ---------------------------------------------------------
 # Dependencies
 # ---------------------------------------------------------
 
 find_package (GMP REQUIRED)
-# if we do not have GMP
-#   * on linux, `sudo apt-get install libgmp3-dev`
-
-find_package (PkgConfig REQUIRED)
-# If we do not have PkgConfig
-#   * on linux, `sudo apt-get install pkg-config`
+# If we do not have GMP:
+#   * on Linux, sudo apt-get install libgmp-dev
 
 include (FetchContent)
 cmake_policy (SET CMP0135 NEW)
 
-FetchContent_Declare (ctre URL https://github.com/hanickadot/compile-time-regular-expressions/archive/refs/tags/v3.10.0.zip)
+FetchContent_Declare (ctre
+    URL https://github.com/hanickadot/compile-time-regular-expressions/archive/refs/tags/v3.10.0.zip
+)
+
 FetchContent_MakeAvailable (ctre)
 
-pkg_check_modules (NTL REQUIRED IMPORTED_TARGET ntl)
+set (NTL_PREFIX "/opt/ntl" CACHE PATH
+    "Installation prefix for NTL and GF2X")
+
+find_path (NTL_INCLUDE_DIR
+    NAMES NTL/ZZ.h
+    PATHS "${NTL_PREFIX}/include"
+    NO_DEFAULT_PATH
+    REQUIRED
+)
+
+find_library (NTL_LIBRARY
+    NAMES ntl
+    PATHS "${NTL_PREFIX}/lib" "${NTL_PREFIX}/lib64"
+    NO_DEFAULT_PATH
+    REQUIRED
+)
+
+find_library (GF2X_LIBRARY
+    NAMES gf2x
+    PATHS "${NTL_PREFIX}/lib" "${NTL_PREFIX}/lib64"
+    NO_DEFAULT_PATH
+    REQUIRED
+)
+
+add_library (NTL::NTL UNKNOWN IMPORTED)
+
+set_target_properties (NTL::NTL PROPERTIES
+    IMPORTED_LOCATION "${NTL_LIBRARY}"
+    INTERFACE_INCLUDE_DIRECTORIES "${NTL_INCLUDE_DIR}"
+    INTERFACE_LINK_LIBRARIES "${GF2X_LIBRARY}"
+)
+
+# ---------------------------------------------------------
+# setup build
+# ---------------------------------------------------------
 
 add_subdirectory (src bin)
 
-# Check if GTests is installed. If not, install it
+# ---------------------------------------------------------
+# Tests
+# ---------------------------------------------------------
+
 if (PACKAGE_TESTS)
   include (CTest)
+
+  set (gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
   FetchContent_Declare (
     googletest
     GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG v1.14.0)
+    GIT_TAG v1.14.0
+  )
 
-  set (gtest_force_shared_crt ON CACHE BOOL "" FORCE)
   FetchContent_MakeAvailable (googletest)
+
   enable_testing ()
   add_subdirectory (test)
 endif ()

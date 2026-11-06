@@ -4,7 +4,6 @@
 
 #include <data/numbers.hpp>
 #include <data/math/number/bytes.hpp>
-#include <data/math/number/gmp/mpz.hpp>
 #include <data/encoding/digits.hpp>
 
 namespace data::encoding::base58 {
