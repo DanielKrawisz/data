@@ -218,7 +218,8 @@ namespace data::math::def {
         number::Z_bytes<ToEndian, ToNeg, ToWord> range_to_Z_bytes (In in_begin, In in_end) {
 
             number::Z_bytes<ToEndian, ToNeg, ToWord> result;
-            result.resize (result_min_size<ToWord, ToNeg, FromNeg> (in_begin, in_end));
+            auto min_size = result_min_size<ToWord, ToNeg, FromNeg> (in_begin, in_end);
+            result.resize (min_size);
 
             port_bits<ToNeg, FromNeg> (
                 result.words ().begin (),

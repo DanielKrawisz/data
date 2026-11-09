@@ -77,7 +77,10 @@ namespace data::math::number {
         Z_bytes () : oriented<r, word> {} {}
 
         // construct from any number literal.
-        template <std::integral I> Z_bytes (I x): Z_bytes {convert<Z_bytes> (x)} {};
+        // TODO we should not need to use trim here.
+        // In a perfect world, I would be able to remove it
+        // and the result would always be minimal.
+        template <std::integral I> Z_bytes (I x): Z_bytes {number::trim (convert<Z_bytes> (x))} {};
 
         template <data::endian Order, std::integral T, std::size_t n_bits, alignment Align>
         Z_bytes (const endian_arithmetic<Order, T, n_bits, Align> &x): Z_bytes {convert<Z_bytes> (x)} {}
@@ -128,7 +131,8 @@ namespace data::math::number {
         Z_bytes (bool);
 
         // construct from any number literal.
-        template <std::integral I> Z_bytes (I x): Z_bytes {convert<Z_bytes> (x)} {}
+        // TODO we should not have to use trim here.
+        template <std::integral I> Z_bytes (I x): Z_bytes {number::trim (convert<Z_bytes> (x))} {}
 
         Z_bytes (const N_bytes<r, word> &n): Z_bytes {convert<Z_bytes<r, negativity::BC, word>> (n)} {}
         
@@ -1151,11 +1155,6 @@ namespace data::math::number {
     template <endian r, Word word> inline
     Z_bytes<r, negativity::BC, word>::Z_bytes (bool b): Z_bytes<r, negativity::BC, word> {} {
         if (b) this->push_back (1);
-    }
-
-    template <endian r, Word word>
-    N_bytes<r, word> inline trim (const N_bytes<r, word> &n) {
-        return N_bytes<r, word> (std::move (arithmetic::trim<r, negativity::nones, word> (n)));
     }
 
     template <endian r, negativity c, Word word>

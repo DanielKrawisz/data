@@ -392,9 +392,6 @@ namespace data::math::number {
     template <endian r, negativity neg, Word word>
     Z_bytes<r, neg, word> extend (const Z_bytes<r, neg, word> &, size_t);
 
-    template <endian r, Word word>
-    N_bytes<r, word> trim (const N_bytes<r, word> &);
-
     template <endian r, negativity neg, Word word>
     Z_bytes<r, neg, word> trim (const Z_bytes<r, neg, word> &);
 }

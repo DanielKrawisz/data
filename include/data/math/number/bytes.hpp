@@ -23,7 +23,7 @@ namespace data::math::number {
     template <endian r, Word word>
     N_bytes<r, word> inline N_bytes<r, word>::read (string_view x) {
         if (!encoding::natural::valid (x))
-            throw exception {} << "invalid number string A " << x;
+            throw exception {} << "invalid number string " << x;
 
         if (encoding::hexidecimal::valid (x)) {
             if (auto m = encoding::hexidecimal::read<r, word> (x); bool (m)) {
@@ -32,8 +32,12 @@ namespace data::math::number {
         }
 
         // TODO N_bytes should not depend on N.
-        if (encoding::decimal::valid (x)) return N_bytes<r, word> (N::read (x));
-        throw exception {} << "invalid number string B " << x;
+        if (encoding::decimal::valid (x))
+            // TODO we have to use trim here because the result is too big.
+            // Ideally, we wouldn't have to do this and in a perfect world
+            // we would find out why this is happening and fix it.
+            return number::trim (N_bytes<r, word> (N::read (x)));
+        throw exception {} << "invalid number string " << x;
     }
 
     template <endian r, Word word>
@@ -45,7 +49,7 @@ namespace data::math::number {
         if (encoding::hexidecimal::valid (x))
             return *encoding::integer::read<r, negativity::twos, word> (x);
 
-        return convert<Z_bytes<r, negativity::twos, word>> (Z::read (x));
+        return Z_bytes<r, negativity::twos, word> (Z::read (x));
     }
 
     template <endian r, Word word>

@@ -494,10 +494,11 @@ namespace data::math::number {
 
     template <endian r, negativity c, Word word>
     Z::operator Z_bytes<r, c, word> () const {
+        constexpr size_t bits = sizeof (word) * CHAR_BIT;
 
-        constexpr size_t bits = sizeof (word) * 8;
+        auto bw = NTL::bit_width (Value);
 
-        size_t size = is_zero (*this) ? 0 : (NTL::bit_width (Value) + bits - 1) / bits;
+        size_t size = is_zero (*this) ? 0 : (bw + bits - 1) / bits;
 
         if constexpr (c == negativity::BC) {
             if (NTL::sign (Value) < 0 &&
@@ -513,10 +514,17 @@ namespace data::math::number {
 
     template <endian r, negativity c, Word word>
     N::operator Z_bytes<r, c, word> () const {
-        constexpr size_t bits = sizeof (word) * 8;
-        size_t size = (NTL::bit_width (this->Value) + bits - 1) / bits;
+        constexpr size_t word_bits = sizeof (word) * CHAR_BIT;
+        size_t bit_width = NTL::NumBits (this->Value);
+        size_t result_size;
+        if constexpr (c == negativity::nones) {
+            // if there is any one bit extra, we need a whole new word.
+            result_size = (bit_width + word_bits - 1) / word_bits;
+        } else {
+            result_size = bit_width == 0 ? 0 : (bit_width + word_bits) / word_bits;
+        }
         Z_bytes<r, c, word> result;
-        result.resize (size);
+        result.resize (result_size);
         NTL::export_bin<word> (slice<word> (result), this->Value, r, endian::native, c);
         return result;
     }
@@ -1048,6 +1056,7 @@ namespace data::encoding::signed_decimal {
 }
 
 namespace data::encoding::hexidecimal {
+
     std::ostream inline &write (std::ostream &o, const math::number::N &n, hex::letter_case x) {
         auto nb = math::N_bytes<endian::big, byte> (n);
         return write<endian::big, byte> (o, static_cast<const oriented<endian::big, byte> &> (nb), x);

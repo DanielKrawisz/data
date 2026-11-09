@@ -342,15 +342,25 @@ namespace data::arithmetic {
             if (fill != std::numeric_limits<decltype (fill)>::max () && fill != 0)
                 return size;
 
+            const auto sign_bit = sign_bit_of<decltype (fill)>;
+            const bool sign = (fill & sign_bit) != 0;
+
             auto i = rbegin;
 
             while (true) {
-                if (*i != fill) return min_size;
+
+                if (*i != fill) {
+                    const bool digit_sign = (*i & sign_bit) != 0;
+                    return min_size + (digit_sign != sign ? 1 : 0);
+                }
+
                 --min_size;
+
                 if (i == begin) {
                     // we need at least one word for -1
-                    return fill == std::numeric_limits<decltype (fill)>::max () ? 1 : 0;
+                    return sign ? 1 : 0;
                 }
+
                 --i;
             }
 
