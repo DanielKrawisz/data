@@ -198,6 +198,25 @@ fi
 
 cd "$GF2X_SOURCE"
 
+# Generate the configuration script.
+autoreconf -i
+
+# Configure GF2X.CC=gcc \CC=gcc \CC=gcc \
+CC_FOR_BUILD="gcc -include stdlib.h" \
+CFLAGS="-O2 -std=gnu11" \
+./configure \
+    --prefix="$NTL_PREFIX"
+
+# Compile and test.
+make -j"$JOBS"
+make check
+
+# Install.
+install_prefix make install
+
+# Return to the dependency directory.
+cd ..
+
 # ---------------------------------------------------------
 # Build NTL
 # ---------------------------------------------------------

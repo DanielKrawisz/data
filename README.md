@@ -243,7 +243,7 @@ Once the dependencies have been installed, configure the project using CMake and
 cmake -S . -B build -G Ninja \
     -DCMAKE_C_COMPILER=gcc-13 \
     -DCMAKE_CXX_COMPILER=g++-13 \
-    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_BUILD_TYPE=Release \
     -DNTL_PREFIX=/opt/ntl \
     -DCMAKE_INSTALL_PREFIX=/usr/local \
     -DPACKAGE_TESTS=ON
