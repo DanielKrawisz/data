@@ -9,6 +9,13 @@ include (GoogleTest)
 
 add_executable (
     unit_tests
+    # we put these first even though they don't belong here because
+    # they take such a long time so we want to get them started first.
+    numbers.cpp
+    number_theory.cpp
+    modular.cpp                  # TODO: A condition is commented out.
+    finite_field.cpp             # TODO: make typed test.
+    exterior.cpp
 
     # These tests only require data_core for the components being tested.
     # other components may be used for the tests themselves.
@@ -78,6 +85,23 @@ add_executable (
     power.cpp                    # TODO: should be a typed test.
     extended_euclidian.cpp
     Eratosthenes.cpp
+    prime_factor.cpp
+    #number_theory.cpp
+
+    # math
+    rational.cpp                 # TODO: fill in more details
+    Caylay_Dickson.cpp           # TODO: Uncomment and expand. constexpr
+    sign.cpp                     # TODO: Contains commented test cases and should be a typed test
+    abs.cpp                      # TODO: should be a typed test.
+    roots.cpp                    # TODO: should be a typed test. Extend to rationals and prime fields.
+    #modular.cpp                  # TODO: A condition is commented out.
+    limits.cpp                   # TODO: cases are commented out.
+    polynomial.cpp               # TODO: cases are commented out.
+    #finite_field.cpp             # TODO: make typed test.
+    matrix.cpp
+    algebra.cpp
+    #exterior.cpp
+    #elliptic_curve.cpp
 
     #TODO there is nothing here that checks point.hpp and elliptic_curve.hpp
     # geometry
