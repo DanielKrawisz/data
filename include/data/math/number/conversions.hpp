@@ -348,22 +348,22 @@ namespace data::math::def {
             size_t Count;
 
         public:
-            word_reader (In begin, In end)
+            constexpr word_reader (In begin, In end)
                 : begin (begin), end (end),
                 carry (Transformation == twos_negate), Count {0} {}
 
-            bool completed () {
+            constexpr bool completed () {
                 return begin == end && !carry;
             }
 
-            size_t count () const {
+            constexpr size_t count () const {
                 return Count;
             }
 
             // set the argument to the next word value,
             // increment the reader, and return
             // whether we are at the end.
-            FromWord get () {
+            constexpr FromWord get () {
                 FromWord digit;
                 Count++;
 
@@ -422,16 +422,13 @@ namespace data::math::def {
             constexpr std::size_t from_bits = sizeof (FromWord) * CHAR_BIT;
             constexpr std::size_t to_bits   = sizeof (ToWord) * CHAR_BIT;
 
-            word_reader<Transformation, LastDigitSpecial, In> wr {
-                in_begin, in_stop
-            };
+            word_reader<Transformation, LastDigitSpecial, In> wr {in_begin, in_stop};
 
             if constexpr (to_bits == from_bits) {
                 while (out_digit != out_end && !wr.completed ()) {
                     *out_digit = wr.get ();
                     out_digit++;
                 }
-
             } else if constexpr (to_bits < from_bits) {
                 constexpr std::size_t digits_per_word = from_bits / to_bits;
                 constexpr ToWord mask = std::numeric_limits<ToWord>::max ();
@@ -440,14 +437,16 @@ namespace data::math::def {
                     FromWord source_word = wr.get ();
 
                     for (std::size_t i = 0; i < digits_per_word; ++i) {
-                        if (out_digit == out_end) goto end;
+                        // TODO we don't really need to return the count here.
+                        // the count only matters in case three
+                        if (out_digit == out_end) return wr.count ();
 
                         *out_digit++ = static_cast<ToWord> (source_word & mask);
                         source_word >>= to_bits;
                     }
                 }
-
             } else {
+                // case 3
                 constexpr std::size_t digits_per_output_word = to_bits / from_bits;
 
                 while (out_digit != out_end && !wr.completed ()) {
@@ -466,7 +465,7 @@ namespace data::math::def {
 
                         if (wr.completed ()) {
                             *out_digit = destination_word;
-                            goto end;
+                            return wr.count ();
                         }
                     }
 
@@ -474,7 +473,6 @@ namespace data::math::def {
                 }
             }
 
-            end:
             return wr.count ();
         }
 

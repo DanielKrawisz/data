@@ -313,7 +313,8 @@ namespace data::arithmetic {
         return is_zero<neg> (x.begin (), x.end ());
     }
 
-    template <negativity c, std::random_access_iterator X> size_t minimal_size (const X begin, const X end) {
+    template <negativity c, std::random_access_iterator X>
+    constexpr size_t minimal_size (const X begin, const X end) {
 
         const size_t size = end - begin;
 
