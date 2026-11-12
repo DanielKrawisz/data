@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_SIGN
-#define DATA_MATH_SIGN
+#pragma once
 
 #include <data/types.hpp>
 #include <data/ordered.hpp>
@@ -28,38 +27,21 @@ namespace data {
 
     template <typename X> constexpr bool is_negative (const X &x);
 
-    template <typename N, typename M> concept comparable_to =
-        requires (const N &n, const M &m) {
-            { n == m } -> Same<bool>;
-            { n != m } -> Same<bool>;
-            { n > m } -> Same<bool>;
-            { n < m } -> Same<bool>;
-            { n >= m } -> Same<bool>;
-            { n <= m } -> Same<bool>;
-            { m == n } -> Same<bool>;
-            { m != n } -> Same<bool>;
-            { m > n } -> Same<bool>;
-            { m < n } -> Same<bool>;
-            { m > n } -> Same<bool>;
-            { m <= n } -> Same<bool>;
-            { m >= n } -> Same<bool>;
-        };
-
     template <typename X> concept NumberComparableSigned =
         Ordered<X> && requires (const X &x) {
             { sign (x) };
             { is_zero (x) };
             { is_positive (x) };
             { is_negative (x) };
-        } && comparable_to<X, int> &&
-        comparable_to<X, long> &&
-        comparable_to<X, long long>;
+        } && Comparable<X, int> &&
+        Comparable<X, long> &&
+        Comparable<X, long long>;
 
     template <typename X> concept NumberComparable =
         NumberComparableSigned<X> &&
-        comparable_to<X, unsigned int> &&
-        comparable_to<X, unsigned long> &&
-        comparable_to<X, unsigned long long>;
+        Comparable<X, unsigned int> &&
+        Comparable<X, unsigned long> &&
+        Comparable<X, unsigned long long>;
 
 }
 
@@ -168,5 +150,3 @@ namespace data::math::def {
     };
 
 }
-
-#endif

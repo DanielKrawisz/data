@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_FUNCTIONAL_TREE
-#define DATA_FUNCTIONAL_TREE
+#pragma once
 
 #include <data/types.hpp>
 #include <data/concepts.hpp>
@@ -299,5 +298,3 @@ namespace data::functional {
         go_left ();
     }
 }
-
-#endif

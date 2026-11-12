@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_TOOLS_ITERATOR_LIST
-#define DATA_TOOLS_ITERATOR_LIST
+#pragma once
 
 #include <type_traits>
 #include <iterator>
@@ -92,5 +91,3 @@ namespace data {
     }
 
 }
-
-#endif

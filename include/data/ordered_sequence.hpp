@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ORDERED_SEQUENCE
-#define DATA_ORDERED_SEQUENCE
+#pragma once
 
 #include <data/stack.hpp>
 
@@ -38,5 +37,3 @@ namespace data {
     }
     
 }
-
-#endif

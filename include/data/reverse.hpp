@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_REVERSE
-#define DATA_REVERSE
+#pragma once
 
 #include <data/functional/stack.hpp>
 #include <data/iterable.hpp>
@@ -39,7 +38,4 @@ namespace data {
     }
 
 }
-
-#endif
-
 

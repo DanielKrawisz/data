@@ -2,41 +2,46 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_BOUNDED
-#define DATA_MATH_NUMBER_BOUNDED
+#pragma once
 
 #include <type_traits>
 #include <iterator>
 #include <data/math/number/bounded/bounded.hpp>
-#include <data/math/number/gmp/mpz.hpp>
+#include <data/math/number/bytes/Z.hpp>
+
 #include <data/math/number/extended_euclidian.hpp>
+#include <data/math/power.hpp>
+
 #include <data/encoding/integer.hpp>
 #include <data/encoding/digits.hpp>
+
 #include <data/exception.hpp>
 
 namespace data::math::number {
 
-    template <endian::order r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, Word word>
     constexpr bounded<false, r, size, word>::bounded (string_view x) {
+
         if consteval {
             if (encoding::decimal::valid (x))
-                // TODO it is possible that the number string is too big, but we won't know.
+                // TODO it is possible that the number string is too big, but we won't know yet.
                 *this = encoding::read_base<bounded<false, r, size, word>> (x, 10, encoding::decimal::digit);
             else if (encoding::hexidecimal::valid (x) && x.size () == size * sizeof (word) * 2 + 2)
-                encoding::hex::decode (x.end (), x.begin () + 2, this->words ().rbegin ());
+                encoding::hex::decode (x.begin () + 2, x.end (), this->words ().rbegin ());
             else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
-                encoding::hex::decode (x.end (), x.begin (), this->begin ());
+                encoding::hex::decode (x.begin (), x.end (), this->begin ());
+            else throw data::exception {} << "invalid natural string \"" << x << "\"";
         } else {
             if (encoding::decimal::valid (x)) *this = bounded {N_bytes<r, word>::read (x)};
             else if (encoding::hexidecimal::valid (x) && x.size () == size * sizeof (word) * 2 + 2)
-                encoding::hex::decode (x.end (), x.begin () + 2, this->words ().rbegin ());
+                encoding::hex::decode (x.begin () + 2, x.end (), this->words ().rbegin ());
             else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
-                encoding::hex::decode (x.end (), x.begin (), this->begin ());
+                encoding::hex::decode (x.begin (), x.end (), this->begin ());
             else throw data::exception {} << "invalid natural string \"" << x << "\"";
         }
     }
 
-    template <endian::order r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, Word word>
     constexpr bounded<true, r, size, word>::bounded (string_view x) {
         if consteval {
             if (encoding::signed_decimal::valid (x)) {
@@ -44,65 +49,33 @@ namespace data::math::number {
                 if (encoding::decimal::valid (x)) {
                     *this = bounded<true, r, size, word> (
                         encoding::read_base<bounded<false, r, size, word>> (x, 10, encoding::decimal::digit));
+
+                    // if the result was negative then clearly the string was too big, but
+                    // we could have still strings that are too big that we don't catch this way.
+                    if (*this < 0)
+                        throw exception {} << "integer string \"" << x << "\" is too big for the given number type";
                 } else {
                     *this = -bounded<true, r, size, word> (
                         encoding::read_base<bounded<false, r, size, word>> (x.substr (1), 10, encoding::decimal::digit));
                 }
             } else if (encoding::hexidecimal::valid (x) && x.size () == size * sizeof (word) * 2 + 2)
-                encoding::hex::decode (x.end (), x.begin () + 2, this->words ().rbegin ());
+                encoding::hex::decode (x.begin () + 2, x.end (), this->words ().rbegin ());
             else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
-                encoding::hex::decode (x.end (), x.begin (), this->begin ());
+                encoding::hex::decode (x.begin (), x.end (), this->begin ());
         } else {
-            if (encoding::signed_decimal::valid (x)) *this = bounded {Z_bytes<r, neg::twos, word>::read (x)};
+            if (encoding::signed_decimal::valid (x)) {
+                auto z = Z_bytes<r, negativity::twos, word>::read (x);
+                *this = convert<bounded<true, r, size, word>> (z);
+            }
             else if (encoding::hexidecimal::valid (x) && x.size () == 2 * size * sizeof (word) + 2)
-                encoding::hex::decode (x.end (), x.begin () + 2, this->words ().rbegin ());
+                encoding::hex::decode (x.begin () + 2, x.end (), this->words ().rbegin ());
             else if (encoding::hex::valid (x) && x.size () == size * sizeof (word) * 2)
-                encoding::hex::decode (x.end (), x.begin (), this->begin ());
+                encoding::hex::decode (x.begin (), x.end (), this->begin ());
             else throw exception {} << "invalid integer string \"" << x << "\"";
         }
     }
 
-    template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    constexpr bounded<u, r, x, word> inline operator / (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
-        return def::divmod<bounded<u, r, x, word>> {} (a, nonzero<bounded<u, r, x, word>> {b}).Quotient;
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    constexpr uint<r, x, word> inline operator / (const uint<r, x, word> &a, uint64 b) {
-        return a / uint<r, x, word> (b);
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    constexpr sint<r, x, word> inline operator / (const sint<r, x, word> &a, int64 b) {
-        return a / sint<r, x, word> (b);
-    }
-
-    template <bool u, endian::order r, size_t x, std::unsigned_integral word>
-    constexpr bounded<u, r, x, word> inline operator % (const bounded<u, r, x, word> &a, const bounded<u, r, x, word> &b) {
-        return data::divmod<bounded<u, r, x, word>> (a, nonzero<bounded<u, r, x, word>> {b}).Remainder;
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    constexpr uint64 inline operator % (const uint<r, x, word> &a, uint64 b) {
-        return uint64 (a % uint<r, x, word> (b));
-    }
-    
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    constexpr uint64 inline operator % (const sint<r, x, word> &a, uint64 b) {
-        return uint64 (a % uint<r, x, word> (b));
-    }
-    
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    inline bounded<false, r, size, word>::operator double () const {
-        return double (N (N_bytes<r, word> (*this)));
-    }
-    
-    template <endian::order r, size_t size, std::unsigned_integral word>
-    inline bounded<true, r, size, word>::operator double () const {
-        return double (Z (Z_bytes<r, neg::twos, word> (*this)));
-    }
-
-    template <endian::order r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, Word word>
     std::istream &operator >> (std::istream &i, bounded<true, r, size, word> &z) {
         encoding::integer::string x;
         i >> x;
@@ -110,7 +83,7 @@ namespace data::math::number {
         return i;
     }
 
-    template <endian::order r, size_t size, std::unsigned_integral word>
+    template <endian r, size_t size, Word word>
     std::istream &operator >> (std::istream &i, bounded<false, r, size, word> &n) {
         encoding::natural::string x;
         i >> x;
@@ -120,87 +93,49 @@ namespace data::math::number {
 }
 
 namespace data::math::def {
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    constexpr division<uint<r, x, word>, uint<r, x, word>> inline divmod<uint<r, x, word>, uint<r, x, word>>::operator ()
-        (const uint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
-        return number::natural_divmod (v, z.Value);
+    template <endian r, size_t x, Word word>
+    constexpr division<ubound<r, x, word>, ubound<r, x, word>> inline divmod<ubound<r, x, word>, ubound<r, x, word>>::operator ()
+        (const ubound<r, x, word> &v, const nonzero<ubound<r, x, word>> &z) {
+        return number::divmod (v, z.Value);
     }
 
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    constexpr division<sint<r, x, word>, sint<r, x, word>> inline divmod<sint<r, x, word>, sint<r, x, word>>::operator ()
-        (const sint<r, x, word> &v, const nonzero<sint<r, x, word>> &z) {
+    template <endian r, size_t x, Word word>
+    constexpr division<bound<r, x, word>, bound<r, x, word>> inline divmod<bound<r, x, word>, bound<r, x, word>>::operator ()
+        (const bound<r, x, word> &v, const nonzero<bound<r, x, word>> &z) {
         return number::integer_divmod<number::TRUNCATE_TOWARD_ZERO> (v, z.Value);
     }
 
-    template <endian::order r, size_t x, std::unsigned_integral word>
-    constexpr division<uint<r, x, word>, uint<r, x, word>> inline divmod<sint<r, x, word>, uint<r, x, word>>::operator ()
-        (const sint<r, x, word> &v, const nonzero<uint<r, x, word>> &z) {
-        return number::natural_divmod (uint<r, x, word> (v), z.Value);
+    template <endian r, size_t x, Word word>
+    constexpr division<ubound<r, x, word>, ubound<r, x, word>> inline divmod<bound<r, x, word>, ubound<r, x, word>>::operator ()
+        (const bound<r, x, word> &v, const nonzero<ubound<r, x, word>> &z) {
+        return number::divmod (ubound<r, x, word> (v), z.Value);
     }
 
-    template <bool a, endian::order r, size_t x, std::unsigned_integral word>
-    constexpr uint<r, x, word> square_mod<bounded<a, r, x, word>, uint<r, x, word>>::operator () (
-        const bounded<a, r, x, word> &m,
-        const nonzero<uint<r, x, word>> &q) {
-        return times_mod<bounded<a, r, x, word>, bounded<a, r, x, word>, uint<r, x, word>> {} (m, m, q);
+    template <bool a, endian r, size_t x, Word word>
+    constexpr ubound<r, x, word> square_mod<nbound<a, r, x, word>, ubound<r, x, word>>::operator () (
+        const nbound<a, r, x, word> &m,
+        const nonzero<ubound<r, x, word>> &q) {
+        return times_mod<nbound<a, r, x, word>, nbound<a, r, x, word>, ubound<r, x, word>> {} (m, m, q);
     }
 
-    template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
-    constexpr uint<r, x, word> inline plus_mod<bounded<a, r, x, word>, bounded<b, r, x, word>, uint<r, x, word>>::operator () (
-        const bounded<a, r, x, word> &m,
-        const bounded<b, r, x, word> &n,
-        const nonzero<uint<r, x, word>> &q) {
-        return uint<r, x, word> ((bounded<a, r, x + 1, word> (m) +
-            bounded<b, r, x + 1, word> (n)) % uint<r, x + 1, word> (q.Value));
+    template <bool a, bool b, endian r, size_t x, Word word>
+    constexpr ubound<r, x, word> inline plus_mod<nbound<a, r, x, word>, nbound<b, r, x, word>, ubound<r, x, word>>::operator () (
+        const nbound<a, r, x, word> &m,
+        const nbound<b, r, x, word> &n,
+        const nonzero<ubound<r, x, word>> &q) {
+        return ubound<r, x, word> ((nbound<a, r, x + 1, word> (m) +
+            nbound<b, r, x + 1, word> (n)) % ubound<r, x + 1, word> (q.Value));
     }
 
-    template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
-    constexpr uint<r, x, word> inline times_mod<bounded<a, r, x, word>, bounded<b, r, x, word>, uint<r, x, word>>::operator () (
-        const bounded<a, r, x, word> &m,
-        const bounded<b, r, x, word> &n,
-        const nonzero<uint<r, x, word>> &q) {
-        return uint<r, x, word> (binary_accumulate_times_mod (
-            bounded<a, r, x + 1, word> (m),
-            bounded<b, r, x + 1, word> (n),
-            nonzero {uint<r, x + 1, word> (q.Value)}));
-    }
-
-    template <bool a, bool b, endian::order r, size_t x, std::unsigned_integral word>
-    constexpr uint<r, x, word> inline pow_mod<bounded<a, r, x, word>, bounded<b, r, x, word>, uint<r, x, word>>::operator () (
-        const bounded<a, r, x, word> &m,
-        const bounded<b, r, x, word> &n,
-        const nonzero<uint<r, x, word>> &q) {
-        return uint<r, x, word> (binary_accumulate_pow_mod (
-            bounded<a, r, x * 2, word> (m),
-            bounded<b, r, x * 2, word> (n),
-            nonzero {uint<r, x * 2, word> (q.Value)}));
-    }
-
-    template <bool a, endian::order r, size_t x, std::unsigned_integral word>
-    constexpr maybe<uint<r, x, word>> invert_mod<bounded<a, r, x, word>, uint<r, x, word>>::operator () (
-        const bounded<a, r, x, word> &q,
-        const nonzero<uint<r, x, word>> &mod) {
-        auto invt = math::number::natural_invert_mod (
-            bounded<a, r, x + 1, word> (x),
-            nonzero {uint<r, x + 1, word> (mod.Value)});
-        if (!bool (invt)) return {};
-        return static_cast<uint<r, x, word>> (*invt);
-    }
-}
-
-namespace data::encoding::hexidecimal {
-
-    template <endian::order r, std::unsigned_integral word, size_t x>
-    std::ostream &write (std::ostream &o, const oriented<r, word, x> &z, hex_case q) {
-        o << "0x";
-        return encoding::hex::write (o, z.words ().reverse (), q);
-    }
-
-    template <hex_case cx, endian::order r, std::unsigned_integral word, size_t x>
-    string<cx> write (const oriented<r, word, x> &z) {
-        std::stringstream ss;
-        write (ss, z, cx);
-        return string<cx> {ss.str ()};
+    template <bool a, bool b, endian r, size_t x, Word word>
+    constexpr ubound<r, x, word> inline times_mod<nbound<a, r, x, word>, nbound<b, r, x, word>, ubound<r, x, word>>::operator () (
+        const nbound<a, r, x, word> &m,
+        const nbound<b, r, x, word> &n,
+        const nonzero<ubound<r, x, word>> &q) {
+        return ubound<r, x, word> (binary_accumulate_times_mod (
+            nbound<a, r, x + 1, word> (m),
+            nbound<b, r, x + 1, word> (n),
+            nonzero {ubound<r, x + 1, word> (q.Value)}));
     }
 
 }
@@ -288,5 +223,3 @@ namespace data::math::number {
     template struct bounded<true, endian::little, 16, uint32>;
 
 }
-
-#endif

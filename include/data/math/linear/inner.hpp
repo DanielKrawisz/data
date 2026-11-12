@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_LINEAR_INNER
-#define DATA_MATH_LINEAR_INNER
+#pragma once
 
 #include <data/math/linear/space.hpp>
 #include <data/abs.hpp>
@@ -11,7 +10,7 @@
 namespace data::math::linear {
     template <typename F, typename V> struct inner;
         
-    template <typename F, typename V> concept inner_space = space<F, V> && requires (const V &a, const V &b) {
+    template <typename F, typename V> concept inner_space = Space<F, V> && requires (const V &a, const V &b) {
         { inner<F, V> {} (a, b) } -> Same<F>;
     };
     
@@ -55,5 +54,3 @@ namespace data::math::linear {
     };
     
 }
-
-#endif

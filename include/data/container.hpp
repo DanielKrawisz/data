@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_CONTAINER
-#define DATA_CONTAINER
+#pragma once
 
 #include <data/sequence.hpp>
 #include <data/iterable.hpp>
@@ -102,6 +101,4 @@ namespace data {
     }
 
 }
-
-#endif
 

@@ -3,8 +3,9 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <data/math/permutation.hpp>
-#include "data/math/algebra/cyclic_group.hpp"
-#include "gtest/gtest.h"
+#include <data/math/algebra/cyclic_group.hpp>
+
+#include <gtest/gtest.h>
 
 namespace data {
 
@@ -136,6 +137,8 @@ namespace data {
         EXPECT_EQ (sign (p1234a), math::negative);
         EXPECT_EQ (sign (p1234b), math::positive);
     }
+
+    // the test below solves a puzzle in a game I like.
 /*
     namespace TinyBang {
 

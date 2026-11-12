@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_REPLACE
-#define DATA_REPLACE
+#pragma once
 
 // Implementations of data structures.
 #include <data/list.hpp>
@@ -153,5 +152,3 @@ namespace data {
         else return tree {r, apply_at (m.left (), k, f), m.right ()};
     }
 }
-
-#endif

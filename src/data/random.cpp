@@ -3,8 +3,6 @@
 #include <data/tools/lazy_writer.hpp>
 #include <data/string.hpp>
 
-#include <chrono>
-
 namespace data::random {
 
     uint32 select_index_by_weight (cross<double> weights, source &r) {

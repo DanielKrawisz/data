@@ -2,9 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/numbers.hpp"
-#include "data/math.hpp"
-#include "gtest/gtest.h"
+#include <data/numbers.hpp>
+#include <data/math.hpp>
+
+#include <gtest/gtest.h>
 
 namespace data {
 
@@ -32,9 +33,8 @@ namespace data {
         return pow (N {3}, 7);
     }
 
-    template <typename N, math::ring M>
-    // TODO uncomment this later and make it work.
-    requires //RingNumber<M> &&
+    template <typename N, math::Ring M>
+    requires RingNumber<M> &&
     requires { pow<M, int>; }
     void test_suite () {
 

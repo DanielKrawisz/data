@@ -1,5 +1,4 @@
-#ifndef BOOST_ENDIAN_DETAIL_INTEGRAL_BY_SIZE_HPP_INCLUDED
-#define BOOST_ENDIAN_DETAIL_INTEGRAL_BY_SIZE_HPP_INCLUDED
+#pragma once
 
 // Copyright 2019 Peter Dimov
 //
@@ -52,5 +51,3 @@ template<> struct integral_by_size<16>
 } // namespace detail
 } // namespace endian
 } // namespace boost
-
-#endif  // BOOST_ENDIAN_DETAIL_INTEGRAL_BY_SIZE_HPP_INCLUDED

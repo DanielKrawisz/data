@@ -6,8 +6,7 @@
 //  Distributed under the Boost Software License, Version 1.0.
 //  http://www.boost.org/LICENSE_1_0.txt
 
-#ifndef BOOST_ENDIAN_INTRINSIC_HPP
-#define BOOST_ENDIAN_INTRINSIC_HPP
+#pragma once
 
 //  Allow user to force BOOST_ENDIAN_NO_INTRINSICS in case they aren't available for a
 //  particular platform/compiler combination. Please report such platform/compiler
@@ -66,4 +65,3 @@
 #elif !defined(BOOST_ENDIAN_INTRINSIC_MSG)
 # define BOOST_ENDIAN_INTRINSIC_MSG "no byte swap intrinsics"
 #endif  // BOOST_ENDIAN_NO_INTRINSICS
-#endif  // BOOST_ENDIAN_INTRINSIC_HPP

@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_SELECT
-#define DATA_SELECT
+#pragma once
 
 #include <data/list.hpp>
 #include <data/take.hpp>
@@ -49,5 +48,3 @@ namespace data {
     }
 
 }
-
-#endif

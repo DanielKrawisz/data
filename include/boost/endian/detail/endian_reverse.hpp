@@ -1,5 +1,4 @@
-#ifndef BOOST_ENDIAN_DETAIL_ENDIAN_REVERSE_HPP_INCLUDED
-#define BOOST_ENDIAN_DETAIL_ENDIAN_REVERSE_HPP_INCLUDED
+#pragma once
 
 // Copyright 2019, 2020 Peter Dimov
 // Distributed under the Boost Software License, Version 1.0.
@@ -171,5 +170,3 @@ inline void endian_reverse_inplace( T (&x)[ N ] ) BOOST_NOEXCEPT
 
 } // namespace endian
 } // namespace boost
-
-#endif  // BOOST_ENDIAN_DETAIL_ENDIAN_REVERSE_HPP_INCLUDED

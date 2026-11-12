@@ -2,11 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/stack.hpp"
-#include "data/list.hpp"
-#include "data/cross.hpp"
-#include "data/ordered_sequence.hpp"
-#include "gtest/gtest.h"
+#include <data/stack.hpp>
+#include <data/list.hpp>
+#include <data/cross.hpp>
+#include <data/ordered_sequence.hpp>
+
+#include <gtest/gtest.h>
 
 namespace data {
     template <typename elem> using vector = std::vector<elem>;

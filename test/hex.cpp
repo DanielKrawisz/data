@@ -2,10 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/bytes.hpp"
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-#include "gmock/gmock-matchers.h"
+#include <data/bytes.hpp>
+
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include <gmock/gmock-matchers.h>
 
 namespace data::encoding::hex {
 
@@ -42,7 +43,6 @@ namespace data::encoding::hex {
             0x1B, 0xE8, 0x98, 0x27, 0xE1, 0x9D, 0x72, 0xAA, 0x1D});
         string testString = write (data::byte_slice {a.data (), 33}, hex_case::upper);
         ASSERT_STREQ (testString.c_str (), "800C28FCA386C7A227600B2FE50B7CAE11EC86D3BF1FBE471BE89827E19D72AA1D");
-
     }
 
 }

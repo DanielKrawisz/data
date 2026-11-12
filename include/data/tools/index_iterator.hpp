@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_TOOLS_INDEX_ITERATOR
-#define DATA_TOOLS_INDEX_ITERATOR
+#pragma once
 
 #include <data/types.hpp>
 
@@ -49,5 +48,3 @@ namespace data {
     };
 
 }
-
-#endif

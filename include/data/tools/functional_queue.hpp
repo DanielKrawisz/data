@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_TOOLS_FUNCTIONAL_QUEUE
-#define DATA_TOOLS_FUNCTIONAL_QUEUE
+#pragma once
 
 #include <data/concepts.hpp>
 #include <data/functional/list.hpp>
@@ -368,5 +367,3 @@ namespace data {
     }
 
 }
-
-#endif

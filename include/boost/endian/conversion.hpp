@@ -6,8 +6,7 @@
 //  Distributed under the Boost Software License, Version 1.0.
 //  http://www.boost.org/LICENSE_1_0.txt
 
-#ifndef BOOST_ENDIAN_CONVERSION_HPP
-#define BOOST_ENDIAN_CONVERSION_HPP
+#pragma once
 
 #include <boost/endian/detail/endian_reverse.hpp>
 #include <boost/endian/detail/endian_load.hpp>
@@ -585,5 +584,3 @@ inline void store_big_u64( unsigned char * p, std::uint64_t v )
 
 }  // namespace endian
 }  // namespace boost
-
-#endif // BOOST_ENDIAN_CONVERSION_HPP

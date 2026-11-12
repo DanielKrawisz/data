@@ -7,7 +7,8 @@
 #include <data/lift.hpp>
 #include <data/string.hpp>
 #include <data/remove.hpp>
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 namespace data {
 

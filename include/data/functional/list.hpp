@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_FUNCTIONAL_LIST
-#define DATA_FUNCTIONAL_LIST
+#pragma once
 
 #include <data/functional/stack.hpp>
 #include <data/functional/queue.hpp>
@@ -53,6 +52,3 @@ namespace data {
         return result;
     }
 }
-
-#endif
-

@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_ARITHMETIC_ARITHMETIC
-#define DATA_ARITHMETIC_ARITHMETIC
+#pragma once
 
 #include <data/sign.hpp>
 #include <data/norm.hpp>
@@ -47,6 +46,7 @@ namespace data::arithmetic {
         return false;
     }
 
+    // both iterators are supposed to be the same length.
     template <std::input_iterator it, std::sentinel_for<it> sen>
     constexpr std::strong_ordering compare (it i, sen z, it j) {
 
@@ -66,7 +66,7 @@ namespace data::arithmetic {
         std::input_iterator iti>
     constexpr void bit_negate (ito o, sen z, iti i) {
         while (o != z) {
-            *o = ~ *i;
+            *o = ~*i;
             o++;
             i++;
         }
@@ -122,7 +122,7 @@ namespace data::arithmetic {
 
     // amount should be less than the number of digits base 2 in the word.
     // We should iterate from little to big endian.
-    template <typename sen, typename ita, std::input_iterator itb, std::unsigned_integral word>
+    template <typename sen, typename ita, std::input_iterator itb, Word word>
     requires std::output_iterator<ita, word> && std::sentinel_for<sen, itb>
     constexpr std::enable_if_t<has_twice<word>::value, void>
     shift_left (ita &i, sen z, itb b, uint16 amount, word fill) {
@@ -140,7 +140,7 @@ namespace data::arithmetic {
 
     // amount should be less than the number of digits base 2 in the word.
     // We should iterate from big to little endian.
-    template <typename sen, typename ita, std::input_iterator itb, std::unsigned_integral word>
+    template <typename sen, typename ita, std::input_iterator itb, Word word>
     requires std::output_iterator<ita, word> && std::sentinel_for<sen, itb>
     constexpr std::enable_if_t<has_twice<word>::value, void>
     shift_right (ita &i, sen z, itb b, uint16 amount, word fill) {
@@ -159,15 +159,15 @@ namespace data::arithmetic {
 
     // amount should be less than the number of digits base 2 in the word.
     // We should iterate from little to big endian.
-    template <typename sen, typename ita, std::input_iterator itb, std::unsigned_integral word>
+    template <typename sen, typename ita, std::input_iterator itb, Word word>
     requires std::output_iterator<ita, word> && std::sentinel_for<sen, itb>
     constexpr std::enable_if_t<!has_twice<word>::value, void>
     shift_left (ita &i, sen z, itb b, uint16 amount, word fill) {
-        constexpr static const uint16 digits = sizeof (word) * 8;
+        constexpr static const uint16 digits = sizeof (word) * CHAR_BIT;
         word prev = fill >> (digits - amount);
 
         while (b != z) {
-            *i = prev + (*b << amount);
+            *i = static_cast<word> ((static_cast<uint32> (*b) << amount) | prev);
             prev = *b >> (digits - amount);
             i++;
             b++;
@@ -176,22 +176,22 @@ namespace data::arithmetic {
 
     // amount should be less than the number of digits base 2 in the word.
     // We should iterate from big to little endian.
-    template <typename sen, typename ita, std::input_iterator itb, std::unsigned_integral word>
+    template <typename sen, typename ita, std::input_iterator itb, Word word>
     requires std::output_iterator<ita, word> && std::sentinel_for<sen, itb>
     constexpr std::enable_if_t<!has_twice<word>::value, void>
     shift_right (ita &i, sen z, itb b, uint16 amount, word fill) {
-        constexpr static const uint16 digits = sizeof (word) * 8;
+        constexpr static const uint16 digits = sizeof (word) * CHAR_BIT;
         word prev = fill << (digits - amount);
 
         while (b != z) {
-            *i = prev + (*b >> amount);
+            *i = static_cast<word> ((static_cast<uint32> (*b) >> amount) | prev);
             prev = *b << (digits - amount);
             i++;
             b++;
         }
     }
 
-    template <std::unsigned_integral word, typename it, typename sen>
+    template <Word word, typename it, typename sen>
     requires std::output_iterator<it, word> && std::sentinel_for<sen, it>
     constexpr void bit_shift_left (it i, sen z, uint32 x, bool fill) {
         size_t words = x / (8 * sizeof (decltype (*i)));
@@ -207,7 +207,7 @@ namespace data::arithmetic {
         }
     }
 
-    template <std::unsigned_integral word, typename it, typename sen>
+    template <Word word, typename it, typename sen>
     requires std::output_iterator<it, word> && std::sentinel_for<sen, it>
     constexpr void bit_shift_right (it i, sen z, uint32 x, bool fill) {
         size_t words = x / (8 * sizeof (decltype (*i)));
@@ -251,7 +251,7 @@ namespace data::arithmetic {
         constexpr static const digit value = ~static_cast<digit> (get_limit<digit>::max_signed);
     };
 
-    template <typename X> using sign_bit_of = get_sign_bit<X>::value;
+    template <typename digit> constexpr static const digit sign_bit_of = get_sign_bit<digit>::value;
 
     template <typename digit> const digit max_unsigned = get_limit<digit>::max_unsigned;
     template <typename digit> const digit max_signed_twos = get_limit<digit>::max_signed;
@@ -262,97 +262,372 @@ namespace data::arithmetic {
     template <typename X> using digit = std::remove_const_t<unref<decltype (std::declval<const X> ()[0])>>;
 
     template <range X>
-    constexpr size_t inline size (const X x) {
+    constexpr size_t size (const X x) {
         return x.end () - x.begin ();
     }
 
-    template <range X>
-    constexpr bool inline sign_bit (X x) {
-        return (size (x) != 0) && (x[-1] & get_sign_bit<digit<X>>::value) != 0;
+    template <std::random_access_iterator X>
+    constexpr bool sign_bit (const X begin, const X end) {
+        return (begin != end) && (*(end - 1) & get_sign_bit<std::iter_value_t<X>>::value) != 0;
     }
 
     template <range X>
-    constexpr bool inline is_zero (const X x) {
-        for (const auto &d : x) if (d != 0) return false;
-        return true;
+    constexpr bool sign_bit (X x) {
+        return sign_bit (x.begin (), x.end ());
     }
 
-    template <negativity c, range X>
-    constexpr size_t minimal_size (X x) {
-        if constexpr (c == negativity::nones) {
-            int xsize = size (x);
+    template <negativity neg, std::random_access_iterator X>
+    constexpr bool is_zero (const X begin, const X end) {
+        if (begin == end) return true;
 
-            for (auto i = x.rbegin (); i != x.rend (); i++) {
-                if (*i != 0) break;
-                else xsize--;
-            }
+        if constexpr (neg == negativity::nones || neg == negativity::twos) {
+            auto i = end;
+            do {
+                --i;
+                 if (*i != 0) return false;
+            } while (i != begin);
 
-            return xsize;
-        } else if constexpr (c == negativity::twos) {
-            if (size (x) == 0) return 0;
-            digit<X> d = *x.rbegin ();
-            if (d != std::numeric_limits<digit<X>>::max () && d != 0) return size (x);
-            int repeated_bytes = 0;
-            auto i = x.rbegin () + 1;
+            return true;
+        } else if constexpr (neg == negativity::BC) {
+
+            auto i = end - 1;
+
+            // we know there must be at least one digit since the number is not zero.
+            auto dig = *i & ~sign_bit_of<std::iter_value_t<X>>;
+
             while (true) {
-                // if we reach the end, then the number is either 0 or -1.
-                if (i == x.rend ()) return d == 0 ? 0 : 1;
-                if (*i == d) repeated_bytes ++;
-                else return size (x) - repeated_bytes -
-                    (*i < get_sign_bit<digit<X>>::value && d == 0 ||
-                        *i >= get_sign_bit<digit<X>>::value && d == std::numeric_limits<digit<X>>::max () ? 1 : 0);
-                i++;
+                if (dig != 0)
+                    return false;
+
+                if (i == begin) return true;
+
+                --i;
+                dig = *i;
             }
+        }
+
+        throw exception {} << "invalid negativity " << neg;
+    }
+
+    template <negativity neg, range X>
+    constexpr bool is_zero (const X x) {
+        return is_zero<neg> (x.begin (), x.end ());
+    }
+
+    template <negativity c, std::random_access_iterator X>
+    constexpr size_t minimal_size (const X begin, const X end) {
+
+        const size_t size = end - begin;
+
+        if (size == 0) return 0;
+
+        X rbegin = begin + (size - 1);
+
+        size_t min_size = size;
+
+        if constexpr (c == negativity::nones) {
+
+            auto i = rbegin;
+
+            while (true) {
+                if (*i != 0) return min_size;
+
+                else --min_size;
+                if (i == begin) return min_size;
+                --i;
+            }
+
+        } else if constexpr (c == negativity::twos) {
+            std::iter_value_t<X> fill = *rbegin;
+
+            if (fill != std::numeric_limits<decltype (fill)>::max () && fill != 0)
+                return size;
+
+            const auto sign_bit = sign_bit_of<decltype (fill)>;
+            const bool sign = (fill & sign_bit) != 0;
+
+            auto i = rbegin;
+
+            while (true) {
+
+                if (*i != fill) {
+                    const bool digit_sign = (*i & sign_bit) != 0;
+                    return min_size + (digit_sign != sign ? 1 : 0);
+                }
+
+                --min_size;
+
+                if (i == begin) {
+                    // we need at least one word for -1
+                    return sign ? 1 : 0;
+                }
+
+                --i;
+            }
+
+
         } else if constexpr (c == negativity::BC) {
-            if (size (x) == 0) return 0;
 
             // numbers that don't begin with 00 or 80 are minimal.
-            auto i = x.rbegin ();
-            digit<X> d = *i;
+            auto i = rbegin;
 
-            if (d != get_sign_bit<digit<X>>::value && d != 0) return size (x);
+            // remove sign bit from last digit.
+            std::iter_value_t<X> digit = *i & ~get_sign_bit<std::iter_value_t<X>>::value;
 
-            // count the number of zero bytes after the first.
-            int extra_zero_bytes = 0;
+            while (digit == 0) {
+                --min_size;
+                if (i == begin) return 0;
+                --i;
+                digit = *i;
+            };
+
+            // if the sign bit is set, we have to add an extra digit.
+            return digit < get_sign_bit<std::iter_value_t<X>>::value ? min_size: min_size + 1;
+
+        }
+
+        throw exception {} << "invalid negativity" << c;
+    }
+
+    template <negativity neg, range X>
+    constexpr size_t minimal_size (X x) {
+        return minimal_size<neg> (x.begin (), x.end ());
+    }
+
+    template <negativity neg, std::random_access_iterator X>
+    constexpr math::sign sign (const X begin, const X end) {
+        if constexpr (neg == negativity::nones) {
+            return is_zero<neg> (begin, end) ? math::zero : math::positive;
+        }
+
+        if (begin == end) return math::zero;
+
+        // we know there must be at least one digit since range isn't empty.
+        auto i = end - 1;
+
+        // get the sign bit.
+        bool sign_bit = (*i & sign_bit_of<std::iter_value_t<X>>) != 0;
+
+        if constexpr (neg == negativity::twos) {
 
             while (true) {
-                i++;
+                if (*i != 0)
+                    return sign_bit ? math::negative : math::positive;
 
-                // if we reach the end then this number is zero.
-                if (i == x.rend ()) return 0;
+                if (i == begin) return math::zero;
 
-                if (*i == 0) extra_zero_bytes ++;
-
-                // if the first non-zero digit does not have the
-                // sign bit set then we can remove an extra digit.
-                else return size (x) - extra_zero_bytes - (*i < get_sign_bit<digit<X>>::value ? 1 : 0);
+                --i;
             }
+
+        } else if constexpr (neg == negativity::BC) {
+
+            auto dig = *i & ~sign_bit_of<std::iter_value_t<X>>;
+
+            while (true) {
+                if (dig != 0)
+                    return sign_bit ? math::negative : math::positive;
+
+                if (i == begin) return math::zero;
+
+                --i;
+                dig = *i;
+            }
+        }
+
+        throw exception {} << "invalid negativity";
+    }
+
+    template <negativity neg, range X>
+    constexpr math::sign sign (X x) {
+        return sign<neg> (x.begin (), x.end ());
+    }
+
+    namespace BC {
+
+        template <std::random_access_iterator X>
+        constexpr bool is_negative_zero (const X begin, const X end) {
+            auto i = begin;
+            if (i == end) return false;
+            if (*i != get_sign_bit<std::iter_value_t<X>>::value) return false;
+            while (true) {
+                i++;
+                if (i == end) return true;
+                if (*i != 0) return false;
+            }
+        }
+
+        template <range X>
+        constexpr bool is_positive_zero (X x) {
+            return arithmetic::is_zero<negativity::BC> (x);
         }
     }
 
-}
-
-namespace data::arithmetic::nones {
-
-    template <range X>
-    constexpr bool inline is_minimal (X x) {
-        return size (x) == 0 || x[-1] != 0;
+    template <negativity neg, std::random_access_iterator X>
+    constexpr bool is_negative (const X begin, const X end) {
+        if constexpr (neg == negativity::nones) {
+            return false;
+        } else if constexpr (neg == negativity::twos) {
+            return sign_bit (begin, end);
+        } else if constexpr (neg == negativity::BC) {
+            return sign_bit (begin, end) && !BC::is_negative_zero (begin, end);
+        }
     }
 
-    template <range X>
-    constexpr bool inline is_positive (X x) {
-        return !is_zero (x);
+    template <negativity neg, range X>
+    constexpr bool is_negative (X x) {
+        return is_negative<neg> (x.begin (), x.end ());
     }
 
-    template <range X>
-    constexpr bool inline is_negative (X x) {
-        return false;
+    template <negativity neg, range X>
+    constexpr bool get_digit (X x, int32 i) {
+        if (i < 0) return false;
+        constexpr size_t digit_size = sizeof (*x.begin ()) * CHAR_BIT;
+        size_t range_size = size (x);
+
+        if constexpr (neg == negativity::nones) {
+            if (i >= range_size * digit_size) return false;
+        } else if constexpr (neg == negativity::twos) {
+            if (i >= range_size * digit_size) return is_negative<neg> (x);
+        } else if constexpr (neg == negativity::BC) {
+            if (i >= range_size * digit_size || i == range_size * digit_size - 1) return false;
+        }
+
+        return (*(x.begin () + (i / digit_size)) >> (i % digit_size)) & 1;
     }
 
-    template <range X>
-    constexpr math::sign inline sign (X x) {
-        for (auto i = x.rbegin (); i != x.rend (); i++) if (*i != 0) return math::positive;
-        return math::zero;
+    template <negativity neg, std::random_access_iterator X>
+    constexpr size_t bit_width (const X begin, const X end) {
+        constexpr const size_t word_bits = sizeof (std::iter_value_t<X>) * CHAR_BIT;
+        size_t size = end - begin;
+
+        if constexpr (neg == negativity::nones) {
+            if (size == 0) return 0;
+
+            size_t width = size * word_bits;
+
+            auto i = end;
+
+            do {
+                --i;
+                width -= word_bits;
+                if (*i != 0) {
+                    width += std::bit_width (*i); // note: this is only defined for unsigned integral types.
+                    break;
+                }
+            } while (i != begin);
+
+            return width;
+        } else {
+            if (size == 0) return 1;
+
+            size_t width = size * word_bits;
+
+                if constexpr (neg == negativity::twos) {
+
+                math::sign sgn = sign<negativity::twos> (begin, end);
+                if (sgn == math::zero) return 1;
+
+                bool negative = sgn == math::negative;
+
+                auto i = end;
+
+                do {
+                    --i;
+
+                    width -= word_bits;
+
+                    if (!negative && *i != 0) {
+                        width += std::bit_width (*i); // note: this is only defined for unsigned integral types.
+                        break;
+                    }
+
+                    if (negative && *i != std::numeric_limits<std::iter_value_t<X>>::max ()) {
+                        width += std::bit_width (static_cast<std::iter_value_t<X>> (~*i));
+                        break;
+                    }
+                } while (i != begin);
+
+                return width + 1;
+            } else if constexpr (neg == negativity::BC)  {
+
+                math::sign sgn = sign<negativity::BC> (begin, end);
+                if (sgn == math::zero) return 1;
+
+                auto i = end - 1;
+
+                // we know there must be at least one digit since the number is not zero.
+                std::iter_value_t<X> dig = *i & ~sign_bit_of<std::iter_value_t<X>>;
+
+                while (true) {
+                    width -= word_bits;
+                    if (dig != 0) {
+                        width += std::bit_width (dig); // note: this is only defined for unsigned integral types.
+                        break;
+                    }
+
+                    if (i == begin) break;
+
+                    --i;
+                    dig = *i;
+                }
+
+                return width + 1;
+            }
+        }
+
+        throw exception {} << "invalid negativity " << neg;
+    }
+
+    template <negativity neg, range X>
+    requires Word<digit<X>>
+    constexpr size_t bit_width (X x) {
+        return bit_width<neg> (x.begin (), x.end ());
+    }
+
+    template <negativity neg, range X>
+    requires Word<digit<X>>
+    constexpr bool is_minimal (X x) {
+
+        if constexpr (neg == negativity::nones) {
+            return size (x) == 0 || x[-1] != 0;
+        } else if constexpr (neg == negativity::twos) {
+            // minimal zero.
+            if (size (x) == 0) return true;
+            // numbers of one byte.
+            if (size (x) == 1) return x[1] != 0;
+            // numbers without an initial 00 or ff.
+            digit<X> biggest = x[-1];
+            digit<X> max_value = std::numeric_limits<digit<X>>::max ();
+            if (biggest != max_value && biggest != 0) return true;
+            // numbers that would be interpreted with the wrong sign if they were shortened.
+            digit<X> next_biggest = x[-2];
+            return (biggest == 0 && (next_biggest & get_sign_bit<digit<X>>::value)) ||
+            (biggest == max_value && !(next_biggest & get_sign_bit<digit<X>>::value));
+        } else if constexpr (neg == negativity::BC) {
+            // minimal zero.
+            return (size (x) == 0) ||
+            // numbers without an initial 00 or 80.
+            (x[-1] != 0 && x[-1] != sign_bit_of<digit<X>>) ||
+            // numbers that would be interpreted as having the wrong sign if they were shortened.
+            (size (x) > 1 && (x[-2] & sign_bit_of<digit<X>>));
+        }
+
+        throw exception {} << "invalid negativity " << neg;
+    }
+
+    template <negativity neg, range X>
+    requires Word<digit<X>>
+    constexpr bool is_positive (X x) {
+
+        if constexpr (neg == negativity::nones) {
+            return !is_zero (x);
+        } else if constexpr (neg == negativity::twos) {
+            return !is_zero (x) && !sign_bit (x);
+        } else if constexpr (neg == negativity::BC) {
+            return !sign_bit (x) && !is_positive_zero (x);
+        }
+
+        throw exception {} << "invalid negativity " << neg;
     }
 
 }
@@ -360,45 +635,7 @@ namespace data::arithmetic::nones {
 namespace data::arithmetic::twos {
 
     template <range X>
-    constexpr bool is_minimal (X x) {
-        // minimal zero.
-        if (size (x) == 0) return true;
-        // numbers of one byte.
-        if (size (x) == 1) return x[1] != 0;
-        // numbers without an initial 00 or ff.
-        digit<X> biggest = x[-1];
-        digit<X> max_value = std::numeric_limits<digit<X>>::max ();
-        if (biggest != max_value && biggest != 0) return true;
-        // numbers that would be interpreted with the wrong sign if they were shortened.
-        digit<X> next_biggest = x[-2];
-        return (biggest == 0 && (next_biggest & get_sign_bit<digit<X>>::value)) ||
-            (biggest == max_value && !(next_biggest & get_sign_bit<digit<X>>::value));
-    }
-
-    template <range X>
-    constexpr bool inline is_positive (X x) {
-        return !is_zero (x) && !sign_bit (x);
-    }
-
-    template <range X>
-    constexpr bool inline is_negative (X x) {
-        return sign_bit (x);
-    }
-
-    template <range X>
-    constexpr math::sign sign (X x) {
-        auto i = x.rbegin ();
-        if (i == x.rend ()) return math::zero;
-        if (*i & get_sign_bit<digit<X>>::value) return math::negative;
-        while (i != x.rend ()) {
-            if (*i != 0) return math::positive;
-            i++;
-        }
-        return math::zero;
-    }
-
-    template <range X>
-    constexpr bool inline is_negative_one (const X x) {
+    constexpr bool is_negative_one (const X x) {
         if (size (x) == 0) return false;
         for (const auto &d : x) if (d != max_unsigned<digit<X>>) return false;
         return true;
@@ -409,78 +646,7 @@ namespace data::arithmetic::twos {
 namespace data::arithmetic::BC {
 
     template <range X>
-    constexpr bool is_zero (X x) {
-        auto i = x.rbegin ();
-        auto e = x.rend ();
-        if (i == e) return true;
-        if (*i != 0 && *i != get_sign_bit<digit<X>>::value) return false;
-        while (true) {
-            i++;
-            if (i == e) return true;
-            if (*i != 0) return false;
-        }
-    }
-
-    template <range X>
-    constexpr bool is_negative_zero (X x) {
-        auto i = x.rbegin ();
-        auto e = x.rend ();
-        if (i == e) return false;
-        if (*i != get_sign_bit<digit<X>>::value) return false;
-        while (true) {
-            i++;
-            if (i == e) return true;
-            if (*i != 0) return false;
-        }
-    }
-
-    template <range X>
-    constexpr bool inline is_positive_zero (X x) {
-        return arithmetic::is_zero (x);
-    }
-
-    template <range X>
-    constexpr bool is_minimal (X x) {
-        // minimal zero.
-        return (size (x) == 0) ||
-            // numbers without an initial 00 or 80.
-            (x[-1] != 0 && x[-1] != get_sign_bit<digit<X>>::value) ||
-            // numbers that would be interpreted as having the wrong sign if they were shortened.
-            (size (x) > 1 && (x[-2] & get_sign_bit<digit<X>>::value));
-    }
-
-    template <range X>
-    constexpr bool inline is_positive (X x) {
-        return !sign_bit (x) && !is_positive_zero (x);
-    }
-
-    template <range X>
-    constexpr bool inline is_negative (X x) {
-        return sign_bit (x) && !is_negative_zero (x);
-    }
-
-    template <range X>
-    constexpr math::sign sign (X x) {
-        // an empty number is zero.
-        auto i = x.rbegin ();
-        if (i == x.rend ()) return math::zero;
-
-        // get the sign bit.
-        math::sign sign_bit = (*i & get_sign_bit<digit<X>>::value) ? math::negative : math::positive;
-
-        // if there are digits other than the sign bit in the last byte,
-        // then the number is non-zero.
-        if (*i & ~get_sign_bit<digit<X>>::value) return sign_bit;
-
-        while (true) {
-            i++;
-            if (i == x.rend ()) return math::zero;
-            if (*i != 0) return sign_bit;
-        }
-    }
-
-    template <range X>
-    constexpr bool inline cast_to_bool (X x) {
+    constexpr bool cast_to_bool (X x) {
         return !is_zero (x);
     }
 
@@ -489,7 +655,7 @@ namespace data::arithmetic::BC {
 namespace data::arithmetic {
 
     template <negativity c, range X>
-    constexpr std::strong_ordering compare (X a, X b) {
+    constexpr std::strong_ordering compare (const X a, const X b) {
         if constexpr (c == negativity::nones) {
 
             auto za = size (a);
@@ -506,16 +672,8 @@ namespace data::arithmetic {
             return arithmetic::compare (ai, a.rend (), b.rbegin ());
         } else {
 
-            math::sign sga;
-            math::sign sgb;
-
-            if constexpr (c == negativity::twos) {
-                sga = twos::sign (a);
-                sgb = twos::sign (b);
-            } else if constexpr (c == negativity::BC) {
-                sga = BC::sign (a);
-                sgb = BC::sign (b);
-            } else throw exception {} << "it shouldn't be possible to get here.";
+            math::sign sga = sign<c> (a);
+            math::sign sgb = sign<c> (b);
 
             if (sga != sgb) {
                 if (sga == math::negative) return std::strong_ordering::less;
@@ -531,8 +689,8 @@ namespace data::arithmetic {
             auto za = size (a);
             auto zb = size (b);
 
-            X *greater;
-            X *lesser;
+            const X *greater;
+            const X *lesser;
 
             size_t size_difference;
             bool reversed;
@@ -549,9 +707,9 @@ namespace data::arithmetic {
                 reversed = true;
             }
 
-            using word = decltype (*a.begin ());
+            using word = std::iter_value_t<decltype (a.begin ())>;
             word check_digit;
-            std::strong_ordering base_case_result;
+            std::strong_ordering base_case_result = std::strong_ordering::greater;
             if (sga == math::negative) {
                 base_case_result = reversed ? std::strong_ordering::greater : std::strong_ordering::less;
                 check_digit = std::numeric_limits<word>::max ();
@@ -566,11 +724,9 @@ namespace data::arithmetic {
                 ai++;
             }
 
-            std::strong_ordering compare = arithmetic::compare (a.rend (), ai, b.rbegin ());
+            std::strong_ordering compare = arithmetic::compare (ai, a.rend (), b.rbegin ());
 
             return reversed ? 0 <=> compare : compare;
         }
     }
 }
-
-#endif

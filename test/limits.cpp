@@ -2,9 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/numbers.hpp"
-#include "data/math.hpp"
-#include "gtest/gtest.h"
+#include <data/numbers.hpp>
+#include <data/math.hpp>
+
+#include <gtest/gtest.h>
 
 namespace data {
 
@@ -45,10 +46,11 @@ namespace data {
     // This is not normally allowed by GMP.
 /*
     static_assert (has_numeric_limits<N>);
-    static_assert (has_numeric_limits<Z>);
     static_assert (has_numeric_limits<N_bytes_big>);
-    static_assert (has_numeric_limits<Z_bytes_big>);
     static_assert (has_numeric_limits<N_bytes_little>);
+
+    static_assert (has_numeric_limits<Z>);
+    static_assert (has_numeric_limits<Z_bytes_big>);
     static_assert (has_numeric_limits<Z_bytes_little>);
     static_assert (has_numeric_limits<Z_bytes_BC_big>);
     static_assert (has_numeric_limits<Z_bytes_BC_little>);

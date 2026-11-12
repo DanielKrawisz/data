@@ -2,21 +2,14 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/math/number/extended_euclidian.hpp"
-#include "data/math/number/bytes.hpp"
-#include "data/numbers.hpp"
-#include "data/tuple.hpp"
-#include "gtest/gtest.h"
+#include <data/math/number/extended_euclidian.hpp>
+#include <data/math/number/bytes.hpp>
+#include <data/numbers.hpp>
+#include <data/tuple.hpp>
+
+#include <gtest/gtest.h>
 
 namespace data::math {
-    
-    using Nb = number::N_bytes<endian::big, byte>;
-    using Nl = number::N_bytes<endian::little, byte>;
-    
-    using Zb1 = Z_bytes_big;
-    using Zl1 = Z_bytes_little;
-    using Zb2 = Z_bytes_BC_big;
-    using Zl2 = Z_bytes_BC_little;
 
     template <typename tuple>
     struct ExtendedEuclidian : ::testing::Test {
@@ -47,8 +40,8 @@ namespace data::math {
         tuple<uint128_little, uint128_little>,
         tuple<uint128_big, uint128_big>,
         tuple<Z, N>,
-        tuple<Zl1, Nl>,
-        tuple<Zb1, Nb>,
+        tuple<Z_bytes_little, N_bytes_little>,
+        tuple<Z_bytes_big, N_bytes_big>,
         tuple<Z_bytes_BC_little, Z_bytes_BC_little>,
         tuple<Z_bytes_BC_big, Z_bytes_BC_big>,
         tuple<math::Z_bytes<endian::little, unsigned short>, math::N_bytes<endian::little, unsigned short>>,

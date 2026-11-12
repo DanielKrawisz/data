@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_ALGEBRA_FINITE_FIELD
-#define DATA_MATH_ALGEBRA_FINITE_FIELD
+#pragma once
 
 #include <data/math/number/prime.hpp>
 #include <data/math/number/modular.hpp>
@@ -24,16 +23,18 @@ namespace data::math {
     template <auto P, RingNumber N>
     struct prime_field : number::modular<P, N> {
         using number::modular<P, N>::modular;
-        prime_field (const number::modular<P, N> &n): number::modular<P, N> {n} {}
-        prime_field (number::modular<P, N> &&n): number::modular<P, N> {n} {}
+        constexpr prime_field (const number::modular<P, N> &n): number::modular<P, N> {n} {}
+        constexpr prime_field (number::modular<P, N> &&n): number::modular<P, N> {n} {}
+
+        constexpr prime_field inverse () const;
     
         constexpr prime_field operator + (const prime_field &) const;
         constexpr prime_field operator - (const prime_field &) const;
         constexpr prime_field operator * (const prime_field &) const;
         constexpr prime_field operator / (const prime_field &) const;
-        constexpr prime_field operator ~ () const;
-        
-        constexpr prime_field inverse () const;
+        constexpr prime_field operator ~ () const {
+            return inverse ();
+        }
         
     };
 
@@ -130,6 +131,3 @@ namespace data::math {
         return *this * e.inverse ();
     }
 }
-
-#endif
-

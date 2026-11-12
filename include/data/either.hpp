@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_EITHER
-#define DATA_EITHER
+#pragma once
 
 #include <data/meta.hpp>
 #include <data/valid.hpp>
@@ -88,5 +87,3 @@ namespace data {
         return x.write (o);
     }
 }
-
-#endif

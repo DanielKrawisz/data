@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_TAKE
-#define DATA_TAKE
+#pragma once
 
 #include <data/functional/list.hpp>
 #include <data/reverse.hpp>
@@ -42,5 +41,3 @@ namespace data {
     }
     
 }
-
-#endif

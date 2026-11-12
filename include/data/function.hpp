@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_FUNCTION
-#define DATA_FUNCTION
+#pragma once
 
 #include <data/concepts.hpp>
 #include <data/types.hpp>
@@ -93,5 +92,3 @@ namespace data {
     }
 
 }
-
-#endif

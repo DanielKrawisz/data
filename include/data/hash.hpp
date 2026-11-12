@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_HASH
-#define DATA_HASH
+#pragma once
 
 /*
  *  data/hash.hpp
@@ -52,7 +51,7 @@
  *      data::hash::digest<size>
  *
  *  A data::hash::digest<size> represents a fixed-size hash output of `size`
- *  bytes. It inherits from data::math::uint_big<size>, which behaves like a
+ *  bytes. It inherits from data::math::ubound_big<size>, which behaves like a
  *  built-in unsigned integer type with big-endian storage.  This allows
  *  digests to be compared, copied, serialized, and manipulated using familiar
  *  numeric semantics, while still representing raw hash output.
@@ -170,9 +169,9 @@ namespace data::hash {
     template <size_t size> data::writer<byte> &operator << (data::writer<byte> &w, const digest<size> &s);
     template <size_t size> data::reader<byte> &operator >> (data::reader<byte> &r, digest<size> &s);
     
-    template <size_t s> struct digest : public math::uint_big<s, byte> {
-        using math::uint_big<s, byte>::uint_big;
-        digest (const math::uint_big<s, byte> &u) : math::uint_big<s, byte> {u} {}
+    template <size_t s> struct digest : public math::ubound_big<s, byte> {
+        using math::ubound_big<s, byte>::ubound_big;
+        digest (const math::ubound_big<s, byte> &u) : math::ubound_big<s, byte> {u} {}
         bool valid () const;
     };
 
@@ -260,7 +259,7 @@ namespace data::hash {
 
     template <size_t size>
     std::ostream inline &operator << (std::ostream &o, const digest<size> &s) {
-        return o << encoding::hexidecimal::write (s);
+        return o << encoding::hexidecimal::write<hex_case::lower> (s);
     }
 
     template <Writer W, std::invocable<W &> F>
@@ -298,6 +297,4 @@ namespace data::hash {
 
     
 }
-
-#endif
 

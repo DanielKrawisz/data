@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_ALGEBRA_CYCLIC_GROUP
-#define DATA_MATH_ALGEBRA_CYCLIC_GROUP
+#pragma once
 
 #include <data/valid.hpp>
 
@@ -14,5 +13,3 @@ namespace data::math {
     template <auto natural, typename N = decltype (natural)> using cyclic_group = number::modular<natural, N>;
     
 }
-
-#endif
