@@ -450,20 +450,14 @@ namespace data::math::number {
     template <endian r, negativity neg, Word word>
     bool operator == (const Z_bytes<r, neg, word> &, const Z_bytes<r, neg, word> &);
 
-    template <endian r, negativity negl, negativity negr, Word word>
+    template <endian r, negativity negl, negativity negr, Word word> requires (negl != negr)
     bool operator == (const Z_bytes<r, negl, word> &, const Z_bytes<r, negr, word> &);
 
-    template <endian r, Word word>
-    std::weak_ordering operator <=> (const N_bytes<r, word> &, const N_bytes<r, word> &);
+    template <endian r, negativity neg, Word word>
+    std::weak_ordering operator <=> (const Z_bytes<r, neg, word> &, const Z_bytes<r, neg, word> &);
 
-    template <endian r, Word word>
-    std::weak_ordering operator <=> (const Z_bytes<r, negativity::twos, word> &, const Z_bytes<r, negativity::twos, word> &);
-
-    template <endian r, Word word>
-    std::weak_ordering operator <=> (const Z_bytes<r, negativity::BC, word> &, const Z_bytes<r, negativity::BC, word> &);
-
-    template <endian r, negativity cl, negativity cr, Word word>
-    std::weak_ordering operator <=> (const Z_bytes<r, cl, word> &, const Z_bytes<r, cl, word> &);
+    template <endian r, negativity cl, negativity cr, Word word> requires (cl != cr)
+    std::weak_ordering operator <=> (const Z_bytes<r, cl, word> &, const Z_bytes<r, cr, word> &);
 
     // bounded
     template <bool x, endian r, size_t n, bool y, endian o, size_t z, Word word>
@@ -1394,6 +1388,480 @@ namespace data::math::number {
 
     template <bool u, endian r, size_t z, Word word>
     constexpr bounded<u, r, z, word> &operator %= (bounded<u, r, z, word> &, const bounded<u, r, z, word> &);
+}
+
+// number operators for string types.
+namespace data::encoding {
+
+    namespace decimal {
+
+        // all valid decimal strings are uniquely associated with
+        // a natural number, so we can use a strong ordering.
+        std::strong_ordering operator <=> (const string &, const string &);
+
+        string &operator ++ (string &);
+        string &operator -- (string &);
+
+        string operator ++ (string &, int);
+        string operator -- (string &, int);
+
+        string operator + (const string &, const string &);
+        string operator - (const string &, const string &);
+        string operator * (const string &, const string &);
+
+        string operator << (const string &, int);
+        string operator >> (const string &, int);
+
+        signed_decimal::string operator ~ (const string &);
+        string operator | (const string &, const string &);
+        string operator & (const string &, const string &);
+        string operator ^ (const string &, const string &);
+
+        string operator / (const string &, const string &);
+        string operator % (const string &, const string &);
+
+        template <std::unsigned_integral I> string operator | (const string &, I);
+        template <std::unsigned_integral I> string operator & (const string &, I);
+        template <std::unsigned_integral I> string operator ^ (const string &, I);
+
+        template <std::unsigned_integral I> string operator | (I, const string &);
+        template <std::unsigned_integral I> string operator & (I, const string &);
+        template <std::unsigned_integral I> string operator ^ (I, const string &);
+
+        template <std::signed_integral I> signed_decimal::string operator | (const string &, I);
+        template <std::signed_integral I> signed_decimal::string operator & (const string &, I);
+        template <std::signed_integral I> signed_decimal::string operator ^ (const string &, I);
+
+        template <std::signed_integral I> signed_decimal::string operator | (I, const string &);
+        template <std::signed_integral I> signed_decimal::string operator & (I, const string &);
+        template <std::signed_integral I> signed_decimal::string operator ^ (I, const string &);
+
+        template <std::integral I> std::strong_ordering operator <=> (const string &, I);
+        template <std::integral I> bool operator == (const string &, I);
+
+    }
+
+    namespace signed_decimal {
+
+        // all valid decimal strings are uniquely associated with
+        // a natural number, so we can use a strong ordering.
+        std::strong_ordering operator <=> (const string &, const string &);
+        std::strong_ordering operator <=> (const decimal::string &, const string &);
+        std::strong_ordering operator <=> (const string &, const decimal::string &);
+
+        string &operator ++ (string &);
+        string &operator -- (string &);
+
+        string operator ++ (string &, int);
+        string operator -- (string &, int);
+
+        string operator - (const string &);
+
+        string operator + (const string &, const string &);
+        string operator - (const string &, const string &);
+        string operator * (const string &, const string &);
+
+        string operator << (const string &, int);
+        string operator >> (const string &, int);
+
+        string operator ~ (const string &);
+        string operator | (const string &, const string &);
+        string operator & (const string &, const string &);
+        string operator ^ (const string &, const string &);
+
+        template <std::integral I> string operator | (const string &, I);
+        template <std::integral I> string operator & (const string &, I);
+        template <std::integral I> string operator ^ (const string &, I);
+
+        template <std::integral I> string operator | (I, const string &);
+        template <std::integral I> string operator & (I, const string &);
+        template <std::integral I> string operator ^ (I, const string &);
+
+        string operator / (const string &, const string &);
+        string operator % (const string &, const string &);
+
+        string operator + (const string &n, const decimal::string &x);
+        string operator - (const string &n, const decimal::string &x);
+        string operator * (const string &n, const decimal::string &x);
+        string operator | (const string &n, const decimal::string &x);
+        string operator ^ (const string &n, const decimal::string &x);
+        string operator & (const string &n, const decimal::string &x);
+        string operator / (const string &n, const decimal::string &x);
+
+        string operator + (const decimal::string &n, const string &x);
+        string operator - (const decimal::string &n, const string &x);
+        string operator * (const decimal::string &n, const string &x);
+        string operator | (const decimal::string &n, const string &x);
+        string operator ^ (const decimal::string &n, const string &x);
+        string operator & (const decimal::string &n, const string &x);
+        string operator / (const decimal::string &n, const string &x);
+
+        template <std::integral I> string operator + (const string &, I);
+        template <std::integral I> string operator - (const string &, I);
+        template <std::integral I> string operator * (const string &, I);
+
+        template <std::integral I> string operator + (I, const string &);
+        template <std::integral I> string operator - (I, const string &);
+        template <std::integral I> string operator * (I, const string &);
+
+        decimal::string operator % (const string &, const decimal::string &x);
+
+        string &operator |= (string &, const string &);
+        string &operator &= (string &, const string &);
+        string &operator ^= (string &, const string &);
+
+        string &operator += (string &n, const decimal::string &x);
+        string &operator -= (string &n, const decimal::string &x);
+        string &operator *= (string &n, const decimal::string &x);
+        string &operator |= (string &n, const decimal::string &x);
+        string &operator &= (string &n, const decimal::string &x);
+        string &operator ^= (string &n, const decimal::string &x);
+        string &operator /= (string &n, const decimal::string &x);
+        string &operator %= (string &n, const decimal::string &x);
+
+    }
+
+    namespace hexidecimal {
+
+        template <negativity c, hex::letter_case x> integer<c, hex::letter_case::upper> to_upper (const integer<c, x> &);
+        template <negativity c, hex::letter_case x> integer<c, hex::letter_case::lower> to_lower (const integer<c, x> &);
+
+        // comparison
+        template <negativity cl, negativity cr, hex::letter_case cx>
+        bool operator == (const integer<cl, cx> &a, const integer<cr, cx> &b);
+
+        // TODO we can improve a lott of these functions by using negativity as a type parameter
+        // instead of creating an overload for each one. Internally, we then say if constexpr (neg == nones) etc
+        template <hex::letter_case cx>
+        std::weak_ordering operator <=> (const integer<negativity::nones, cx> &, const integer<negativity::nones, cx> &);
+
+        template <hex::letter_case cx>
+        std::weak_ordering operator <=> (const integer<negativity::twos, cx> &, const integer<negativity::twos, cx> &);
+
+        template <hex::letter_case cx>
+        std::weak_ordering operator <=> (const integer<negativity::BC, cx> &, const integer<negativity::BC, cx> &);
+
+        template <negativity c, hex::letter_case cx>
+        std::weak_ordering operator <=> (const integer<negativity::nones, cx> &, const integer<c, cx> &);
+
+        template <negativity c, hex::letter_case cx>
+        std::weak_ordering operator <=> (const integer<c, cx> &, const integer<negativity::nones, cx> &);
+
+        template <negativity cl, negativity cr, hex::letter_case cx>
+        std::weak_ordering operator <=> (const integer<cl, cx> &, const integer<cr, cx> &);
+
+        template <negativity n, hex::letter_case cx, std::integral I>
+        bool operator == (const integer<n, cx> &, I);
+
+        template <negativity n, hex::letter_case cx, std::integral I>
+        std::weak_ordering operator <=> (const integer<n, cx> &, I);
+
+        // increment and decrement
+        template <hex::letter_case cx>
+        integer<negativity::nones, cx> &operator ++ (integer<negativity::nones, cx> &);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> &operator ++ (integer<negativity::twos, cx> &);
+
+        template <hex::letter_case cx>
+        integer<negativity::BC, cx> &operator ++ (integer<negativity::BC, cx> &);
+
+        template <hex::letter_case cx>
+        integer<negativity::nones, cx> &operator -- (integer<negativity::nones, cx> &);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> &operator -- (integer<negativity::twos, cx> &);
+
+        template <hex::letter_case cx>
+        integer<negativity::BC, cx> &operator -- (integer<negativity::BC, cx> &);
+
+        template <negativity c, hex::letter_case cx>
+        integer<c, cx> operator ++ (integer<c, cx> &, int);
+
+        template <negativity c, hex::letter_case cx>
+        integer<c, cx> operator -- (integer<c, cx> &, int);
+
+        // basic arithmetic
+        template <negativity c, hex::letter_case cx>
+        integer<c, cx> operator + (const integer<c, cx> &, const integer<c, cx> &);
+
+        template <negativity c, hex::letter_case cx>
+        integer<c, cx> operator - (const integer<c, cx> &, const integer<c, cx> &);
+
+        template <negativity c, hex::letter_case cx>
+        integer<c, cx> operator * (const integer<c, cx> &, const integer<c, cx> &);
+
+        template <hex::letter_case cx, std::unsigned_integral I>
+        integer<negativity::nones, cx> operator + (const integer<negativity::nones, cx> &, I);
+
+        template <hex::letter_case cx, std::unsigned_integral I>
+        integer<negativity::nones, cx> operator - (const integer<negativity::nones, cx> &, I);
+
+        template <hex::letter_case cx, std::unsigned_integral I>
+        integer<negativity::nones, cx> operator * (const integer<negativity::nones, cx> &, I);
+
+        template <std::unsigned_integral I, hex::letter_case cx>
+        integer<negativity::nones, cx> operator + (I, const integer<negativity::nones, cx> &);
+
+        template <std::unsigned_integral I, hex::letter_case cx>
+        integer<negativity::nones, cx> operator - (I, const integer<negativity::nones, cx> &);
+
+        template <std::unsigned_integral I, hex::letter_case cx>
+        integer<negativity::nones, cx> operator * (I, const integer<negativity::nones, cx> &);
+
+        template <hex::letter_case cx, std::signed_integral I>
+        integer<negativity::twos, cx> operator + (const integer<negativity::nones, cx> &, I);
+
+        template <hex::letter_case cx, std::signed_integral I>
+        integer<negativity::twos, cx> operator - (const integer<negativity::nones, cx> &, I);
+
+        template <hex::letter_case cx, std::signed_integral I>
+        integer<negativity::twos, cx> operator * (const integer<negativity::nones, cx> &, I);
+
+        template <std::signed_integral I, hex::letter_case cx>
+        integer<negativity::twos, cx> operator + (I, const integer<negativity::nones, cx> &);
+
+        template <std::signed_integral I, hex::letter_case cx>
+        integer<negativity::twos, cx> operator - (I, const integer<negativity::nones, cx> &);
+
+        template <std::signed_integral I, hex::letter_case cx>
+        integer<negativity::twos, cx> operator * (I, const integer<negativity::nones, cx> &);
+
+        template <hex::letter_case cx, std::integral I>
+        integer<negativity::twos, cx> operator + (const integer<negativity::twos, cx> &, I);
+
+        template <hex::letter_case cx, std::integral I>
+        integer<negativity::twos, cx> operator - (const integer<negativity::twos, cx> &, I);
+
+        template <hex::letter_case cx, std::integral I>
+        integer<negativity::twos, cx> operator * (const integer<negativity::twos, cx> &, I);
+
+        template <std::integral I, hex::letter_case cx>
+        integer<negativity::twos, cx> operator + (I, const integer<negativity::twos, cx> &);
+
+        template <std::integral I, hex::letter_case cx>
+        integer<negativity::twos, cx> operator - (I, const integer<negativity::twos, cx> &);
+
+        template <std::integral I, hex::letter_case cx>
+        integer<negativity::twos, cx> operator * (I, const integer<negativity::twos, cx> &);
+
+        template <hex::letter_case cx, std::integral I>
+        integer<negativity::BC, cx> operator + (const integer<negativity::BC, cx> &, I);
+
+        template <hex::letter_case cx, std::integral I>
+        integer<negativity::BC, cx> operator - (const integer<negativity::BC, cx> &, I);
+
+        template <hex::letter_case cx, std::integral I>
+        integer<negativity::BC, cx> operator * (const integer<negativity::BC, cx> &, I);
+
+        template <std::integral I, hex::letter_case cx>
+        integer<negativity::BC, cx> operator + (I, const integer<negativity::BC, cx> &);
+
+        template <std::integral I, hex::letter_case cx>
+        integer<negativity::BC, cx> operator - (I, const integer<negativity::BC, cx> &);
+
+        template <std::integral I, hex::letter_case cx>
+        integer<negativity::BC, cx> operator * (I, const integer<negativity::BC, cx> &);
+
+        // division
+        template <negativity c, hex::letter_case cx>
+        integer<c, cx> operator / (const integer<c, cx> &, const integer<c, cx> &);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> operator / (const integer<negativity::twos, cx> &, const integer<negativity::nones, cx> &);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> operator / (const integer<negativity::nones, cx> &, const integer<negativity::twos, cx> &);
+
+        template <negativity c, hex::letter_case cx>
+        integer<c, cx> &operator /= (const integer<c, cx> &, const integer<c, cx> &);
+
+        // mod
+        template <negativity n, hex::letter_case cx>
+        integer<negativity::nones, cx> operator % (const integer<negativity::nones, cx> &, const integer<negativity::nones, cx> &);
+
+        template <hex::letter_case cx>
+        integer<negativity::nones, cx> &operator %= (integer<negativity::nones, cx> &n, const integer<negativity::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::nones, cx> operator % (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::nones, cx> &operator %= (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::BC, cx> operator % (const integer<negativity::BC, cx> &n, const integer<negativity::BC, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::BC, cx> &operator %= (integer<negativity::BC, cx> &n, const integer<negativity::BC, cx> &x);
+
+        // bit operations
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> operator ~ (const integer<negativity::twos, cx> &);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> operator ~ (const integer<negativity::nones, cx> &);
+
+        template <negativity neg, hex::letter_case cx>
+        integer<neg, cx> operator ^ (const integer<neg, cx> &, const integer<neg, cx> &);
+
+        template <negativity c, hex::letter_case cx>
+        integer<c, cx> operator | (const integer<c, cx> &, const integer<c, cx> &);
+
+        template <negativity c, hex::letter_case cx>
+        integer<c, cx> operator & (const integer<c, cx> &, const integer<c, cx> &);
+
+        template <negativity c, hex::letter_case cx>
+        integer<c, cx> &operator |= (const integer<c, cx> &, const integer<c, cx> &);
+
+        template <negativity c, hex::letter_case cx>
+        integer<c, cx> &operator &= (const integer<c, cx> &, const integer<c, cx> &);
+
+        template <negativity neg, hex::letter_case cx>
+        integer<neg, cx> &operator ^= (integer<neg, cx> &, const integer<neg, cx> &);
+
+        template <hex::letter_case cx, std::unsigned_integral I>
+        integer<negativity::nones, cx> operator | (const integer<negativity::nones, cx> &, I);
+
+        template <hex::letter_case cx, std::unsigned_integral I>
+        integer<negativity::nones, cx> operator & (const integer<negativity::nones, cx> &, I);
+
+        template <hex::letter_case cx, std::unsigned_integral I>
+        integer<negativity::nones, cx> operator ^ (const integer<negativity::nones, cx> &, I);
+
+        template <std::unsigned_integral I, hex::letter_case cx>
+        integer<negativity::nones, cx> operator | (I, const integer<negativity::nones, cx> &);
+
+        template <std::unsigned_integral I, hex::letter_case cx>
+        integer<negativity::nones, cx> operator & (I, const integer<negativity::nones, cx> &);
+
+        template <std::unsigned_integral I, hex::letter_case cx>
+        integer<negativity::nones, cx> operator ^ (I, const integer<negativity::nones, cx> &);
+
+        template <hex::letter_case cx, std::integral I>
+        integer<negativity::twos, cx> operator | (const integer<negativity::twos, cx> &, I);
+
+        template <hex::letter_case cx, std::integral I>
+        integer<negativity::twos, cx> operator & (const integer<negativity::twos, cx> &, I);
+
+        template <hex::letter_case cx, std::integral I>
+        integer<negativity::twos, cx> operator ^ (const integer<negativity::twos, cx> &, I);
+
+        template <std::integral I, hex::letter_case cx>
+        integer<negativity::twos, cx> operator | (I, const integer<negativity::twos, cx> &);
+
+        template <std::integral I, hex::letter_case cx>
+        integer<negativity::twos, cx> operator & (I, const integer<negativity::twos, cx> &);
+
+        template <std::integral I, hex::letter_case cx>
+        integer<negativity::twos, cx> operator ^ (I, const integer<negativity::twos, cx> &);
+
+        template <hex::letter_case cx, std::signed_integral I>
+        integer<negativity::twos, cx> operator | (const integer<negativity::nones, cx> &, I);
+
+        template <hex::letter_case cx, std::signed_integral I>
+        integer<negativity::twos, cx> operator & (const integer<negativity::nones, cx> &, I);
+
+        template <hex::letter_case cx, std::signed_integral I>
+        integer<negativity::twos, cx> operator ^ (const integer<negativity::nones, cx> &, I);
+
+        template <std::signed_integral I, hex::letter_case cx>
+        integer<negativity::twos, cx> operator | (I, const integer<negativity::nones, cx> &);
+
+        template <std::signed_integral I, hex::letter_case cx>
+        integer<negativity::twos, cx> operator & (I, const integer<negativity::nones, cx> &);
+
+        template <std::signed_integral I, hex::letter_case cx>
+        integer<negativity::twos, cx> operator ^ (I, const integer<negativity::nones, cx> &);
+
+        template <hex::letter_case cx, std::unsigned_integral I>
+        integer<negativity::nones, cx> &operator |= (integer<negativity::nones, cx> &, I);
+
+        template <hex::letter_case cx, std::unsigned_integral I>
+        integer<negativity::nones, cx> &operator &= (integer<negativity::nones, cx> &, I);
+
+        template <hex::letter_case cx, std::unsigned_integral I>
+        integer<negativity::nones, cx> &operator ^= (integer<negativity::nones, cx> &, I);
+
+        template <hex::letter_case cx, std::integral I>
+        integer<negativity::twos, cx> &operator |= (integer<negativity::twos, cx> &, I);
+
+        template <hex::letter_case cx, std::integral I>
+        integer<negativity::twos, cx> &operator &= (integer<negativity::twos, cx> &, I);
+
+        template <hex::letter_case cx, std::integral I>
+        integer<negativity::twos, cx> &operator ^= (integer<negativity::twos, cx> &, I);
+
+        // bit shift
+        template <negativity c, hex::letter_case cx>
+        integer<c, cx> operator << (const integer<c, cx> &, int);
+
+        template <negativity c, hex::letter_case cx>
+        integer<c, cx> operator >> (const integer<c, cx> &, int);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> operator - (const integer<negativity::nones, cx> &);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> operator - (const integer<negativity::twos, cx> &);
+
+        template <hex::letter_case cx>
+        integer<negativity::BC, cx> operator - (const integer<negativity::BC, cx> &);
+
+        // bool operations
+        template <hex::letter_case cx>
+        integer<negativity::BC, cx> operator ! (const integer<negativity::BC, cx> &);
+
+        template <hex::letter_case cx> integer<negativity::BC, cx> operator &&
+        (const integer<negativity::BC, cx> &, const integer<negativity::BC, cx> &);
+
+        template <hex::letter_case cx> integer<negativity::BC, cx> operator ||
+        (const integer<negativity::BC, cx> &, const integer<negativity::BC, cx> &);
+
+        // special cases
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> operator + (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> operator - (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> operator * (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> operator + (const integer<negativity::nones, cx> &n, const integer<negativity::twos, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> operator - (const integer<negativity::nones, cx> &n, const integer<negativity::twos, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> operator * (const integer<negativity::nones, cx> &n, const integer<negativity::twos, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> operator | (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> operator & (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> operator / (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> &operator += (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> &operator -= (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> &operator *= (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> &operator |= (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+
+        template <hex::letter_case cx>
+        integer<negativity::twos, cx> &operator &= (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
+
+    }
 }
 
 namespace data::math::def {

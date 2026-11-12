@@ -201,16 +201,6 @@ namespace data::math::number {
     }
     
     // some functions that can easily be implemented as other functions using conversions. 
-
-    template <endian r, negativity c, Word word>
-    std::weak_ordering inline operator <=> (const Z_bytes<r, c, word> &a, const N_bytes<r, word> &b) {
-        return a <=> Z_bytes<r, c, word> (b);
-    }
-    
-    template <endian r, negativity c, Word word>
-    std::weak_ordering inline operator <=> (const N_bytes<r, word> &a, const Z_bytes<r, c, word> &b) {
-        return Z_bytes<r, c, word> (a) <=> b;
-    }
     
     template <endian r, Word word>
     Z_bytes<r, negativity::twos, word> inline operator ~ (const N_bytes<r, word> &b) {
@@ -866,19 +856,9 @@ namespace data::math::number {
         return Z_bytes<r, c, word> (std::move (arithmetic::extend<r, c, word> (x, size)));
     }
     
-    template <endian r, Word word>
-    std::weak_ordering inline operator <=> (const N_bytes<r, word> &a, const N_bytes<r, word> &b) {
-        return arithmetic::nones::compare<r, word> (a, b);
-    }
-    
-    template <endian r, Word word>
-    std::weak_ordering inline operator <=> (const Z_bytes<r, negativity::twos, word> &a, const Z_bytes<r, negativity::twos, word> &b) {
-        return arithmetic::twos::compare<r, word> (a, b);
-    }
-    
-    template <endian r, Word word>
-    std::weak_ordering inline operator <=> (const Z_bytes<r, negativity::BC, word> &a, const Z_bytes<r, negativity::BC, word> &b) {
-        return arithmetic::BC::compare<r, word> (a, b);
+    template <endian r, negativity neg, Word word>
+    std::weak_ordering inline operator <=> (const Z_bytes<r, neg, word> &a, const Z_bytes<r, neg, word> &b) {
+        return arithmetic::compare<neg> (a.words (), b.words ());
     }
     
     template <endian r, negativity c, Word word, std::integral I>
@@ -895,13 +875,13 @@ namespace data::math::number {
         return (x <=> Z_bytes<r, c, word> {i}) == 0;
     }
 
-    template <endian r, negativity cl, negativity cr, Word word>
+    template <endian r, negativity cl, negativity cr, Word word> requires (cl != cr)
     bool inline operator == (const Z_bytes<r, cl, word> &a, const Z_bytes<r, cr, word> &b) {
         return a == Z_bytes<r, cl, word> (b);
     }
 
-    template <endian r, negativity cl, negativity cr, Word word>
-    std::weak_ordering inline operator <=> (const Z_bytes<r, cl, word> &a, const Z_bytes<r, cl, word> &b) {
+    template <endian r, negativity cl, negativity cr, Word word> requires (cl != cr)
+    std::weak_ordering inline operator <=> (const Z_bytes<r, cl, word> &a, const Z_bytes<r, cr, word> &b) {
         return a <=> Z_bytes<r, cl, word> (b);
     }
     

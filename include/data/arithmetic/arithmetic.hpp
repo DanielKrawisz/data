@@ -46,6 +46,7 @@ namespace data::arithmetic {
         return false;
     }
 
+    // both iterators are supposed to be the same length.
     template <std::input_iterator it, std::sentinel_for<it> sen>
     constexpr std::strong_ordering compare (it i, sen z, it j) {
 
@@ -442,24 +443,6 @@ namespace data::arithmetic {
     }
 
     namespace BC {
-        template <std::random_access_iterator X>
-        constexpr bool is_zero (const X begin, const X end) {
-            auto i = begin;
-
-            if (i == end) return true;
-            if (*i != 0 && *i != get_sign_bit<std::iter_value_t<X>>::value) return false;
-
-            while (true) {
-                i++;
-                if (i == end) return true;
-                if (*i != 0) return false;
-            }
-        }
-
-        template <range X>
-        constexpr bool is_zero (X x) {
-            return is_zero (x.begin (), x.end ());
-        }
 
         template <std::random_access_iterator X>
         constexpr bool is_negative_zero (const X begin, const X end) {
@@ -475,7 +458,7 @@ namespace data::arithmetic {
 
         template <range X>
         constexpr bool is_positive_zero (X x) {
-            return arithmetic::is_zero (x);
+            return arithmetic::is_zero<negativity::BC> (x);
         }
     }
 
@@ -672,7 +655,7 @@ namespace data::arithmetic::BC {
 namespace data::arithmetic {
 
     template <negativity c, range X>
-    constexpr std::strong_ordering compare (X a, X b) {
+    constexpr std::strong_ordering compare (const X a, const X b) {
         if constexpr (c == negativity::nones) {
 
             auto za = size (a);
@@ -703,11 +686,11 @@ namespace data::arithmetic {
 
             if (sga == math::zero) return std::strong_ordering::equal;
 
-            auto za = size<c> (a);
-            auto zb = size<c> (b);
+            auto za = size (a);
+            auto zb = size (b);
 
-            X *greater;
-            X *lesser;
+            const X *greater;
+            const X *lesser;
 
             size_t size_difference;
             bool reversed;
@@ -724,9 +707,9 @@ namespace data::arithmetic {
                 reversed = true;
             }
 
-            using word = decltype (*a.begin ());
+            using word = std::iter_value_t<decltype (a.begin ())>;
             word check_digit;
-            std::strong_ordering base_case_result;
+            std::strong_ordering base_case_result = std::strong_ordering::greater;
             if (sga == math::negative) {
                 base_case_result = reversed ? std::strong_ordering::greater : std::strong_ordering::less;
                 check_digit = std::numeric_limits<word>::max ();
@@ -741,7 +724,7 @@ namespace data::arithmetic {
                 ai++;
             }
 
-            std::strong_ordering compare = arithmetic::compare (a.rend (), ai, b.rbegin ());
+            std::strong_ordering compare = arithmetic::compare (ai, a.rend (), b.rbegin ());
 
             return reversed ? 0 <=> compare : compare;
         }
