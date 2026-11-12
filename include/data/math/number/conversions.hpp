@@ -404,9 +404,6 @@ namespace data::math::def {
             }
         };
 
-        // we remove optimization because of a weird problem that happened with a similar function on -O2 and -O3
-        #pragma GCC push_options
-        #pragma GCC optimize("O1")
         // this helper function exists because we use a word writer differently depending on the input parameters.
         // it returns the number of words read from the word writer, which we need later.
         template <
@@ -483,8 +480,6 @@ namespace data::math::def {
 
         // the output range is required to be sufficient to hold the given number.
         // we remove optimization because of a weird problem that happened with a similar function on -O2 and -O3
-        #pragma GCC push_options
-        #pragma GCC optimize("O1")
         template <
             negativity ToNeg,
             negativity FromNeg,

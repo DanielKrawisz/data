@@ -8,8 +8,6 @@
 #include <data/arithmetic/negativity.hpp>
 #include <data/encoding/endian.hpp>
 
-// these functions will not trim the input or result.
-
 namespace data::arithmetic {
 
     // provide a zero of a given size.
@@ -49,8 +47,6 @@ namespace data::arithmetic {
 
 namespace data::arithmetic::nones {
 
-    template <endian r, std::integral word> std::strong_ordering compare (slice<const word>, slice<const word>);
-
     template <endian r, std::integral word> bytestring<word> &increment (bytestring<word> &);
     template <endian r, std::integral word> bytestring<word> increment (slice<const word>);
 
@@ -76,8 +72,6 @@ namespace data::arithmetic::nones {
 }
 
 namespace data::arithmetic::twos {
-
-    template <endian r, std::integral word> std::strong_ordering compare (slice<const word>, slice<const word>);
 
     template <endian r, std::integral word> bytestring<word> &negate (bytestring<word> &);
     template <endian r, std::integral word> bytestring<word> negate (slice<const word>);
@@ -109,8 +103,6 @@ namespace data::arithmetic::twos {
 }
 
 namespace data::arithmetic::BC {
-
-    template <endian r, std::integral word> std::weak_ordering compare (slice<const word>, slice<const word>);
 
     template <endian r, std::integral word> bytestring<word> &negate (bytestring<word> &);
     template <endian r, std::integral word> bytestring<word> negate (slice<const word>);

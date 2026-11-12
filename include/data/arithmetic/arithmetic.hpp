@@ -46,6 +46,7 @@ namespace data::arithmetic {
         return false;
     }
 
+    // both iterators are supposed to be the same length.
     template <std::input_iterator it, std::sentinel_for<it> sen>
     constexpr std::strong_ordering compare (it i, sen z, it j) {
 
@@ -442,24 +443,6 @@ namespace data::arithmetic {
     }
 
     namespace BC {
-        template <std::random_access_iterator X>
-        constexpr bool is_zero (const X begin, const X end) {
-            auto i = begin;
-
-            if (i == end) return true;
-            if (*i != 0 && *i != get_sign_bit<std::iter_value_t<X>>::value) return false;
-
-            while (true) {
-                i++;
-                if (i == end) return true;
-                if (*i != 0) return false;
-            }
-        }
-
-        template <range X>
-        constexpr bool is_zero (X x) {
-            return is_zero (x.begin (), x.end ());
-        }
 
         template <std::random_access_iterator X>
         constexpr bool is_negative_zero (const X begin, const X end) {
@@ -475,7 +458,7 @@ namespace data::arithmetic {
 
         template <range X>
         constexpr bool is_positive_zero (X x) {
-            return arithmetic::is_zero (x);
+            return arithmetic::is_zero<negativity::BC> (x);
         }
     }
 
@@ -671,13 +654,13 @@ namespace data::arithmetic::BC {
 
 namespace data::arithmetic {
 
-    template <negativity c, range X>
-    constexpr std::strong_ordering compare (X a, X b) {
-        if constexpr (c == negativity::nones) {
+    template <negativity neg, range X>
+    constexpr std::strong_ordering compare (const X a, const X b) {
+        if constexpr (neg == negativity::nones) {
 
             auto za = size (a);
             auto zb = size (b);
-            if (za < zb) return 0 <=> compare<c> (b, a);
+            if (za < zb) return 0 <=> compare<neg> (b, a);
             size_t size_difference = za - zb;
 
             auto ai = a.rbegin ();
@@ -689,8 +672,8 @@ namespace data::arithmetic {
             return arithmetic::compare (ai, a.rend (), b.rbegin ());
         } else {
 
-            math::sign sga = sign<c> (a);
-            math::sign sgb = sign<c> (b);
+            math::sign sga = sign<neg> (a);
+            math::sign sgb = sign<neg> (b);
 
             if (sga != sgb) {
                 if (sga == math::negative) return std::strong_ordering::less;
@@ -703,11 +686,11 @@ namespace data::arithmetic {
 
             if (sga == math::zero) return std::strong_ordering::equal;
 
-            auto za = size<c> (a);
-            auto zb = size<c> (b);
+            auto za = size (a);
+            auto zb = size (b);
 
-            X *greater;
-            X *lesser;
+            const X *greater;
+            const X *lesser;
 
             size_t size_difference;
             bool reversed;
@@ -724,26 +707,79 @@ namespace data::arithmetic {
                 reversed = true;
             }
 
-            using word = decltype (*a.begin ());
-            word check_digit;
-            std::strong_ordering base_case_result;
-            if (sga == math::negative) {
-                base_case_result = reversed ? std::strong_ordering::greater : std::strong_ordering::less;
-                check_digit = std::numeric_limits<word>::max ();
-            } else {
-                base_case_result = reversed ? std::strong_ordering::less : std::strong_ordering::greater;
-                check_digit = 0;
+            using word = std::iter_value_t<decltype (a.begin ())>;
+
+            if constexpr (neg == negativity::twos) {
+                word check_digit;
+                std::strong_ordering base_case_result = std::strong_ordering::greater;
+                if (sga == math::negative) {
+                    base_case_result = reversed ? std::strong_ordering::greater : std::strong_ordering::less;
+                    check_digit = std::numeric_limits<word>::max ();
+                } else {
+                    base_case_result = reversed ? std::strong_ordering::less : std::strong_ordering::greater;
+                    check_digit = 0;
+                }
+
+                auto ai = greater->rbegin ();
+                for (int i = 0; i < size_difference; i++) {
+                    if (check_digit != *ai) return base_case_result;
+                    ai++;
+                }
+
+                std::strong_ordering compare = arithmetic::compare (ai, greater->rend (), lesser->rbegin ());
+
+                return reversed ? 0 <=> compare : compare;
+            } else if constexpr (neg == negativity::BC) {
+
+                const word sign_bit = get_sign_bit<word>::value;
+                const word magnitude_mask = static_cast<word> (~sign_bit);
+
+                auto orient = [reversed, sga] (std::strong_ordering comparison) {
+                    if (reversed) comparison = 0 <=> comparison;
+                    if (sga == math::negative) comparison = 0 <=> comparison;
+                    return comparison;
+                };
+
+                auto ai = greater->rbegin ();
+
+                // Check the excess leading words.
+                if (size_difference != 0) {
+
+                    // The first word contains the sign bit.
+                    if ((*ai & magnitude_mask) != 0)
+                        return orient (std::strong_ordering::greater);
+
+                    ++ai;
+
+                    // All remaining excess words must be zero.
+                    for (size_t i = 1; i < size_difference; ++i) {
+                        if (*ai != 0)
+                            return orient (std::strong_ordering::greater);
+
+                        ++ai;
+                    }
+                }
+
+                auto bi = lesser->rbegin ();
+
+                // Compare the aligned most significant magnitude words.
+                word da = *ai;
+                if (size_difference == 0)
+                    da &= magnitude_mask;
+
+                word db = *bi & magnitude_mask;
+
+                if (da != db)
+                    return orient (da <=> db);
+
+                ++ai;
+                ++bi;
+
+                // Compare the remaining words.
+                std::strong_ordering comparison = arithmetic::compare (ai, greater->rend (), bi);
+
+                return orient (comparison);
             }
-
-            auto ai = greater->rbegin ();
-            for (int i = 0; i < size_difference; i++) {
-                if (check_digit != *ai) return base_case_result;
-                ai++;
-            }
-
-            std::strong_ordering compare = arithmetic::compare (a.rend (), ai, b.rbegin ());
-
-            return reversed ? 0 <=> compare : compare;
         }
     }
 }
