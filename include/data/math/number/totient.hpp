@@ -9,13 +9,13 @@
 
 namespace data::math::number {
 
-    template <typename N> nonzero<N> inline totient (nonzero<N> n, eratosthenes<N> &e) {
+    template <Number N> nonzero<N> inline totient (nonzero<N> n, eratosthenes<N> &e) {
         return nonzero<N> {fold ([] (const N &n, const power<prime<N>, N> &p) -> N {
             return n * data::pow<N, N> (p.Base.Value, p.Exponent - 1u) * (p.Base.Value - 1u);
         }, N {1}, factorize<N> (n, e))};
     }
 
-    template <typename N> nonzero<N> inline totient (prime<N> p, eratosthenes<N> &e) {
+    template <Number N> nonzero<N> inline totient (prime<N> p, eratosthenes<N> &e) {
         return nonzero<N> {p.Value - 1};
     }
 

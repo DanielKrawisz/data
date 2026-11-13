@@ -242,7 +242,6 @@ namespace NTL {
         NTL::export_bin<word> (slice<word> (result), x, r, endian::native, neg);
     }
 
-    // TODO put this function in arithmetic.
     template <Word U>
     bool is_negative (
         slice<const U> input,
@@ -281,50 +280,42 @@ namespace NTL {
         if (input.size () == 0) return ZZ ();
 
         if (word_order != endian::big && word_order != endian::little)
-            throw std::invalid_argument ("invalid word order");
+            throw data::exception ("invalid word order");
 
         if (byte_order != endian::big && byte_order != endian::little)
-            throw std::invalid_argument ("invalid byte order");
+            throw data::exception ("invalid byte order");
 
         bool input_is_negative = is_negative (input, word_order, byte_order, neg);
 
         // under the right circumstances, we can send the input directly to NTL.
         if (word_order == endian::little &&
             !input_is_negative &&
-            sizeof (U) == sizeof (unsigned char) &&
-            (byte_order == endian::native || sizeof (unsigned char) == 1))
-            return ZZFromBytes (reinterpret_cast<const unsigned char *> (input.data ()), input.size ());
+            (byte_order == endian::little || sizeof (U) == sizeof (unsigned char)))
+            return ZZFromBytes (reinterpret_cast<const unsigned char *> (input.data ()), input.size () * sizeof (U));
 
         data::bytestring<U> bytes (input.size ());
 
+        // switch everything to little endian.
         if (word_order == endian::little)
             for (size_t i = 0; i < input.size (); ++i)
                 bytes[i] = input[i];
         else for (size_t i = 0; i < input.size (); ++i)
                 bytes[i] = input[input.size () - i - 1];
 
-        if (!input_is_negative) {
-            // switch to little endian.
-            if (byte_order != endian::little && sizeof (U) > 1)
-                for (U &x : bytes) x = std::byteswap (x);
+        // first convert to native endian.
+        if (byte_order != endian::native && sizeof (U) > 1)
+            for (U &x : bytes) x = std::byteswap (x);
 
+        if (!input_is_negative) {
             // from now on we are using little endian word and byte order.
             return ZZFromBytes (
                 reinterpret_cast<const unsigned char *> (bytes.data ()),
                 bytes.size () * sizeof (U));
         }
 
-        // first convert to native endian.
-        if (byte_order != endian::native && sizeof (U) > 1)
-            for (U &x : bytes) x = std::byteswap (x);
-
         // negate
-        if (neg == negativity::twos) data::arithmetic::twos::negate<endian::little, U> (bytes);
-        else data::arithmetic::BC::negate<endian::little, U> (bytes);
-
-        // switch to little endian
-        if (endian::native != endian::little && sizeof (U) > 1)
-            for (U &x : bytes) x = std::byteswap (x);
+        if (neg == negativity::twos) data::arithmetic::twos::negate<endian::little> (bytes);
+        else data::arithmetic::BC::negate<endian::little> (bytes);
 
         auto zzz = ZZFromBytes (
             reinterpret_cast<const unsigned char *> (bytes.data ()),

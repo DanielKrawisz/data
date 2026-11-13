@@ -6,6 +6,11 @@
 #include <data/numbers.hpp>
 #include <data/math/fraction.hpp>
 
+#if DATA_CRYPTO
+#include <cryptopp/Z.hpp>
+#include <openssl/Z.hpp>
+#endif
+
 #include "gtest/gtest.h"
 
 namespace data {

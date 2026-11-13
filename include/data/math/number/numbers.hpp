@@ -2544,6 +2544,767 @@ namespace data::math::def {
 
 }
 
+namespace data::math::def {
+
+    template <> struct sign<dec_uint> {
+        math::sign operator () (const dec_uint &);
+    };
+
+    template <> struct sign<dec_int> {
+        math::sign operator () (const dec_int &);
+    };
+
+    template <hex_case zz> struct sign<hex::uint<zz>> {
+        math::sign operator () (const hex::uint<zz> &);
+    };
+
+    template <hex_case zz> struct sign<hex::int2<zz>> {
+        math::sign operator () (const hex::int2<zz> &);
+    };
+
+    template <hex_case zz> struct sign<hex::intBC<zz>> {
+        math::sign operator () (const hex::intBC<zz> &);
+    };
+
+    template <> struct abs<dec_uint> {
+        dec_uint operator () (const dec_uint &);
+    };
+
+    template <> struct abs<dec_int> {
+        dec_uint operator () (const dec_int &);
+    };
+
+    template <hex_case zz> struct abs<hex::uint<zz>> {
+        hex::uint<zz> operator () (const hex::uint<zz> &);
+    };
+
+    template <hex_case zz> struct abs<hex::int2<zz>> {
+        hex::uint<zz> operator () (const hex::int2<zz> &);
+    };
+
+    template <hex_case zz> struct abs<hex::intBC<zz>> {
+        hex::intBC<zz> operator () (const hex::intBC<zz> &);
+    };
+
+    template <> struct times<dec_int> {
+        dec_int operator () (const dec_int &, const dec_int &);
+        nonzero<dec_int> operator () (const nonzero<dec_int> &, const nonzero<dec_int> &);
+    };
+
+    template <negativity c, hex_case zz> struct times<hex::integer<c, zz>> {
+        hex::integer<c, zz> operator () (const hex::integer<c, zz> &, const hex::integer<c, zz> &);
+        nonzero<hex::integer<c, zz>> operator () (const nonzero<hex::integer<c, zz>> &, const nonzero<hex::integer<c, zz>> &);
+    };
+
+    template <> struct is_zero<dec_uint> {
+        bool operator () (const dec_uint &);
+    };
+
+    template <> struct is_negative<dec_uint> {
+        bool operator () (const dec_uint &);
+    };
+
+    template <> struct is_positive<dec_uint> {
+        bool operator () (const dec_uint &);
+    };
+
+    template <> struct is_zero<dec_int> {
+        bool operator () (const dec_int &);
+    };
+
+    template <> struct is_negative<dec_int> {
+        bool operator () (const dec_int &);
+    };
+
+    template <> struct is_positive<dec_int> {
+        bool operator () (const dec_int &);
+    };
+
+    template <hex_case zz> struct is_zero<hex::uint<zz>> {
+        bool operator () (const hex::uint<zz> &);
+    };
+
+    template <hex_case zz> struct is_zero<hex::int2<zz>> {
+        bool operator () (const hex::int2<zz> &);
+    };
+
+    template <hex_case zz> struct is_zero<hex::intBC<zz>> {
+        bool operator () (const hex::intBC<zz> &);
+    };
+
+    template <hex_case zz> struct is_negative<hex::uint<zz>> {
+        bool operator () (const hex::uint<zz> &);
+    };
+
+    template <hex_case zz> struct is_negative<hex::int2<zz>> {
+        bool operator () (const hex::int2<zz> &);
+    };
+
+    template <hex_case zz> struct is_negative<hex::intBC<zz>> {
+        bool operator () (const hex::intBC<zz> &);
+    };
+
+    template <negativity c, hex_case zz> struct is_positive<hex::integer<c, zz>> {
+        bool operator () (const hex::integer<c, zz> &);
+    };
+
+    template <hex_case cx> struct is_positive_zero<hex::intBC<cx>> {
+        bool operator () (const hex::intBC<cx> &);
+    };
+
+    template <hex_case cx> struct is_negative_zero<hex::intBC<cx>> {
+        bool operator () (const hex::intBC<cx> &);
+    };
+
+    template <> struct divmod<dec_uint, dec_uint> {
+        division<dec_uint, dec_uint> operator () (const dec_uint &, const nonzero<dec_uint> &);
+    };
+
+    template <> struct divmod<dec_int, dec_int> {
+        division<dec_int, dec_uint> operator () (const dec_int &, const nonzero<dec_int> &);
+    };
+
+    template <> struct divmod<dec_int, dec_uint> {
+        division<dec_int, dec_uint> operator () (const dec_int &, const nonzero<dec_uint> &);
+    };
+
+    template <hex_case zz> struct divmod<hex::uint<zz>, hex::uint<zz>> {
+        division<hex::uint<zz>, hex::uint<zz>> operator () (const hex::uint<zz> &, const nonzero<hex::uint<zz>> &);
+    };
+
+    template <hex_case zz> struct divmod<hex::int2<zz>, hex::int2<zz>> {
+        division<hex::int2<zz>, hex::uint<zz>> operator () (const hex::int2<zz> &, const nonzero<hex::int2<zz>> &);
+    };
+
+    template <hex_case zz> struct divmod<hex::int2<zz>, hex::uint<zz>> {
+        division<hex::int2<zz>, hex::uint<zz>> operator () (const hex::int2<zz> &, const nonzero<hex::uint<zz>> &);
+    };
+
+    template <hex_case zz> struct divmod<hex::intBC<zz>, hex::intBC<zz>> {
+        division<hex::intBC<zz>, hex::intBC<zz>> operator () (const hex::intBC<zz> &, const nonzero<hex::intBC<zz>> &);
+    };
+
+    // We have special cases for converting from string to N.
+    template <> struct divmod<dec_uint, int> {
+        division<dec_uint, unsigned int> operator () (const dec_uint &, const nonzero<int> &);
+    };
+
+    template <> struct divmod<dec_int, int> {
+        division<dec_int, unsigned int> operator () (const dec_int &, const nonzero<int> &);
+    };
+
+    template <hex_case zz> struct divmod<hex::uint<zz>, int> {
+        division<hex::uint<zz>, unsigned int> operator () (const hex::uint<zz> &, const nonzero<int> &);
+    };
+
+    template <hex_case zz> struct divmod<hex::int2<zz>, int> {
+        division<hex::int2<zz>, unsigned int> operator () (const hex::int2<zz> &, const nonzero<int> &);
+    };
+
+    template <hex_case zz> struct divmod<hex::intBC<zz>, int> {
+        division<hex::intBC<zz>, int> operator () (const hex::intBC<zz> &, const nonzero<int> &);
+    };
+
+    template <> struct bit_xor<dec_uint> {
+        dec_uint operator () (const dec_uint &a, const dec_uint &b);
+    };
+
+    template <> struct bit_xor<dec_int> {
+        dec_int operator () (const dec_int &a, const dec_int &b);
+    };
+
+    template <hex_case zz> struct bit_xor<hex::uint<zz>> {
+        hex::uint<zz> operator () (const hex::uint<zz> &a, const hex::uint<zz> &b);
+    };
+
+    template <hex_case zz> struct bit_xor<hex::int2<zz>> {
+        hex::int2<zz> operator () (const hex::int2<zz> &a, const hex::int2<zz> &b);
+    };
+
+    template <hex_case zz> struct bit_not<hex::intBC<zz>> {
+        hex::intBC<zz> operator () (const hex::intBC<zz> &);
+    };
+
+    template <hex_case zz> struct bit_xor<hex::intBC<zz>> {
+        hex::intBC<zz> operator () (const hex::intBC<zz> &, const hex::intBC<zz> &);
+    };
+
+    template <negativity neg, hex_case zz> struct mul_2_pow<hex::integer<neg, zz>> {
+        hex::integer<neg, zz> operator () (const hex::integer<neg, zz> &, uint32 u);
+    };
+
+    template <> struct div_2_pow<dec_uint> {
+        dec_uint operator () (const dec_uint &a, uint32 exp);
+    };
+
+    template <> struct div_2_pow<dec_int> {
+        dec_int operator () (const dec_int &a, uint32 exp);
+    };
+
+    template <> struct mod_2<dec_uint> {
+        dec_uint operator () (const dec_uint &a);
+    };
+
+    template <> struct mod_2<dec_int> {
+        dec_int operator () (const dec_int &a);
+    };
+
+    template <hex_case zz> struct div_2_pow<hex::uint<zz>> {
+        hex::uint<zz> operator () (const hex::uint<zz> &, uint32 exp);
+    };
+
+    template <hex_case zz> struct mod_2<hex::uint<zz>> {
+        hex::uint<zz> operator () (const hex::uint<zz> &);
+    };
+
+    template <hex_case zz> struct div_2_pow<hex::int2<zz>> {
+        hex::int2<zz> operator () (const hex::int2<zz> &, uint32 exp);
+    };
+
+    template <hex_case zz> struct mod_2<hex::int2<zz>> {
+        hex::int2<zz> operator () (const hex::int2<zz> &);
+    };
+
+    template <hex_case zz> struct div_2_pow<hex::intBC<zz>> {
+        hex::intBC<zz> operator () (const hex::intBC<zz> &, uint32 exp);
+    };
+
+    template <hex_case zz> struct mod_2<hex::intBC<zz>> {
+        hex::intBC<zz> operator () (const hex::intBC<zz> &);
+    };
+
+    template <negativity c, hex_case z, negativity n, hex_case zz>
+    requires Unsame<hex::integer<c, z>, hex::integer<n, zz>>
+    struct convert<hex::integer<c, z>, hex::integer<n, zz>> {
+        hex::integer<c, z> operator () (const hex::integer<n, zz> &) const;
+    };
+
+    template <negativity neg, hex_case zz>
+    struct convert<dec_int, hex::integer<neg, zz>> {
+        dec_int operator () (const hex::integer<neg, zz> &) const;
+    };
+
+}
+
+namespace data::math::number {
+
+    template <> struct increment<dec_uint> {
+        nonzero<dec_uint> operator () (const dec_uint &);
+    };
+
+    template <> struct decrement<dec_uint> {
+        dec_uint operator () (const nonzero<dec_uint> &);
+        dec_uint operator () (const dec_uint &);
+    };
+
+    template <> struct increment<dec_int> {
+        dec_int operator () (const dec_int &);
+    };
+
+    template <> struct decrement<dec_int> {
+        dec_int operator () (const dec_int &);
+    };
+
+    template <hex_case zz> struct increment<hex::uint<zz>> {
+        nonzero<hex::uint<zz>> operator () (const hex::uint<zz> &);
+    };
+
+    template <hex_case zz> struct decrement<hex::uint<zz>> {
+        hex::uint<zz> operator () (const nonzero<hex::uint<zz>> &);
+        hex::uint<zz> operator () (const hex::uint<zz> &);
+    };
+
+    template <negativity c, hex_case zz> struct increment<hex::integer<c, zz>> {
+        hex::integer<c, zz> operator () (const hex::integer<c, zz> &);
+    };
+
+    template <negativity c, hex_case zz> struct decrement<hex::integer<c, zz>> {
+        hex::integer<c, zz> operator () (const hex::integer<c, zz> &);
+    };
+
+    template <negativity neg, hex_case zz>
+    bool sign_bit_set (const hex::integer<neg, zz> &x);
+
+    template <hex_case cx>
+    bool is_minimal (const hex::uint<cx> &);
+
+    template <hex_case cx>
+    bool is_minimal (const hex::int2<cx> &);
+
+    template <hex_case cx>
+    bool is_minimal (const hex::intBC<cx> &);
+
+    template <hex_case cx>
+    size_t minimal_size (const hex::uint<cx> &);
+
+    template <hex_case cx>
+    size_t minimal_size (const hex::int2<cx> &);
+
+    template <hex_case cx>
+    size_t minimal_size (const hex::intBC<cx> &);
+
+    template <negativity neg, hex_case zz>
+    hex::integer<neg, zz> extend (const hex::integer<neg, zz> &x, size_t size);
+
+    template <hex_case cx>
+    hex::uint<cx> trim (const hex::uint<cx> &);
+
+    template <hex_case cx>
+    hex::int2<cx> trim (const hex::int2<cx> &);
+
+    template <hex_case cx>
+    hex::intBC<cx> trim (const hex::intBC<cx> &);
+
+}
+
+#if DATA_CRYPTO
+namespace CryptoPP {
+    struct Z;
+
+    std::ostream &operator << (std::ostream &o, const Z &n);
+
+    std::istream &operator >> (std::istream &i, Z &z);
+
+    bool operator == (const Z &, const Z &);
+
+    std::strong_ordering operator <=> (const Z &, const Z &);
+
+    template <std::integral I> bool operator == (const Z &, I);
+
+    template <std::integral I> std::strong_ordering operator <=> (const Z &, I);
+
+    Z &operator ++ (Z &);
+    Z &operator -- (Z &);
+
+    Z operator ++ (Z &, int);
+    Z operator -- (Z &, int);
+
+    Z operator ~ (const Z &);
+
+    Z operator | (const Z &, const Z &);
+    Z operator & (const Z &, const Z &);
+    Z operator ^ (const Z &, const Z &);
+
+    Z operator << (const Z &, int);
+    Z operator >> (const Z &, int);
+
+    Z &operator &= (Z &, const Z &);
+    Z &operator |= (Z &, const Z &);
+    Z &operator ^= (Z &, const Z &);
+
+    template <std::integral I> Z &operator &= (Z &, I);
+    template <std::integral I> Z &operator |= (Z &, I);
+    template <std::integral I> Z &operator ^= (Z &, I);
+
+    Z &operator <<= (Z &, int);
+    Z &operator >>= (Z &, int);
+
+    Z operator - (const Z &);
+
+    Z operator + (const Z &, const Z &);
+    Z operator - (const Z &, const Z &);
+    Z operator * (const Z &, const Z &);
+
+    template <std::integral I> Z operator + (const Z &, I);
+    template <std::integral I> Z operator - (const Z &, I);
+    template <std::integral I> Z operator * (const Z &, I);
+
+    Z operator / (const Z &, const Z &);
+
+    template <std::integral I> Z operator / (const Z &, I);
+
+    Z operator % (const Z &, const Z &);
+
+    template <std::integral I> I operator % (const Z &, I);
+
+    Z &operator += (Z &, const Z &);
+    Z &operator -= (Z &, const Z &);
+    Z &operator *= (Z &, const Z &);
+    Z &operator /= (Z &, const Z &);
+    Z &operator %= (Z &, const Z &);
+
+    template <std::integral I> Z &operator += (Z &, I);
+    template <std::integral I> Z &operator -= (Z &, I);
+    template <std::integral I> Z &operator *= (Z &, I);
+    template <std::integral I> Z &operator /= (Z &, I);
+    template <std::integral I> Z &operator %= (Z &, I);
+
+    using data::Word;
+    using data::negativity;
+    using data::endian;
+    using data::math::number::bounded;
+    using data::math::number::Z_bytes;
+
+    template <bool is_signed, endian r, size_t size, Word word>
+    bool operator == (const Z &, const bounded<is_signed, r, size, word> &);
+
+    template <bool is_signed, endian r, size_t size, Word word>
+    std::strong_ordering operator <=> (const Z &, const bounded<is_signed, r, size, word> &);
+
+    template <endian r, negativity neg, Word word>
+    bool operator == (const Z &, const Z_bytes<r, neg, word> &);
+
+    template <endian r, negativity neg, Word word>
+    std::strong_ordering operator <=> (const Z &, const Z_bytes<r, neg, word> &);
+}
+
+namespace OpenSSL {
+    struct Z;
+
+    std::ostream &operator << (std::ostream &o, const Z &n);
+
+    std::istream &operator >> (std::istream &i, Z &z);
+
+    bool operator == (const Z &, const Z &);
+
+    std::strong_ordering operator <=> (const Z &, const Z &);
+
+    template <std::integral I> bool operator == (const Z &, I);
+
+    template <std::integral I> std::strong_ordering operator <=> (const Z &, I);
+
+    Z &operator ++ (Z &);
+    Z &operator -- (Z &);
+
+    Z operator ++ (Z &, int);
+    Z operator -- (Z &, int);
+
+    Z operator ~ (const Z &);
+
+    Z operator | (const Z &, const Z &);
+    Z operator & (const Z &, const Z &);
+    Z operator ^ (const Z &, const Z &);
+
+    Z operator << (const Z &, int);
+    Z operator >> (const Z &, int);
+
+    Z &operator &= (Z &, const Z &);
+    Z &operator |= (Z &, const Z &);
+    Z &operator ^= (Z &, const Z &);
+
+    template <std::integral I> Z &operator &= (Z &, I);
+    template <std::integral I> Z &operator |= (Z &, I);
+    template <std::integral I> Z &operator ^= (Z &, I);
+
+    Z &operator <<= (Z &, int);
+    Z &operator >>= (Z &, int);
+
+    Z operator - (const Z &);
+
+    Z operator + (const Z &, const Z &);
+    Z operator - (const Z &, const Z &);
+    Z operator * (const Z &, const Z &);
+
+    template <std::integral I> Z operator + (const Z &, I);
+
+    template <std::integral I> Z operator - (const Z &, I);
+
+    template <std::integral I> Z operator * (const Z &, I);
+
+    Z operator / (const Z &, const Z &);
+
+    template <std::integral I> Z operator / (const Z &, I);
+
+    Z operator % (const Z &, const Z &);
+
+    template <std::integral I> I operator % (const Z &, I);
+
+    Z &operator += (Z &, const Z &);
+    Z &operator -= (Z &, const Z &);
+    Z &operator *= (Z &, const Z &);
+    Z &operator /= (Z &, const Z &);
+    Z &operator %= (Z &, const Z &);
+
+    template <std::integral I> Z &operator += (Z &, I);
+    template <std::integral I> Z &operator -= (Z &, I);
+    template <std::integral I> Z &operator *= (Z &, I);
+    template <std::integral I> Z &operator /= (Z &, I);
+    template <std::integral I> Z &operator %= (Z &, I);
+
+    using data::Word;
+    using data::negativity;
+    using data::endian;
+    using data::math::number::bounded;
+    using data::math::number::Z_bytes;
+
+    template <bool is_signed, endian r, size_t size, Word word>
+    bool operator == (const Z &, const bounded<is_signed, r, size, word> &);
+
+    template <bool is_signed, endian r, size_t size, Word word>
+    std::strong_ordering operator <=> (const Z &, const bounded<is_signed, r, size, word> &);
+
+    template <endian r, negativity neg, Word word>
+    bool operator == (const Z &, const Z_bytes<r, neg, word> &);
+
+    template <endian r, negativity neg, Word word>
+    std::strong_ordering operator <=> (const Z &, const Z_bytes<r, neg, word> &);
+}
+
+namespace data {
+    template <> struct make_signed<CryptoPP::Z> {
+        using type = CryptoPP::Z;
+    };
+
+    template <> struct make_signed<OpenSSL::Z> {
+        using type = OpenSSL::Z;
+    };
+}
+
+namespace data::math::def {
+
+    template <> struct abs<CryptoPP::Z> {
+        CryptoPP::Z operator () (const CryptoPP::Z &);
+    };
+
+    template <> struct divmod<CryptoPP::Z, CryptoPP::Z> {
+        division<CryptoPP::Z, CryptoPP::Z> operator () (const CryptoPP::Z &a, const nonzero<CryptoPP::Z> &b);
+    };
+
+    template <> struct identity<plus<CryptoPP::Z>, CryptoPP::Z> {
+        CryptoPP::Z operator () ();
+    };
+
+    template <> struct inverse<plus<CryptoPP::Z>, CryptoPP::Z> {
+        CryptoPP::Z operator () (const CryptoPP::Z &a, const CryptoPP::Z &b);
+    };
+
+    template <> struct identity<times<CryptoPP::Z>, CryptoPP::Z> {
+        CryptoPP::Z operator () ();
+    };
+
+    template <> struct bit_xor<CryptoPP::Z> {
+        CryptoPP::Z operator () (const CryptoPP::Z &, const CryptoPP::Z &);
+    };
+
+    template <> struct div_2_pow<CryptoPP::Z> {
+        CryptoPP::Z operator () (const CryptoPP::Z &a, uint32);
+    };
+
+    template <> struct mod_2<CryptoPP::Z> {
+        CryptoPP::Z operator () (const CryptoPP::Z &a);
+    };
+
+    template <> struct pow_mod<CryptoPP::Z, CryptoPP::Z, CryptoPP::Z> {
+        CryptoPP::Z operator () (const CryptoPP::Z &x, const CryptoPP::Z &y, const nonzero<CryptoPP::Z> &z);
+    };
+
+    template <> struct abs<OpenSSL::Z> {
+        OpenSSL::Z operator () (const OpenSSL::Z &);
+    };
+
+    template <> struct divmod<OpenSSL::Z, OpenSSL::Z> {
+        division<OpenSSL::Z, OpenSSL::Z> operator () (const OpenSSL::Z &a, const nonzero<OpenSSL::Z> &b);
+    };
+
+    template <> struct identity<plus<OpenSSL::Z>, OpenSSL::Z> {
+        OpenSSL::Z operator () ();
+    };
+
+    template <> struct inverse<plus<OpenSSL::Z>, OpenSSL::Z> {
+        OpenSSL::Z operator () (const OpenSSL::Z &a, const OpenSSL::Z &b);
+    };
+
+    template <> struct identity<times<OpenSSL::Z>, OpenSSL::Z> {
+        OpenSSL::Z operator () ();
+    };
+
+    template <> struct bit_xor<OpenSSL::Z> {
+        OpenSSL::Z operator () (const OpenSSL::Z &, const OpenSSL::Z &);
+    };
+
+    template <> struct div_2_pow<OpenSSL::Z> {
+        OpenSSL::Z operator () (const OpenSSL::Z &a, uint32);
+    };
+
+    template <> struct mod_2<OpenSSL::Z> {
+        OpenSSL::Z operator () (const OpenSSL::Z &a);
+    };
+
+    template <> struct pow<OpenSSL::Z, OpenSSL::Z> {
+        OpenSSL::Z operator () (const OpenSSL::Z &x, const OpenSSL::Z &y);
+    };
+
+    template <> struct pow_mod<OpenSSL::Z, OpenSSL::Z, OpenSSL::Z> {
+        OpenSSL::Z operator () (const OpenSSL::Z &x, const OpenSSL::Z &y, const nonzero<OpenSSL::Z> &z);
+    };
+
+    template <> struct size_in_base<CryptoPP::Z, 2> {
+        size_t operator () (const CryptoPP::Z &);
+    };
+
+    template <> struct size_in_base<OpenSSL::Z, 2> {
+        size_t operator () (const OpenSSL::Z &);
+    };
+
+    template <> struct convert<CryptoPP::Z, OpenSSL::Z> {
+        CryptoPP::Z operator () (const OpenSSL::Z &) const;
+    };
+
+    template <> struct convert<OpenSSL::Z, CryptoPP::Z> {
+        OpenSSL::Z operator () (const CryptoPP::Z &) const;
+    };
+
+    template <> struct convert<CryptoPP::Z, Z> {
+        CryptoPP::Z operator () (const Z &) const;
+    };
+
+    template <> struct convert<Z, CryptoPP::Z> {
+        Z operator () (const CryptoPP::Z &) const;
+    };
+
+    template <> struct convert<CryptoPP::Z, N> {
+        CryptoPP::Z operator () (const N &) const;
+    };
+
+    template <> struct convert<N, CryptoPP::Z> {
+        N operator () (const CryptoPP::Z &) const;
+    };
+
+    template <std::integral I> struct convert<CryptoPP::Z, I> {
+        CryptoPP::Z operator () (I) const;
+    };
+
+    template <std::integral I> struct convert<I, CryptoPP::Z> {
+        I operator () (const CryptoPP::Z &) const;
+    };
+
+    template <data::endian Order, class T, std::size_t n_bits, alignment Align>
+    struct convert<CryptoPP::Z, endian_arithmetic<Order, T, n_bits, Align>> {
+        CryptoPP::Z operator () (const endian_arithmetic<Order, T, n_bits, Align> &) const;
+    };
+
+    template <data::endian Order, class T, std::size_t n_bits, alignment Align>
+    struct convert<endian_arithmetic<Order, T, n_bits, Align>, CryptoPP::Z> {
+        endian_arithmetic<Order, T, n_bits, Align> operator () (const CryptoPP::Z &) const;
+    };
+
+    template <endian r, negativity neg, Word word>
+    struct convert<number::Z_bytes<r, neg, word>, CryptoPP::Z> {
+        number::Z_bytes<r, neg, word> operator () (const CryptoPP::Z &) const;
+    };
+
+    template <endian r, negativity neg, Word word>
+    struct convert<CryptoPP::Z, number::Z_bytes<r, neg, word>> {
+        CryptoPP::Z operator () (const number::Z_bytes<r, neg, word> &) const;
+    };
+
+    template <bool is_signed, endian r, size_t size, Word word>
+    struct convert<CryptoPP::Z, number::bounded<is_signed, r, size, word>> {
+        CryptoPP::Z operator () (const number::bounded<is_signed, r, size, word> &) const;
+    };
+
+    template <bool is_signed, endian r, size_t size, Word word>
+    struct convert<number::bounded<is_signed, r, size, word>, CryptoPP::Z> {
+        number::bounded<is_signed, r, size, word> operator () (const CryptoPP::Z &) const;
+    };
+
+    template <negativity neg, hex_case zz> struct convert<CryptoPP::Z, hex::integer<neg, zz>> {
+        CryptoPP::Z operator () (const hex::integer<neg, zz> &) const;
+    };
+
+    template <> struct convert<OpenSSL::Z, Z> {
+        OpenSSL::Z operator () (const Z &) const;
+    };
+
+    template <> struct convert<Z, OpenSSL::Z> {
+        Z operator () (const OpenSSL::Z &) const;
+    };
+
+    template <> struct convert<OpenSSL::Z, N> {
+        OpenSSL::Z operator () (const N &) const;
+    };
+
+    template <> struct convert<N, OpenSSL::Z> {
+        N operator () (const OpenSSL::Z &) const;
+    };
+
+    template <std::integral I> struct convert<OpenSSL::Z, I> {
+        OpenSSL::Z operator () (I) const;
+    };
+
+    template <std::integral I> struct convert<I, OpenSSL::Z> {
+        I operator () (const OpenSSL::Z &) const;
+    };
+
+    template <data::endian Order, class T, std::size_t n_bits, alignment Align>
+    struct convert<OpenSSL::Z, endian_arithmetic<Order, T, n_bits, Align>> {
+        OpenSSL::Z operator () (const endian_arithmetic<Order, T, n_bits, Align> &) const;
+    };
+
+    template <data::endian Order, class T, std::size_t n_bits, alignment Align>
+    struct convert<endian_arithmetic<Order, T, n_bits, Align>, OpenSSL::Z> {
+        endian_arithmetic<Order, T, n_bits, Align> operator () (const OpenSSL::Z &) const;
+    };
+
+    template <endian r, negativity neg, Word word>
+    struct convert<number::Z_bytes<r, neg, word>, OpenSSL::Z> {
+        number::Z_bytes<r, neg, word> operator () (const OpenSSL::Z &) const;
+    };
+
+    template <endian r, negativity neg, Word word>
+    struct convert<OpenSSL::Z, number::Z_bytes<r, neg, word>> {
+        OpenSSL::Z operator () (const number::Z_bytes<r, neg, word> &) const;
+    };
+
+    template <bool is_signed, endian r, size_t size, Word word>
+    struct convert<OpenSSL::Z, number::bounded<is_signed, r, size, word>> {
+        OpenSSL::Z operator () (const number::bounded<is_signed, r, size, word> &) const;
+    };
+
+    template <bool is_signed, endian r, size_t size, Word word>
+    struct convert<number::bounded<is_signed, r, size, word>, OpenSSL::Z> {
+        number::bounded<is_signed, r, size, word> operator () (const OpenSSL::Z &) const;
+    };
+
+    template <negativity neg, hex_case zz> struct convert<OpenSSL::Z, hex::integer<neg, zz>> {
+        OpenSSL::Z operator () (const hex::integer<neg, zz> &) const;
+    };
+
+    template <> struct convert<CryptoPP::Z, dec_uint> {
+        CryptoPP::Z operator () (const dec_uint &) const;
+    };
+
+    template <> struct convert<OpenSSL::Z, dec_uint> {
+        OpenSSL::Z operator () (const dec_uint &) const;
+    };
+
+    template <> struct convert<CryptoPP::Z, dec_int> {
+        CryptoPP::Z operator () (const dec_int &) const;
+    };
+
+    template <> struct convert<OpenSSL::Z, dec_int> {
+        OpenSSL::Z operator () (const dec_int &) const;
+    };
+
+    template <> struct convert<dec_int, CryptoPP::Z> {
+        dec_int operator () (const CryptoPP::Z &) const;
+    };
+
+    template <> struct convert<dec_int, OpenSSL::Z> {
+        dec_int operator () (const OpenSSL::Z &) const;
+    };
+}
+
+namespace data::math::number {
+
+    template <> struct increment<CryptoPP::Z> {
+        CryptoPP::Z operator () (const CryptoPP::Z &);
+    };
+
+    template <> struct decrement<CryptoPP::Z> {
+        CryptoPP::Z operator () (const CryptoPP::Z &);
+    };
+
+    template <> struct increment<OpenSSL::Z> {
+        OpenSSL::Z operator () (const OpenSSL::Z &);
+    };
+
+    template <> struct decrement<OpenSSL::Z> {
+        OpenSSL::Z operator () (const OpenSSL::Z &);
+    };
+}
+#endif
+
 // Definitions of functions that do not need to know the size of the number types.
 namespace data::math::number {
 
@@ -2601,5 +3362,19 @@ namespace data::math::number {
     bool inline operator == (const N &a, const N_bytes<r, word> &b) {
         return (a <=> b) == 0;
     }
-
 }
+
+#if DATA_CRYPTO
+namespace CryptoPP {
+    bool inline operator == (const Z &a, const Z &b) {
+        return (a <=> b) == 0;
+    }
+}
+
+namespace OpenSSL {
+    bool inline operator == (const Z &a, const Z &b) {
+        return (a <=> b) == 0;
+    }
+}
+#endif
+

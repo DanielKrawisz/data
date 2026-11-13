@@ -9,7 +9,21 @@
 #include <data/math/number/bounded.hpp>
 #include <data/math/number/bytes.hpp>
 
+#if DATA_CRYPTO
+#include <cryptopp/Z.hpp>
+#include <openssl/Z.hpp>
+#endif
+
 namespace data::math::def {
+#if DATA_CRYPTO
+    CryptoPP::Z inline convert<CryptoPP::Z, OpenSSL::Z>::operator () (const OpenSSL::Z &z) const {
+        return CryptoPP::Z (Z_bytes_big (z));
+    }
+
+    OpenSSL::Z inline convert<OpenSSL::Z, CryptoPP::Z>::operator () (const CryptoPP::Z &z) const {
+        return OpenSSL::Z (Z_bytes_big (z));
+    }
+#endif
 
     // default definition of pow_mod
     template <typename Base, GroupNumber Exp, GroupNumber Mod> struct pow_mod<Base, Exp, Mod> {
@@ -42,3 +56,4 @@ namespace data::math::def {
         }
     };
 }
+

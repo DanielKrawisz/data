@@ -177,6 +177,25 @@ set_target_properties (NTL::NTL PROPERTIES
 )
 
 # ---------------------------------------------------------
+# module crypto
+# ---------------------------------------------------------
+
+option (DATA_CRYPTO "Enable crypto" OFF)
+
+if (DATA_CRYPTO)
+    find_package (OpenSSL REQUIRED Crypto SSL)
+    # if we do not have openssl
+    #   * on linux, `sudo apt-get install libssl-dev`
+
+    if (WIN32)
+    pkg_check_modules (cryptopp REQUIRED IMPORTED_TARGET cryptopp)
+    else ()
+    pkg_check_modules (cryptopp REQUIRED IMPORTED_TARGET libcrypto++)
+    # If we do not have crypto++, `sudo apt install libcrypto++-dev`
+    endif ()
+endif ()
+
+# ---------------------------------------------------------
 # setup build
 # ---------------------------------------------------------
 

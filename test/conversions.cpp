@@ -416,7 +416,6 @@ namespace data::math {
         (bytestring<uint64_t> {0xffffffffffff0000}, 1);
     }
 
-
     template <typename... T> struct type_list {};
 
     // Push front
@@ -527,6 +526,7 @@ namespace data::math {
 
         using no_types = type_list<>;
 
+        // TODO add in some big endian types as well.
         using all_types = type_list<
 
             byte,
@@ -591,7 +591,11 @@ namespace data::math {
             bound<endian::little, 1, uint64>,
             bound<endian::little, 2, uint64>,
 
-            N, Z>;
+            N, Z
+#if DATA_CRYPTO
+            , CryptoPP::Z, OpenSSL::Z
+#endif
+            >;
 
         // 0 to 127
         test_case<
@@ -626,46 +630,42 @@ namespace data::math {
             all_types,
             no_types> {dec_int {"127"}};
 
-        using signed_types = type_list<
+        using unsigned_types = type_list<
 
-            int8,
-            int16,
-            int32,
-            int64,
+            byte,
+            uint16,
+            uint32,
+            uint64,
 
-            Z_bytes<endian::little, byte>,
-            Z_bytes_BC<endian::little, byte>,
+            N_bytes<endian::little, byte>,
 
-            Z_bytes<endian::little, uint16>,
-            Z_bytes_BC<endian::little, uint16>,
+            N_bytes<endian::little, uint16>,
 
-            Z_bytes<endian::little, uint32>,
-            Z_bytes_BC<endian::little, uint32>,
+            N_bytes<endian::little, uint32>,
 
-            Z_bytes<endian::little, uint64>,
-            Z_bytes_BC<endian::little, uint64>,
+            N_bytes<endian::little, uint64>,
 
-            bound<endian::little, 1, byte>,
-            bound<endian::little, 2, byte>,
-            bound<endian::little, 3, byte>,
-            bound<endian::little, 4, byte>,
-            bound<endian::little, 8, byte>,
+            ubound<endian::little, 1, byte>,
+            ubound<endian::little, 2, byte>,
+            ubound<endian::little, 3, byte>,
+            ubound<endian::little, 4, byte>,
+            ubound<endian::little, 8, byte>,
 
-            bound<endian::little, 1, uint16>,
-            bound<endian::little, 2, uint16>,
-            bound<endian::little, 3, uint16>,
-            bound<endian::little, 4, uint16>,
+            ubound<endian::little, 1, uint16>,
+            ubound<endian::little, 2, uint16>,
+            ubound<endian::little, 3, uint16>,
+            ubound<endian::little, 4, uint16>,
 
-            bound<endian::little, 1, uint32>,
-            bound<endian::little, 2, uint32>,
-            bound<endian::little, 3, uint32>,
+            ubound<endian::little, 1, uint32>,
+            ubound<endian::little, 2, uint32>,
+            ubound<endian::little, 3, uint32>,
 
-            bound<endian::little, 1, uint64>,
-            bound<endian::little, 2, uint64>,
+            ubound<endian::little, 1, uint64>,
+            ubound<endian::little, 2, uint64>,
 
-            Z>;
+            N>;
 
-        using unsigned_types = difference_t<all_types, signed_types>;
+        using signed_types = difference_t<all_types, unsigned_types>;
 
         // -1 to -128
         test_case<
@@ -1203,12 +1203,25 @@ namespace data::math {
         } else return true;
     }
 
+    template <typename T>
+    std::string type_name () {
+        int status = 0;
+
+        std::unique_ptr<char, decltype (&std::free)> name {
+            abi::__cxa_demangle (typeid (T).name (), nullptr, nullptr, &status),
+            &std::free
+        };
+
+        return status == 0 ? name.get () : typeid (T).name ();
+    }
+
     template <typename To, typename From>
     void expect_conversion (
         const From & input,
         const To & expected_result,
         std::string_view description
     ) {
+
         To result;
         ASSERT_NO_THROW (result = convert<To> (input))
             << description << "; input = " << input;
@@ -1242,18 +1255,6 @@ namespace data::math {
             (void) convert<To> (input),
             exception
         ) << description << "; input = " << input;
-    }
-
-    template <typename T>
-    std::string type_name () {
-        int status = 0;
-
-        std::unique_ptr<char, decltype (&std::free)> name {
-            abi::__cxa_demangle (typeid (T).name (), nullptr, nullptr, &status),
-            &std::free
-        };
-
-        return status == 0 ? name.get () : typeid (T).name ();
     }
 
     // construct from its decimal representation.

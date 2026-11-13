@@ -86,7 +86,11 @@ namespace data {
     using pow_mod_big_test_cases = ::testing::Types<
         N, Z, N_bytes_little, N_bytes_big,
         Z_bytes_little, Z_bytes_big,
-        Z_bytes_BC_little, Z_bytes_BC_big>;
+        Z_bytes_BC_little, Z_bytes_BC_big
+#if DATA_CRYPTO
+        , CryptoPP::Z, OpenSSL::Z
+#endif
+        >;
 
     template <typename X>
     struct PowMod : ::testing::Test {

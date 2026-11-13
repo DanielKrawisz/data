@@ -24,6 +24,9 @@ set_target_properties (numbers PROPERTIES
   OUTPUT_NAME "data_numbers"
 )
 
+# uncomment the following line to enable printing the stack trace
+# target_link_libraries(numbers PRIVATE stdc++exp)
+
 target_include_directories (
   core
 
@@ -94,8 +97,45 @@ target_link_libraries (
   gmpxx
 )
 
-# uncomment the following line to print the stack trace
-# target_link_libraries(numbers PRIVATE stdc++exp)
+target_compile_definitions (numbers
+  PUBLIC
+  DATA_CRYPTO=$<BOOL:${DATA_CRYPTO}>
+)
+
+# crypto, optional library
+if (DATA_CRYPTO)
+  add_library (crypto STATIC)
+  add_library (Data::crypto ALIAS crypto)
+
+  set_target_properties (crypto PROPERTIES
+    OUTPUT_NAME "data_crypto"
+  )
+
+  target_compile_features (crypto PUBLIC cxx_std_23)
+  set_target_properties (crypto PROPERTIES CXX_EXTENSIONS ON)
+
+  target_sources (
+    crypto
+
+    PRIVATE
+
+    ../openssl/Z.cpp
+    ../cryptopp/Z.cpp
+
+  )
+
+  target_link_libraries (
+    crypto
+
+    PUBLIC
+
+    Data::numbers
+    Data::core
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    PkgConfig::cryptopp
+  )
+endif ()
 
 target_link_libraries (
   data
@@ -103,8 +143,17 @@ target_link_libraries (
   INTERFACE
 
   Data::numbers
-
 )
+
+if (DATA_CRYPTO)
+  target_link_libraries (
+    data
+
+    INTERFACE
+
+    Data::crypto
+  )
+endif ()
 
 configure_file (
     ${PROJECT_SOURCE_DIR}/include/data/version.hpp.in
@@ -122,7 +171,7 @@ install (
 )
 
 install (
-  TARGETS data numbers string core rotella
+  TARGETS data crypto numbers string core rotella
   EXPORT DataTargets
   ARCHIVE
 )
