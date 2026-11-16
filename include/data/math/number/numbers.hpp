@@ -2599,4 +2599,24 @@ namespace data::math::number {
         return (a <=> b) == 0;
     }
 
+    template <endian r, size_t size, Word word>
+    bool inline operator == (const Z &a, const bound<r, size, word> &b) {
+        return (a <=> b) == 0;
+    }
+
+    template <endian r, size_t size, Word word>
+    bool inline operator == (const N &a, const ubound<r, size, word> &b) {
+        return (a <=> b) == 0;
+    }
+
+    template <endian r, negativity neg, Word word>
+    bool inline operator == (const Z &a, const Z_bytes<r, neg, word> &b) {
+        return (a <=> b) == 0;
+    }
+
+    template <endian r, Word word>
+    bool inline operator == (const N &a, const N_bytes<r, word> &b) {
+        return (a <=> b) == 0;
+    }
+
 }

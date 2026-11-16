@@ -494,43 +494,6 @@ namespace data::math::number {
     inline N::operator bounded<u, r, size, word> () const {
         return NTL::conv<bounded<u, r, size, word>> (Value);
     }
-/*
-    template <endian r, negativity c, Word word>
-    Z::operator Z_bytes<r, c, word> () const {
-        constexpr size_t bits = sizeof (word) * CHAR_BIT;
-
-        auto bw = NTL::bit_width (Value);
-
-        size_t size = is_zero (*this) ? 0 : (bw + bits - 1) / bits;
-
-        if constexpr (c == negativity::BC) {
-            if (NTL::sign (Value) < 0 &&
-                NTL::NumBits (NTL::abs (this->Value)) == size * bits)
-                ++size;
-        }
-
-        Z_bytes<r, c, word> result;
-        result.resize (size);
-        NTL::export_bin<word> (slice<word> (result), this->Value, r, endian::native, c);
-        return result;
-    }
-
-    template <endian r, negativity c, Word word>
-    N::operator Z_bytes<r, c, word> () const {
-        constexpr size_t word_bits = sizeof (word) * CHAR_BIT;
-        size_t bit_width = NTL::NumBits (this->Value);
-        size_t result_size;
-        if constexpr (c == negativity::nones) {
-            // if there is any one bit extra, we need a whole new word.
-            result_size = (bit_width + word_bits - 1) / word_bits;
-        } else {
-            result_size = bit_width == 0 ? 0 : (bit_width + word_bits) / word_bits;
-        }
-        Z_bytes<r, c, word> result;
-        result.resize (result_size);
-        NTL::export_bin<word> (slice<word> (result), this->Value, r, endian::native, c);
-        return result;
-    }*/
 
     // TODO For operations involving std::integral, NTL has many
     // built-in operations defined with ZZ and long. Thus, we
@@ -559,6 +522,26 @@ namespace data::math::number {
 
     template <std::integral I> std::strong_ordering inline operator <=> (const Z &a, I b) {
         return a <=> Z (b);
+    }
+
+    template <endian r, size_t size, Word word>
+    std::strong_ordering inline operator <=> (const Z &a, const bound<r, size, word> &b) {
+        return a <=> Z (b);
+    }
+
+    template <endian r, size_t size, Word word>
+    std::strong_ordering inline operator <=> (const N &a, const ubound<r, size, word> &b) {
+        return a <=> N (b);
+    }
+
+    template <endian r, negativity neg, Word word>
+    std::strong_ordering inline operator <=> (const Z &a, const Z_bytes<r, neg, word> &b) {
+        return a <=> Z (b);
+    }
+
+    template <endian r, Word word>
+    std::strong_ordering inline operator <=> (const N &a, const N_bytes<r, word> &b) {
+        return a <=> N (b);
     }
 
     template <std::integral I> Z inline operator + (const Z &a, I b) {
@@ -775,11 +758,6 @@ namespace data::math::number {
         if constexpr (NTL::Compatible<I>)
             return I (N (a.Value % long (b)));
         else return I (a % N (abs (b)));
-    }
-
-    template <endian r, negativity c, Word word>
-    bool inline operator == (const Z &a, const Z_bytes<r, c, word> &b) {
-        return a == Z (b);
     }
 
 }
