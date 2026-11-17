@@ -16,13 +16,13 @@ namespace data::math {
     
     template <auto P, RingNumber N>
     constexpr bool operator == (const prime_field<P, N> &, const prime_field<P, N> &);
+
+    template <auto P, RingNumber N, ImplicitlyConvertible<N> M>
+    constexpr bool operator == (const prime_field<P, N> &, const M &);
     
-    // NOTE: N must be a signed number because we have to
-    // be able to take the mod of Bezout T, which may run
-    // negative.
-    template <auto P, RingNumber N>
-    struct prime_field : number::modular<P, N> {
+    template <auto P, RingNumber N> struct prime_field : number::modular<P, N> {
         using number::modular<P, N>::modular;
+
         constexpr prime_field (const number::modular<P, N> &n): number::modular<P, N> {n} {}
         constexpr prime_field (number::modular<P, N> &&n): number::modular<P, N> {n} {}
 
@@ -31,11 +31,77 @@ namespace data::math {
         constexpr prime_field operator + (const prime_field &) const;
         constexpr prime_field operator - (const prime_field &) const;
         constexpr prime_field operator * (const prime_field &) const;
+
         constexpr prime_field operator / (const prime_field &) const;
+
         constexpr prime_field operator ~ () const {
             return inverse ();
         }
-        
+
+        constexpr prime_field &operator += (const prime_field &x) {
+            return *this = *this + x;
+        }
+
+        constexpr prime_field &operator -= (const prime_field &x) {
+            return *this = *this - x;
+        }
+
+        constexpr prime_field &operator *= (const prime_field &x) {
+            return *this = *this * x;
+        }
+
+        constexpr prime_field &operator /= (const prime_field &x) {
+            return *this = *this / x;
+        }
+
+        template <ImplicitlyConvertible<N> M> constexpr prime_field operator + (const M &x) const {
+            return *this + prime_field {x};
+        }
+
+        template <ImplicitlyConvertible<N> M> constexpr prime_field operator - (const M &x) const {
+            return *this - prime_field {x};
+        }
+
+        template <ImplicitlyConvertible<N> M> constexpr prime_field operator * (const M &x) const {
+            return *this * prime_field {x};
+        }
+
+        template <ImplicitlyConvertible<N> M> constexpr prime_field operator / (const M &x) const {
+            return *this / prime_field {x};
+        }
+
+        template <ImplicitlyConvertible<N> M> constexpr prime_field &operator += (const M &x) {
+            return *this = *this + prime_field {x};
+        }
+
+        template <ImplicitlyConvertible<N> M> constexpr prime_field &operator -= (const M &x) {
+            return *this = *this - prime_field {x};
+        }
+
+        template <ImplicitlyConvertible<N> M> constexpr prime_field &operator *= (const M &x) {
+            return *this = *this * prime_field {x};
+        }
+
+        template <ImplicitlyConvertible<N> M> constexpr prime_field &operator /= (const M &x) {
+            return *this = *this / prime_field {x};
+        }
+
+        template <ImplicitlyConvertible<N> M> friend constexpr prime_field operator + (const M &a, const prime_field &b) {
+            return prime_field {a} + b;
+        }
+
+        template <ImplicitlyConvertible<N> M> friend constexpr prime_field operator - (const M &a, const prime_field &b) {
+            return prime_field {a} - b;
+        }
+
+        template <ImplicitlyConvertible<N> M> friend constexpr prime_field operator * (const M &a, const prime_field &b) {
+            return prime_field {a} * b;
+        }
+
+        template <ImplicitlyConvertible<N> M> friend constexpr prime_field operator / (const M &a, const prime_field &b) {
+            return prime_field {a} / b;
+        }
+
     };
 
     template <auto P, RingNumber N>
@@ -129,5 +195,10 @@ namespace data::math {
     template <auto P, RingNumber N>
     constexpr prime_field<P, N> inline prime_field<P, N>::operator / (const prime_field &e) const {
         return *this * e.inverse ();
+    }
+
+    template <auto P, RingNumber N, ImplicitlyConvertible<N> M>
+    constexpr bool operator == (const prime_field<P, N> &a, const M &b) {
+        return a == prime_field<P, N> {b};
     }
 }

@@ -21,7 +21,8 @@
 
 namespace data {
     // modular numbers
-    template <auto N> using modular = math::number::modular<N>;
+    template <auto M, typename N = decltype (M)> using modular = math::number::modular<M, N>;
+    template <auto P, typename N = decltype (P)> using prime_field = math::prime_field<P, N>;
     
     // fractions
     template <typename Z> using fraction = math::fraction<Z>;

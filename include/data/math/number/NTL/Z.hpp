@@ -524,13 +524,13 @@ namespace data::math::number {
         return a <=> Z (b);
     }
 
-    template <endian r, size_t size, Word word>
-    std::strong_ordering inline operator <=> (const Z &a, const bound<r, size, word> &b) {
+    template <bool is_signed, endian r, size_t size, Word word>
+    std::strong_ordering operator <=> (const Z &a, const bounded<is_signed, r, size, word> &b) {
         return a <=> Z (b);
     }
 
-    template <endian r, size_t size, Word word>
-    std::strong_ordering inline operator <=> (const N &a, const ubound<r, size, word> &b) {
+    template <bool is_signed, endian r, size_t size, Word word>
+    std::strong_ordering operator <=> (const N &a, const bounded<is_signed, r, size, word> &b) {
         return a <=> N (b);
     }
 

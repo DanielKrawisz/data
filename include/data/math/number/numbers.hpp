@@ -473,17 +473,17 @@ namespace data::math::number {
     constexpr std::strong_ordering operator <=> (const bounded<x, r, n, word> &, const bounded<y, o, z, word> &);
 
     // comparisons of N/Z with N_bytes/Z_bytes and bounded types.
-    template <endian r, size_t size, Word word>
-    bool operator == (const Z &, const bound<r, size, word> &);
+    template <bool is_signed, endian r, size_t size, Word word>
+    bool operator == (const Z &, const bounded<is_signed, r, size, word> &);
 
-    template <endian r, size_t size, Word word>
-    std::strong_ordering operator <=> (const Z &, const bound<r, size, word> &);
+    template <bool is_signed, endian r, size_t size, Word word>
+    std::strong_ordering operator <=> (const Z &, const bounded<is_signed, r, size, word> &);
 
-    template <endian r, size_t size, Word word>
-    bool operator == (const N &, const ubound<r, size, word> &);
+    template <bool is_signed, endian r, size_t size, Word word>
+    bool operator == (const N &, const bounded<is_signed, r, size, word> &);
 
-    template <endian r, size_t size, Word word>
-    std::strong_ordering operator <=> (const N &, const ubound<r, size, word> &);
+    template <bool is_signed, endian r, size_t size, Word word>
+    std::strong_ordering operator <=> (const N &, const bounded<is_signed, r, size, word> &);
 
     template <endian r, negativity neg, Word word>
     bool operator == (const Z &, const Z_bytes<r, neg, word> &);
@@ -2599,13 +2599,13 @@ namespace data::math::number {
         return (a <=> b) == 0;
     }
 
-    template <endian r, size_t size, Word word>
-    bool inline operator == (const Z &a, const bound<r, size, word> &b) {
+    template <bool is_signed, endian r, size_t size, Word word>
+    bool inline operator == (const Z &a, const bounded<is_signed, r, size, word> &b) {
         return (a <=> b) == 0;
     }
 
-    template <endian r, size_t size, Word word>
-    bool inline operator == (const N &a, const ubound<r, size, word> &b) {
+    template <bool is_signed, endian r, size_t size, Word word>
+    bool inline operator == (const N &a, const bounded<is_signed, r, size, word> &b) {
         return (a <=> b) == 0;
     }
 

@@ -20,10 +20,10 @@ namespace data::math::number {
 
     template <auto mod, mod_base X, ImplicitlyConvertible<X> Y>
     constexpr bool operator == (const modular<mod, X> &, const Y &);
-
+/*
     template <auto mod, mod_base X, ImplicitlyConvertible<X> Y>
     constexpr bool operator == (const Y &, const modular<mod, X> &);
-
+*/
     template <auto mod, mod_base X>
     modular<mod, X> &operator ++ (modular<mod, X> &);
 
@@ -63,14 +63,32 @@ namespace data::math::number {
     template <auto mod, mod_base X>
     constexpr maybe<modular<mod, X>> invert (const modular<mod, X> &);
 
-    template <auto mod, mod_base X>
-    constexpr modular<mod, X> operator + (const modular<mod, X> &, const X &);
+    template <auto mod, mod_base X, ImplicitlyConvertible<X> Y>
+    constexpr modular<mod, X> operator + (const modular<mod, X> &, const Y &);
 
-    template <auto mod, mod_base X>
-    constexpr modular<mod, X> operator - (const modular<mod, X> &, const X &);
+    template <auto mod, mod_base X, ImplicitlyConvertible<X> Y>
+    constexpr modular<mod, X> operator - (const modular<mod, X> &, const Y &);
 
-    template <auto mod, mod_base X>
-    constexpr modular<mod, X> operator * (const modular<mod, X> &, const X &);
+    template <auto mod, mod_base X, ImplicitlyConvertible<X> Y>
+    constexpr modular<mod, X> operator * (const modular<mod, X> &, const Y &);
+
+    template <auto mod, mod_base X, ImplicitlyConvertible<X> Y>
+    constexpr modular<mod, X> operator + (const Y &, const modular<mod, X> &);
+
+    template <auto mod, mod_base X, ImplicitlyConvertible<X> Y>
+    constexpr modular<mod, X> operator - (const Y &, const modular<mod, X> &);
+
+    template <auto mod, mod_base X, ImplicitlyConvertible<X> Y>
+    constexpr modular<mod, X> operator * (const Y &, const modular<mod, X> &);
+
+    template <auto mod, mod_base X, ImplicitlyConvertible<X> Y>
+    constexpr modular<mod, X> &operator += (modular<mod, X> &, const Y &);
+
+    template <auto mod, mod_base X, ImplicitlyConvertible<X> Y>
+    constexpr modular<mod, X> &operator -= (modular<mod, X> &, const Y &);
+
+    template <auto mod, mod_base X, ImplicitlyConvertible<X> Y>
+    constexpr modular<mod, X> &operator *= (modular<mod, X> &, const Y &);
 
     template <auto mod, mod_base X>
     constexpr modular<mod, X> operator ^ (const modular<mod, X> &, const X &);
@@ -81,7 +99,7 @@ namespace data::math::number {
 
     template <auto mod, mod_base X> requires requires (X &x) {
         { x >>= 1 } -> Same<X &>;
-    } constexpr modular<mod, X> &operator >>= (const modular<mod, X> &, int);
+    } constexpr modular<mod, X> &operator >>= (modular<mod, X> &, int);
 
     template <auto mod, mod_base X> requires requires (X x) {
         { x << 1 } -> Same<X>;
@@ -89,7 +107,7 @@ namespace data::math::number {
 
     template <auto mod, mod_base X> requires requires (X &x) {
         { x <<= 1 } -> Same<X &>;
-    } constexpr modular<mod, X> &operator <<= (const modular<mod, X> &, int);
+    } constexpr modular<mod, X> &operator <<= (modular<mod, X> &, int);
 
     template <auto mod, mod_base X> requires requires (std::ostream &o, X x) {
         { o << x } -> Same<std::ostream &>;
@@ -97,21 +115,37 @@ namespace data::math::number {
     
     template <auto mod, mod_base X> struct modular {
         constexpr static const decltype (mod) Modulus = mod;
+        static const X &modulus () {
+            static X m = convert<X> (Modulus);
+            return m;
+        }
         X Value;
 
         template <typename... P>
         requires requires (P... p) {
             { X (p...) };
         } constexpr modular (P... p): Value (p...) {
-            Value %= mod;
+            if consteval {
+                Value %= convert<X> (mod);
+            } else {
+                Value %= modulus ();
+            }
         }
 
         constexpr modular (const X &v): Value (v) {
-            Value %= mod;
+            if consteval {
+                Value %= convert<X> (mod);
+            } else {
+                Value %= modulus ();
+            }
         }
         
         constexpr bool valid () const {
-            return data::valid (Value) && Value >= 0 && Value < mod;;
+            if consteval {
+                return data::valid (Value) && Value >= 0 && Value < convert<X> (mod);
+            } else {
+                return data::valid (Value) && Value >= 0 && Value < modulus ();
+            }
         }
 
         constexpr operator X () const {
@@ -134,7 +168,7 @@ namespace data::math {
 
     template <auto mod, typename X>
     struct numeric_limits<number::modular<mod, X>> {
-        constexpr static const number::modular<mod, X> Max {mod - 1};
+        constexpr static const number::modular<mod, X> Max {convert<X> (mod) - 1};
         constexpr static const number::modular<mod, X> Min {0};
 
         constexpr static const number::modular<mod, X> &max () {
@@ -166,12 +200,27 @@ namespace data::math::def {
 
     template <auto mod, typename X>
     struct mul_2_pow<number::modular<mod, X>> : mul_2_pow<X> {
-        number::modular<mod, X> operator () (const number::modular<mod, X> &, uint32 pow);
+        constexpr number::modular<mod, X> operator () (const number::modular<mod, X> &a, uint32 pow) {
+            return a << int (pow);
+        }
     };
 
     template <auto mod, typename X>
     struct div_2_pow<number::modular<mod, X>> : div_2_pow<X> {
-        number::modular<mod, X> operator () (const number::modular<mod, X> &, uint32 pow);
+        constexpr number::modular<mod, X> operator () (const number::modular<mod, X> &a, uint32 pow) {
+            return a >> int (pow);
+        }
+    };
+
+    template <auto mod, typename X, Exponent Exp>
+    struct pow<number::modular<mod, X>, Exp> {
+        constexpr number::modular<mod, X> operator () (const number::modular<mod, X> &base, const Exp &exp) {
+            if consteval {
+                return data::pow_mod (base.Value, exp, nonzero {math::convert<X> (mod)});
+            } else {
+                return data::pow_mod (base.Value, exp, nonzero {number::modular<mod, X>::modulus ()});
+            }
+        }
     };
     
 }
@@ -196,28 +245,49 @@ namespace data::math::number {
     
     template <auto mod, mod_base X>
     constexpr modular<mod, X> inline operator + (const modular<mod, X> &a, const modular<mod, X> &b) {
-        return data::plus_mod (a.Value, b.Value, nonzero {mod});
+        if consteval {
+            return data::plus_mod (a.Value, b.Value, nonzero {convert<X> (mod)});
+        } else {
+            return data::plus_mod (a.Value, b.Value, nonzero {modular<mod, X>::modulus ()});
+        }
     }
     
     template <auto mod, mod_base X>
     constexpr modular<mod, X> inline operator * (const modular<mod, X> &a, const modular<mod, X> &b) {
-        return data::times_mod (a.Value, b.Value, nonzero {mod});
+        if consteval {
+            return data::times_mod (a.Value, b.Value, nonzero {convert<X> (mod)});
+        } else {
+            return data::times_mod (a.Value, b.Value, nonzero {modular<mod, X>::modulus ()});
+        }
     }
     
     template <auto mod, mod_base X>
     constexpr modular<mod, X> inline operator - (const modular<mod, X> &a, const modular<mod, X> &b) {
-        if (a.Value < b.Value) return mod - (b.Value - a.Value);
-        return data::minus_mod (a.Value, b.Value, nonzero {mod});
+        if consteval {
+            if (a.Value < b.Value) return convert<X> (mod) - (b.Value - a.Value);
+            return data::minus_mod (a.Value, b.Value, nonzero {convert<X> (mod)});
+        } else {
+            if (a.Value < b.Value) return modular<mod, X>::modulus () - (b.Value - a.Value);
+            return data::minus_mod (a.Value, b.Value, nonzero {modular<mod, X>::modulus ()});
+        }
     }
     
     template <auto mod, mod_base X>
     constexpr modular<mod, X> inline operator - (const modular<mod, X> &a) {
-        return data::negate_mod (a.Value, nonzero {mod});
+        if consteval {
+            return data::negate_mod (a.Value, nonzero {convert<X> (mod)});
+        } else {
+            return data::negate_mod (a.Value, nonzero {modular<mod, X>::modulus ()});
+        }
     }
     
     template <auto mod, mod_base X>
     constexpr modular<mod, X> inline operator ^ (const modular<mod, X> &a, const X &b) {
-        return data::pow_mod (a.Value, b, nonzero {mod});
+        if consteval {
+            return data::pow_mod (a.Value, b, nonzero {convert<X> (mod)});
+        } else {
+            return data::pow_mod (a.Value, b, nonzero {modular<mod, X>::modulus ()});
+        }
     }
 
     template <auto mod, mod_base X>
@@ -238,8 +308,8 @@ namespace data::math::number {
         return x - modular<mod, X> {1};
     }
 
-    template <auto mod, mod_base X>
-    constexpr modular<mod, X> inline operator * (const modular<mod, X> &a, const X &b) {
+    template <auto mod, mod_base X, ImplicitlyConvertible<X> Y>
+    constexpr modular<mod, X> inline operator * (const modular<mod, X> &a, const Y &b) {
         return a * modular<mod, X> {b};
     }
 
@@ -248,9 +318,36 @@ namespace data::math::number {
         return a == modular<mod, X> {X (b)};
     }
 
-    template <auto mod, mod_base X, ImplicitlyConvertible<X> Y>
-    constexpr bool operator == (const Y &a, const modular<mod, X> &b) {
-        return modular<mod, X> {X (a)} == b;
+    template <auto mod, mod_base X> requires requires (X x) {
+        { x >> 1 } -> Same<X>;
+    } constexpr modular<mod, X> inline operator >> (const modular<mod, X> &x, int i) {
+        if consteval {
+            return data::mod (X (x.Value >> i), nonzero {convert<X> (mod)});
+        } else {
+            return data::mod (X (x.Value >> i), nonzero {modular<mod, X>::modulus ()});
+        }
+    }
+
+    template <auto mod, mod_base X> requires requires (X &x) {
+        { x >>= 1 } -> Same<X &>;
+    } constexpr modular<mod, X> &operator >>= (modular<mod, X> &x, int i) {
+        return x = x >> i;
+    }
+
+    template <auto mod, mod_base X> requires requires (X x) {
+        { x << 1 } -> Same<X>;
+    } constexpr modular<mod, X> operator << (const modular<mod, X> &x, int i) {
+        if consteval {
+            return data::mod (X (x.Value << i), nonzero {convert<X> (mod)});
+        } else {
+            return data::mod (X (x.Value << i), nonzero {modular<mod, X>::modulus ()});
+        }
+    }
+
+    template <auto mod, mod_base X> requires requires (X &x) {
+        { x <<= 1 } -> Same<X &>;
+    } constexpr modular<mod, X> &operator <<= (modular<mod, X> &x, int i) {
+        return x = x << i;
     }
 
 }
