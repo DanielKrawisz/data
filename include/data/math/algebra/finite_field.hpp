@@ -162,6 +162,17 @@ namespace data::math {
                 return a / b;
             }
         };
+
+        template <auto prime, RingNumber N, Exponent Exp>
+        struct pow<prime_field<prime, N>, Exp> {
+            constexpr prime_field<prime, N> operator () (const prime_field<prime, N> &base, const Exp &exp) {
+                if consteval {
+                    return data::pow_mod (base.Value, exp, nonzero {math::convert<N> (prime)});
+                } else {
+                    return data::pow_mod (base.Value, exp, nonzero {prime_field<prime, N>::modulus ()});
+                }
+            }
+        };
     }
     
     template <auto P, RingNumber N>

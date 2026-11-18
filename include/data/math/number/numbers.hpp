@@ -2086,12 +2086,20 @@ namespace data::math::def {
         Z operator () (const dec_int &) const;
     };
 
-    template <hex_case zz> struct convert<Z, hex::int2<zz>> {
-        Z operator () (const hex::int2<zz> &) const;
+    template <> struct convert<Z, dec_uint> {
+        Z operator () (const dec_int &) const;
     };
 
-    template <hex_case zz> struct convert<Z, hex::intBC<zz>> {
-        Z operator () (const hex::intBC<zz> &) const;
+    template <> struct convert<dec_uint, Z> {
+        dec_uint operator () (const Z &) const;
+    };
+
+    template <negativity neg, hex_case zz> struct convert<hex::integer<neg, zz>, Z> {
+        hex::integer<neg, zz> operator () (const Z &) const;
+    };
+
+    template <negativity neg, hex_case zz> struct convert<Z, hex::integer<neg, zz>> {
+        Z operator () (const hex::integer<neg, zz> &) const;
     };
 
     // convert between any two types of Z_bytes

@@ -250,6 +250,14 @@ namespace data::math::def {
         N operator () (const base58_uint &) const;
     };
 
+    template <> struct convert<Z, base58_uint> {
+        Z operator () (const base58_uint &) const;
+    };
+
+    template <> struct convert<base58_uint, Z> {
+        base58_uint operator () (const Z &) const;
+    };
+
     template <> struct size_in_base<base58_uint, 2> {
         size_t operator () (const base58_uint &);
     };
@@ -974,18 +982,36 @@ namespace data::math::def {
         return Z (u);
     }
 
-    template <hex_case zz>
-    Z inline convert<Z, hex::int2<zz>>::operator () (const hex::int2<zz> &u) const {
+    Z inline convert<Z, dec_uint>::operator () (const dec_int &u) const {
         return Z (u);
     }
 
-    template <hex_case zz>
-    Z inline convert<Z, hex::intBC<zz>>::operator () (const hex::intBC<zz> &u) const {
+    template <negativity neg, hex_case zz>
+    Z inline convert<Z, hex::integer<neg, zz>>::operator () (const hex::integer<neg, zz> &u) const {
         return Z (u);
     }
 
     N inline convert<N, base58_uint>::operator () (const base58_uint &n) const {
         return N (n);
+    }
+
+    Z inline convert<Z, base58_uint>::operator () (const base58_uint &u) const {
+        Z z;
+        z.Value = NTL::conv<NTL::ZZ> (u);
+        return z;
+    }
+
+    base58_uint inline convert<base58_uint, Z>::operator () (const Z &z) const {
+        return NTL::conv<base58_uint> (z.Value);
+    }
+
+    template <negativity neg, hex_case zz>
+    hex::integer<neg, zz> inline convert<hex::integer<neg, zz>, Z>::operator () (const Z &z) const {
+        return NTL::conv<hex::integer<neg, zz>> (z.Value);
+    }
+
+    dec_uint inline convert<dec_uint, Z>::operator () (const Z &z) const {
+        return NTL::conv<dec_uint> (z.Value);
     }
 
     template <endian r, negativity neg, Word word>

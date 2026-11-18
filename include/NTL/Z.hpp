@@ -98,6 +98,9 @@ namespace NTL {
     template <negativity neg, data::hex_case cc>
     void conv (ZZ &x, const hex::integer<neg, cc> &);
 
+    template <negativity neg, data::hex_case cc>
+    void conv (hex::integer<neg, cc> &x, const ZZ &);
+
     template <endian Order, class T, size_t n_bits, align Align>
     void conv (ZZ &, const endian_arithmetic<Order, T, n_bits, Align> &);
 
@@ -131,6 +134,11 @@ namespace NTL {
         data::bytes data = *data::encoding::hex::read (data::string_view (u).substr (2));
         x = import_bin<data::byte> (byte_slice (data),
             endian::big, endian::native, neg);
+    }
+
+    template <negativity neg, data::hex_case cc>
+    void inline conv (hex::integer<neg, cc> &x, const ZZ &z) {
+        x = data::encoding::hexidecimal::write<cc> (conv<Z_bytes<endian::big, neg, data::byte>> (z));
     }
 
     template <endian r, negativity neg, Word word>

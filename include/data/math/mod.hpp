@@ -146,25 +146,6 @@ namespace data::math::def {
         }
     };
 
-    template <typename Base, GroupNumber Exp, GroupNumber Mod> struct pow_mod<Base, Exp, Mod> {
-        constexpr Mod operator () (const Base &x, const Exp &y, const nonzero<Mod> &z) {
-
-            // we have a problem here because we can overflow, and when that happens, we cannot correctly mod
-            // the result. We transform to a type that is bigger than this and then transform back.
-
-            using innerBase = doubled<Base>;
-            using innerExp = doubled<Exp>;
-            using innerMod = doubled<Mod>;
-
-            return math::convert<Mod> (
-                math::binary_accumulate_pow_mod (
-                    math::convert<innerBase> (x),
-                    math::convert<innerExp> (y),
-                    math::nonzero {math::convert<innerMod> (z.Value)}));
-
-        }
-    };
-
     template <typename Base, GroupNumber Exp, GroupNumber Mod> struct times_mod<Base, Exp, Mod> {
         constexpr Mod operator () (const Base &x, const Exp &y, const nonzero<Mod> &z) {
 

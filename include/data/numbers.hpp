@@ -4,14 +4,7 @@
 
 #pragma once
 
-// defines float32 and float64
-#include <data/float.hpp>
-
-#include <data/integral.hpp>
-#include <data/math/number/NTL/Z.hpp>
-#include <data/math/number/bounded.hpp>
-#include <data/math/number/bytes.hpp>
-#include <data/math/number/conversions.hpp>
+#include <data/math/numbers.hpp>
 
 namespace data {
     // we use a wrapper around NTL for natural numbers and integers.
@@ -43,10 +36,6 @@ namespace data {
     using hex_int = hex::int2<hex_case::lower>;
     using hex_int_BC = hex::intBC<hex_case::lower>;
     using base58_uint = encoding::base58::string;
-    
-}
-
-namespace data {
 
     static_assert (Integer<long int>);
 
