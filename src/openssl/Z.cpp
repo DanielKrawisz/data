@@ -142,6 +142,31 @@ namespace OpenSSL {
         if (c > 0) return std::strong_ordering::greater;
         return std::strong_ordering::equal;
     }
+
+    Z pow_mod (const Z &base, const Z &exponent, const Z &modulus) {
+
+        if (BN_is_zero (modulus.Value) || BN_is_negative (modulus.Value))
+            throw data::exception {} << "invalid modulus";
+
+        std::unique_ptr<BN_CTX, decltype (&BN_CTX_free)>
+        ctx (BN_CTX_new (), BN_CTX_free);
+
+        if (!ctx)
+            throw data::exception {} << "cannot allocate OpenSSL BN_CTX";
+
+        Z result;
+
+        if (!BN_mod_exp (
+            result.Value,
+            base.Value,
+            exponent.Value,
+            modulus.Value,
+            ctx.get ()
+        )) throw data::exception {} << "OpenSSL modular exponentiation failed";
+
+        return result;
+    }
+
 }
 
 namespace data::math::def {
@@ -249,31 +274,7 @@ namespace data::math::def {
         const OpenSSL::Z &y,
         const nonzero<OpenSSL::Z> &m
     ) {
-        OpenSSL::Z modulus {BN_dup (m.Value.Value)};
-        OpenSSL::Z base {BN_new ()};
-        OpenSSL::Z result {BN_new ()};
-
-        std::unique_ptr<BN_CTX, decltype (&BN_CTX_free)>
-        ctx{BN_CTX_new(), &BN_CTX_free};
-
-        if (!modulus.Value || !base.Value || !result.Value || !ctx)
-            throw std::bad_alloc {};
-
-        if (BN_is_zero (modulus.Value))
-            throw std::domain_error {"zero modulus"};
-
-        if (BN_is_negative (y.Value))
-            throw std::domain_error {"negative exponent"};
-
-        BN_set_negative (modulus.Value, 0);
-
-        if (!BN_nnmod (base.Value, x.Value, modulus.Value, ctx.get ()))
-            throw std::runtime_error {"BN_nnmod failed"};
-
-        if (!BN_mod_exp (result.Value, base.Value, y.Value, modulus.Value, ctx.get ()))
-            throw std::runtime_error {"BN_mod_exp failed"};
-
-        return result;
+        return OpenSSL::pow_mod (x, y, m.Value);
     }
 
 }

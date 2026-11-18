@@ -135,6 +135,9 @@ namespace data {
     using ModularTypes = testing::Types<
         uint256, int256,
         N, Z,
+#if DATA_CRYPTO
+        CryptoPP::Z, OpenSSL::Z,
+#endif
         Z_bytes_BC_little, Z_bytes_BC_big,
         N_bytes_little, N_bytes_big,
         math::N_bytes<endian::little, unsigned short>,
@@ -271,7 +274,7 @@ namespace data {
             const unsigned shift {2};
 
             const Z expected = mod (
-                Z (a.Value) << shift,
+                math::convert<Z> (a.Value) << shift,
                 math::nonzero {Z (17)}
             );
 
@@ -291,7 +294,7 @@ namespace data {
             const unsigned shift {17};
 
             const Z expected = mod (
-                Z (a.Value) << shift,
+                math::convert<Z> (a.Value) << shift,
                 math::nonzero {Z (modulus)}
             );
 
@@ -311,7 +314,7 @@ namespace data {
             const M a {15};
             const unsigned shift {2};
 
-            const Z expected = Z (a.Value) >> shift;
+            const Z expected = math::convert<Z> (a.Value) >> shift;
 
             const auto z = a >> shift;
 
@@ -328,7 +331,7 @@ namespace data {
             const M a {123456789};
             const unsigned shift {17};
 
-            const Z expected = Z (a.Value) >> shift;
+            const Z expected = math::convert<Z> (a.Value) >> shift;
 
             const auto z = a >> shift;
 
@@ -348,8 +351,8 @@ namespace data {
             const N exponent {5};
 
             const Z expected = pow_mod (
-                Z (base.Value),
-                Z (exponent),
+                math::convert<Z> (base.Value),
+                math::convert<Z> (exponent),
                 math::nonzero {Z (17)}
             );
 
@@ -368,8 +371,8 @@ namespace data {
             const N exponent {12345};
 
             const Z expected = pow_mod (
-                Z (base.Value),
-                Z (exponent),
+                math::convert<Z> (base.Value),
+                math::convert<Z> (exponent),
                 math::nonzero {Z (3999999999)}
             );
 
@@ -388,8 +391,8 @@ namespace data {
             const N exponent {256};
 
             const Z expected = pow_mod (
-                Z (base.Value),
-                Z (exponent),
+                math::convert<Z> (base.Value),
+                math::convert<Z> (exponent),
                 math::nonzero {Z (17)});
 
             const auto z = pow (base, exponent);
@@ -409,8 +412,8 @@ namespace data {
             const N exponent {12345};
 
             const Z expected = pow_mod (
-                Z (base.Value),
-                Z (exponent),
+                math::convert<Z> (base.Value),
+                math::convert<Z> (exponent),
                 math::nonzero {Z (modulus)});
 
             const auto z = pow (base, exponent);

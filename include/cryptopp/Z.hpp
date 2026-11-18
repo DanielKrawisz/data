@@ -127,6 +127,10 @@ namespace data::math::def {
     template <> struct convert<CryptoPP::Z, base58_uint> {
         CryptoPP::Z operator () (const base58_uint &) const;
     };
+
+    template <> struct convert<base58_uint, CryptoPP::Z> {
+        base58_uint operator () (const CryptoPP::Z &) const;
+    };
 }
 
 namespace CryptoPP {

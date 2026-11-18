@@ -2487,7 +2487,7 @@ namespace data::math::def {
             nbound<a, r, x, word> result;
             arithmetic::bit_xor<word> (result.begin (), result.end (), m.begin (), n.begin ());
             return result;
-            }
+        }
     };
 
     template <bool a, endian r, size_t x, Word word>
@@ -2935,6 +2935,10 @@ namespace CryptoPP {
     using data::math::number::bounded;
     using data::math::number::Z_bytes;
 
+    bool operator == (const Z &, const data::Z &);
+
+    std::strong_ordering operator <=> (const Z &, const data::Z &);
+
     template <bool is_signed, endian r, size_t size, Word word>
     bool operator == (const Z &, const bounded<is_signed, r, size, word> &);
 
@@ -3026,6 +3030,10 @@ namespace OpenSSL {
     using data::endian;
     using data::math::number::bounded;
     using data::math::number::Z_bytes;
+
+    bool operator == (const Z &, const data::Z &);
+
+    std::strong_ordering operator <=> (const Z &, const data::Z &);
 
     template <bool is_signed, endian r, size_t size, Word word>
     bool operator == (const Z &, const bounded<is_signed, r, size, word> &);
@@ -3283,6 +3291,22 @@ namespace data::math::def {
     template <> struct convert<dec_int, OpenSSL::Z> {
         dec_int operator () (const OpenSSL::Z &) const;
     };
+
+    template <> struct convert<dec_uint, CryptoPP::Z> {
+        dec_uint operator () (const CryptoPP::Z &) const;
+    };
+
+    template <> struct convert<dec_uint, OpenSSL::Z> {
+        dec_uint operator () (const OpenSSL::Z &) const;
+    };
+
+    template <negativity neg, hex_case zz> struct convert<hex::integer<neg, zz>, CryptoPP::Z> {
+        hex::integer<neg, zz> operator () (const CryptoPP::Z &) const;
+    };
+
+    template <negativity neg, hex_case zz> struct convert<hex::integer<neg, zz>, OpenSSL::Z> {
+        hex::integer<neg, zz> operator () (const OpenSSL::Z &) const;
+    };
 }
 
 namespace data::math::number {
@@ -3369,10 +3393,18 @@ namespace CryptoPP {
     bool inline operator == (const Z &a, const Z &b) {
         return (a <=> b) == 0;
     }
+
+    bool inline operator == (const Z &a, const data::Z &b) {
+        return (a <=> b) == 0;
+    }
 }
 
 namespace OpenSSL {
     bool inline operator == (const Z &a, const Z &b) {
+        return (a <=> b) == 0;
+    }
+
+    bool inline operator == (const Z &a, const data::Z &b) {
         return (a <=> b) == 0;
     }
 }

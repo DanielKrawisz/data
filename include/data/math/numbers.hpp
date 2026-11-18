@@ -44,6 +44,15 @@ namespace data::math::def {
                         math::convert<innerExp> (y),
                         math::nonzero {math::convert<innerMod> (z.Value)}));
             } else {
+#if DATA_CRYPTO
+                auto a = math::convert<OpenSSL::Z> (x);
+                auto b = math::convert<OpenSSL::Z> (y);
+                auto c = math::convert<OpenSSL::Z> (z.Value);
+
+                auto r = OpenSSL::pow_mod (a, b, c);
+
+                return math::convert<Mod> (r);
+#else
                 auto a = math::convert<Z> (x);
                 auto b = math::convert<Z> (y);
                 auto c = math::convert<Z> (z.Value);
@@ -51,6 +60,7 @@ namespace data::math::def {
                 auto r = Z {NTL::pow_mod (a.Value, b.Value, c.Value)};
 
                 return math::convert<Mod> (r);
+#endif
             }
 
         }

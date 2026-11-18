@@ -20,10 +20,7 @@ namespace data::math::number {
 
     template <auto mod, mod_base X, ImplicitlyConvertible<X> Y>
     constexpr bool operator == (const modular<mod, X> &, const Y &);
-/*
-    template <auto mod, mod_base X, ImplicitlyConvertible<X> Y>
-    constexpr bool operator == (const Y &, const modular<mod, X> &);
-*/
+
     template <auto mod, mod_base X>
     modular<mod, X> &operator ++ (modular<mod, X> &);
 

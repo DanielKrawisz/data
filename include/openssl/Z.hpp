@@ -135,11 +135,17 @@ namespace OpenSSL {
         endian byte_order = endian::native,
         negativity neg = negativity::nones);
 
+    Z pow_mod (const Z &base, const Z &exponent, const Z &modulus);
+
 }
 
 namespace data::math::def {
     template <> struct convert<OpenSSL::Z, base58_uint> {
         OpenSSL::Z operator () (const base58_uint &) const;
+    };
+
+    template <> struct convert<base58_uint, OpenSSL::Z> {
+        base58_uint operator () (const OpenSSL::Z &) const;
     };
 }
 
@@ -310,7 +316,7 @@ namespace data::math::def {
 
     template <negativity neg, hex_case zz>
     OpenSSL::Z convert<OpenSSL::Z, hex::integer<neg, zz>>::operator () (const hex::integer<neg, zz> &u) const {
-        return hex::integer<neg, zz> (Z_bytes_big (u));
+        return encoding::hexidecimal::write<zz> (Z_bytes_big (u));
     }
 
     OpenSSL::Z inline convert<OpenSSL::Z, dec_uint>::operator () (const dec_uint &u) const {
