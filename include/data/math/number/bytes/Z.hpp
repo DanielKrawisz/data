@@ -516,24 +516,8 @@ namespace data::math::number {
         return ++z;
     }
 
-    template <endian r, Word word>
-    N_bytes<r, word> inline &operator %= (N_bytes<r, word> &a, const N_bytes<r, word> &b) {
-        return a = a % b;
-    }
-
     template <endian r, negativity c, Word word>
-    N_bytes<r, word> inline &operator %= (Z_bytes<r, c, word> &a, const N_bytes<r, word> &b) {
-        return a = a % b;
-    }
-
-    template <endian r, Word word>
-    Z_bytes<r, negativity::BC, word> inline &operator %=
-    (Z_bytes<r, negativity::BC, word> &a, const Z_bytes<r, negativity::BC, word> &b) {
-        return a = a % b;
-    }
-
-    template <endian r, negativity c, Word word>
-    uint64 &operator %= (Z_bytes<r, c, word> &a, uint64 b) {
+    Z_bytes<r, c, word> inline &operator %= (Z_bytes<r, c, word> &a, const Z_bytes<r, c, word> &b) {
         return a = a % b;
     }
 
@@ -1313,20 +1297,13 @@ namespace data::math::number {
     }
 
     template <endian r, Word word>
-    N_bytes<r, word> inline operator % (const N_bytes<r, word> &x, const N_bytes<r, word> &j) {
-        if (j == 0) throw math::division_by_zero {};
-        return data::divmod<N_bytes<r, word>> (x, nonzero<N_bytes<r, word>> {j}).Remainder;
-    }
-
-    template <endian r, Word word>
     N_bytes<r, word> inline operator % (const Z_bytes<r, negativity::twos, word> &x, const N_bytes<r, word> &j) {
         if (j == 0) throw math::division_by_zero {};
         return data::divmod (x, nonzero<N_bytes<r, word>> {j}).Remainder;
     }
 
-    template <endian r, Word word>
-    Z_bytes<r, negativity::BC, word> inline operator %
-    (const Z_bytes<r, negativity::BC, word> &x, const Z_bytes<r, negativity::BC, word> &j) {
+    template <endian r, negativity neg, Word word>
+    Z_bytes<r, neg, word> inline operator % (const Z_bytes<r, neg, word> &x, const Z_bytes<r, neg, word> &j) {
         if (j == 0) throw math::division_by_zero {};
         return data::divmod (x, nonzero {j}).Remainder;
     }

@@ -1092,14 +1092,43 @@ namespace data {
         EXPECT_THROW (divide (Z {1}, math::nonzero {Z {0}}), math::division_by_zero);
     }
 
-    TYPED_TEST (BigNumbers, ModByZero) {
-        using N = typename TestFixture::N;
-        EXPECT_THROW (N {1} % abs (N {0}), math::division_by_zero);
+    TYPED_TEST (Numbers, Mod) {
+        using Z = typename TestFixture::N;
+        using N = decltype (abs (Z {0}));
+
+        EXPECT_EQ (Z {23} % N {5}, N {3});
+        EXPECT_EQ ((mod (Z {23}, math::nonzero {N {5}})), N {3});
+        EXPECT_EQ ((mod (Z {0x01c3fa}, math::nonzero {N {0x010001}})), N {0xc3f9});
+        EXPECT_EQ ((mod (Z {0xc782}, math::nonzero {N {0x010001}})), N {0xc782});
+
+        if constexpr (Unsame<Z, N>) {
+
+            EXPECT_EQ (Z {23} % Z {5}, Z {3});
+            EXPECT_EQ ((mod (Z {23}, math::nonzero {Z {5}})), Z {3});
+            EXPECT_EQ ((mod (Z {0x01c3fa}, math::nonzero {Z {0x010001}})), Z {0xc3f9});
+            EXPECT_EQ ((mod (Z {0xc782}, math::nonzero {Z {0x010001}})), Z {0xc782});
+        }
+    }
+
+    // note: it should be possible to use a signed
+    // modulus with a signed number, but we don't do that yet.
+    TYPED_TEST (Integers, Mod) {
+        using Z = typename TestFixture::Z;
+        using N = decltype (abs (Z {0}));
+
+        EXPECT_EQ ((mod (Z {-1}, math::nonzero {N {5}})), N {4});
+        EXPECT_EQ ((mod (Z {-1}, math::nonzero {N {6}})), N {5});
+        EXPECT_EQ ((mod (Z {-1}, math::nonzero {N {7}})), N {6});
     }
 
     TYPED_TEST (Numbers, ModByZero) {
         using N = typename TestFixture::N;
         EXPECT_THROW ((mod (N {1}, math::nonzero {abs (N {0})})), math::division_by_zero);
+    }
+
+    TYPED_TEST (BigNumbers, ModByZero) {
+        using N = typename TestFixture::N;
+        EXPECT_THROW (N {1} % abs (N {0}), math::division_by_zero);
     }
 
     TYPED_TEST (Numbers, DivMod) {
@@ -1128,27 +1157,6 @@ namespace data {
         EXPECT_EQ ((divmod (Z {1}, math::nonzero {Z {-2}})), (division {Z (0), abs (Z (1))}));
         EXPECT_EQ ((divmod (Z {-10}, math::nonzero {Z {3}})), (division {Z (-4), abs (Z (2))}));
         EXPECT_EQ ((divmod (Z {-10}, math::nonzero {Z {-3}})), (division {Z (4), abs (Z (2))}));
-    }
-
-    TYPED_TEST (Numbers, Mod) {
-        using Z = typename TestFixture::N;
-        using N = decltype (abs (Z {0}));
-
-        EXPECT_EQ (Z {23} % N {5}, N {3});
-        EXPECT_EQ ((mod (Z {23}, math::nonzero {N {5}})), N {3});
-        EXPECT_EQ ((mod (Z {0x01c3fa}, math::nonzero {N {0x010001}})), N {0xc3f9});
-        EXPECT_EQ ((mod (Z {0xc782}, math::nonzero {N {0x010001}})), N {0xc782});
-    }
-
-    // note: it should be possible to use a signed
-    // modulus with a signed number, but we don't do that yet.
-    TYPED_TEST (Integers, Mod) {
-        using Z = typename TestFixture::Z;
-        using N = decltype (abs (Z {0}));
-
-        EXPECT_EQ ((mod (Z {-1}, math::nonzero {N {5}})), N {4});
-        EXPECT_EQ ((mod (Z {-1}, math::nonzero {N {6}})), N {5});
-        EXPECT_EQ ((mod (Z {-1}, math::nonzero {N {7}})), N {6});
     }
 
     TYPED_TEST (Integers, Power) {
@@ -1300,40 +1308,80 @@ namespace data {
 
         EXPECT_EQ (
             (invert_mod (Z {0}, math::nonzero {abs (Z {2})})),
-                   maybe<N> {});
+                maybe<N> {});
 
         EXPECT_EQ (
             (invert_mod (Z {1}, math::nonzero {abs (Z {2})})),
-                   maybe<N> {N {1}});
+                maybe<N> {N {1}});
 
         EXPECT_EQ (
             (invert_mod (Z {2}, math::nonzero {abs (Z {2})})),
-                   maybe<N> {});
+                maybe<N> {});
 
         EXPECT_EQ (
             (invert_mod (Z {0}, math::nonzero {abs (Z {5})})),
-            maybe<N> {}
+                maybe<N> {}
         );
 
         EXPECT_EQ (
             (invert_mod (Z {2}, math::nonzero {abs (Z {5})})),
-            maybe<N> {N {3}}
+                maybe<N> {N {3}}
         );
 
         EXPECT_EQ (
             (invert_mod (Z {3}, math::nonzero {abs (Z {5})})),
-            maybe<N> {N {2}}
+                maybe<N> {N {2}}
         );
 
         EXPECT_EQ (
             (invert_mod (Z {4}, math::nonzero {abs (Z {5})})),
-            maybe<N> {N {4}}
+                maybe<N> {N {4}}
         );
 
         EXPECT_EQ (
             (invert_mod (Z {2}, math::nonzero {abs (Z {4})})),
-            maybe<N> {}
+                maybe<N> {}
         );
+
+        if constexpr (Unsame<Z, N>) {
+
+            EXPECT_EQ (
+                (invert_mod (Z {0}, math::nonzero {Z {2}})),
+                    maybe<Z> {});
+
+            EXPECT_EQ (
+                (invert_mod (Z {1}, math::nonzero {Z {2}})),
+                    maybe<Z> {Z {1}});
+
+            EXPECT_EQ (
+                (invert_mod (Z {2}, math::nonzero {Z {2}})),
+                    maybe<Z> {});
+
+            EXPECT_EQ (
+                (invert_mod (Z {0}, math::nonzero {Z {5}})),
+                    maybe<Z> {}
+            );
+
+            EXPECT_EQ (
+                (invert_mod (Z {2}, math::nonzero {Z {5}})),
+                    maybe<Z> {Z {3}}
+            );
+
+            EXPECT_EQ (
+                (invert_mod (Z {3}, math::nonzero {Z {5}})),
+                    maybe<Z> {Z {2}}
+            );
+
+            EXPECT_EQ (
+                (invert_mod (Z {4}, math::nonzero {Z {5}})),
+                    maybe<Z> {Z {4}}
+            );
+
+            EXPECT_EQ (
+                (invert_mod (Z {2}, math::nonzero {Z {4}})),
+                    maybe<Z> {}
+            );
+        }
     }
 
     TYPED_TEST (Integers, InvertMod) {

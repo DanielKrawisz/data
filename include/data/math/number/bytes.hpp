@@ -250,14 +250,18 @@ namespace data::encoding::hexidecimal {
         return read_dec_integer<n, zz> {} (x);
     }
 
-    template <hex::letter_case cx>
-    integer<negativity::nones, cx> inline operator % (const integer<negativity::nones, cx> &n, const integer<negativity::nones, cx> &x) {
-        return write<cx> (N {n} % N {x});
+    template <negativity n, hex::letter_case cx>
+    integer<n, cx> inline operator % (const integer<n, cx> &a, const integer<n, cx> &b) {
+        if constexpr (n == negativity::nones) {
+            return write<cx> (N {a} % N {b});
+        } else {
+            return write<cx> (Z {a} % Z {b});
+        }
     }
 
     template <hex::letter_case cx>
-    integer<negativity::nones, cx> inline operator % (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x) {
-        return write<cx> (Z {n} % N {x});
+    integer<negativity::nones, cx> inline operator % (const integer<negativity::twos, cx> &a, const integer<negativity::nones, cx> &b) {
+        return write<cx> (Z {a} % N {b});
     }
     
 }

@@ -1132,6 +1132,11 @@ namespace data::encoding::signed_decimal {
         if (z == 0) throw math::division_by_zero {};
         return math::def::divmod<string, decimal::string> {} (v, math::nonzero<decimal::string> {z}).Remainder;
     }
+
+    string inline operator % (const string &v, const string &z) {
+        if (z == 0) throw math::division_by_zero {};
+        return math::def::divmod<string, string> {} (v, math::nonzero<string> {z}).Remainder;
+    }
     
     string inline operator ++ (string &x, int) {
         auto n = x;

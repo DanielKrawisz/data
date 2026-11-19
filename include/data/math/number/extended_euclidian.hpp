@@ -122,7 +122,7 @@ namespace data::math::def {
 
     template <typename Z, typename N>
     struct invert_mod {
-        constexpr auto inline operator () (const Z &x, const nonzero<N> &mod) -> maybe<decltype (number::divmod (x, mod.Value).Remainder)> {
+        constexpr auto inline operator () (const Z &x, const nonzero<N> &mod) -> maybe<decltype (data::mod (x, mod))> {
             // we have a problem here because we can underflow, and when that happens, we cannot correctly mod
             // the result. We transform to a signed type that is bigger than this and then transform back.
             if constexpr (UnsignedIntegral<Z>) {

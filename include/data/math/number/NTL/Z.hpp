@@ -422,7 +422,7 @@ namespace data::math::number {
         return def::divmod<N, N> {} (a, nonzero {b}).Quotient;
     }
 
-    N inline operator % (const Z &a, const Z &b) {
+    Z inline operator % (const Z &a, const Z &b) {
         if (b == 0) throw division_by_zero {};
         return def::divmod<Z, Z> {} (a, nonzero {b}).Remainder;
     }
@@ -444,7 +444,13 @@ namespace data::math::number {
 
     N inline &operator %= (N &a, const N &b) {
         if (b == 0) throw division_by_zero {};
-        a.Value = def::divmod<N, N> {} (a, nonzero {b}).Remainder.Value;
+        a.Value = data::divmod (a, nonzero {b}).Remainder.Value;
+        return a;
+    }
+
+    Z inline &operator %= (Z &a, const Z &b) {
+        if (b == 0) throw division_by_zero {};
+        a.Value = data::divmod (a, nonzero {b}).Remainder.Value;
         return a;
     }
 

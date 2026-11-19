@@ -935,7 +935,7 @@ namespace data::math::number {
     template <std::unsigned_integral I> N operator / (const N &, I);
     template <std::signed_integral I> Z operator / (const N &, I);
 
-    N operator % (const Z &, const Z &);
+    Z operator % (const Z &, const Z &);
     N operator % (const Z &, const N &);
     N operator % (const N &, const N &);
 
@@ -946,6 +946,7 @@ namespace data::math::number {
     Z &operator -= (Z &, const Z &);
     Z &operator *= (Z &, const Z &);
     Z &operator /= (Z &, const Z &);
+    Z &operator %= (Z &, const Z &);
 
     N &operator += (N &, const N &);
     N &operator -= (N &, const N &);
@@ -1240,20 +1241,10 @@ namespace data::math::number {
     Z_bytes<r, neg, word> operator / (const Z_bytes<r, neg, word> &, int64);
 
     template <endian r, Word word>
-    N_bytes<r, word> operator % (const N_bytes<r, word> &, const N_bytes<r, word> &);
+    N_bytes<r, word> operator % (const Z_bytes<r, negativity::twos, word> &, const N_bytes<r, word> &);
 
     template <endian r, negativity neg, Word word>
-    N_bytes<r, word> operator % (const Z_bytes<r, neg, word> &, const N_bytes<r, word> &);
-
-    template <endian r, Word word>
-    N_bytes<r, word> operator % (
-        const Z_bytes<r, negativity::twos, word> &,
-        const Z_bytes<r, negativity::twos, word> &);
-
-    template <endian r, Word word>
-    Z_bytes<r, negativity::BC, word> operator % (
-        const Z_bytes<r, negativity::BC, word> &,
-        const Z_bytes<r, negativity::BC, word> &);
+    Z_bytes<r, neg, word> operator % (const Z_bytes<r, neg, word> &, const Z_bytes<r, neg, word> &);
 
     // TODO what's with all these uint64s?
     template <endian r, Word word>
@@ -1274,15 +1265,8 @@ namespace data::math::number {
     template <endian r, negativity neg, Word word, std::integral I>
     Z_bytes<r, neg, word> &operator /= (Z_bytes<r, neg, word> &, I);
 
-    template <endian r, Word word>
-    N_bytes<r, word> &operator %= (N_bytes<r, word> &, const N_bytes<r, word> &);
-
     template <endian r, negativity neg, Word word>
-    N_bytes<r, word> &operator %= (Z_bytes<r, neg, word> &, const N_bytes<r, word> &);
-
-    template <endian r, Word word>
-    Z_bytes<r, negativity::BC, word> &operator %=
-    (Z_bytes<r, negativity::BC, word> &, const Z_bytes<r, negativity::BC, word> &);
+    Z_bytes<r, neg, word> &operator %= (Z_bytes<r, neg, word> &, const Z_bytes<r, neg, word> &);
 
     template <endian r, Word word>
     N_bytes<r, word> &operator %= (N_bytes<r, word> &, uint64);
@@ -1678,22 +1662,13 @@ namespace data::encoding {
 
         // mod
         template <negativity n, hex::letter_case cx>
-        integer<negativity::nones, cx> operator % (const integer<negativity::nones, cx> &, const integer<negativity::nones, cx> &);
+        integer<n, cx> operator % (const integer<n, cx> &, const integer<n, cx> &);
 
-        template <hex::letter_case cx>
-        integer<negativity::nones, cx> &operator %= (integer<negativity::nones, cx> &n, const integer<negativity::nones, cx> &x);
+        template <negativity n, hex::letter_case cx>
+        integer<n, cx> &operator %= (integer<n, cx> &, const integer<n, cx> &);
 
         template <hex::letter_case cx>
         integer<negativity::nones, cx> operator % (const integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
-
-        template <hex::letter_case cx>
-        integer<negativity::nones, cx> &operator %= (integer<negativity::twos, cx> &n, const integer<negativity::nones, cx> &x);
-
-        template <hex::letter_case cx>
-        integer<negativity::BC, cx> operator % (const integer<negativity::BC, cx> &n, const integer<negativity::BC, cx> &x);
-
-        template <hex::letter_case cx>
-        integer<negativity::BC, cx> &operator %= (integer<negativity::BC, cx> &n, const integer<negativity::BC, cx> &x);
 
         // bit operations
         template <hex::letter_case cx>

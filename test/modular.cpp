@@ -134,13 +134,14 @@ namespace data {
 
     using ModularTypes = testing::Types<
         uint256, int256,
-        N, //Z,
+        N, Z,
         Z_bytes_BC_little, Z_bytes_BC_big,
         N_bytes_little, N_bytes_big,
         math::N_bytes<endian::little, unsigned short>,
         math::N_bytes<endian::big, unsigned>,
         math::N_bytes<endian::little, unsigned long>,
-        math::N_bytes<endian::big, unsigned long long>>;
+        math::N_bytes<endian::big, unsigned long long>,
+        Z_bytes_little, Z_bytes_big>;
 
     TYPED_TEST_SUITE (Modular, ModularTypes);
 
