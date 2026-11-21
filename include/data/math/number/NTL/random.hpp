@@ -9,7 +9,7 @@
 
 namespace data::math::number {
 
-    template <> prime<N> inline is_prime<N> (random::source &x, const N &n, int rounds) {
+    template <> prime<N> inline is_prime<N> (random::source &x, const N &n, unsigned rounds) {
         if (NTL::random_function (
             x,
             static_cast<long (*) (const NTL::ZZ &, long)> (NTL::ProbPrime),
@@ -31,7 +31,7 @@ namespace data::math::number {
         )}, probable};
     }
 
-    template <Number NN> prime<NN> inline is_prime (random::source &x, const NN &n, int rounds) {
+    template <Number NN> prime<NN> inline is_prime (random::source &x, const NN &n, unsigned rounds) {
         return prime<NN> (is_prime<N> (x, convert<N> (n)));
     }
 

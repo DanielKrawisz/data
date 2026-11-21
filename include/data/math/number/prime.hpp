@@ -24,13 +24,13 @@ namespace data::math::number {
     template <Number N> factorization<N> operator * (factorization<N>, factorization<N>);
 
     // test primality with Miller-Rabin + trial division.
-    template <Number N> prime<N> is_prime (random::source &, const N &, int rounds = 25);
+    template <Number N> prime<N> is_prime (random::source &, const N &, unsigned rounds = 25);
 
     // a safe prime is of the form 2 p + 1 where p is also prime.
-    template <Number N> prime<N> is_safe (random::source &, const prime<N> &, int rounds = 25);
+    template <Number N> prime<N> is_safe (random::source &, const prime<N> &, unsigned rounds = 25);
 
     struct generate_prime_parameters {
-        int rounds = 25;
+        unsigned rounds = 25;
         bool safe = false;
     };
 
@@ -38,7 +38,7 @@ namespace data::math::number {
     template <Number N> prime<N> generate_random_prime (random::source &, uint32 digits, generate_prime_parameters = {});
 
     // use Maurer’s algorithm. Slower but 100% chance of success.
-    template <Number N> prime<N> generate_Maurer (random::source &, uint32 digits, int rounds);
+    template <Number N> prime<N> generate_Maurer (random::source &, uint32 digits);
 
     template <Number N> prime<N> next_prime (const N &, uint32 trials = 25);
 
@@ -85,9 +85,9 @@ namespace data::math::number {
         friend struct AKS<N>;
         template <Number M> friend struct prime;
         friend factorization<N> factorize<N> (nonzero<N>, eratosthenes<N> &);
-        friend prime<N> is_prime<N> (random::source &, const N &, int rounds);
+        friend prime<N> is_prime<N> (random::source &, const N &, unsigned rounds);
         friend prime<N> generate_random_prime<N> (random::source &, uint32 digits, generate_prime_parameters);
-        friend prime<N> generate_Maurer<N> (random::source &, uint32 digits, int rounds);
+        friend prime<N> generate_Maurer<N> (random::source &, uint32 digits);
         friend prime<N> next_prime<N> (const N &, uint32 trials);
     };
 
