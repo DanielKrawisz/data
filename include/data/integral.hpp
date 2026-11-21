@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_INTEGRAL
-#define DATA_MATH_INTEGRAL
+#pragma once
 
 // numbers of either endian of any size up to 64 bits using boost.
 #include <data/encoding/endian.hpp>
@@ -12,7 +11,8 @@
 
 // bounded size numbers of any size (bigger than 64 bit)
 #include <data/math/number/bounded.hpp>
-#include <data/math/number/bytes.hpp>
+#include <data/math/number/conversions.hpp>
+#include <data/math/mod.hpp>
 
 #include <data/exception.hpp>
 
@@ -21,61 +21,79 @@ namespace data {
     // fixed size numbers of any size, similar to the
     // built-in types.
     template <size_t size, std::unsigned_integral word = byte>
-    using int_little = math::sint<endian::little, size, word>;
+    using int_little = math::bound_little<size, word>;
 
     template <size_t size, std::unsigned_integral word = byte>
-    using int_big = math::sint<endian::big, size, word>;
+    using int_big = math::bound_big<size, word>;
 
     template <size_t size, std::unsigned_integral word = byte>
-    using uint_little = math::uint<endian::little, size, word>;
+    using uint_little = math::ubound_little<size, word>;
 
     template <size_t size, std::unsigned_integral word = byte>
-    using uint_big = math::uint<endian::big, size, word>;
+    using uint_big = math::ubound_big<size, word>;
 
-    using  uint80 = math::uint<endian::little, 5, uint16>;
-    using   int80 = math::sint<endian::little, 5, uint16>;
+    using  uint80  = math::ubound<endian::little, 5, uint16>;
+    using   int80  = math::bound<endian::little, 5, uint16>;
 
-    using uint128 = math::uint<endian::little, 2, uint64>;
-    using  int128 = math::sint<endian::little, 2, uint64>;
+    using uint128  = math::ubound<endian::little, 2, uint64>;
+    using  int128  = math::bound<endian::little, 2, uint64>;
 
-    using uint160 = math::uint<endian::little, 5, uint32>;
-    using  int160 = math::sint<endian::little, 5, uint32>;
+    using uint160  = math::ubound<endian::little, 5, uint32>;
+    using  int160  = math::bound<endian::little, 5, uint32>;
 
-    using uint192 = math::uint<endian::little, 3, uint64>;
-    using  int192 = math::sint<endian::little, 3, uint64>;
+    using uint192  = math::ubound<endian::little, 3, uint64>;
+    using  int192  = math::bound<endian::little, 3, uint64>;
 
-    using uint224 = math::uint<endian::little, 7, uint32>;
-    using  int224 = math::sint<endian::little, 7, uint32>;
+    using uint224  = math::ubound<endian::little, 7, uint32>;
+    using  int224  = math::bound<endian::little, 7, uint32>;
 
-    using uint256 = math::uint<endian::little, 4, uint64>;
-    using  int256 = math::sint<endian::little, 4, uint64>;
+    using uint256  = math::ubound<endian::little, 4, uint64>;
+    using  int256  = math::bound<endian::little, 4, uint64>;
 
-    using uint288 = math::uint<endian::little, 9, uint32>;
-    using  int288 = math::sint<endian::little, 9, uint32>;
+    using uint288  = math::ubound<endian::little, 9, uint32>;
+    using  int288  = math::bound<endian::little, 9, uint32>;
 
-    using uint320 = math::uint<endian::little, 5, uint64>;
-    using  int320 = math::sint<endian::little, 5, uint64>;
+    using uint320  = math::ubound<endian::little, 5, uint64>;
+    using  int320  = math::bound<endian::little, 5, uint64>;
 
-    using uint352 = math::uint<endian::little, 11, uint32>;
-    using  int352 = math::sint<endian::little, 11, uint32>;
+    using uint352  = math::ubound<endian::little, 11, uint32>;
+    using  int352  = math::bound<endian::little, 11, uint32>;
 
-    using uint384 = math::uint<endian::little, 6, uint64>;
-    using  int384 = math::sint<endian::little, 6, uint64>;
+    using uint384  = math::ubound<endian::little, 6, uint64>;
+    using  int384  = math::bound<endian::little, 6, uint64>;
 
-    using uint416 = math::uint<endian::little, 13, uint32>;
-    using  int416 = math::sint<endian::little, 13, uint32>;
+    using uint416  = math::ubound<endian::little, 13, uint32>;
+    using  int416  = math::bound<endian::little, 13, uint32>;
 
-    using uint448 = math::uint<endian::little, 7, uint64>;
-    using  int448 = math::sint<endian::little, 7, uint64>;
+    using uint448  = math::ubound<endian::little, 7, uint64>;
+    using  int448  = math::bound<endian::little, 7, uint64>;
 
-    using uint480 = math::uint<endian::little, 15, uint32>;
-    using  int480 = math::sint<endian::little, 15, uint32>;
+    using uint480  = math::ubound<endian::little, 15, uint32>;
+    using  int480  = math::bound<endian::little, 15, uint32>;
 
-    using uint512 = math::uint<endian::little, 8, uint64>;
-    using  int512 = math::sint<endian::little, 8, uint64>;
+    using uint512  = math::ubound<endian::little, 8, uint64>;
+    using  int512  = math::bound<endian::little, 8, uint64>;
 
-    using uint544 = math::uint<endian::little, 17, uint32>;
-    using  int544 = math::sint<endian::little, 17, uint32>;
+    using uint544  = math::ubound<endian::little, 17, uint32>;
+    using  int544  = math::bound<endian::little, 17, uint32>;
+
+    using uint1536 = math::ubound<endian::little, 24, uint64>;
+    using  int1536 = math::bound<endian::little, 24, uint64>;
+
+    using uint2048 = math::ubound<endian::little, 32, uint64>;
+    using  int2048 = math::bound<endian::little, 32, uint64>;
+
+    using uint3072 = math::ubound<endian::little, 48, uint64>;
+    using  int3072 = math::bound<endian::little, 48, uint64>;
+
+    using uint4096 = math::ubound<endian::little, 64, uint64>;
+    using  int4096 = math::bound<endian::little, 64, uint64>;
+
+    using uint6144 = math::ubound<endian::little, 96, uint64>;
+    using  int6144 = math::bound<endian::little, 96, uint64>;
+
+    using uint8192 = math::ubound<endian::little, 128, uint64>;
+    using  int8192 = math::bound<endian::little, 128, uint64>;
 
     using  uint80_little = uint_little<10>;
     using uint128_little = uint_little<16>;
@@ -145,7 +163,18 @@ namespace data {
     static_assert (IntegralSystem<int160_little, uint160_little>);
     static_assert (IntegralSystem<int256_little, uint256_little>);
     static_assert (IntegralSystem<int512_little, uint512_little>);
-}
 
-#endif
+    template <> struct twice<int64> {
+        using type = int128;
+    };
+
+    template <> struct twice<int64_little> {
+        using type = int128_little;
+    };
+
+    template <> struct twice<int64_big> {
+        using type = int128_big ;
+    };
+
+}
 

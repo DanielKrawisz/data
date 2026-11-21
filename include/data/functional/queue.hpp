@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_QUEUE
-#define DATA_QUEUE
+#pragma once
 
 // a stack is the most basic functional data structure. 
 
@@ -146,5 +145,3 @@ namespace data {
     }
     
 }
-
-#endif

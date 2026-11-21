@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_REMOVE
-#define DATA_REMOVE
+#pragma once
 
 #include <data/reverse.hpp>
 #include <data/container.hpp>
@@ -50,7 +49,4 @@ namespace data {
     }
 
 }
-
-#endif
-
 

@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NONNEGATIVE
-#define DATA_MATH_NONNEGATIVE
+#pragma once
 
 #include <data/valid.hpp>
 #include <data/ordered.hpp>
@@ -164,5 +163,3 @@ namespace data::math {
     }
 
 }
-
-#endif

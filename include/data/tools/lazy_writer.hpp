@@ -1,12 +1,12 @@
-// Copyright (c) 2024 Daniel Krawisz
+    // Copyright (c) 2024 Daniel Krawisz
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_TOOLS_LAZY_WRITER
-#define DATA_TOOLS_LAZY_WRITER
+#pragma once
 
-#include <data/stack.hpp>
 #include <concepts>
+#include <data/stack.hpp>
+#include <data/stream.hpp>
 
 namespace data {
 
@@ -25,7 +25,7 @@ namespace data {
         stack<std::vector<word>> Parts;
 
     public:
-        size_t TotalSize {0};
+        size_t Written {0};
 
         lazy_writer (bytes &b, size_t capacity = 1024 / sizeof (word)) noexcept: Bytes {b}, Capacity {capacity}, Parts {} {
             Parts >>= std::vector<word> {};
@@ -33,8 +33,11 @@ namespace data {
         }
 
         void write (const word* b, size_t size) final override {
+            Written += size;
+
             std::vector<word> *current = &first (Parts);
             std::size_t remaining = current->capacity () - current->size ();
+
             if (remaining < size) {
                 current->insert (current->end (), b, b + remaining);
                 size -= remaining;
@@ -42,12 +45,19 @@ namespace data {
                 current = &first (Parts);
                 current->reserve (size > Capacity ? size : Capacity);
             }
+
             current->insert (current->end (), b, b + size);
-            TotalSize += size;
         }
 
         ~lazy_writer () {
-            std::vector<word> v (TotalSize);
+            std::vector<word> v (Written);
+
+            // we get a warning if we don't do this special case.
+            if (Written == 0) {
+                Bytes = bytes {};
+                return;
+            }
+
             iterator_writer vv {v.begin (), v.end ()};
             for (const std::vector<word> &b : reverse (Parts)) vv.write (b.data (), b.size ());
             Bytes = bytes {std::move (v)};
@@ -92,6 +102,12 @@ namespace data {
         return build<bytes, lazy_writer<bytes>> (p...);
     }
 
+    template <moved_vector_constructible bytes>
+    bytes inline write (size_t size) {
+        if (size != 0) throw exception {} << "failed to fill written data with the expected size.";
+        return bytes {};
+    }
+
     template <moved_vector_constructible bytes, typename... P>
     bytes inline write (size_t size, P &&...p) {
         std::vector<byte> b (size);
@@ -102,5 +118,3 @@ namespace data {
     }
 
 }
-
-#endif

@@ -1,0 +1,13 @@
+rm -rf /usr/local/include/data
+rm -rf /usr/local/include/sv
+rm -rf /usr/local/lib/libdata_crypto.a
+rm -rf /usr/local/lib/libdata_net.a
+rm -rf /usr/local/lib/libdata_numbers.a
+rm -rf /usr/local/lib/libdata_hash.a
+rm -rf /usr/local/lib/libdata_io.a
+rm -rf /usr/local/lib/libdata_string.a
+rm -rf /usr/local/include/data/version.hpp
+rm -rf /usr/local/lib/cmake/data/dataTargets.cmake
+rm -rf /usr/local/lib/cmake/data/dataTargets-debug.cmake
+rm -rf /usr/local/lib/cmake/data/dataConfig.cmake
+rm -rf /usr/local/lib/cmake/data/dataConfigVersion.cmake

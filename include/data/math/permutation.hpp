@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_PERMUTATION
-#define DATA_MATH_PERMUTATION
+#pragma once
 
 #include <list>
 #include <data/cycle.hpp>
@@ -294,6 +293,4 @@ namespace data::math::def {
     }
 
 }
-
-#endif
 

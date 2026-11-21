@@ -2,9 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/math/number/factor.hpp"
-#include "data/numbers.hpp"
-#include "gtest/gtest.h"
+#include <data/math/number/factor.hpp>
+#include <data/numbers.hpp>
+#include <data/math/number/NTL/prime.hpp>
+
+#include <gtest/gtest.h>
 
 namespace data::math::number {
 
@@ -16,7 +18,7 @@ namespace data::math::number {
 
             static list<power<N, N>> read (factorization<N> f) {
                 list<power<N, N>> p;
-                for (const auto &x : f) p <<= power<N, N> {x.Base.Prime.Value, x.Exponent};
+                for (const auto &x : f) p <<= power<N, N> {x.Base.Value, x.Exponent};
                 return p;
             }
 
@@ -26,8 +28,18 @@ namespace data::math::number {
             }
         };
 
-        list<test_case> test_cases {{1, {}}, {2, {{2, 1}}}, {4, {{2, 2}}}, {3, {{3, 1}}}, {5, {{5, 1}}},
-            {6, {{2, 1}, {3, 1}}}, {7, {{7, 1}}}, {9, {{3, 2}}}, {273, {{3, 1}, {7, 1}, {13, 1}}}};
+        list<test_case> test_cases {
+            {1u, {}},
+            {2u, {{2u, 1u}}},
+            {4u, {{2u, 2u}}},
+            {3u, {{3u, 1u}}},
+            {5u, {{5u, 1u}}},
+            {6u, {{2u, 1u},
+            {3u, 1u}}},
+            {7u, {{7u, 1u}}},
+            {9u, {{3u, 2u}}},
+            {273u, {{3u, 1u},
+            {7u, 1u}, {13u, 1u}}}};
 
         eratosthenes<N> e;
         for (const test_case &tc : test_cases) {

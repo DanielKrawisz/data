@@ -1,5 +1,4 @@
-#ifndef BOOST_ENDIAN_DETAIL_IS_TRIVIALLY_COPYABLE_HPP_INCLUDED
-#define BOOST_ENDIAN_DETAIL_IS_TRIVIALLY_COPYABLE_HPP_INCLUDED
+#pragma once
 
 // Copyright 2019, 2023 Peter Dimov
 // Distributed under the Boost Software License, Version 1.0.
@@ -29,5 +28,3 @@ using std::is_trivially_copyable;
 } // namespace detail
 } // namespace endian
 } // namespace boost
-
-#endif  // BOOST_ENDIAN_DETAIL_IS_TRIVIALLY_COPYABLE_HPP_INCLUDED

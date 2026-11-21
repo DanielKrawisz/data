@@ -2,14 +2,15 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "data/get.hpp"
-#include "data/ordered_sequence.hpp"
-#include "data/cross.hpp"
-#include "data/array.hpp"
-#include "data/list.hpp"
-#include "data/stack.hpp"
-#include "data/map.hpp"
-#include "gtest/gtest.h"
+#include <data/get.hpp>
+#include <data/ordered_sequence.hpp>
+#include <data/cross.hpp>
+#include <data/array.hpp>
+#include <data/list.hpp>
+#include <data/stack.hpp>
+#include <data/map.hpp>
+
+#include <gtest/gtest.h>
 
 namespace data {
 

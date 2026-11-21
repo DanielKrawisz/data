@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_BINARY_SEARCH_TREE
-#define DATA_BINARY_SEARCH_TREE
+#pragma once
 
 #include <data/functional/map.hpp>
 #include <data/tools/linked_tree.hpp>
@@ -472,6 +471,4 @@ namespace data {
         return a.remove (k);
     }
 }
-
-#endif
 

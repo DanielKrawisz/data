@@ -7,8 +7,7 @@
 
 //  See library home page at http://www.boost.org/libs/endian
 
-#ifndef BOOST_ENDIAN_ENDIAN_HPP
-#define BOOST_ENDIAN_ENDIAN_HPP
+#pragma once
 
 #ifndef BOOST_ENDIAN_DEPRECATED_NAMES
 # error "<boost/endian/endian.hpp> is deprecated. Define BOOST_ENDIAN_DEPRECATED_NAMES to use."
@@ -114,5 +113,3 @@ namespace endian
 
 } // namespace endian
 } // namespace boost
-
-#endif  //BOOST_ENDIAN_ENDIAN_HPP

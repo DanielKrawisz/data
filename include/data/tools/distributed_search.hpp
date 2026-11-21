@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_TOOLS_DISTRIBUTED_SEARCH
-#define DATA_TOOLS_DISTRIBUTED_SEARCH
+#pragma once
 
 #include <data/iterable.hpp>
 #include <data/cross.hpp>
@@ -189,6 +188,3 @@ namespace data::distributed {
     }
 
 }
-
-#endif
-

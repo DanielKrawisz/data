@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_TOOLS_MAP_SET
-#define DATA_TOOLS_MAP_SET
+#pragma once
 
 #include <data/stack.hpp>
 #include <data/tools/functional_queue.hpp>
@@ -184,5 +183,3 @@ namespace data::tool {
     };
 
 }
-
-#endif

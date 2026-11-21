@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_STACK
-#define DATA_STACK
+#pragma once
 
     /*
      *    ---------------------------------------------------------------------------
@@ -213,5 +212,3 @@ namespace data {
 
     template <typename X> using stack = linked_stack<X>;
 }
-
-#endif

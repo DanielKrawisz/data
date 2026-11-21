@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_LINEAR_SPACE
-#define DATA_MATH_LINEAR_SPACE
+#pragma once
 
 #include <data/cross.hpp>
 #include <data/array.hpp>
@@ -15,11 +14,11 @@
 namespace data::math::linear {
     
     template <typename F, typename V>
-    concept space = algebraic_module<F, V> && field<F>;
+    concept Space = algebraic_module<F, V> && Field<F>;
     
     using dimension = unsigned_limit<size_t>;
     
-    template <typename F, typename V> requires space<F, V> struct dimensions;
+    template <typename F, typename V> requires Space<F, V> struct dimensions;
     
     template <typename F> 
     struct dimensions<F, F> {
@@ -41,7 +40,7 @@ namespace data::math::linear {
 
 namespace data::math::def {
     
-    template <math::field F, size_t... sizes>
+    template <math::Field F, size_t... sizes>
     struct inverse<plus<array<F, sizes...>>, array<F, sizes...>> {
         array<F, sizes...> operator () (const array<F, sizes...> &a, const array<F, sizes...> &b) {
             return b - a;
@@ -49,5 +48,3 @@ namespace data::math::def {
     };
     
 }
-
-#endif

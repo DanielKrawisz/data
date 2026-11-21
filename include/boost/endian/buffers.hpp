@@ -20,8 +20,7 @@
 
 // TODO: When a compiler supporting constexpr becomes available, try possible uses.
 
-#ifndef BOOST_ENDIAN_BUFFERS_HPP
-#define BOOST_ENDIAN_BUFFERS_HPP
+#pragma once
 
 #if defined(_MSC_VER)
 # pragma warning(push)
@@ -363,5 +362,3 @@ public:
 #if defined(_MSC_VER)
 # pragma warning(pop)
 #endif
-
-#endif // BOOST_ENDIAN_BUFFERS_HPP

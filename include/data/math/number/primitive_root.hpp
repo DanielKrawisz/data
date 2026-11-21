@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_NUMBER_PRIMITIVE_ROOT
-#define DATA_MATH_NUMBER_PRIMITIVE_ROOT
+#pragma once
 
 #include <data/lift.hpp>
 #include <data/math/power.hpp>
@@ -16,14 +15,14 @@ namespace data::math::number {
     // simplification for a prime.
 
     // check whether a is a primitive root of p.
-    template <typename N> bool is_primitive_root (nonzero<N> p, N a, eratosthenes<N> &e);
-    template <typename N> bool is_primitive_root (prime<N> p, N a, eratosthenes<N> &e);
+    template <Number N> bool is_primitive_root (nonzero<N> p, N a, eratosthenes<N> &e);
+    template <Number N> bool is_primitive_root (prime<N> p, N a, eratosthenes<N> &e);
 
     // find a primitive root of p.
-    template <typename N> maybe<N> primitive_root (nonzero<N> p, eratosthenes<N> &e);
-    template <typename N> maybe<N> primitive_root (prime<N> p, eratosthenes<N> &e);
+    template <Number N> maybe<N> primitive_root (nonzero<N> p, eratosthenes<N> &e);
+    template <Number N> maybe<N> primitive_root (prime<N> p, eratosthenes<N> &e);
 
-    template <typename N>
+    template <Number N>
     struct primitive_roots {
         nonzero<N> P;
         nonzero<N> Totient;
@@ -33,12 +32,12 @@ namespace data::math::number {
         bool is (N a) const;
     };
 
-    template <typename N> bool inline is_primitive_root (nonzero<N> p, N a, eratosthenes<N> &e) {
+    template <Number N> bool inline is_primitive_root (nonzero<N> p, N a, eratosthenes<N> &e) {
         return primitive_roots<N> {p, e}.is (a);
     }
 
-    template <typename N> maybe<N> primitive_root (prime<N> p, eratosthenes<N> &e) {
-        if (p.Prime < 3) return {};
+    template <Number N> maybe<N> primitive_root (prime<N> p, eratosthenes<N> &e) {
+        if (p.Value < 3) return {};
         primitive_roots<N> roots {p, e};
         // note: we can skip all powers, for example 4, 8, 9, 16, 25, 27...
         N a {2};
@@ -49,7 +48,7 @@ namespace data::math::number {
         return a;
     }
 
-    template <typename N> maybe<N> primitive_root (nonzero<N> p, eratosthenes<N> &e) {
+    template <Number N> maybe<N> primitive_root (nonzero<N> p, eratosthenes<N> &e) {
         if (p < 3) return {};
         primitive_roots<N> roots {p, e};
         // note: we can skip all powers, for example 4, 8, 9, 16, 25, 27...
@@ -61,24 +60,25 @@ namespace data::math::number {
         return a;
     }
 
-    template <typename N> primitive_roots<N>::primitive_roots (const nonzero<N> &p, eratosthenes<N> &e):
+    template <Number N> inline primitive_roots<N>::primitive_roots (const nonzero<N> &p, eratosthenes<N> &e):
         P {p}, Totient {totient<N> (p, e)}, PrimeFactors {lift ([] (const power<prime<N>, N> &p) {
             return p.Base;
         }, factorize<N> (Totient, e))} {}
 
-    template <typename N> primitive_roots<N>::primitive_roots (const prime<N> &p, eratosthenes<N> &e):
-        P {p.Prime}, Totient {totient<N> (p, e)}, PrimeFactors {lift ([] (const power<prime<N>, N> &p) {
+    template <Number N> inline primitive_roots<N>::primitive_roots (const prime<N> &p, eratosthenes<N> &e):
+        P {p.Value}, Totient {totient<N> (p, e)}, PrimeFactors {lift ([] (const power<prime<N>, N> &p) {
             return p.Base;
         }, factorize<N> (Totient, e))} {}
 
-    template <typename N> bool primitive_roots<N>::is (N a) const {
+    template <Number N> bool inline primitive_roots<N>::is (N a) const {
         // for exach prime factor p, test that a^(s/p) != 1.
         for (const prime<N> &p : PrimeFactors)
-            if (data::pow_mod (a, Totient.Value / p.Prime.Value, P) == N {1}) return false;
+            if (data::pow_mod (a, Totient.Value / p.Value, P) == N {1}) return false;
         return true;
     }
 
+    template <Number N> bool inline is_primitive_root (prime<N> p, N a, eratosthenes<N> &e) {
+        return primitive_roots<N> (p, e).is (a);
+    }
+
 }
-
-#endif
-

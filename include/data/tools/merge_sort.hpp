@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_TOOLS_MERGE_SORT
-#define DATA_TOOLS_MERGE_SORT
+#pragma once
 
 #include <data/list/linked.hpp>
 
@@ -39,5 +38,3 @@ namespace data {
     }
     
 }
-
-#endif

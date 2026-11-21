@@ -1,5 +1,4 @@
-#ifndef BOOST_ENDIAN_HPP_INCLUDED
-#define BOOST_ENDIAN_HPP_INCLUDED
+#pragma once
 
 // Copyright 2019 Peter Dimov
 //
@@ -9,5 +8,3 @@
 #include <boost/endian/conversion.hpp>
 #include <boost/endian/buffers.hpp>
 #include <boost/endian/arithmetic.hpp>
-
-#endif // #ifndef BOOST_ENDIAN_HPP_INCLUDED

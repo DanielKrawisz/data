@@ -2,10 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_RANDOM
-#define DATA_RANDOM
+#pragma once
 
-#include <cryptopp/rng.h>
 #include <data/iterable.hpp>
 #include <data/bytes.hpp>
 #include <data/size.hpp>
@@ -222,5 +220,3 @@ namespace data::random {
     uint32 select_index_by_weight (cross<double>, source &r);
 
 }
-
-#endif

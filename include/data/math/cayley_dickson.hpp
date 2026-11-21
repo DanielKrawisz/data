@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MATH_CAYLEY_DICKSON
-#define DATA_MATH_CAYLEY_DICKSON
+#pragma once
 
 #include <data/norm.hpp>
 #include <data/math/nonzero.hpp>
@@ -18,9 +17,24 @@ namespace data::math {
     template <cayley_dickson_algebra nda>
     bool operator == (const cayley_dickson<nda> &, const cayley_dickson<nda> &);
 
+    template <cayley_dickson_algebra nda, ImplicitlyConvertible<nda> NDA>
+    bool operator == (const cayley_dickson<nda> &, const NDA &);
+
     // we only have division if we are a field
-    template <typename nda> requires field<cayley_dickson<nda>>
-    cayley_dickson<nda> operator / (const cayley_dickson<nda> &, const nonzero<cayley_dickson<nda>> &);
+    template <Field nda>
+    cayley_dickson<nda> operator / (const cayley_dickson<nda> &, const cayley_dickson<nda> &);
+
+    template <Field nda, ImplicitlyConvertible<nda> NDA>
+    cayley_dickson<nda> operator / (const cayley_dickson<nda> &, const NDA &);
+
+    template <cayley_dickson_algebra nda, ImplicitlyConvertible<nda> NDA>
+    cayley_dickson<nda> operator * (const NDA &, const cayley_dickson<nda>);
+
+    template <cayley_dickson_algebra nda, ImplicitlyConvertible<nda> NDA>
+    cayley_dickson<nda> operator - (const NDA &, const cayley_dickson<nda>);
+
+    template <cayley_dickson_algebra nda, ImplicitlyConvertible<nda> NDA>
+    cayley_dickson<nda> operator + (const NDA &, const cayley_dickson<nda>);
 
     template <cayley_dickson_algebra nda>
     struct cayley_dickson {
@@ -37,37 +51,34 @@ namespace data::math {
         cayley_dickson (NDA n): Even (n), Odd (0) {}
         
         // conjugate
-        cayley_dickson operator ~ () const;
+        cayley_dickson operator * () const;
         
         cayley_dickson operator + (const cayley_dickson &x) const;
+
+        template <ImplicitlyConvertible<nda> NDA>
+        cayley_dickson operator + (const NDA &x) const;
         
         cayley_dickson operator - () const;
         
         cayley_dickson operator - (const cayley_dickson &x) const;
+
+        template <ImplicitlyConvertible<nda> NDA>
+        cayley_dickson operator - (const NDA &x) const;
         
         cayley_dickson operator * (const cayley_dickson &x) const;
+
+        template <ImplicitlyConvertible<nda> NDA>
+        cayley_dickson operator * (const NDA &x) const;
         
     };
 }
 
 namespace data::math::def {
 
-    template <typename nda>
-    struct inner<cayley_dickson<nda>> {
-        auto operator () (const cayley_dickson<nda> &a, const cayley_dickson<nda> &b);
-    };
-
     template <cayley_dickson_algebra nda>
     struct inverse<plus<cayley_dickson<nda>>, cayley_dickson<nda>> {
         cayley_dickson<nda> operator () (const cayley_dickson<nda> &a, const cayley_dickson<nda> &b) {
             return b - a;
-        }
-    };
-
-    template <typename nda> requires Real<nda> || Complex<nda> || Quaternionic<nda>
-    struct inverse<times<cayley_dickson<nda>>, cayley_dickson<nda>> {
-        nonzero<cayley_dickson<nda>> operator () (const nonzero<cayley_dickson<nda>> &z) {
-            return nonzero<cayley_dickson<nda>> {~(z.Value) / data::quadrance (z.Value)};
         }
     };
 
@@ -82,6 +93,18 @@ namespace data::math::def {
             return x.Odd;
         }
     };
+
+    template <Field nda>
+    struct inverse<times<cayley_dickson<nda>>, cayley_dickson<nda>> {
+        nonzero<cayley_dickson<nda>> operator () (const nonzero<cayley_dickson<nda>> &z) {
+            return nonzero<cayley_dickson<nda>> {*z.Value / data::quadrance (z.Value)};
+        }
+
+        nonzero<cayley_dickson<nda>> operator () (const nonzero<cayley_dickson<nda>> &a, const nonzero<cayley_dickson<nda>> &b) {
+            return nonzero<cayley_dickson<nda>> {*a.Value / data::quadrance (a.Value) * b.Value};
+        }
+    };
+
 }
 
 namespace data::math::linear {
@@ -96,7 +119,7 @@ namespace data::math::linear {
 namespace data::math {
     
     template <cayley_dickson_algebra nda>
-    cayley_dickson<nda> inline cayley_dickson<nda>::operator ~ () const {
+    cayley_dickson<nda> inline cayley_dickson<nda>::operator * () const {
         return conjugate (*this);
     }
     
@@ -120,16 +143,42 @@ namespace data::math {
         return {Even * x.Even - x.Odd * conjugate (Odd), conjugate (Even) * x.Odd + x.Even * Odd};
     }
 
-    template <cayley_dickson_algebra nda>
-    cayley_dickson<nda> inline operator / (const cayley_dickson<nda> &a, const nonzero<cayley_dickson<nda>> &b) {
-        return a * def::inverse<def::times<cayley_dickson<nda>>, cayley_dickson<nda>> {} (b).Value;
+    template <Field nda>
+    cayley_dickson<nda> inline operator / (const cayley_dickson<nda> &a, const cayley_dickson<nda> &b) {
+        return a * def::inverse<def::times<cayley_dickson<nda>>, cayley_dickson<nda>> {} (nonzero {b}).Value;
+    }
+
+    template <cayley_dickson_algebra nda, ImplicitlyConvertible<nda> NDA>
+    bool inline operator == (const cayley_dickson<nda> &a, const NDA &b) {
+        return a.Even == b && a.Odd == 0;
     }
 
     template <cayley_dickson_algebra nda>
     bool inline operator == (const cayley_dickson<nda> &a, const cayley_dickson<nda> &b) {
         return a.Even == b.Even && a.Odd == b.Odd;
     }
+
+    template <cayley_dickson_algebra nda>
+    template <ImplicitlyConvertible<nda> NDA>
+    cayley_dickson<nda> inline cayley_dickson<nda>::operator + (const NDA &x) const {
+        return cayley_dickson<nda> {Even + x, Odd};
+    }
+
+    template <cayley_dickson_algebra nda>
+    template <ImplicitlyConvertible<nda> NDA>
+    cayley_dickson<nda> inline cayley_dickson<nda>::operator - (const NDA &x) const {
+        return cayley_dickson<nda> {Even - x, Odd};
+    }
+
+    template <cayley_dickson_algebra nda>
+    template <ImplicitlyConvertible<nda> NDA>
+    cayley_dickson<nda> inline cayley_dickson<nda>::operator * (const NDA &x) const {
+        return cayley_dickson<nda> {Even * x, Odd * x};
+    }
+
+    template <Field nda, ImplicitlyConvertible<nda> NDA>
+    cayley_dickson<nda> operator / (const cayley_dickson<nda> &a, const NDA &b) {
+        return cayley_dickson<nda> {a.Even / b, a.Odd / b};
+    }
     
 }
-
-#endif

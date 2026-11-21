@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_FOLD
-#define DATA_FOLD
+#pragma once
 
 #include <data/sequence.hpp>
 #include <data/arithmetic.hpp>
@@ -30,5 +29,3 @@ namespace data {
     }
 
 }
-
-#endif

@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_TYPES
-#define DATA_TYPES
+#pragma once
 
 #include <vector>
 #include <array>
@@ -44,6 +43,8 @@ static_assert (false, "Must support int64");
 namespace data {
 
     using byte = std::uint8_t;
+
+    using uint8 = std::uint8_t;
     using uint16 = std::uint16_t;
     using uint32 = std::uint32_t;
     using uint64 = std::uint64_t;
@@ -69,6 +70,6 @@ namespace data {
     template <typename X> using unref = std::remove_reference_t<X>;
     template <typename X> using unconst = std::remove_const_t<X>;
 
-}
+    using std::size_t;
 
-#endif
+}

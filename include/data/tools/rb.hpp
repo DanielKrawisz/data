@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_TOOLS_RB
-#define DATA_TOOLS_RB
+#pragma once
 
 #include <data/tools/ordered_list.hpp>
 #include <data/stack.hpp>
@@ -494,5 +493,3 @@ namespace data::RB {
     }
 
 }
-
-#endif

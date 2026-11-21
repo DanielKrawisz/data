@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_MANAGED
-#define DATA_MANAGED
+#pragma once
 
 #include <data/container.hpp>
 
@@ -113,6 +112,3 @@ namespace data::managed {
     using bytes = array<byte, size>;
     
 }
-
-#endif
-

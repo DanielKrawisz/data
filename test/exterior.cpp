@@ -2,11 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "gtest/gtest.h"
 #include <data/math.hpp>
 #include <data/math/linear/inner.hpp>
 #include <data/math/linear/exterior.hpp>
 #include <data/math/algebra/finite_field.hpp>
+
+#include <gtest/gtest.h>
 
 namespace data::math {
 
@@ -14,15 +15,15 @@ namespace data::math {
     using Q41 = exterior<Q, 4, 1>;
     using Q50 = exterior<Q, 5, 0>;
 
-    static_assert (linear::space<Q, exterior<Q, 1, 0>>);
-    static_assert (linear::space<Q, exterior<Q, 1, 1>>);
-    static_assert (linear::space<Q, exterior<Q, 2, 0>>);
-    static_assert (linear::space<Q, exterior<Q, 2, 1>>);
-    static_assert (linear::space<Q, exterior<Q, 2, 2>>);
-    static_assert (linear::space<Q, exterior<Q, 3, 0>>);
-    static_assert (linear::space<Q, exterior<Q, 3, 1>>);
-    static_assert (linear::space<Q, Q32>);
-    static_assert (linear::space<Q, exterior<Q, 3, 3>>);
+    static_assert (linear::Space<Q, exterior<Q, 1, 0>>);
+    static_assert (linear::Space<Q, exterior<Q, 1, 1>>);
+    static_assert (linear::Space<Q, exterior<Q, 2, 0>>);
+    static_assert (linear::Space<Q, exterior<Q, 2, 1>>);
+    static_assert (linear::Space<Q, exterior<Q, 2, 2>>);
+    static_assert (linear::Space<Q, exterior<Q, 3, 0>>);
+    static_assert (linear::Space<Q, exterior<Q, 3, 1>>);
+    static_assert (linear::Space<Q, Q32>);
+    static_assert (linear::Space<Q, exterior<Q, 3, 3>>);
 
     static_assert (std::forward_iterator<decltype (std::declval<exterior<Q, 1, 0>> ().begin ())>);
     static_assert (std::forward_iterator<decltype (std::declval<exterior<Q, 1, 1>> ().begin ())>);

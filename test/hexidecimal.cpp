@@ -4,40 +4,30 @@
 
 #include <data/numbers.hpp>
 #include <data/list.hpp>
-#include <data/io/wait_for_enter.hpp>
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 namespace data::math::number {
     
-    template <neg c> using hex = encoding::hexidecimal::integer<c, hex_case::lower>;
+    template <negativity c> using hex = encoding::hexidecimal::integer<c, hex_case::lower>;
     
-    template <endian::order r, neg c> struct get_bytes_type {
-        using value = Z_bytes<r, c, byte>;
+    template <endian r, negativity c, size_t size> struct get_fixed_type;
+    
+    template <endian r, size_t size> struct get_fixed_type<r, negativity::nones, size> {
+        using value = ubound<r, size, byte>;
     };
     
-    template <endian::order r> struct get_bytes_type<r, neg::nones> {
-        using value = N_bytes<r, byte>;
+    template <endian r, size_t size> struct get_fixed_type<r, negativity::twos, size> {
+        using value = bound<r, size, byte>;
     };
     
-    template <endian::order r, neg c> using bytes_type = get_bytes_type<r, c>::value;
-    
-    template <endian::order r, neg c, size_t size> struct get_fixed_type;
-    
-    template <endian::order r, size_t size> struct get_fixed_type<r, neg::nones, size> {
-        using value = uint<r, size, byte>;
-    };
-    
-    template <endian::order r, size_t size> struct get_fixed_type<r, neg::twos, size> {
-        using value = sint<r, size, byte>;
-    };
-    
-    template <endian::order r, size_t size> struct get_fixed_type<r, neg::BC, size> {
+    template <endian r, size_t size> struct get_fixed_type<r, negativity::BC, size> {
         using value = void;
     };
     
-    template <endian::order r, neg c, size_t size> using fixed_type = get_fixed_type<r, c, size>::value;
+    template <endian r, negativity c, size_t size> using fixed_type = get_fixed_type<r, c, size>::value;
     
-    template <neg c> struct hex_test_case {
+    template <negativity c> struct hex_test_case {
         hex_test_case (string test_x, string test_trimmed, sign expected_sign) {
             {
                 auto x = hex<c> {test_x};
@@ -56,8 +46,8 @@ namespace data::math::number {
             }
 
             {
-                auto x = bytes_type<endian::little, c>::read (test_x);
-                auto trimmed = bytes_type<endian::little, c>::read (test_trimmed);
+                auto x = Z_bytes<endian::little, c>::read (test_x);
+                auto trimmed = Z_bytes<endian::little, c>::read (test_trimmed);
                 
                 EXPECT_TRUE (x.valid ());
                 EXPECT_EQ (x.size () * 2 + 2, test_x.size ());
@@ -78,8 +68,8 @@ namespace data::math::number {
             }
             
             {
-                auto x = bytes_type<endian::big, c>::read (test_x);
-                auto trimmed = bytes_type<endian::big, c>::read (test_trimmed);
+                auto x = Z_bytes<endian::big, c>::read (test_x);
+                auto trimmed = Z_bytes<endian::big, c>::read (test_trimmed);
                 
                 EXPECT_TRUE (x.valid ());
                 EXPECT_EQ (x.size () * 2 + 2, test_x.size ());
@@ -101,155 +91,155 @@ namespace data::math::number {
         }
     };
     
-    TEST (Hexidecimal, HexidecimalSignMinTrim) {
+    TEST (Hexidecimal, SignMinTrim) {
 
-        hex_test_case<neg::nones> ("0x", "0x", zero);
-        hex_test_case<neg::twos> ("0x", "0x", zero);
-        hex_test_case<neg::BC> ("0x", "0x", zero);
+        hex_test_case<negativity::nones> ("0x", "0x", zero);
+        hex_test_case<negativity::twos> ("0x", "0x", zero);
+        hex_test_case<negativity::BC> ("0x", "0x", zero);
         
-        hex_test_case<neg::nones> ("0x00", "0x", zero);
-        hex_test_case<neg::twos> ("0x00", "0x", zero);
-        hex_test_case<neg::BC> ("0x00", "0x", zero);
+        hex_test_case<negativity::nones> ("0x00", "0x", zero);
+        hex_test_case<negativity::twos> ("0x00", "0x", zero);
+        hex_test_case<negativity::BC> ("0x00", "0x", zero);
 
-        hex_test_case<neg::nones> ("0x0000", "0x", zero);
-        hex_test_case<neg::twos> ("0x0000", "0x", zero);
-        hex_test_case<neg::BC> ("0x0000", "0x", zero);
+        hex_test_case<negativity::nones> ("0x0000", "0x", zero);
+        hex_test_case<negativity::twos> ("0x0000", "0x", zero);
+        hex_test_case<negativity::BC> ("0x0000", "0x", zero);
 
-        hex_test_case<neg::nones> ("0x80", "0x80", positive);
-        hex_test_case<neg::twos> ("0x80", "0x80", negative);
-        hex_test_case<neg::BC> ("0x80", "0x", zero);
+        hex_test_case<negativity::nones> ("0x80", "0x80", positive);
+        hex_test_case<negativity::twos> ("0x80", "0x80", negative);
+        hex_test_case<negativity::BC> ("0x80", "0x", zero);
 
-        hex_test_case<neg::nones> ("0x8000", "0x8000", positive);
-        hex_test_case<neg::twos> ("0x8000", "0x8000", negative);
-        hex_test_case<neg::BC> ("0x8000", "0x", zero);
+        hex_test_case<negativity::nones> ("0x8000", "0x8000", positive);
+        hex_test_case<negativity::twos> ("0x8000", "0x8000", negative);
+        hex_test_case<negativity::BC> ("0x8000", "0x", zero);
         
-        hex_test_case<neg::nones> ("0x01", "0x01", positive);
-        hex_test_case<neg::twos> ("0x01", "0x01", positive);
-        hex_test_case<neg::BC> ("0x01", "0x01", positive);
+        hex_test_case<negativity::nones> ("0x01", "0x01", positive);
+        hex_test_case<negativity::twos> ("0x01", "0x01", positive);
+        hex_test_case<negativity::BC> ("0x01", "0x01", positive);
         
-        hex_test_case<neg::nones> ("0x0001", "0x01", positive);
-        hex_test_case<neg::twos> ("0x0001", "0x01", positive);
-        hex_test_case<neg::BC> ("0x0001", "0x01", positive);
+        hex_test_case<negativity::nones> ("0x0001", "0x01", positive);
+        hex_test_case<negativity::twos> ("0x0001", "0x01", positive);
+        hex_test_case<negativity::BC> ("0x0001", "0x01", positive);
 
-        hex_test_case<neg::nones> ("0xff", "0xff", positive);
-        hex_test_case<neg::twos> ("0xff", "0xff", negative);
-        hex_test_case<neg::BC> ("0xff", "0xff", negative);
+        hex_test_case<negativity::nones> ("0xff", "0xff", positive);
+        hex_test_case<negativity::twos> ("0xff", "0xff", negative);
+        hex_test_case<negativity::BC> ("0xff", "0xff", negative);
 
-        hex_test_case<neg::nones> ("0xffff", "0xffff", positive);
-        hex_test_case<neg::twos> ("0xffff", "0xff", negative);
-        hex_test_case<neg::BC> ("0xffff", "0xffff", negative);
+        hex_test_case<negativity::nones> ("0xffff", "0xffff", positive);
+        hex_test_case<negativity::twos> ("0xffff", "0xff", negative);
+        hex_test_case<negativity::BC> ("0xffff", "0xffff", negative);
 
-        hex_test_case<neg::nones> ("0x0080", "0x80", positive);
-        hex_test_case<neg::twos> ("0x0080", "0x0080", positive);
-        hex_test_case<neg::BC> ("0x0080", "0x0080", positive);
+        hex_test_case<negativity::nones> ("0x0080", "0x80", positive);
+        hex_test_case<negativity::twos> ("0x0080", "0x0080", positive);
+        hex_test_case<negativity::BC> ("0x0080", "0x0080", positive);
         
-        hex_test_case<neg::nones> ("0x81", "0x81", positive);
-        hex_test_case<neg::twos> ("0x81", "0x81", negative);
-        hex_test_case<neg::BC> ("0x81", "0x81", negative);
+        hex_test_case<negativity::nones> ("0x81", "0x81", positive);
+        hex_test_case<negativity::twos> ("0x81", "0x81", negative);
+        hex_test_case<negativity::BC> ("0x81", "0x81", negative);
         
-        hex_test_case<neg::nones> ("0x8001", "0x8001", positive);
-        hex_test_case<neg::twos> ("0x8001", "0x8001", negative);
-        hex_test_case<neg::BC> ("0x8001", "0x81", negative);
+        hex_test_case<negativity::nones> ("0x8001", "0x8001", positive);
+        hex_test_case<negativity::twos> ("0x8001", "0x8001", negative);
+        hex_test_case<negativity::BC> ("0x8001", "0x81", negative);
         
-        hex_test_case<neg::nones> ("0x00ff", "0xff", positive);
-        hex_test_case<neg::twos> ("0x00ff", "0x00ff", positive);
-        hex_test_case<neg::BC> ("0x00ff", "0x00ff", positive);
+        hex_test_case<negativity::nones> ("0x00ff", "0xff", positive);
+        hex_test_case<negativity::twos> ("0x00ff", "0x00ff", positive);
+        hex_test_case<negativity::BC> ("0x00ff", "0x00ff", positive);
         
-        hex_test_case<neg::nones> ("0x0200", "0x0200", positive);
-        hex_test_case<neg::twos> ("0x0200", "0x0200", positive);
-        hex_test_case<neg::BC> ("0x0200", "0x0200", positive);
+        hex_test_case<negativity::nones> ("0x0200", "0x0200", positive);
+        hex_test_case<negativity::twos> ("0x0200", "0x0200", positive);
+        hex_test_case<negativity::BC> ("0x0200", "0x0200", positive);
         
-        hex_test_case<neg::nones> ("0x2000", "0x2000", positive);
-        hex_test_case<neg::twos> ("0x2000", "0x2000", positive);
-        hex_test_case<neg::BC> ("0x2000", "0x2000", positive);
+        hex_test_case<negativity::nones> ("0x2000", "0x2000", positive);
+        hex_test_case<negativity::twos> ("0x2000", "0x2000", positive);
+        hex_test_case<negativity::BC> ("0x2000", "0x2000", positive);
 
-        hex_test_case<neg::nones> ("0x010000", "0x010000", positive);
-        hex_test_case<neg::twos> ("0x010000", "0x010000", positive);
-        hex_test_case<neg::BC> ("0x010000", "0x010000", positive);
+        hex_test_case<negativity::nones> ("0x010000", "0x010000", positive);
+        hex_test_case<negativity::twos> ("0x010000", "0x010000", positive);
+        hex_test_case<negativity::BC> ("0x010000", "0x010000", positive);
     }
     
-    template <neg... > struct test_bit_and;
-    template <neg... > struct test_bit_or;
+    template <negativity... > struct test_bit_and;
+    template <negativity... > struct test_bit_or;
     
-    template <neg n, neg ... p> struct test_bit_and<n, p...> : test_bit_and<n>, test_bit_and<p...> {
+    template <negativity n, negativity ... p> struct test_bit_and<n, p...> : test_bit_and<n>, test_bit_and<p...> {
         test_bit_and (string left, string right, string expected) :
         test_bit_and<n> (left, right, expected), test_bit_and<p...> (left, right, expected) {}
     };
     
-    template <neg n, neg ... p> struct test_bit_or<n, p...> : test_bit_or<n>, test_bit_or<p...> {
+    template <negativity n, negativity ... p> struct test_bit_or<n, p...> : test_bit_or<n>, test_bit_or<p...> {
         test_bit_or (string left, string right, string expected) :
         test_bit_or<n> (left, right, expected), test_bit_or<p...> (left, right, expected) {}
     };
     
-    template <neg n, size_t size> struct test_bit_and_fixed;
-    template <neg n, size_t size> struct test_bit_or_fixed;
+    template <negativity n, size_t size> struct test_bit_and_fixed;
+    template <negativity n, size_t size> struct test_bit_or_fixed;
     
-    template <size_t size> struct test_bit_and_fixed<neg::nones, size> {
-        test_bit_and_fixed (hex<neg::nones> left, hex<neg::nones> right, hex<neg::nones> expected) {
-            auto ll = uint<endian::little, size, byte>::read (extend (left, size * 2 + 2));
-            auto rl = uint<endian::little, size, byte>::read (extend (right, size * 2 + 2));
-            auto el = uint<endian::little, size, byte>::read (extend (expected, size * 2 + 2));
+    template <size_t size> struct test_bit_and_fixed<negativity::nones, size> {
+        test_bit_and_fixed (hex<negativity::nones> left, hex<negativity::nones> right, hex<negativity::nones> expected) {
+            auto ll = ubound<endian::little, size, byte>::read (extend (left, size * 2 + 2));
+            auto rl = ubound<endian::little, size, byte>::read (extend (right, size * 2 + 2));
+            auto el = ubound<endian::little, size, byte>::read (extend (expected, size * 2 + 2));
             EXPECT_EQ (ll & rl, el);
             
-            auto lb = uint<endian::big, size, byte>::read (extend (left, size * 2 + 2));
-            auto rb = uint<endian::big, size, byte>::read (extend (right, size * 2 + 2));
-            auto eb = uint<endian::big, size, byte>::read (extend (expected, size * 2 + 2));
+            auto lb = ubound<endian::big, size, byte>::read (extend (left, size * 2 + 2));
+            auto rb = ubound<endian::big, size, byte>::read (extend (right, size * 2 + 2));
+            auto eb = ubound<endian::big, size, byte>::read (extend (expected, size * 2 + 2));
             EXPECT_EQ (lb & rb, eb);
         }
     };
     
-    template <size_t size> struct test_bit_or_fixed<neg::nones, size> {
-        test_bit_or_fixed (hex<neg::nones> left, hex<neg::nones> right, hex<neg::nones> expected) {
-            auto ll = uint<endian::little, size, byte>::read (extend (left, size * 2 + 2));
-            auto rl = uint<endian::little, size, byte>::read (extend (right, size * 2 + 2));
-            auto el = uint<endian::little, size, byte>::read (extend (expected, size * 2 + 2));
+    template <size_t size> struct test_bit_or_fixed<negativity::nones, size> {
+        test_bit_or_fixed (hex<negativity::nones> left, hex<negativity::nones> right, hex<negativity::nones> expected) {
+            auto ll = ubound<endian::little, size, byte>::read (extend (left, size * 2 + 2));
+            auto rl = ubound<endian::little, size, byte>::read (extend (right, size * 2 + 2));
+            auto el = ubound<endian::little, size, byte>::read (extend (expected, size * 2 + 2));
             EXPECT_EQ (ll | rl, el);
             
-            auto lb = uint<endian::big, size, byte>::read (extend (left, size * 2 + 2));
-            auto rb = uint<endian::big, size, byte>::read (extend (right, size * 2 + 2));
-            auto eb = uint<endian::big, size, byte>::read (extend (expected, size * 2 + 2));
+            auto lb = ubound<endian::big, size, byte>::read (extend (left, size * 2 + 2));
+            auto rb = ubound<endian::big, size, byte>::read (extend (right, size * 2 + 2));
+            auto eb = ubound<endian::big, size, byte>::read (extend (expected, size * 2 + 2));
             EXPECT_EQ (lb | rb, eb);
         }
     };
     
-    template <size_t size> struct test_bit_and_fixed<neg::twos, size> {
-        test_bit_and_fixed (hex<neg::twos> left, hex<neg::twos> right, hex<neg::twos> expected) {
-            auto ll = sint<endian::little, size, byte>::read (extend (left, size * 2 + 2));
-            auto rl = sint<endian::little, size, byte>::read (extend (right, size * 2 + 2));
-            auto el = sint<endian::little, size, byte>::read (extend (expected, size * 2 + 2));
+    template <size_t size> struct test_bit_and_fixed<negativity::twos, size> {
+        test_bit_and_fixed (hex<negativity::twos> left, hex<negativity::twos> right, hex<negativity::twos> expected) {
+            auto ll = bound<endian::little, size, byte>::read (extend (left, size * 2 + 2));
+            auto rl = bound<endian::little, size, byte>::read (extend (right, size * 2 + 2));
+            auto el = bound<endian::little, size, byte>::read (extend (expected, size * 2 + 2));
             EXPECT_EQ (ll & rl, el);
             
-            auto lb = sint<endian::big, size, byte>::read (extend (left, size * 2 + 2));
-            auto rb = sint<endian::big, size, byte>::read (extend (right, size * 2 + 2));
-            auto eb = sint<endian::big, size, byte>::read (extend (expected, size * 2 + 2));
+            auto lb = bound<endian::big, size, byte>::read (extend (left, size * 2 + 2));
+            auto rb = bound<endian::big, size, byte>::read (extend (right, size * 2 + 2));
+            auto eb = bound<endian::big, size, byte>::read (extend (expected, size * 2 + 2));
             EXPECT_EQ (lb & rb, eb);
         }
     };
     
-    template <size_t size> struct test_bit_or_fixed<neg::twos, size> {
-        test_bit_or_fixed (hex<neg::twos> left, hex<neg::twos> right, hex<neg::twos> expected) {
+    template <size_t size> struct test_bit_or_fixed<negativity::twos, size> {
+        test_bit_or_fixed (hex<negativity::twos> left, hex<negativity::twos> right, hex<negativity::twos> expected) {
             
-            auto ll = sint<endian::little, size, byte>::read (extend (left, size * 2 + 2));
-            auto rl = sint<endian::little, size, byte>::read (extend (right, size * 2 + 2));
-            auto el = sint<endian::little, size, byte>::read (extend (expected, size * 2 + 2));
+            auto ll = bound<endian::little, size, byte>::read (extend (left, size * 2 + 2));
+            auto rl = bound<endian::little, size, byte>::read (extend (right, size * 2 + 2));
+            auto el = bound<endian::little, size, byte>::read (extend (expected, size * 2 + 2));
             EXPECT_EQ (ll | rl, el);
             
-            auto lb = sint<endian::big, size, byte>::read (extend (left, size * 2 + 2));
-            auto rb = sint<endian::big, size, byte>::read (extend (right, size * 2 + 2));
-            auto eb = sint<endian::big, size, byte>::read (extend (expected, size * 2 + 2));
+            auto lb = bound<endian::big, size, byte>::read (extend (left, size * 2 + 2));
+            auto rb = bound<endian::big, size, byte>::read (extend (right, size * 2 + 2));
+            auto eb = bound<endian::big, size, byte>::read (extend (expected, size * 2 + 2));
             EXPECT_EQ (lb | rb, eb);
         }
     };
     
-    template <size_t size> struct test_bit_and_fixed<neg::BC, size> {
-        test_bit_and_fixed (hex<neg::BC> left, hex<neg::BC> right, hex<neg::BC> expected) {}
+    template <size_t size> struct test_bit_and_fixed<negativity::BC, size> {
+        test_bit_and_fixed (hex<negativity::BC> left, hex<negativity::BC> right, hex<negativity::BC> expected) {}
     };
     
-    template <size_t size> struct test_bit_or_fixed<neg::BC, size> {
-        test_bit_or_fixed (hex<neg::BC> left, hex<neg::BC> right, hex<neg::BC> expected) {}
+    template <size_t size> struct test_bit_or_fixed<negativity::BC, size> {
+        test_bit_or_fixed (hex<negativity::BC> left, hex<negativity::BC> right, hex<negativity::BC> expected) {}
     };
     
-    template <neg n> struct test_bit_and<n> {
+    template <negativity n> struct test_bit_and<n> {
         test_bit_and (string left, string right, string expected) {
             
             auto l = hex<n> {left};
@@ -257,14 +247,14 @@ namespace data::math::number {
             auto e = hex<n> {expected};
             EXPECT_EQ (bit_and (l, r), e);
             
-            auto lbl = bytes_type<endian::little, n>::read (left);
-            auto rbl = bytes_type<endian::little, n>::read (right);
-            auto ebl = bytes_type<endian::little, n>::read (expected);
+            auto lbl = Z_bytes<endian::little, n>::read (left);
+            auto rbl = Z_bytes<endian::little, n>::read (right);
+            auto ebl = Z_bytes<endian::little, n>::read (expected);
             EXPECT_EQ (bit_and (lbl, rbl), ebl);
             
-            auto lbb = bytes_type<endian::big, n>::read (left);
-            auto rbb = bytes_type<endian::big, n>::read (right);
-            auto ebb = bytes_type<endian::big, n>::read (expected);
+            auto lbb = Z_bytes<endian::big, n>::read (left);
+            auto rbb = Z_bytes<endian::big, n>::read (right);
+            auto ebb = Z_bytes<endian::big, n>::read (expected);
             EXPECT_EQ (bit_and (lbb, rbb), ebb);
             
             test_bit_and_fixed<n, 10> (l, r, e);
@@ -274,7 +264,7 @@ namespace data::math::number {
         }
     };
     
-    template <neg n> struct test_bit_or<n> {
+    template <negativity n> struct test_bit_or<n> {
         test_bit_or (string left, string right, string expected) {
             
             auto l = hex<n> {left};
@@ -282,14 +272,14 @@ namespace data::math::number {
             auto e = hex<n> {expected};
             EXPECT_EQ (bit_or (l, r), e);
             
-            auto lbl = bytes_type<endian::little, n>::read (left);
-            auto rbl = bytes_type<endian::little, n>::read (right);
-            auto ebl = bytes_type<endian::little, n>::read (expected);
+            auto lbl = Z_bytes<endian::little, n>::read (left);
+            auto rbl = Z_bytes<endian::little, n>::read (right);
+            auto ebl = Z_bytes<endian::little, n>::read (expected);
             EXPECT_EQ (bit_or (lbl, rbl), ebl);
             
-            auto lbb = bytes_type<endian::big, n>::read (left);
-            auto rbb = bytes_type<endian::big, n>::read (right);
-            auto ebb = bytes_type<endian::big, n>::read (expected);
+            auto lbb = Z_bytes<endian::big, n>::read (left);
+            auto rbb = Z_bytes<endian::big, n>::read (right);
+            auto ebb = Z_bytes<endian::big, n>::read (expected);
             EXPECT_EQ (bit_or (lbb, rbb), ebb);
             
             test_bit_or_fixed<n, 10> (l, r, e);
@@ -302,146 +292,146 @@ namespace data::math::number {
 
     TEST (Hexidecimal, HexBitAnd) {
 
-        test_bit_and<neg::nones, neg::twos, neg::BC> {"0x", "0x", "0x"};
-        test_bit_and<neg::nones, neg::twos, neg::BC> {"0x01", "0x01", "0x01"};
-        test_bit_and<neg::nones, neg::twos, neg::BC> {"0x", "0x01", "0x"};
-        test_bit_and<neg::nones, neg::twos, neg::BC> {"0xff", "0xff", "0xff"};
-        test_bit_and<neg::nones, neg::twos, neg::BC> {"0x", "0xff", "0x"};
+        test_bit_and<negativity::nones, negativity::twos, negativity::BC> {"0x", "0x", "0x"};
+        test_bit_and<negativity::nones, negativity::twos, negativity::BC> {"0x01", "0x01", "0x01"};
+        test_bit_and<negativity::nones, negativity::twos, negativity::BC> {"0x", "0x01", "0x"};
+        test_bit_and<negativity::nones, negativity::twos, negativity::BC> {"0xff", "0xff", "0xff"};
+        test_bit_and<negativity::nones, negativity::twos, negativity::BC> {"0x", "0xff", "0x"};
 
     }
     
     TEST (Hexidecimal, HexBitOr) {
 
-        test_bit_or<neg::nones, neg::twos, neg::BC> {"0x", "0x", "0x"};
-        test_bit_or<neg::nones, neg::twos, neg::BC> {"0x01", "0x01", "0x01"};
-        test_bit_or<neg::nones, neg::twos, neg::BC> {"0x01", "0x", "0x01"};
-        test_bit_or<neg::nones, neg::twos, neg::BC> {"0xff", "0xff", "0xff"};
-        test_bit_or<neg::nones, neg::twos, neg::BC> {"0x", "0xff", "0xff"};
+        test_bit_or<negativity::nones, negativity::twos, negativity::BC> {"0x", "0x", "0x"};
+        test_bit_or<negativity::nones, negativity::twos, negativity::BC> {"0x01", "0x01", "0x01"};
+        test_bit_or<negativity::nones, negativity::twos, negativity::BC> {"0x01", "0x", "0x01"};
+        test_bit_or<negativity::nones, negativity::twos, negativity::BC> {"0xff", "0xff", "0xff"};
+        test_bit_or<negativity::nones, negativity::twos, negativity::BC> {"0x", "0xff", "0xff"};
 
     }
     
-    template <neg... n> struct test_bit_negate;
+    template <negativity... n> struct test_bit_negate;
     
-    template <neg n, neg ... p> struct test_bit_negate<n, p...> : test_bit_negate<n>, test_bit_negate<p...> {
+    template <negativity n, negativity ... p> struct test_bit_negate<n, p...> : test_bit_negate<n>, test_bit_negate<p...> {
         test_bit_negate (string given, string expected) :
         test_bit_negate<n> (given, expected), test_bit_negate<p...> (given, expected) {}
     };
     
-    template <neg n, size_t size> struct test_bit_negate_fixed;
+    template <negativity n, size_t size> struct test_bit_negate_fixed;
     
-    template <size_t size> struct test_bit_negate_fixed<neg::twos, size> {
+    template <size_t size> struct test_bit_negate_fixed<negativity::twos, size> {
         test_bit_negate_fixed (string given, string expected) {
-            auto g = extend (hex<neg::twos> {given}, size * 2 + 2);
-            auto e = extend (hex<neg::twos> {expected}, size * 2 + 2);
+            auto g = extend (hex<negativity::twos> {given}, size * 2 + 2);
+            auto e = extend (hex<negativity::twos> {expected}, size * 2 + 2);
             
-            auto gl = sint<endian::little, size, byte>::read (g);
-            auto el = sint<endian::little, size, byte>::read (e);
+            auto gl = bound<endian::little, size, byte>::read (g);
+            auto el = bound<endian::little, size, byte>::read (e);
             EXPECT_EQ (~gl, el);
             
-            auto gb = sint<endian::big, size, byte>::read (g);
-            auto eb = sint<endian::big, size, byte>::read (e);
+            auto gb = bound<endian::big, size, byte>::read (g);
+            auto eb = bound<endian::big, size, byte>::read (e);
             EXPECT_EQ (~gb, eb);
         }
     };
     
-    template <size_t size> struct test_bit_negate_fixed<neg::nones, size> {
+    template <size_t size> struct test_bit_negate_fixed<negativity::nones, size> {
         test_bit_negate_fixed (string given, string expected) {
-            auto g = extend (hex<neg::twos> {given}, size * 2 + 2);
-            auto e = extend (hex<neg::twos> {expected}, size * 2 + 2);
+            auto g = extend (hex<negativity::twos> {given}, size * 2 + 2);
+            auto e = extend (hex<negativity::twos> {expected}, size * 2 + 2);
             
-            auto gl = uint<endian::little, size, byte>::read (g);
-            auto el = uint<endian::little, size, byte>::read (e);
+            auto gl = ubound<endian::little, size, byte>::read (g);
+            auto el = ubound<endian::little, size, byte>::read (e);
             EXPECT_EQ (~gl, el);
             
-            auto gb = uint<endian::big, size, byte>::read (g);
-            auto eb = uint<endian::big, size, byte>::read (e);
+            auto gb = ubound<endian::big, size, byte>::read (g);
+            auto eb = ubound<endian::big, size, byte>::read (e);
             EXPECT_EQ (~gb, eb);
         }
     };
     
-    template <> struct test_bit_negate<neg::twos> {
+    template <> struct test_bit_negate<negativity::twos> {
         test_bit_negate (string given, string expected) {
             
-            auto g = hex<neg::twos> {given};
-            auto e = hex<neg::twos> {expected};
+            auto g = hex<negativity::twos> {given};
+            auto e = hex<negativity::twos> {expected};
             EXPECT_EQ (~g, e);
             
-            auto gbl = bytes_type<endian::little, neg::twos>::read (given);
-            auto ebl = bytes_type<endian::little, neg::twos>::read (expected);
+            auto gbl = Z_bytes<endian::little, negativity::twos>::read (given);
+            auto ebl = Z_bytes<endian::little, negativity::twos>::read (expected);
             EXPECT_EQ (~gbl, ebl);
             
-            auto gbb = bytes_type<endian::big, neg::twos>::read (given);
-            auto ebb = bytes_type<endian::big, neg::twos>::read (expected);
+            auto gbb = Z_bytes<endian::big, negativity::twos>::read (given);
+            auto ebb = Z_bytes<endian::big, negativity::twos>::read (expected);
             EXPECT_EQ (~gbb, ebb);
             
-            test_bit_negate_fixed<neg::twos, 10> (g, e);
-            test_bit_negate_fixed<neg::twos, 11> (g, e);
-            test_bit_negate_fixed<neg::twos, 12> (g, e);
-            test_bit_negate_fixed<neg::twos, 13> (g, e);
+            test_bit_negate_fixed<negativity::twos, 10> (g, e);
+            test_bit_negate_fixed<negativity::twos, 11> (g, e);
+            test_bit_negate_fixed<negativity::twos, 12> (g, e);
+            test_bit_negate_fixed<negativity::twos, 13> (g, e);
         }
     };
     
-    template <> struct test_bit_negate<neg::nones> {
+    template <> struct test_bit_negate<negativity::nones> {
         test_bit_negate (string given, string expected) {
             
-            auto g = hex<neg::nones> {given};
-            auto e = hex<neg::nones> {expected};
+            auto g = hex<negativity::nones> {given};
+            auto e = hex<negativity::nones> {expected};
             
-            test_bit_negate_fixed<neg::nones, 10> (g, e);
-            test_bit_negate_fixed<neg::nones, 11> (g, e);
-            test_bit_negate_fixed<neg::nones, 12> (g, e);
-            test_bit_negate_fixed<neg::nones, 13> (g, e);
+            test_bit_negate_fixed<negativity::nones, 10> (g, e);
+            test_bit_negate_fixed<negativity::nones, 11> (g, e);
+            test_bit_negate_fixed<negativity::nones, 12> (g, e);
+            test_bit_negate_fixed<negativity::nones, 13> (g, e);
         }
     };
     
-    template <neg... n> struct test_bit_xor;
+    template <negativity... n> struct test_bit_xor;
     
-    template <neg n, neg ... p> struct test_bit_xor<n, p...> : test_bit_xor<n>, test_bit_xor<p...> {
+    template <negativity n, negativity ... p> struct test_bit_xor<n, p...> : test_bit_xor<n>, test_bit_xor<p...> {
         test_bit_xor (string left, string right, string expected) :
         test_bit_xor<n> (left, right, expected), test_bit_xor<p...> (left, right, expected) {}
     };
     
-    template <neg n, size_t size> struct test_bit_xor_fixed;
+    template <negativity n, size_t size> struct test_bit_xor_fixed;
     
-    template <size_t size> struct test_bit_xor_fixed<neg::nones, size> {
+    template <size_t size> struct test_bit_xor_fixed<negativity::nones, size> {
         test_bit_xor_fixed (string left, string right, string expected) {
-            auto l = extend (hex<neg::twos> {left}, size * 2 + 2);
-            auto r = extend (hex<neg::twos> {right}, size * 2 + 2);
-            auto e = extend (hex<neg::twos> {expected}, size * 2 + 2);
+            auto l = extend (hex<negativity::twos> {left}, size * 2 + 2);
+            auto r = extend (hex<negativity::twos> {right}, size * 2 + 2);
+            auto e = extend (hex<negativity::twos> {expected}, size * 2 + 2);
             
-            auto ll = uint<endian::little, size, byte>::read (l);
-            auto rl = uint<endian::little, size, byte>::read (r);
-            auto el = uint<endian::little, size, byte>::read (e);
+            auto ll = ubound<endian::little, size, byte>::read (l);
+            auto rl = ubound<endian::little, size, byte>::read (r);
+            auto el = ubound<endian::little, size, byte>::read (e);
             
             auto xl = ll ^ rl;
             EXPECT_EQ (xl, el) << "expected " << xl << " to equal " << el;
             
-            auto lb = uint<endian::big, size, byte>::read (l);
-            auto rb = uint<endian::big, size, byte>::read (r);
-            auto eb = uint<endian::big, size, byte>::read (e);
+            auto lb = ubound<endian::big, size, byte>::read (l);
+            auto rb = ubound<endian::big, size, byte>::read (r);
+            auto eb = ubound<endian::big, size, byte>::read (e);
             
             auto xb = lb ^ rb;
             EXPECT_EQ (xb, eb) << "expected " << xb << " to equal " << eb;
         }
     };
     
-    template <size_t size> struct test_bit_xor_fixed<neg::twos, size> {
+    template <size_t size> struct test_bit_xor_fixed<negativity::twos, size> {
         test_bit_xor_fixed (string left, string right, string expected) {
 
-            auto l = extend (hex<neg::twos> {left}, size * 2 + 2);
-            auto r = extend (hex<neg::twos> {right}, size * 2 + 2);
-            auto e = extend (hex<neg::twos> {expected}, size * 2 + 2);
+            auto l = extend (hex<negativity::twos> {left}, size * 2 + 2);
+            auto r = extend (hex<negativity::twos> {right}, size * 2 + 2);
+            auto e = extend (hex<negativity::twos> {expected}, size * 2 + 2);
             
-            auto ll = sint<endian::little, size, byte>::read (l);
-            auto rl = sint<endian::little, size, byte>::read (r);
-            auto el = sint<endian::little, size, byte>::read (e);
+            auto ll = bound<endian::little, size, byte>::read (l);
+            auto rl = bound<endian::little, size, byte>::read (r);
+            auto el = bound<endian::little, size, byte>::read (e);
             
             auto xl = ll ^ rl;
             EXPECT_EQ (xl, el) << "expected " << xl << " to equal " << el;
             
-            auto lb = sint<endian::big, size, byte>::read (l);
-            auto rb = sint<endian::big, size, byte>::read (r);
-            auto eb = sint<endian::big, size, byte>::read (e);
+            auto lb = bound<endian::big, size, byte>::read (l);
+            auto rb = bound<endian::big, size, byte>::read (r);
+            auto eb = bound<endian::big, size, byte>::read (e);
             
             auto xb = lb ^ rb;
             EXPECT_EQ (xb, eb) << "expected " << xb << " to equal " << eb;
@@ -449,63 +439,63 @@ namespace data::math::number {
         }
     };
 
-    template <> struct test_bit_xor<neg::twos> {
+    template <> struct test_bit_xor<negativity::twos> {
         test_bit_xor (string left, string right, string expected) {
 
-            auto l = hex<neg::twos> {left};
-            auto r = hex<neg::twos> {right};
-            auto e = hex<neg::twos> {expected};
+            auto l = hex<negativity::twos> {left};
+            auto r = hex<negativity::twos> {right};
+            auto e = hex<negativity::twos> {expected};
             EXPECT_EQ (l ^ r, e);
             
-            auto lbl = bytes_type<endian::little, neg::twos>::read (left);
-            auto rbl = bytes_type<endian::little, neg::twos>::read (right);
-            auto ebl = bytes_type<endian::little, neg::twos>::read (expected);
+            auto lbl = Z_bytes<endian::little, negativity::twos>::read (left);
+            auto rbl = Z_bytes<endian::little, negativity::twos>::read (right);
+            auto ebl = Z_bytes<endian::little, negativity::twos>::read (expected);
             EXPECT_EQ (lbl ^ rbl, ebl);
             
-            auto lbb = bytes_type<endian::big, neg::twos>::read (left);
-            auto rbb = bytes_type<endian::big, neg::twos>::read (right);
-            auto ebb = bytes_type<endian::big, neg::twos>::read (expected);
+            auto lbb = Z_bytes<endian::big, negativity::twos>::read (left);
+            auto rbb = Z_bytes<endian::big, negativity::twos>::read (right);
+            auto ebb = Z_bytes<endian::big, negativity::twos>::read (expected);
             EXPECT_EQ (lbb ^ rbb, ebb);
             
-            test_bit_xor_fixed<neg::twos, 10> (l, r, e);
-            test_bit_xor_fixed<neg::twos, 11> (l, r, e);
-            test_bit_xor_fixed<neg::twos, 12> (l, r, e);
-            test_bit_xor_fixed<neg::twos, 13> (l, r, e);
+            test_bit_xor_fixed<negativity::twos, 10> (l, r, e);
+            test_bit_xor_fixed<negativity::twos, 11> (l, r, e);
+            test_bit_xor_fixed<negativity::twos, 12> (l, r, e);
+            test_bit_xor_fixed<negativity::twos, 13> (l, r, e);
 
         }
     };
     
-    template <> struct test_bit_xor<neg::nones> {
+    template <> struct test_bit_xor<negativity::nones> {
         test_bit_xor (string left, string right, string expected) {
 
-            auto l = hex<neg::nones> {left};
-            auto r = hex<neg::nones> {right};
-            auto e = hex<neg::nones> {expected};
+            auto l = hex<negativity::nones> {left};
+            auto r = hex<negativity::nones> {right};
+            auto e = hex<negativity::nones> {expected};
             
-            test_bit_xor_fixed<neg::nones, 10> (l, r, e);
-            test_bit_xor_fixed<neg::nones, 11> (l, r, e);
-            test_bit_xor_fixed<neg::nones, 12> (l, r, e);
-            test_bit_xor_fixed<neg::nones, 13> (l, r, e);
+            test_bit_xor_fixed<negativity::nones, 10> (l, r, e);
+            test_bit_xor_fixed<negativity::nones, 11> (l, r, e);
+            test_bit_xor_fixed<negativity::nones, 12> (l, r, e);
+            test_bit_xor_fixed<negativity::nones, 13> (l, r, e);
 
         }
     };
 
     TEST (Hexidecimal, HexBitXor) {
 
-        test_bit_negate<neg::nones, neg::twos> {"0x", "0xff"};
-        test_bit_xor<neg::nones, neg::twos> {"0x", "0x", "0x"};
-        test_bit_xor<neg::nones, neg::twos> {"0xff", "0xff", "0x"};
-        test_bit_xor<neg::nones, neg::twos> {"0x", "0xff", "0xff"};
+        test_bit_negate<negativity::nones, negativity::twos> {"0x", "0xff"};
+        test_bit_xor<negativity::nones, negativity::twos> {"0x", "0x", "0x"};
+        test_bit_xor<negativity::nones, negativity::twos> {"0xff", "0xff", "0x"};
+        test_bit_xor<negativity::nones, negativity::twos> {"0x", "0xff", "0xff"};
 
     }
     
-    template <neg n, size_t size> struct test_increment_fixed;
+    template <negativity n, size_t size> struct test_increment_fixed;
     
-    template <neg... > struct test_increment;
+    template <negativity... > struct test_increment;
 
-    template <neg n> struct test_increment_bytes;
+    template <negativity n> struct test_increment_bytes;
     
-    template <neg n> struct test_increment<n> {
+    template <negativity n> struct test_increment<n> {
         test_increment (string given, string expected) {
 
             auto gh = hex<n> {given};
@@ -527,27 +517,33 @@ namespace data::math::number {
         }
     };
     
-    template <neg n, neg ... p> struct test_increment<n, p...> : test_increment<n>, test_increment<p...> {
+    template <negativity n, negativity ... p> struct test_increment<n, p...> : test_increment<n>, test_increment<p...> {
         test_increment (string given, string expected) :
         test_increment<n> (given, expected), test_increment<p...> (given, expected) {}
     };
 
-    template <neg n> struct test_increment_bytes {
+    template <negativity n> struct test_increment_bytes {
         test_increment_bytes (string given, string expected) {
 
-            auto gbl = bytes_type<endian::little, n>::read (given);
-            auto ebl = bytes_type<endian::little, n>::read (expected);
-            auto ibl = data::increment (gbl);
-            EXPECT_EQ (static_cast<bytes> (ibl), static_cast<bytes> (ebl)) << "expected " << ibl << " === " << ebl;
-            EXPECT_TRUE (is_minimal (bytes_type<endian::little, n> (ibl)));
+            auto gbl = Z_bytes<endian::little, n>::read (given);
+            auto ebl = Z_bytes<endian::little, n>::read (expected);
 
-            auto gbb = bytes_type<endian::big, n>::read (given);
-            auto ebb = bytes_type<endian::big, n>::read (expected);
+            std::cout << "try to increment " << gbl << " to " << ebl << std::endl;
+
+            auto ibl = data::increment (gbl);
+
+            EXPECT_EQ (static_cast<bytes> (ibl), static_cast<bytes> (ebl)) << "expected " << ibl << " === " << ebl;
+            EXPECT_TRUE (is_minimal (Z_bytes<endian::little, n> (ibl)));
+
+            auto gbb = Z_bytes<endian::big, n>::read (given);
+            auto ebb = Z_bytes<endian::big, n>::read (expected);
+
             auto ibb = data::increment (gbb);
             EXPECT_EQ (static_cast<bytes> (ibb), static_cast<bytes> (ebb)) << "expected " << ibb << " === " << ebb;
-            EXPECT_TRUE (is_minimal (bytes_type<endian::big, n> (ibb)));
+            EXPECT_TRUE (is_minimal (Z_bytes<endian::big, n> (ibb)));
 
             auto dbl = data::decrement (ibl);
+            std::cout << "try to decrement " << ibl << " to get " << gbl << "; " << n << "; result: " << dbl << std::endl;
             EXPECT_EQ (dbl, gbl) << "expected " << dbl << " == " << gbl;
             EXPECT_TRUE (is_minimal (dbl));
 
@@ -558,19 +554,19 @@ namespace data::math::number {
         }
     };
     
-    template <size_t size> struct test_increment_fixed<neg::nones, size> {
-        test_increment_fixed (hex<neg::nones> given, hex<neg::nones> expected) {
+    template <size_t size> struct test_increment_fixed<negativity::nones, size> {
+        test_increment_fixed (hex<negativity::nones> given, hex<negativity::nones> expected) {
 
-            auto gbl = uint<endian::little, size, byte>::read (extend (given, size * 2 + 2));
-            auto ebl = uint<endian::little, size, byte>::read (extend (expected, size * 2 + 2));
+            auto gbl = ubound<endian::little, size, byte>::read (extend (given, size * 2 + 2));
+            auto ebl = ubound<endian::little, size, byte>::read (extend (expected, size * 2 + 2));
             
             auto ibl = data::increment (gbl);
             EXPECT_EQ (ibl, ebl) << "expected " << ibl << " to equal " << ebl << std::endl;
             auto dbl = data::decrement (ibl);
             EXPECT_EQ (dbl, gbl) << "expected " << dbl << " to equal " << gbl << std::endl;
             
-            auto gbb = uint<endian::big, size, byte>::read (extend (given, size * 2 + 2));
-            auto ebb = uint<endian::big, size, byte>::read (extend (expected, size * 2 + 2));
+            auto gbb = ubound<endian::big, size, byte>::read (extend (given, size * 2 + 2));
+            auto ebb = ubound<endian::big, size, byte>::read (extend (expected, size * 2 + 2));
             
             auto ibb = data::increment (gbb);
             EXPECT_EQ (ibb, ebb) << "expected " << ibb << " to equal " << ebb << std::endl;
@@ -579,19 +575,19 @@ namespace data::math::number {
         }
     };
     
-    template <size_t size> struct test_increment_fixed<neg::twos, size> {
-        test_increment_fixed (hex<neg::twos> given, hex<neg::twos> expected) {
+    template <size_t size> struct test_increment_fixed<negativity::twos, size> {
+        test_increment_fixed (hex<negativity::twos> given, hex<negativity::twos> expected) {
             
-            auto gbl = sint<endian::little, size, byte>::read (extend (given, size * 2 + 2));
-            auto ebl = sint<endian::little, size, byte>::read (extend (expected, size * 2 + 2));
+            auto gbl = bound<endian::little, size, byte>::read (extend (given, size * 2 + 2));
+            auto ebl = bound<endian::little, size, byte>::read (extend (expected, size * 2 + 2));
             
             auto ibl = data::increment (gbl);
             EXPECT_EQ (ibl, ebl) << "expected " << ibl << " to equal " << ebl << std::endl;
             auto dbl = data::decrement (ibl);
             EXPECT_EQ (dbl, gbl) << "expected " << dbl << " to equal " << gbl << std::endl;
             
-            auto gbb = sint<endian::big, size, byte>::read (extend (given, size * 2 + 2));
-            auto ebb = sint<endian::big, size, byte>::read (extend (expected, size * 2 + 2));
+            auto gbb = bound<endian::big, size, byte>::read (extend (given, size * 2 + 2));
+            auto ebb = bound<endian::big, size, byte>::read (extend (expected, size * 2 + 2));
             
             auto ibb = data::increment (gbb);
             EXPECT_EQ (ibb, ebb) << "expected " << ibb << " to equal " << ebb << std::endl;
@@ -600,30 +596,30 @@ namespace data::math::number {
         }
     };
     
-    template <size_t size> struct test_increment_fixed<neg::BC, size> {
-        test_increment_fixed (hex<neg::BC> given, hex<neg::BC> expected) {}
+    template <size_t size> struct test_increment_fixed<negativity::BC, size> {
+        test_increment_fixed (hex<negativity::BC> given, hex<negativity::BC> expected) {}
     };
 
-    TEST (Hexidecimal, HexidecimalIncrement) {
+    TEST (Hexidecimal, Increment) {
 
-        test_increment<neg::nones, neg::twos, neg::BC> {"0x", "0x01"};
-        test_increment<neg::nones, neg::twos, neg::BC> {"0x00", "0x01"};
-        test_increment<neg::nones, neg::twos, neg::BC> {"0x0000", "0x01"};
-        test_increment<neg::nones, neg::twos, neg::BC> {"0x01", "0x02"};
-        test_increment<neg::nones> {"0xff", "0x0100"};
-        test_increment<neg::nones> {"0x7f", "0x80"};
-        test_increment<neg::nones> {"0xffff", "0x010000"};
-        test_increment<neg::nones, neg::twos, neg::BC> {"0x00ff", "0x0100"};
-        test_increment<neg::twos> {"0xff", "0x"};
-        test_increment<neg::twos> {"0xffff", "0x"};
-        test_increment<neg::twos> {"0x7f", "0x0080"};
-        test_increment<neg::twos> {"0x80", "0x81"};
-        test_increment<neg::twos> {"0xfe", "0xff"};
-        test_increment<neg::BC> {"0x80", "0x01"};
-        test_increment<neg::BC> {"0x81", "0x"};
-        test_increment<neg::BC> {"0x82", "0x81"};
-        test_increment<neg::BC> {"0x7f", "0x0080"};
-        test_increment<neg::BC> {"0x8080", "0xff"};
+        test_increment<negativity::nones, negativity::twos, negativity::BC> {"0x", "0x01"};
+        test_increment<negativity::nones, negativity::twos, negativity::BC> {"0x00", "0x01"};
+        test_increment<negativity::nones, negativity::twos, negativity::BC> {"0x0000", "0x01"};
+        test_increment<negativity::nones, negativity::twos, negativity::BC> {"0x01", "0x02"};
+        test_increment<negativity::nones> {"0xff", "0x0100"};
+        test_increment<negativity::nones> {"0x7f", "0x80"};
+        test_increment<negativity::nones> {"0xffff", "0x010000"};
+        test_increment<negativity::nones, negativity::twos, negativity::BC> {"0x00ff", "0x0100"};
+        test_increment<negativity::twos> {"0xff", "0x"};
+        test_increment<negativity::twos> {"0xffff", "0x"};
+        test_increment<negativity::twos> {"0x7f", "0x0080"};
+        test_increment<negativity::twos> {"0x80", "0x81"};
+        test_increment<negativity::twos> {"0xfe", "0xff"};
+        test_increment<negativity::BC> {"0x80", "0x01"};
+        test_increment<negativity::BC> {"0x81", "0x"};
+        test_increment<negativity::BC> {"0x82", "0x81"};
+        test_increment<negativity::BC> {"0x7f", "0x0080"};
+        test_increment<negativity::BC> {"0x8080", "0xff"};
 
     }
 
@@ -640,7 +636,7 @@ namespace data::math::number {
         }
     };
 
-    template <endian::order r, neg n>
+    template <endian r, negativity n>
     struct test_negation_number<Z_bytes<r, n, byte>> {
         test_negation_number (string initial, string expected) {
 
@@ -660,7 +656,7 @@ namespace data::math::number {
         test_negation_number (string initial, string expected) {}
     };
 
-    template <neg n> struct test_negation {
+    template <negativity n> struct test_negation {
         test_negation (string initial, string expected) {
             
             auto hi = hex<n> {initial};
@@ -672,8 +668,8 @@ namespace data::math::number {
             EXPECT_TRUE (is_minimal (hn));
             EXPECT_TRUE (is_minimal (ho));
             
-            test_negation_number<bytes_type<endian::little, n>> {hi, he};
-            test_negation_number<bytes_type<endian::big, n>> {hi, he};
+            test_negation_number<Z_bytes<endian::little, n>> {hi, he};
+            test_negation_number<Z_bytes<endian::big, n>> {hi, he};
             
             test_negation_number<fixed_type<endian::little, n, 10>> {extend (hi, 22), extend (he, 22)};
             test_negation_number<fixed_type<endian::big, n, 10>> {extend (hi, 22), extend (he, 22)};
@@ -690,56 +686,56 @@ namespace data::math::number {
         }
     };
     
-    template <> struct test_negation<neg::nones> {
+    template <> struct test_negation<negativity::nones> {
         test_negation (string initial, string expected) {}
     };
 
     TEST (Hexidecimal, Negation) {
         
-        test_negation<neg::BC> {"0x", "0x"};
-        test_negation<neg::BC> {"0x00", "0x"};
-        test_negation<neg::BC> {"0x80", "0x"};
-        test_negation<neg::BC> {"0x81", "0x01"};
-        test_negation<neg::BC> {"0x01", "0x81"};
-        test_negation<neg::BC> {"0x8001", "0x01"};
-        test_negation<neg::BC> {"0x0001", "0x81"};
+        test_negation<negativity::BC> {"0x", "0x"};
+        test_negation<negativity::BC> {"0x00", "0x"};
+        test_negation<negativity::BC> {"0x80", "0x"};
+        test_negation<negativity::BC> {"0x81", "0x01"};
+        test_negation<negativity::BC> {"0x01", "0x81"};
+        test_negation<negativity::BC> {"0x8001", "0x01"};
+        test_negation<negativity::BC> {"0x0001", "0x81"};
         
-        test_negation<neg::twos> {"0x", "0x"};
-        test_negation<neg::twos> {"0x00", "0x"};
-        test_negation<neg::twos> {"0x80", "0x0080"};
-        test_negation<neg::twos> {"0xff", "0x01"};
-        test_negation<neg::twos> {"0xffff", "0x01"};
-        test_negation<neg::twos> {"0x01", "0xff"};
-        test_negation<neg::twos> {"0x02", "0xfe"};
-        test_negation<neg::twos> {"0xfe", "0x02"};
-        test_negation<neg::twos> {"0x0100", "0xff00"};
+        test_negation<negativity::twos> {"0x", "0x"};
+        test_negation<negativity::twos> {"0x00", "0x"};
+        test_negation<negativity::twos> {"0x80", "0x0080"};
+        test_negation<negativity::twos> {"0xff", "0x01"};
+        test_negation<negativity::twos> {"0xffff", "0x01"};
+        test_negation<negativity::twos> {"0x01", "0xff"};
+        test_negation<negativity::twos> {"0x02", "0xfe"};
+        test_negation<negativity::twos> {"0xfe", "0x02"};
+        test_negation<negativity::twos> {"0x0100", "0xff00"};
 
     }
     
-    template <neg c, size_t size> struct fixed_test_comparison;
+    template <negativity c, size_t size> struct fixed_test_comparison;
     
-    template <size_t size> struct fixed_test_comparison<neg::nones, size> {
+    template <size_t size> struct fixed_test_comparison<negativity::nones, size> {
         fixed_test_comparison (string i, string j, std::strong_ordering expected) {
-            auto cmpb = uint<endian::big, size, byte>::read (extend (hex<neg::nones> (i), size * 2 + 2)) <=>
-                uint<endian::big, size, byte>::read (extend (hex<neg::nones> (j), size * 2 + 2));
+            auto cmpb = ubound<endian::big, size, byte>::read (extend (hex<negativity::nones> (i), size * 2 + 2)) <=>
+                ubound<endian::big, size, byte>::read (extend (hex<negativity::nones> (j), size * 2 + 2));
             EXPECT_EQ (cmpb, expected);
-            auto cmpl = uint<endian::little, size, byte>::read (extend (hex<neg::nones> (i), size * 2 + 2)) <=>
-                uint<endian::little, size, byte>::read (extend (hex<neg::nones> (j), size * 2 + 2));
+            auto cmpl = ubound<endian::little, size, byte>::read (extend (hex<negativity::nones> (i), size * 2 + 2)) <=>
+                ubound<endian::little, size, byte>::read (extend (hex<negativity::nones> (j), size * 2 + 2));
             EXPECT_EQ (cmpl, expected);
         }
     };
     
-    template <size_t size> struct fixed_test_comparison<neg::twos, size> {
+    template <size_t size> struct fixed_test_comparison<negativity::twos, size> {
         fixed_test_comparison (string i, string j, std::strong_ordering expected) {
             
-            string exi = extend (hex<neg::twos> (i), size * 2 + 2);
-            string exj = extend (hex<neg::twos> (j), size * 2 + 2);
+            string exi = extend (hex<negativity::twos> (i), size * 2 + 2);
+            string exj = extend (hex<negativity::twos> (j), size * 2 + 2);
 
-            auto sbi = sint<endian::big, size, byte>::read (exi);
-            auto sbj = sint<endian::big, size, byte>::read (exj);
+            auto sbi = bound<endian::big, size, byte>::read (exi);
+            auto sbj = bound<endian::big, size, byte>::read (exj);
 
-            auto sli = sint<endian::little, size, byte>::read (exi);
-            auto slj = sint<endian::little, size, byte>::read (exj);
+            auto sli = bound<endian::little, size, byte>::read (exi);
+            auto slj = bound<endian::little, size, byte>::read (exj);
 
             auto cmpb = sbi <=> sbj;
             auto cmpl = sli <=> slj;
@@ -749,12 +745,12 @@ namespace data::math::number {
         }
     };
     
-    // we do nothing here because we don't have fixed size 2s neg numbers.
-    template <size_t size> struct fixed_test_comparison<neg::BC, size> {
+    // we do nothing here because we don't have fixed size 2s negativity numbers.
+    template <size_t size> struct fixed_test_comparison<negativity::BC, size> {
         fixed_test_comparison (string a, string b, std::strong_ordering expected) {}
     };
     
-    template <neg c> void test_comparison (const std::vector<string> &values, const std::vector<std::vector<int>> &ordering) {
+    template <negativity c> void test_comparison (const std::vector<string> &values, const std::vector<std::vector<int>> &ordering) {
         for (const string &v : values) {
             EXPECT_THROW (hex<c> {""} <=> hex<c> {v}, exception);
         }
@@ -767,9 +763,9 @@ namespace data::math::number {
                     
                     EXPECT_EQ (hex<c> (i) <=> hex<c> (j), std::weak_ordering::equivalent);
 
-                    auto cmpb = bytes_type<endian::big, c>::read (i) <=> bytes_type<endian::big, c>::read (j);
+                    auto cmpb = Z_bytes<endian::big, c>::read (i) <=> Z_bytes<endian::big, c>::read (j);
                     EXPECT_EQ (cmpb, std::weak_ordering::equivalent);
-                    auto cmpl = bytes_type<endian::little, c>::read (i) <=> bytes_type<endian::little, c>::read (j);
+                    auto cmpl = Z_bytes<endian::little, c>::read (i) <=> Z_bytes<endian::little, c>::read (j);
                     EXPECT_EQ (cmpl, std::weak_ordering::equivalent);
 
                     fixed_test_comparison<c, 10> {i, j, std::strong_ordering::equivalent};
@@ -786,12 +782,12 @@ namespace data::math::number {
                         EXPECT_EQ (hex<c> (i) <=> hex<c> (j), std::weak_ordering::less) << "expected " << i << " < " << j;
                         EXPECT_EQ (hex<c> (j) <=> hex<c> (i), std::weak_ordering::greater) << "expected " << i << " > " << j;
 
-                        auto cmpba = bytes_type<endian::big, c>::read (i) <=> bytes_type<endian::big, c>::read (j);
-                        auto cmpbb = bytes_type<endian::big, c>::read (j) <=> bytes_type<endian::big, c>::read (i);
+                        auto cmpba = Z_bytes<endian::big, c>::read (i) <=> Z_bytes<endian::big, c>::read (j);
+                        auto cmpbb = Z_bytes<endian::big, c>::read (j) <=> Z_bytes<endian::big, c>::read (i);
                         EXPECT_EQ (cmpba, std::weak_ordering::less);
                         EXPECT_EQ (cmpbb, std::weak_ordering::greater);
-                        auto cmpla = bytes_type<endian::little, c>::read (i) <=> bytes_type<endian::little, c>::read (j);
-                        auto cmplb = bytes_type<endian::little, c>::read (j) <=> bytes_type<endian::little, c>::read (i);
+                        auto cmpla = Z_bytes<endian::little, c>::read (i) <=> Z_bytes<endian::little, c>::read (j);
+                        auto cmplb = Z_bytes<endian::little, c>::read (j) <=> Z_bytes<endian::little, c>::read (i);
                         EXPECT_EQ (cmpba, std::weak_ordering::less);
                         EXPECT_EQ (cmpbb, std::weak_ordering::greater);
 
@@ -810,7 +806,7 @@ namespace data::math::number {
         }
     }
 
-    TEST (Hexidecimal, HexidecimalComparisons) {
+    TEST (Hexidecimal, Comparisons) {
         std::vector<string> values {
             "0x", "0x00", "0x0000", "0x80", "0x8000", "0x01", "0x0001", 
             "0xff", "0xffff", "0x0080", "0x81", "0x8001", "0x00ff", 
@@ -820,9 +816,9 @@ namespace data::math::number {
         std::vector<std::vector<int>> o1 {{4}, {11}, {3}, {10}, {7, 8}, {0, 1, 2}, {5, 6}, {9}, {12}, {13}, {14}};
         std::vector<std::vector<int>> o2 {{8}, {7}, {10, 11}, {0, 1, 2, 3, 4}, {5, 6}, {9}, {12}, {13}, {14}};
         
-        test_comparison<neg::nones> (values, o0);
-        test_comparison<neg::twos> (values, o1);
-        test_comparison<neg::BC> (values, o2);
+        test_comparison<negativity::nones> (values, o0);
+        test_comparison<negativity::twos> (values, o1);
+        test_comparison<negativity::BC> (values, o2);
         
     }
 
@@ -830,27 +826,27 @@ namespace data::math::number {
     // number Bitcoin format.
     void test_neg_twos_to_BC (string twos, string bc) {
 
-        auto t = hex<neg::twos> {twos};
-        auto b = hex<neg::BC> {bc};
+        auto t = hex<negativity::twos> {twos};
+        auto b = hex<negativity::BC> {bc};
 
         // BC converted to twos should be equal (but not identical);
-        EXPECT_EQ (b, t) << "expected " << b << " to equal " << t << " ; converted to twos: " << hex<neg::twos> (t);
+        EXPECT_EQ (b, t) << "expected " << b << " to equal " << t << " ; converted to twos: " << hex<negativity::twos> (t);
 
-        auto tb = static_cast <std::string> (hex<neg::BC> (t));
+        auto tb = static_cast <std::string> (convert<hex<negativity::BC>> (t));
         auto bb = static_cast <std::string> (b);
         EXPECT_EQ (tb, bb) << "expected " << tb << " to equal " << bb;
 
-        auto tbb = bytes_type<endian::big, neg::twos>::read (t);
-        auto bbb = bytes_type<endian::big, neg::BC>::read (b);
+        auto tbb = Z_bytes<endian::big, negativity::twos>::read (t);
+        auto bbb = Z_bytes<endian::big, negativity::BC>::read (b);
 
         EXPECT_EQ (tbb, bbb) << "expected " << std::hex << tbb << " to equal " << bbb;
-        EXPECT_EQ (static_cast<bytes> (bytes_type<endian::big, neg::BC> (bbb)), static_cast<bytes> (bbb));
+        EXPECT_EQ (static_cast<bytes> (Z_bytes<endian::big, negativity::BC> (bbb)), static_cast<bytes> (bbb));
 
-        auto tbl = bytes_type<endian::little, neg::twos>::read (t);
-        auto bbl = bytes_type<endian::little, neg::BC>::read (b);
+        auto tbl = Z_bytes<endian::little, negativity::twos>::read (t);
+        auto bbl = Z_bytes<endian::little, negativity::BC>::read (b);
 
         EXPECT_EQ (tbl, bbl) << "expected " << std::hex << tbl << " to equal " << bbl;
-        EXPECT_EQ (static_cast<bytes> (bytes_type<endian::little, neg::BC> (tbl)), static_cast<bytes> (bbl));
+        EXPECT_EQ (static_cast<bytes> (Z_bytes<endian::little, negativity::BC> (tbl)), static_cast<bytes> (bbl));
 
     }
 
@@ -858,29 +854,29 @@ namespace data::math::number {
     // number in neg twos.
     void test_neg_BC_to_twos (string bc, string twos) {
 
-        auto b = hex<neg::BC> {bc};
-        auto t = hex<neg::twos> {twos};
+        auto b = hex<negativity::BC> {bc};
+        auto t = hex<negativity::twos> {twos};
 
         EXPECT_EQ (b, t) << "expected " << b << " to equal " << t;
 
-        auto bt = static_cast <std::string> (hex<neg::twos> (b));
+        auto bt = static_cast <std::string> (convert<hex<negativity::twos>> (b));
         auto tt = static_cast <std::string> (t);
         EXPECT_EQ (bt, tt) << "expected " << bt << " === " << tt;
 
-        auto bbb = bytes_type<endian::big, neg::BC>::read (b);
-        auto tbb = bytes_type<endian::big, neg::twos>::read (t);
+        auto bbb = Z_bytes<endian::big, negativity::BC>::read (b);
+        auto tbb = Z_bytes<endian::big, negativity::twos>::read (t);
 
         EXPECT_EQ (bbb, tbb) << "expected " << std::hex << bbb << " to equal " << tbb;
 
-        auto otbb = static_cast<bytes> (bytes_type<endian::big, neg::twos> (bbb));
+        auto otbb = static_cast<bytes> (Z_bytes<endian::big, negativity::twos> (bbb));
         auto ttbb = static_cast<bytes> (tbb);
         EXPECT_EQ (otbb, ttbb) << "expected " << otbb << " === " << ttbb;
 
-        auto tbl = bytes_type<endian::little, neg::BC>::read (b);
-        auto obl = bytes_type<endian::little, neg::twos>::read (t);
+        auto tbl = Z_bytes<endian::little, negativity::BC>::read (b);
+        auto obl = Z_bytes<endian::little, negativity::twos>::read (t);
 
         EXPECT_EQ (tbl, obl) << "expected " << std::hex << tbl << " to equal " << obl;
-        auto otbl = static_cast<bytes> (bytes_type<endian::little, neg::twos> (tbl));
+        auto otbl = static_cast<bytes> (Z_bytes<endian::little, negativity::twos> (tbl));
         auto ttbl = static_cast<bytes> (obl);
         EXPECT_EQ (otbl, ttbl) << "expected " << otbl << " === " << ttbl;
     }
@@ -934,9 +930,9 @@ namespace data::math::number {
 
     }
     
-    template <neg... > struct test_bit_shift;
+    template <negativity... > struct test_bit_shift;
     
-    template <neg n, neg ... p> struct test_bit_shift<n, p...> : test_bit_shift<n>, test_bit_shift<p...> {
+    template <negativity n, negativity ... p> struct test_bit_shift<n, p...> : test_bit_shift<n>, test_bit_shift<p...> {
         test_bit_shift (
             string given, int bits, 
             string expected_left, 
@@ -945,7 +941,7 @@ namespace data::math::number {
         test_bit_shift<p...> (given, bits, expected_left, expected_right) {}
     };
     
-    template <neg n> struct test_bit_shift<n> {
+    template <negativity n> struct test_bit_shift<n> {
         test_bit_shift (string given, byte bits, string expected_left, string expected_right) {
 
             auto l = hex<n> {expected_left};
@@ -957,17 +953,17 @@ namespace data::math::number {
             EXPECT_EQ (x >> bits, g) << "expected " << x << " >> " << uint64 (bits) << " => " << g;
             EXPECT_EQ (g >> bits, r) << "expected " << g << " >> " << uint64 (bits) << " => " << r;
 
-            auto lbl = bytes_type<endian::little, n>::read (l);
-            auto rbl = bytes_type<endian::little, n>::read (r);
-            auto gbl = bytes_type<endian::little, n>::read (g);
+            auto lbl = Z_bytes<endian::little, n>::read (l);
+            auto rbl = Z_bytes<endian::little, n>::read (r);
+            auto gbl = Z_bytes<endian::little, n>::read (g);
             auto xbl = gbl << bits;
             EXPECT_EQ (xbl, lbl);
             EXPECT_EQ (xbl >> bits, gbl);
             EXPECT_EQ (gbl >> bits, rbl) << "expected " << std::hex << gbl << " >> " << uint64 (bits) << " => " << rbl;
             
-            auto lbb = bytes_type<endian::big, n>::read (l);
-            auto rbb = bytes_type<endian::big, n>::read (r);
-            auto gbb = bytes_type<endian::big, n>::read (g);
+            auto lbb = Z_bytes<endian::big, n>::read (l);
+            auto rbb = Z_bytes<endian::big, n>::read (r);
+            auto gbb = Z_bytes<endian::big, n>::read (g);
             auto xbb = gbb << bits;
             EXPECT_EQ (xbb, lbb);
             EXPECT_EQ (xbb >> bits, gbb);
@@ -978,36 +974,36 @@ namespace data::math::number {
 
     TEST (Hexidecimal, HexidecimalBitShift) {
 
-        test_bit_shift<neg::nones, neg::twos> ("0x", 0, "0x", "0x");
-        test_bit_shift<neg::nones, neg::twos> ("0x", 1, "0x", "0x");
-        test_bit_shift<neg::nones, neg::twos> ("0x", 21, "0x", "0x");
-        test_bit_shift<neg::nones, neg::twos> ("0x01", 0, "0x01", "0x01");
-        test_bit_shift<neg::nones, neg::twos> ("0x01", 1, "0x02", "0x");
-        test_bit_shift<neg::nones, neg::twos> ("0x01", 2, "0x04", "0x");
-        test_bit_shift<neg::nones, neg::twos> ("0x01", 5, "0x0020", "0x");
-        test_bit_shift<neg::nones, neg::twos> ("0x01", 17, "0x020000", "0x00");
-        test_bit_shift<neg::nones, neg::twos> ("0x0300", 1, "0x0600", "0x0180");
-        test_bit_shift<neg::nones, neg::twos> ("0x0300", 2, "0x0c00", "0x00c0");
-        test_bit_shift<neg::nones, neg::twos> ("0x0300", 8, "0x030000", "0x03");
-        test_bit_shift<neg::nones, neg::twos> ("0x0300", 9, "0x060000", "0x01");
-        test_bit_shift<neg::nones, neg::twos> ("0x0300", 16, "0x03000000", "0x");
-        test_bit_shift<neg::nones, neg::twos> ("0x0300", 17, "0x06000000", "0x");
-        test_bit_shift<neg::nones, neg::twos> ("0x0300", 18, "0x0c000000", "0x");
-        test_bit_shift<neg::nones> ("0xff", 1, "0x01fe", "0x7f");
-        test_bit_shift<neg::twos> ("0xff", 1, "0xfe", "0xff");
+        test_bit_shift<negativity::nones, negativity::twos> ("0x", 0, "0x", "0x");
+        test_bit_shift<negativity::nones, negativity::twos> ("0x", 1, "0x", "0x");
+        test_bit_shift<negativity::nones, negativity::twos> ("0x", 21, "0x", "0x");
+        test_bit_shift<negativity::nones, negativity::twos> ("0x01", 0, "0x01", "0x01");
+        test_bit_shift<negativity::nones, negativity::twos> ("0x01", 1, "0x02", "0x");
+        test_bit_shift<negativity::nones, negativity::twos> ("0x01", 2, "0x04", "0x");
+        test_bit_shift<negativity::nones, negativity::twos> ("0x01", 5, "0x0020", "0x");
+        test_bit_shift<negativity::nones, negativity::twos> ("0x01", 17, "0x020000", "0x00");
+        test_bit_shift<negativity::nones, negativity::twos> ("0x0300", 1, "0x0600", "0x0180");
+        test_bit_shift<negativity::nones, negativity::twos> ("0x0300", 2, "0x0c00", "0x00c0");
+        test_bit_shift<negativity::nones, negativity::twos> ("0x0300", 8, "0x030000", "0x03");
+        test_bit_shift<negativity::nones, negativity::twos> ("0x0300", 9, "0x060000", "0x01");
+        test_bit_shift<negativity::nones, negativity::twos> ("0x0300", 16, "0x03000000", "0x");
+        test_bit_shift<negativity::nones, negativity::twos> ("0x0300", 17, "0x06000000", "0x");
+        test_bit_shift<negativity::nones, negativity::twos> ("0x0300", 18, "0x0c000000", "0x");
+        test_bit_shift<negativity::nones> ("0xff", 1, "0x01fe", "0x7f");
+        test_bit_shift<negativity::twos> ("0xff", 1, "0xfe", "0xff");
 
     }
     
-    template <neg... > struct test_plus;
+    template <negativity... > struct test_plus;
 
-    template <neg n> struct test_plus_bytes;
+    template <negativity n> struct test_plus_bytes;
     
-    template <neg n, neg ... p> struct test_plus<n, p...> : test_plus<n>, test_plus<p...> {
+    template <negativity n, negativity ... p> struct test_plus<n, p...> : test_plus<n>, test_plus<p...> {
         test_plus (string left, string right, string expected) :
         test_plus<n> (left, right, expected), test_plus<p...> (left, right, expected) {}
     };
     
-    template <neg n> struct test_plus<n> {
+    template <negativity n> struct test_plus<n> {
         test_plus (string left, string right, string expected) {
             auto l = hex<n>::read (left);
             auto r = hex<n>::read (right);
@@ -1020,19 +1016,19 @@ namespace data::math::number {
         }
     };
 
-    template <neg n> struct test_plus_bytes {
+    template <negativity n> struct test_plus_bytes {
         test_plus_bytes (string left, string right, string expected) {
 
-            auto lbl = bytes_type<endian::little, n>::read (left);
-            auto rbl = bytes_type<endian::little, n>::read (right);
-            auto ebl = bytes_type<endian::little, n>::read (expected);
+            auto lbl = Z_bytes<endian::little, n>::read (left);
+            auto rbl = Z_bytes<endian::little, n>::read (right);
+            auto ebl = Z_bytes<endian::little, n>::read (expected);
             auto zbl = lbl + rbl;
             EXPECT_EQ (zbl, ebl) << "expected " << n << " " << std::hex << lbl << " + " << rbl << " = " << ebl
                 << " but got " << zbl << std::endl;
 
-            auto lbb = bytes_type<endian::big, n>::read (left);
-            auto rbb = bytes_type<endian::big, n>::read (right);
-            auto ebb = bytes_type<endian::big, n>::read (expected);
+            auto lbb = Z_bytes<endian::big, n>::read (left);
+            auto rbb = Z_bytes<endian::big, n>::read (right);
+            auto ebb = Z_bytes<endian::big, n>::read (expected);
             auto zbb = lbb + rbb;
             EXPECT_EQ (zbb, ebb) << "expected " << n << " " << std::hex << lbb << " + " << rbb << " = " << ebb
                 << " but got " << zbb << std::endl;
@@ -1041,43 +1037,43 @@ namespace data::math::number {
     };
 
     TEST (Hexidecimal, Plus) {
-        test_plus<neg::nones, neg::twos, neg::BC> ("0x", "0x", "0x");
+        test_plus<negativity::nones, negativity::twos, negativity::BC> ("0x", "0x", "0x");
         
-        test_plus<neg::nones, neg::twos, neg::BC> ("0", "0", "0");
-        test_plus<neg::nones, neg::twos, neg::BC> ("0", "1", "1");
-        test_plus<neg::nones, neg::twos, neg::BC> ("1", "1", "2");
-        test_plus<neg::nones, neg::twos, neg::BC>
+        test_plus<negativity::nones, negativity::twos, negativity::BC> ("0", "0", "0");
+        test_plus<negativity::nones, negativity::twos, negativity::BC> ("0", "1", "1");
+        test_plus<negativity::nones, negativity::twos, negativity::BC> ("1", "1", "2");
+        test_plus<negativity::nones, negativity::twos, negativity::BC>
             ("231938875480", "397027301409876", "397259240285356");
-        test_plus<neg::nones, neg::twos, neg::BC>
+        test_plus<negativity::nones, negativity::twos, negativity::BC>
             ("23173210900987658780938875480", "39702733535456767789001409876", "62875944436444426569940285356");
         
-        test_plus<neg::twos, neg::BC> ("-1", "0", "-1");
-        test_plus<neg::twos, neg::BC> ("-1", "-1", "-2");
-        test_plus<neg::twos, neg::BC> ("-1", "1", "0");
-        test_plus<neg::twos, neg::BC> ("1", "-1", "0");
-        test_plus<neg::twos, neg::BC> ("-2", "1", "-1");
-        test_plus<neg::twos, neg::BC> ("2", "-1", "1");
-        test_plus<neg::twos, neg::BC>
+        test_plus<negativity::twos, negativity::BC> ("-1", "0", "-1");
+        test_plus<negativity::twos, negativity::BC> ("-1", "-1", "-2");
+        test_plus<negativity::twos, negativity::BC> ("-1", "1", "0");
+        test_plus<negativity::twos, negativity::BC> ("1", "-1", "0");
+        test_plus<negativity::twos, negativity::BC> ("-2", "1", "-1");
+        test_plus<negativity::twos, negativity::BC> ("2", "-1", "1");
+        test_plus<negativity::twos, negativity::BC>
             ("-23173210900987658780938875480", "23173210900987658780938875480", "0");
-        test_plus<neg::twos, neg::BC>
+        test_plus<negativity::twos, negativity::BC>
             ("23173210900987658780938875480", "-23173210900987658780938875480", "0");
 
-        test_plus<neg::BC> {"0x", "0x01", "0x01"};
-        test_plus<neg::BC> {"0x8000", "0x01", "0x01"};
-        test_plus<neg::BC> {"0x", "0x81", "0x81"};
+        test_plus<negativity::BC> {"0x", "0x01", "0x01"};
+        test_plus<negativity::BC> {"0x8000", "0x01", "0x01"};
+        test_plus<negativity::BC> {"0x", "0x81", "0x81"};
 
     }
     
-    template <neg... > struct test_minus;
+    template <negativity... > struct test_minus;
     
-    template <neg n, neg ... p> struct test_minus<n, p...> : test_minus<n>, test_minus<p...> {
+    template <negativity n, negativity ... p> struct test_minus<n, p...> : test_minus<n>, test_minus<p...> {
         test_minus (string left, string right, string expected) :
         test_minus<n> (left, right, expected), test_minus<p...> (left, right, expected) {}
     };
 
-    template <neg n> struct test_minus_bytes;
+    template <negativity n> struct test_minus_bytes;
     
-    template <neg n> struct test_minus<n> {
+    template <negativity n> struct test_minus<n> {
         test_minus (string left, string right, string expected) {
             auto l = hex<n>::read (left);
             auto r = hex<n>::read (right);
@@ -1089,71 +1085,71 @@ namespace data::math::number {
         }
     };
 
-    template <neg n> struct test_minus_bytes {
+    template <negativity n> struct test_minus_bytes {
         test_minus_bytes (string left, string right, string expected) {
 
-            auto lbl = bytes_type<endian::little, n>::read (left);
-            auto rbl = bytes_type<endian::little, n>::read (right);
-            auto ebl = bytes_type<endian::little, n>::read (expected);
+            auto lbl = Z_bytes<endian::little, n>::read (left);
+            auto rbl = Z_bytes<endian::little, n>::read (right);
+            auto ebl = Z_bytes<endian::little, n>::read (expected);
             auto xbl = lbl - rbl;
             EXPECT_EQ (xbl, ebl)
                 << "expected " << n << " " << std::hex << lbl << " - " << rbl << " -> " << ebl << " but got " << xbl << std::endl;
 
-            auto lbb = bytes_type<endian::big, n>::read (left);
-            auto rbb = bytes_type<endian::big, n>::read (right);
-            auto ebb = bytes_type<endian::big, n>::read (expected);
+            auto lbb = Z_bytes<endian::big, n>::read (left);
+            auto rbb = Z_bytes<endian::big, n>::read (right);
+            auto ebb = Z_bytes<endian::big, n>::read (expected);
             auto xbb = lbb - rbb;
             EXPECT_EQ (xbb, ebb)
                 << "expected " << n << " " << std::hex << lbb << " - " << rbb << " -> " << ebb << " but got " << xbb << std::endl;}
     };
 
     // TODO remember to remove this when we do two's neg. '
-    template <> struct test_minus_bytes<neg::BC> {
+    template <> struct test_minus_bytes<negativity::BC> {
         test_minus_bytes (string left, string right, string expected) {}
     };
 
     TEST (Hexidecimal, HexidecimalMinus) {
 
-        test_minus<neg::nones, neg::twos, neg::BC> ("0x", "0x", "0x");
+        test_minus<negativity::nones, negativity::twos, negativity::BC> ("0x", "0x", "0x");
 
-        test_minus<neg::nones, neg::twos, neg::BC> ("0x008000", "0x00ff", "0x7f01");
-        test_minus<neg::nones, neg::twos, neg::BC> ("0x008000", "0x00000000ff", "0x7f01");
+        test_minus<negativity::nones, negativity::twos, negativity::BC> ("0x008000", "0x00ff", "0x7f01");
+        test_minus<negativity::nones, negativity::twos, negativity::BC> ("0x008000", "0x00000000ff", "0x7f01");
         
-        test_minus<neg::nones, neg::twos, neg::BC> ("0", "0", "0");
+        test_minus<negativity::nones, negativity::twos, negativity::BC> ("0", "0", "0");
 
-        test_minus<neg::nones, neg::twos, neg::BC> ("1", "0", "1");
-        test_minus<neg::nones, neg::twos, neg::BC> ("1", "1", "0");
+        test_minus<negativity::nones, negativity::twos, negativity::BC> ("1", "0", "1");
+        test_minus<negativity::nones, negativity::twos, negativity::BC> ("1", "1", "0");
 
-        test_minus<neg::nones, neg::twos, neg::BC> ("37", "12", "25");
-        test_minus<neg::nones, neg::twos, neg::BC>
+        test_minus<negativity::nones, negativity::twos, negativity::BC> ("37", "12", "25");
+        test_minus<negativity::nones, negativity::twos, negativity::BC>
             ("4502938948920982780930898389", "4502938948920982780930898389", "0");
 
-        test_minus<neg::twos, neg::BC> ("12", "37", "-25");
-        test_minus<neg::nones> ("12", "37", "0");
+        test_minus<negativity::twos, negativity::BC> ("12", "37", "-25");
+        test_minus<negativity::nones> ("12", "37", "0");
 
-        test_minus<neg::nones> ("4502938948920982780930898389", "4502938948920982780930898390", "0");
-        test_minus<neg::twos, neg::BC>
+        test_minus<negativity::nones> ("4502938948920982780930898389", "4502938948920982780930898390", "0");
+        test_minus<negativity::twos, negativity::BC>
             ("4502938948920982780930898389", "4502938948920982780930898390", "-1");
-        test_minus<neg::twos, neg::BC> ("1", "-1", "2");
+        test_minus<negativity::twos, negativity::BC> ("1", "-1", "2");
 
-        test_minus<neg::twos> {"0x00ff", "0xff", "0x0100"};
-        test_minus<neg::twos> {"0xff", "0x00ff", "0xff00"};
+        test_minus<negativity::twos> {"0x00ff", "0xff", "0x0100"};
+        test_minus<negativity::twos> {"0xff", "0x00ff", "0xff00"};
 
-        test_minus<neg::nones, neg::twos> {"0x80", "0x", "0x80"};
-        test_minus<neg::BC> {"0x80", "0x", "0x"};
+        test_minus<negativity::nones, negativity::twos> {"0x80", "0x", "0x80"};
+        test_minus<negativity::BC> {"0x80", "0x", "0x"};
 
-        test_minus<neg::BC> {"0x", "0x01", "0x81"};
-        test_minus<neg::BC> {"0x8000", "0x01", "0x81"};
+        test_minus<negativity::BC> {"0x", "0x01", "0x81"};
+        test_minus<negativity::BC> {"0x8000", "0x01", "0x81"};
     }
     
-    template <neg... > struct test_times;
+    template <negativity... > struct test_times;
     
-    template <neg n, neg ... p> struct test_times<n, p...> : test_times<n>, test_times<p...> {
+    template <negativity n, negativity... p> struct test_times<n, p...> : test_times<n>, test_times<p...> {
         test_times (string left, string right, string expected) :
         test_times<n> (left, right, expected), test_times<p...> (left, right, expected) {}
     };
     
-    template <neg n> struct test_times<n> {
+    template <negativity n> struct test_times<n> {
         test_times (string left, string right, string expected) {
             auto l = hex<n>::read (left);
             auto r = hex<n>::read (right);
@@ -1162,52 +1158,52 @@ namespace data::math::number {
             EXPECT_EQ (z, e) << "expected " << std::hex << l << " * " << r << " = " << e
                 << " but got " << z << std::endl;
             
-            auto lbl = bytes_type<endian::little, n>::read (left);
-            auto rbl = bytes_type<endian::little, n>::read (right);
-            auto ebl = bytes_type<endian::little, n>::read (expected);
+            auto lbl = Z_bytes<endian::little, n>::read (left);
+            auto rbl = Z_bytes<endian::little, n>::read (right);
+            auto ebl = Z_bytes<endian::little, n>::read (expected);
             EXPECT_EQ (lbl * rbl, ebl);
             
-            auto lbb = bytes_type<endian::big, n>::read (left);
-            auto rbb = bytes_type<endian::big, n>::read (right);
-            auto ebb = bytes_type<endian::big, n>::read (expected);
+            auto lbb = Z_bytes<endian::big, n>::read (left);
+            auto rbb = Z_bytes<endian::big, n>::read (right);
+            auto ebb = Z_bytes<endian::big, n>::read (expected);
             EXPECT_EQ (lbb * rbb, ebb);
         }
     };
 
-    template <> struct test_times<neg::BC> {
+    template <> struct test_times<negativity::BC> {
         test_times (string left, string right, string expected) {}
     };
 
     TEST (Hexidecimal, HexidecimalTimes) {
         
-        test_times<neg::nones, neg::twos, neg::BC> ("0", "0", "0");
-        test_times<neg::nones, neg::twos, neg::BC> ("0", "1", "0");
-        test_times<neg::nones, neg::twos, neg::BC> ("1", "1", "1");
-        test_times<neg::nones, neg::twos, neg::BC> ("1", "2", "2");
-        test_times<neg::nones, neg::twos, neg::BC> ("2", "1", "2");
-        test_times<neg::nones, neg::twos, neg::BC> ("2", "2", "4");
-        test_times<neg::nones, neg::twos, neg::BC> ("2", "5", "10");
-        test_times<neg::nones, neg::twos, neg::BC> ("5", "7", "35");
-        test_times<neg::nones, neg::twos, neg::BC> ("17", "19", "323");
-        test_times<neg::nones, neg::twos, neg::BC>
+        test_times<negativity::nones, negativity::twos, negativity::BC> ("0", "0", "0");
+        test_times<negativity::nones, negativity::twos, negativity::BC> ("0", "1", "0");
+        test_times<negativity::nones, negativity::twos, negativity::BC> ("1", "1", "1");
+        test_times<negativity::nones, negativity::twos, negativity::BC> ("1", "2", "2");
+        test_times<negativity::nones, negativity::twos, negativity::BC> ("2", "1", "2");
+        test_times<negativity::nones, negativity::twos, negativity::BC> ("2", "2", "4");
+        test_times<negativity::nones, negativity::twos, negativity::BC> ("2", "5", "10");
+        test_times<negativity::nones, negativity::twos, negativity::BC> ("5", "7", "35");
+        test_times<negativity::nones, negativity::twos, negativity::BC> ("17", "19", "323");
+        test_times<negativity::nones, negativity::twos, negativity::BC>
             ("23173210900987658780938875480", "39702733535456767789001409876",
             "920039817562855061210426612476533348173557348698006240480");
         
-        test_times<neg::twos, neg::BC> ("-1", "0", "0");
-        test_times<neg::twos, neg::BC> ("0", "-1", "0");
-        test_times<neg::twos, neg::BC> ("-1", "1", "-1");
-        test_times<neg::twos, neg::BC> ("1", "-1", "-1");
+        test_times<negativity::twos, negativity::BC> ("-1", "0", "0");
+        test_times<negativity::twos, negativity::BC> ("0", "-1", "0");
+        test_times<negativity::twos, negativity::BC> ("-1", "1", "-1");
+        test_times<negativity::twos, negativity::BC> ("1", "-1", "-1");
     }
     
-    template <neg... > struct test_divide;
+    template <negativity... > struct test_divide;
     
-    template <neg n, neg ... p> struct test_divide<n, p...> : test_divide<n>, test_divide<p...> {
+    template <negativity n, negativity... p> struct test_divide<n, p...> : test_divide<n>, test_divide<p...> {
         test_divide (string numerator, string denominator, string quotient, string remainder) :
         test_divide<n> (numerator, denominator, quotient, remainder),
         test_divide<p...> (numerator, denominator, quotient, remainder) {}
     };
     
-    template <neg n> struct test_divide<n> {
+    template <negativity n> struct test_divide<n> {
         test_divide (string numerator, string denominator, string quotient, string remainder) {
 
             auto num = hex<n>::read (numerator);
@@ -1223,8 +1219,8 @@ namespace data::math::number {
     };
 
     TEST (Hexidecimal, HexidecimalDivide) {
-        test_divide<neg::nones, neg::twos, neg::BC> ("0", "1", "0", "0");
-        test_divide<neg::nones, neg::twos, neg::BC> ("1", "1", "1", "0");
+        test_divide<negativity::nones, negativity::twos, negativity::BC> ("0", "1", "0", "0");
+        test_divide<negativity::nones, negativity::twos, negativity::BC> ("1", "1", "1", "0");
     }
 
     TEST (Hexidecimal, HexidecimalOnes) {
@@ -1250,7 +1246,7 @@ namespace data {
         static const sizes value = any;
     };
     
-    template <bool x, endian::order r, size_t s>
+    template <bool x, endian r, size_t s>
     struct get_number_size<math::number::bounded<x, r, s, byte>> {
         static const sizes value = sizes (s);
     };
@@ -1259,42 +1255,42 @@ namespace data {
     constexpr sizes number_size = get_number_size<N>::value;
     
     template <typename N> struct get_number_neg {
-        static const neg value = neg::twos;
+        static const negativity value = negativity::twos;
     };
     
-    template <endian::order r>
-    struct get_number_neg<math::number::Z_bytes<r, neg::BC, byte>> {
-        static const neg value = neg::BC;
+    template <endian r>
+    struct get_number_neg<math::number::Z_bytes<r, negativity::BC, byte>> {
+        static const negativity value = negativity::BC;
     };
     
-    template <endian::order r>
-    struct get_number_neg<math::number::N_bytes<r, byte>> {
-        static const neg value = neg::nones;
+    template <endian r>
+    struct get_number_neg<math::N_bytes<r, byte>> {
+        static const negativity value = negativity::nones;
     };
     
     template <>
     struct get_number_neg<N> {
-        static const neg value = neg::nones;
+        static const negativity value = negativity::nones;
     };
     
-    template <endian::order r, size_t s>
-    struct get_number_neg<math::uint<r, s, byte>> {
-        static const neg value = neg::nones;
+    template <endian r, size_t s>
+    struct get_number_neg<math::ubound<r, s, byte>> {
+        static const negativity value = negativity::nones;
     };
     
     template <typename N>
-    constexpr neg number_neg = get_number_neg<N>::value;
+    constexpr negativity number_neg = get_number_neg<N>::value;
     
     template <typename N> struct get_number_signed {
         static const bool value = true;
     };
     
-    template <endian::order r>
-    struct get_number_signed<math::number::N_bytes<r, byte>> {
+    template <endian r>
+    struct get_number_signed<math::N_bytes<r, byte>> {
         static const bool value = false;
     };
     
-    template <bool x, endian::order r, size_t s>
+    template <bool x, endian r, size_t s>
     struct get_number_signed<math::number::bounded<x, r, s, byte>> {
         static const bool value = false;
     };
@@ -1321,7 +1317,7 @@ namespace data {
         return ss.str ();
     }
     
-    template <typename N, neg c = number_neg<N>, sizes size = number_size<N>>
+    template <typename N, negativity c = number_neg<N>, sizes size = number_size<N>>
     struct test_hex_read_zero {
         test_hex_read_zero (list<size_t> xx) {
             for (size_t i : xx) {
@@ -1335,12 +1331,12 @@ namespace data {
         }
     };
     
-    template <typename N, neg c> struct test_hex_read_zero<N, c, any> {
+    template <typename N, negativity c> struct test_hex_read_zero<N, c, any> {
         test_hex_read_zero (list<size_t> xx) {
             list<N> zeros;
             for (size_t i : xx) {
                 
-                N zero = N (hex_zero (i));
+                N zero = N::read (hex_zero (i));
                 EXPECT_EQ (N {}, zero);
                 EXPECT_GE (N {}, zero);
                 EXPECT_LE (N {}, zero);
@@ -1356,7 +1352,7 @@ namespace data {
         }
     };
     
-    template <typename N> struct test_hex_read_zero<N, neg::BC, any> {
+    template <typename N> struct test_hex_read_zero<N, negativity::BC, any> {
         test_hex_read_zero (list<size_t> xx) {
             list<N> zeros;
             for (size_t i : xx) {
@@ -1417,11 +1413,11 @@ namespace data {
     
     // after this point, we don't have to test importing numbers of the wrong sizes. 
     
-    template <typename N, neg c = number_neg<N>, bool u = is_signed<N>> struct test_signed_stuff {
+    template <typename N, negativity c = number_neg<N>, bool u = is_signed<N>> struct test_signed_stuff {
         test_signed_stuff (const N &, const encoding::hexidecimal::integer<c, hex_case::lower> &) {}
     };
     
-    template <typename N, neg zz> struct test_signed_stuff<N, zz, true> {
+    template <typename N, negativity zz> struct test_signed_stuff<N, zz, true> {
         test_signed_stuff (const N &n, const encoding::hexidecimal::integer<zz, hex_case::lower> &h) {
             using H = encoding::hexidecimal::integer<zz, hex_case::lower>;
 
@@ -1458,7 +1454,7 @@ namespace data {
     
     // we should find that the hex strings are the same when read into a number 
     // and written back. 
-    template <typename N, neg zz> void test_hex_read_and_write_bytes (list<string> cases) {
+    template <typename N, negativity zz> void test_hex_read_and_write_bytes (list<string> cases) {
         list<std::pair<N, encoding::hexidecimal::integer<number_neg<N>, hex_case::lower>>> numbers;
         for (const string &x : cases) {
             using H = encoding::hexidecimal::integer<number_neg<N>, hex_case::lower>;
@@ -1513,8 +1509,8 @@ namespace data {
                 auto np = n + p.first;
                 auto hp = h + p.second;
 
-                EXPECT_TRUE (math::number::is_minimal (hp));
-                EXPECT_TRUE (math::number::is_minimal (np));
+                EXPECT_TRUE (math::number::is_minimal (hp)) << "expected " << std::hex << hp << " to be minimal";
+                EXPECT_TRUE (math::number::is_minimal (np)) << "expected " << std::hex << np << " to be minimal";
 
                 EXPECT_EQ (N::read (hp), np);
                 auto hhp = encoding::hexidecimal::integer<number_neg<N>, hex_case::lower>
@@ -1524,8 +1520,8 @@ namespace data {
                 auto nm = n - p.first;
                 auto hm = h - p.second;
 
-                EXPECT_TRUE (math::number::is_minimal (hm));
-                EXPECT_TRUE (math::number::is_minimal (nm));
+                EXPECT_TRUE (math::number::is_minimal (hm)) << "expected " << std::hex << hm << " to be minimal";
+                EXPECT_TRUE (math::number::is_minimal (nm)) << "expected " << std::hex << nm << " to be minimal";
 
                 EXPECT_EQ (N::read (hm), nm);
                 auto hhm = encoding::hexidecimal::integer<number_neg<N>, hex_case::lower>
@@ -1535,8 +1531,8 @@ namespace data {
                 auto nt = n * p.first;
                 auto ht = h * p.second;
             
-                EXPECT_TRUE (math::number::is_minimal (ht));
-                EXPECT_TRUE (math::number::is_minimal (nt));
+                EXPECT_TRUE (math::number::is_minimal (ht)) << "expected " << std::hex << ht << " to be minimal";
+                EXPECT_TRUE (math::number::is_minimal (nt)) << "expected " << std::hex << nt << " to be minimal";
             
                 EXPECT_EQ (N::read (ht), nt);
                 auto hht = encoding::hexidecimal::integer<number_neg<N>, hex_case::lower>
@@ -1553,12 +1549,12 @@ namespace data {
         list<string> cases {
             "0x", "0x00", "0x0000", "0xc0", "0xff", "0x00ff", "0xffff",
             "0x80", "0x8000", "0x0080", "0x01", "0x0001", "0x81", "0x8001"};
-        test_hex_read_and_write_bytes<N_bytes_little, neg::nones> (cases);
-        test_hex_read_and_write_bytes<N_bytes_big, neg::nones> (cases);
-        test_hex_read_and_write_bytes<Z_bytes_little, neg::twos> (cases);
-        test_hex_read_and_write_bytes<Z_bytes_big, neg::twos> (cases);
-        test_hex_read_and_write_bytes<Z_bytes_BC_little, neg::BC> (cases);
-        test_hex_read_and_write_bytes<Z_bytes_BC_big, neg::BC> (cases);
+        test_hex_read_and_write_bytes<N_bytes_little, negativity::nones> (cases);
+        test_hex_read_and_write_bytes<N_bytes_big, negativity::nones> (cases);
+        test_hex_read_and_write_bytes<Z_bytes_little, negativity::twos> (cases);
+        test_hex_read_and_write_bytes<Z_bytes_big, negativity::twos> (cases);
+        test_hex_read_and_write_bytes<Z_bytes_BC_little, negativity::BC> (cases);
+        test_hex_read_and_write_bytes<Z_bytes_BC_big, negativity::BC> (cases);
     }
 
 }

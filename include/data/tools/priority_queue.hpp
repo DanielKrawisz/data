@@ -2,8 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef DATA_TOOLS_PRIORITY_QUEUE
-#define DATA_TOOLS_PRIORITY_QUEUE
+#pragma once
 
 #include <data/functional/tree.hpp>
 #include <data/stack.hpp>
@@ -192,5 +191,3 @@ namespace data::tool {
     }
     
 }
-
-#endif
